@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #  GitHub Pages — Live Preview
 #
-#  Deploys the React landing page to:
+#  Builds the React app with Vite and deploys to:
 #  https://felipeassislara170.github.io/alma.app.oficial/
 #
 #  One-time setup (do this once in the GitHub UI):
@@ -10,19 +10,12 @@
 #  After that, every push to main automatically updates the live preview.
 # ─────────────────────────────────────────────────────────────────────────────
 
-name: GitHub Pages Preview
+name: Deploy static content to Pages
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'index.html'
-      - 'vite.config.ts'
-      - 'package.json'
-      - '.github/workflows/pages.yml'
-  workflow_dispatch:   # allow manual trigger from the Actions tab
+    branches: ["main"]
+  workflow_dispatch:
 
 # Allow the workflow to deploy to GitHub Pages
 permissions:
@@ -30,9 +23,9 @@ permissions:
   pages: write
   id-token: write
 
-# Only one deployment at a time; skip queued runs but don't cancel in-progress
+# Only one deployment at a time; don't cancel in-progress deployments
 concurrency:
-  group: pages
+  group: "pages"
   cancel-in-progress: false
 
 jobs:
@@ -49,7 +42,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      # configure-pages tells us the correct base path (/alma.app.oficial/)
+      # configure-pages provides the correct sub-path for the repo
       - name: Setup Pages
         uses: actions/configure-pages@v5
         id: pages
@@ -60,11 +53,13 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          # e.g. /alma.app.oficial — Vite uses this as the asset base path
           VITE_BASE_URL: ${{ steps.pages.outputs.base_path }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # Upload the compiled output, not the raw source
           path: dist
 
   deploy:

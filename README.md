@@ -5,7 +5,7 @@ Aplicativo de bem-estar mental com meditações guiadas, exercícios de respira�
 [![Live Preview](https://img.shields.io/badge/👁%20Ver%20ao%20Vivo-GitHub%20Pages-6B46C1?style=for-the-badge)](https://felipeassislara170.github.io/alma.app.oficial/)
 [![iOS Build](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/ios.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/ios.yml)
 [![Android Build](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/android.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/android.yml)
-[![Pages Deploy](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/pages.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/pages.yml)
+[![Pages Deploy](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/static.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/static.yml)
 
 ## 👁 Ver o app ao vivo
 
