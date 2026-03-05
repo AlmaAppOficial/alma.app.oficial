@@ -53,7 +53,7 @@ jobs:
 
       # ── Install signing certificate + provisioning profile ───────────────
       - name: Install signing certificate
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != ''
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           BUILD_CERTIFICATE_PASSWORD: ${{ secrets.BUILD_CERTIFICATE_PASSWORD }}
@@ -96,7 +96,7 @@ jobs:
             build
 
       - name: Archive for App Store
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != ''
         run: |
           xcodebuild \
             -project ios/Alma.xcodeproj \
@@ -107,7 +107,7 @@ jobs:
             archive
 
       - name: Export IPA
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != ''
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist << 'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -131,7 +131,7 @@ jobs:
 
       # ── Upload IPA as artifact ──────────────────────────────────────────
       - name: Upload IPA artifact
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != ''
         uses: actions/upload-artifact@v4
         with:
           name: Alma-${{ github.sha }}.ipa
@@ -140,7 +140,7 @@ jobs:
 
       # ── Upload to TestFlight ─────────────────────────────────────────────
       - name: Upload to TestFlight
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.BUILD_CERTIFICATE_BASE64 != ''
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -155,5 +155,5 @@ jobs:
 
       # ── Clean up keychain ────────────────────────────────────────────────
       - name: Clean up keychain
-        if: always() && github.event_name != 'pull_request'
+        if: always() && github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != ''
         run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db 2>/dev/null || true
