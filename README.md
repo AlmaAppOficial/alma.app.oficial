@@ -2,9 +2,26 @@
 
 Aplicativo de bem-estar mental com meditações guiadas, exercícios de respiração, rastreio de humor e muito mais.
 
+[![iOS Build](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/ios.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/ios.yml)
+[![Android Build](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/android.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/android.yml)
+
+> 🚀 **Pronto para publicar?** Leia o **[DEPLOY.md](./DEPLOY.md)** — guia completo para App Store e Google Play, mesmo com MacBook antigo.
+
+| Plataforma | Bundle ID | Status |
+|------------|-----------|--------|
+| iOS (SwiftUI) | `AlmaOficial.Alma` | Pronto para App Store |
+| Android (Capacitor) | `AlmaOficial.Alma` | Pronto para Google Play |
+
 ---
 
 ## 📱 iOS (SwiftUI)
+
+### Compilar sem Xcode local (recomendado se seu Mac for antigo)
+
+Push para `main` → GitHub Actions usa **macOS 14 + Xcode 15** (grátis) → upload automático para TestFlight.  
+Veja o workflow em [`.github/workflows/ios.yml`](.github/workflows/ios.yml).
+
+### Abrir localmente (requer macOS 13+ e Xcode 15+)
 
 ### Pré-requisitos
 - macOS 13+ com **Xcode 15+** instalado
@@ -71,6 +88,25 @@ ios/
 
 ---
 
+## 🤖 Android (Capacitor)
+
+O app Android é gerado envolvendo o **React web app** com [Capacitor](https://capacitorjs.com/) — sem precisar reescrever nada.
+
+### Build local (requer Node 20+, Java 17, Android Studio)
+
+```bash
+npm install
+npm run build:android   # compila React → sincroniza com Capacitor Android
+npx cap open android    # abre Android Studio
+```
+
+### Build via GitHub Actions (recomendado)
+
+Push para `main` → GitHub Actions usa Ubuntu + Java 17 + Gradle → gera AAB assinado → sobe para Play Console (Internal Track).  
+Veja o workflow em [`.github/workflows/android.yml`](.github/workflows/android.yml).
+
+---
+
 ## 🌐 Web (React + TypeScript)
 
 Landing page do Alma, também incluída neste repositório.
@@ -94,6 +130,7 @@ Conecte o repositório e o deploy será feito automaticamente a partir da raiz.
 | Plataforma | Stack |
 |------------|-------|
 | iOS        | Swift 5.9 · SwiftUI · Xcode 15 · iOS 17 |
+| Android    | Capacitor 7 · React 19 · Gradle · Java 17 |
 | Web        | React 19 · TypeScript · Vite 7 |
 
 ---
