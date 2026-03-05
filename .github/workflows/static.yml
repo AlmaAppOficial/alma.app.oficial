@@ -47,7 +47,7 @@ jobs:
 
       - name: Build static site
         env:
-          VITE_BASE_URL: /alma.app.oficial/
+          VITE_BASE_URL: ${{ vars.VITE_BASE_URL || '/alma.app.oficial/' }}
         run: npm run build
 
       - name: Setup Pages

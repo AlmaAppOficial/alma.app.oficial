@@ -27,7 +27,7 @@
 2) **Conectar CI/CD**
 
 - Web: GitHub → Settings → **Pages → Source: GitHub Actions**. O workflow `Deploy static content to Pages` já compila o Vite com `VITE_BASE_URL=/alma.app.oficial/` e publica o **dist/** automaticamente.
-- Fez fork? Troque o valor do `VITE_BASE_URL` para `/<seu-repo>/` em `.github/workflows/static.yml` para que os assets carreguem na sua URL do Pages.
+- Fez fork? Crie uma variável de repositório `VITE_BASE_URL` com `/<seu-repo>/` (Settings → Secrets and variables → Actions → Variables) ou ajuste o fallback no `.github/workflows/static.yml`.
 - iOS: cadastre os secrets `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `BUILD_CERTIFICATE_BASE64`, `BUILD_CERTIFICATE_PASSWORD`, `PROVISION_PROFILE_BASE64`, `KEYCHAIN_PASSWORD` (tabela completa abaixo).
 - Android: cadastre `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `ANDROID_STORE_PASSWORD`, `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`.
 - Acesse **Actions** e rode manualmente cada workflow (`iOS Build`, `Android Build`, `Deploy static content to Pages`) para validar credenciais e conexões.
