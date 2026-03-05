@@ -1,0 +1,544 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA0000000000000000000060 /* AlmaApp.swift in Sources */               = {isa = PBXBuildFile; fileRef = AA0000000000000000000040 /* AlmaApp.swift */; };
+		AA0000000000000000000061 /* ContentView.swift in Sources */           = {isa = PBXBuildFile; fileRef = AA0000000000000000000041 /* ContentView.swift */; };
+		AA0000000000000000000062 /* OnboardingView.swift in Sources */        = {isa = PBXBuildFile; fileRef = AA0000000000000000000042 /* OnboardingView.swift */; };
+		AA0000000000000000000063 /* HomeView.swift in Sources */              = {isa = PBXBuildFile; fileRef = AA0000000000000000000043 /* HomeView.swift */; };
+		AA0000000000000000000064 /* MeditationListView.swift in Sources */    = {isa = PBXBuildFile; fileRef = AA0000000000000000000044 /* MeditationListView.swift */; };
+		AA0000000000000000000065 /* MeditationPlayerView.swift in Sources */  = {isa = PBXBuildFile; fileRef = AA0000000000000000000045 /* MeditationPlayerView.swift */; };
+		AA0000000000000000000066 /* BreatheView.swift in Sources */           = {isa = PBXBuildFile; fileRef = AA0000000000000000000046 /* BreatheView.swift */; };
+		AA0000000000000000000067 /* MoodTrackerView.swift in Sources */       = {isa = PBXBuildFile; fileRef = AA0000000000000000000047 /* MoodTrackerView.swift */; };
+		AA0000000000000000000068 /* ProfileView.swift in Sources */           = {isa = PBXBuildFile; fileRef = AA0000000000000000000048 /* ProfileView.swift */; };
+		AA0000000000000000000069 /* Meditation.swift in Sources */            = {isa = PBXBuildFile; fileRef = AA0000000000000000000049 /* Meditation.swift */; };
+		AA000000000000000000006A /* MoodEntry.swift in Sources */             = {isa = PBXBuildFile; fileRef = AA000000000000000000004A /* MoodEntry.swift */; };
+		AA000000000000000000006B /* UserProfile.swift in Sources */           = {isa = PBXBuildFile; fileRef = AA000000000000000000004B /* UserProfile.swift */; };
+		AA000000000000000000006C /* UserViewModel.swift in Sources */         = {isa = PBXBuildFile; fileRef = AA000000000000000000004C /* UserViewModel.swift */; };
+		AA000000000000000000006D /* MeditationViewModel.swift in Sources */   = {isa = PBXBuildFile; fileRef = AA000000000000000000004D /* MeditationViewModel.swift */; };
+		AA000000000000000000006E /* MoodViewModel.swift in Sources */         = {isa = PBXBuildFile; fileRef = AA000000000000000000004E /* MoodViewModel.swift */; };
+		AA000000000000000000007A /* Color+Alma.swift in Sources */            = {isa = PBXBuildFile; fileRef = AA000000000000000000005A /* Color+Alma.swift */; };
+		AA0000000000000000000070 /* Assets.xcassets in Resources */           = {isa = PBXBuildFile; fileRef = AA0000000000000000000050 /* Assets.xcassets */; };
+		AA0000000000000000000071 /* Preview Assets.xcassets in Resources */   = {isa = PBXBuildFile; fileRef = AA0000000000000000000051 /* Preview Assets.xcassets */; settings = {ATTRIBUTES = (Development, ); }; };
+		AA000000000000000000006F /* AlmaTests.swift in Sources */             = {isa = PBXBuildFile; fileRef = AA000000000000000000004F /* AlmaTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA0000000000000000000040 /* AlmaApp.swift */              = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlmaApp.swift; sourceTree = "<group>"; };
+		AA0000000000000000000041 /* ContentView.swift */          = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000042 /* OnboardingView.swift */       = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000043 /* HomeView.swift */             = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000044 /* MeditationListView.swift */   = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeditationListView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000045 /* MeditationPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeditationPlayerView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000046 /* BreatheView.swift */          = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreatheView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000047 /* MoodTrackerView.swift */      = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodTrackerView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000048 /* ProfileView.swift */          = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000049 /* Meditation.swift */           = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meditation.swift; sourceTree = "<group>"; };
+		AA000000000000000000004A /* MoodEntry.swift */            = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEntry.swift; sourceTree = "<group>"; };
+		AA000000000000000000004B /* UserProfile.swift */          = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		AA000000000000000000004C /* UserViewModel.swift */        = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
+		AA000000000000000000004D /* MeditationViewModel.swift */  = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeditationViewModel.swift; sourceTree = "<group>"; };
+		AA000000000000000000004E /* MoodViewModel.swift */        = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodViewModel.swift; sourceTree = "<group>"; };
+		AA000000000000000000005A /* Color+Alma.swift */           = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Alma.swift"; sourceTree = "<group>"; };
+		AA000000000000000000004F /* AlmaTests.swift */            = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlmaTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000050 /* Assets.xcassets */            = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA0000000000000000000051 /* Preview Assets.xcassets */    = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		AA0000000000000000000020 /* Alma.app */                   = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Alma.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000021 /* AlmaTests.xctest */           = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlmaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA0000000000000000000082 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000085 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA0000000000000000000030 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000031 /* Alma */,
+				AA0000000000000000000036 /* AlmaTests */,
+				AA0000000000000000000037 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000037 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000020 /* Alma.app */,
+				AA0000000000000000000021 /* AlmaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000031 /* Alma */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000040 /* AlmaApp.swift */,
+				AA0000000000000000000041 /* ContentView.swift */,
+				AA0000000000000000000032 /* Views */,
+				AA0000000000000000000033 /* Models */,
+				AA0000000000000000000034 /* ViewModels */,
+				AA0000000000000000000038 /* Extensions */,
+				AA0000000000000000000050 /* Assets.xcassets */,
+				AA0000000000000000000035 /* Preview Content */,
+			);
+			path = Alma;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000032 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000042 /* OnboardingView.swift */,
+				AA0000000000000000000043 /* HomeView.swift */,
+				AA0000000000000000000044 /* MeditationListView.swift */,
+				AA0000000000000000000045 /* MeditationPlayerView.swift */,
+				AA0000000000000000000046 /* BreatheView.swift */,
+				AA0000000000000000000047 /* MoodTrackerView.swift */,
+				AA0000000000000000000048 /* ProfileView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000033 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000049 /* Meditation.swift */,
+				AA000000000000000000004A /* MoodEntry.swift */,
+				AA000000000000000000004B /* UserProfile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000034 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000004C /* UserViewModel.swift */,
+				AA000000000000000000004D /* MeditationViewModel.swift */,
+				AA000000000000000000004E /* MoodViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000038 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000005A /* Color+Alma.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000035 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000051 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000036 /* AlmaTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000004F /* AlmaTests.swift */,
+			);
+			path = AlmaTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA0000000000000000000010 /* Alma */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000000000000000000A1 /* Build configuration list for PBXNativeTarget "Alma" */;
+			buildPhases = (
+				AA0000000000000000000080 /* Sources */,
+				AA0000000000000000000081 /* Resources */,
+				AA0000000000000000000082 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Alma;
+			productName = Alma;
+			productReference = AA0000000000000000000020 /* Alma.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AA0000000000000000000011 /* AlmaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000000000000000000A2 /* Build configuration list for PBXNativeTarget "AlmaTests" */;
+			buildPhases = (
+				AA0000000000000000000083 /* Sources */,
+				AA0000000000000000000084 /* Resources */,
+				AA0000000000000000000085 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AlmaTests;
+			productName = AlmaTests;
+			productReference = AA0000000000000000000021 /* AlmaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					AA0000000000000000000010 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					AA0000000000000000000011 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = AA0000000000000000000010;
+					};
+				};
+			};
+			buildConfigurationList = AA00000000000000000000A0 /* Build configuration list for PBXProject "Alma" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = pt_BR;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				pt_BR,
+				Base,
+			);
+			mainGroup = AA0000000000000000000030;
+			productRefGroup = AA0000000000000000000037 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA0000000000000000000010 /* Alma */,
+				AA0000000000000000000011 /* AlmaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA0000000000000000000081 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000070 /* Assets.xcassets in Resources */,
+				AA0000000000000000000071 /* Preview Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000084 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA0000000000000000000080 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000060 /* AlmaApp.swift in Sources */,
+				AA0000000000000000000061 /* ContentView.swift in Sources */,
+				AA0000000000000000000062 /* OnboardingView.swift in Sources */,
+				AA0000000000000000000063 /* HomeView.swift in Sources */,
+				AA0000000000000000000064 /* MeditationListView.swift in Sources */,
+				AA0000000000000000000065 /* MeditationPlayerView.swift in Sources */,
+				AA0000000000000000000066 /* BreatheView.swift in Sources */,
+				AA0000000000000000000067 /* MoodTrackerView.swift in Sources */,
+				AA0000000000000000000068 /* ProfileView.swift in Sources */,
+				AA0000000000000000000069 /* Meditation.swift in Sources */,
+				AA000000000000000000006A /* MoodEntry.swift in Sources */,
+				AA000000000000000000006B /* UserProfile.swift in Sources */,
+				AA000000000000000000006C /* UserViewModel.swift in Sources */,
+				AA000000000000000000006D /* MeditationViewModel.swift in Sources */,
+				AA000000000000000000006E /* MoodViewModel.swift in Sources */,
+				AA000000000000000000007A /* Color+Alma.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000083 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000000000000000000006F /* AlmaTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA0000000000000000000090 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Alma;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Alma App. All rights reserved.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000091 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Alma;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Alma App. All rights reserved.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AA0000000000000000000092 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.AlmaTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Alma.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Alma";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000093 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.AlmaTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Alma.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Alma";
+			};
+			name = Release;
+		};
+		AA0000000000000000000094 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000095 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA00000000000000000000A0 /* Build configuration list for PBXProject "Alma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000094 /* Debug */,
+				AA0000000000000000000095 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000000000000000000A1 /* Build configuration list for PBXNativeTarget "Alma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000090 /* Debug */,
+				AA0000000000000000000091 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000000000000000000A2 /* Build configuration list for PBXNativeTarget "AlmaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000092 /* Debug */,
+				AA0000000000000000000093 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = AA0000000000000000000001 /* Project object */;
+}
