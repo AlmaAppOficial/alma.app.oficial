@@ -26,8 +26,13 @@
 
 2) **Conectar CI/CD**
 
-- Web: GitHub → Settings → **Pages → Source: GitHub Actions**. O workflow `Deploy static content to Pages` compila o Vite com `VITE_BASE_URL` (padrão `/<nome-do-repo>/` ou o valor da variável de repositório, lido em `vite.config.ts`) e publica o **dist/** automaticamente.
-- Fez fork? O workflow já usa `/<nome-do-repo>/` por padrão; se quiser outro caminho (domínio custom, subpasta diferente), crie uma variável de repositório `VITE_BASE_URL` com `/<seu-repo>/` em Settings → Secrets and variables → Actions → Variables. Esse valor é lido no passo **Build static site** do `.github/workflows/static.yml`.
+- Web:
+  - GitHub → Settings → **Pages → Source: GitHub Actions**.
+  - O workflow `Deploy static content to Pages` roda `npm ci`, compila o Vite e publica o **dist/**.
+  - `VITE_BASE_URL` vem de uma variável de repositório (ou usa o padrão `/<nome-do-repo>/`) e é lido em `vite.config.ts` para configurar o `base`.
+- Fez fork? O workflow já usa `/<nome-do-repo>/` por padrão.
+  - Quer outro caminho (domínio custom, subpasta diferente)? Crie uma variável de repositório `VITE_BASE_URL` com `/<seu-repo>/` em **Settings → Secrets and variables → Actions → Variables**.
+  - O passo **Build static site** do `.github/workflows/static.yml` lê essa variável e passa para o `base` do Vite.
 - iOS: cadastre os secrets `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `BUILD_CERTIFICATE_BASE64`, `BUILD_CERTIFICATE_PASSWORD`, `PROVISION_PROFILE_BASE64`, `KEYCHAIN_PASSWORD` (tabela completa abaixo).
 - Android: cadastre `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `ANDROID_STORE_PASSWORD`, `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`.
 - Acesse **Actions** e rode manualmente cada workflow (`iOS Build`, `Android Build`, `Deploy static content to Pages`) para validar credenciais e conexões.
