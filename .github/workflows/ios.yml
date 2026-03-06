@@ -44,7 +44,8 @@ jobs:
       contents: read
     env:
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      HAS_IOS_SIGNING: ${{ secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.PROVISION_PROFILE_BASE64 != '' && secrets.BUILD_CERTIFICATE_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != '' && secrets.APPLE_TEAM_ID != '' }}
+      IOS_SIGNING_CERTS: ${{ secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.PROVISION_PROFILE_BASE64 != '' && secrets.BUILD_CERTIFICATE_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != '' }}
+      APPLE_TEAM_PRESENT: ${{ secrets.APPLE_TEAM_ID != '' }}
       HAS_TESTFLIGHT: ${{ secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' }}
 
     steps:
@@ -57,7 +58,7 @@ jobs:
 
       # ── Install signing certificate + provisioning profile ───────────────
       - name: Install signing certificate
-        if: github.event_name != 'pull_request' && env.HAS_IOS_SIGNING == 'true'
+        if: github.event_name != 'pull_request' && env.IOS_SIGNING_CERTS == 'true' && env.APPLE_TEAM_PRESENT == 'true'
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           BUILD_CERTIFICATE_PASSWORD: ${{ secrets.BUILD_CERTIFICATE_PASSWORD }}
@@ -100,7 +101,7 @@ jobs:
             build
 
       - name: Archive for App Store
-        if: github.event_name != 'pull_request' && env.HAS_IOS_SIGNING == 'true'
+        if: github.event_name != 'pull_request' && env.IOS_SIGNING_CERTS == 'true' && env.APPLE_TEAM_PRESENT == 'true'
         run: |
           xcodebuild \
             -project ios/Alma.xcodeproj \
@@ -112,7 +113,7 @@ jobs:
             archive
 
       - name: Export IPA
-        if: github.event_name != 'pull_request' && env.HAS_IOS_SIGNING == 'true'
+        if: github.event_name != 'pull_request' && env.IOS_SIGNING_CERTS == 'true' && env.APPLE_TEAM_PRESENT == 'true'
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist << 'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -136,7 +137,7 @@ jobs:
 
       # ── Upload IPA as artifact ──────────────────────────────────────────
       - name: Upload IPA artifact
-        if: github.event_name != 'pull_request' && env.HAS_IOS_SIGNING == 'true'
+        if: github.event_name != 'pull_request' && env.IOS_SIGNING_CERTS == 'true' && env.APPLE_TEAM_PRESENT == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Alma-${{ github.sha }}.ipa
@@ -145,13 +146,13 @@ jobs:
 
       # ── Upload to TestFlight ─────────────────────────────────────────────
       - name: Setup Ruby
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_TESTFLIGHT == 'true' && env.HAS_IOS_SIGNING == 'true'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_TESTFLIGHT == 'true' && env.IOS_SIGNING_CERTS == 'true' && env.APPLE_TEAM_PRESENT == 'true'
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
       - name: Upload to TestFlight
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_TESTFLIGHT == 'true' && env.HAS_IOS_SIGNING == 'true'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_TESTFLIGHT == 'true' && env.IOS_SIGNING_CERTS == 'true' && env.APPLE_TEAM_PRESENT == 'true'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
