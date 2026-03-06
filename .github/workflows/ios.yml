@@ -42,6 +42,8 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: read
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
     steps:
       # ── Checkout ────────────────────────────────────────────────────────────
@@ -53,7 +55,7 @@ jobs:
 
       # ── Install signing certificate + provisioning profile ───────────────
       - name: Install signing certificate
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.PROVISION_PROFILE_BASE64 != '' && secrets.BUILD_CERTIFICATE_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != ''
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           BUILD_CERTIFICATE_PASSWORD: ${{ secrets.BUILD_CERTIFICATE_PASSWORD }}
@@ -96,18 +98,19 @@ jobs:
             build
 
       - name: Archive for App Store
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.PROVISION_PROFILE_BASE64 != '' && secrets.BUILD_CERTIFICATE_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != '' && secrets.APPLE_TEAM_ID != ''
         run: |
           xcodebuild \
             -project ios/Alma.xcodeproj \
             -scheme Alma \
             -destination "generic/platform=iOS" \
             -configuration Release \
+            DEVELOPMENT_TEAM=$APPLE_TEAM_ID \
             -archivePath $RUNNER_TEMP/Alma.xcarchive \
             archive
 
       - name: Export IPA
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.PROVISION_PROFILE_BASE64 != '' && secrets.BUILD_CERTIFICATE_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != ''
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist << 'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -131,7 +134,7 @@ jobs:
 
       # ── Upload IPA as artifact ──────────────────────────────────────────
       - name: Upload IPA artifact
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.PROVISION_PROFILE_BASE64 != '' && secrets.BUILD_CERTIFICATE_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != ''
         uses: actions/upload-artifact@v4
         with:
           name: Alma-${{ github.sha }}.ipa
@@ -139,19 +142,24 @@ jobs:
           retention-days: 30
 
       # ── Upload to TestFlight ─────────────────────────────────────────────
+      - name: Setup Ruby
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != ''
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
       - name: Upload to TestFlight
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.PROVISION_PROFILE_BASE64 != '' && secrets.BUILD_CERTIFICATE_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != ''
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
-          xcrun altool \
-            --upload-app \
-            --type ios \
-            --file "$(find $RUNNER_TEMP/ipa -name '*.ipa' | head -1)" \
-            --username "$APPLE_ID" \
-            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-            --verbose
+          IPA_PATH=$(find "$RUNNER_TEMP/ipa" -name '*.ipa' | head -1)
+          bundle exec fastlane run upload_to_testflight \
+            ipa:"$IPA_PATH" \
+            username:"$APPLE_ID" \
+            app_specific_password:"$APPLE_APP_SPECIFIC_PASSWORD" \
+            skip_waiting_for_build_processing:true
 
       # ── Clean up keychain ────────────────────────────────────────────────
       - name: Clean up keychain
