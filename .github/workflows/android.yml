@@ -40,7 +40,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  JAVA_VERSION: '17'
+  JAVA_VERSION: '21'
+  HAS_ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+  HAS_ANDROID_KEY_PROPS: ${{ secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' && secrets.ANDROID_STORE_PASSWORD != '' }}
+  HAS_GOOGLE_PLAY: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON != '' }}
 
 jobs:
   build:
@@ -90,7 +93,7 @@ jobs:
 
       # ── Decode signing keystore ─────────────────────────────────────────────
       - name: Decode keystore
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.HAS_ANDROID_KEYSTORE == 'true' && env.HAS_ANDROID_KEY_PROPS == 'true'
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
@@ -104,7 +107,7 @@ jobs:
 
       # ── Build release AAB (for main) ────────────────────────────────────────
       - name: Build release AAB
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.HAS_ANDROID_KEYSTORE == 'true' && env.HAS_ANDROID_KEY_PROPS == 'true'
         working-directory: android
         env:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -129,7 +132,7 @@ jobs:
 
       # ── Upload AAB artifact ─────────────────────────────────────────────────
       - name: Upload release AAB
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.HAS_ANDROID_KEYSTORE == 'true' && env.HAS_ANDROID_KEY_PROPS == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Alma-${{ github.sha }}.aab
@@ -138,7 +141,7 @@ jobs:
 
       # ── Upload to Google Play (Internal track) ──────────────────────────────
       - name: Upload to Google Play (Internal)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_ANDROID_KEYSTORE == 'true' && env.HAS_ANDROID_KEY_PROPS == 'true' && env.HAS_GOOGLE_PLAY == 'true'
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}

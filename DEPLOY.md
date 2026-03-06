@@ -7,11 +7,44 @@
 
 ## Sumário
 
+0. [Checklist rápido (do zero até publicar)](#-checklist-rápido-do-zero-até-publicar)
 1. [Custos e contas necessárias](#-custos-e-contas-necessárias)
 2. [iOS → App Store](#-ios--app-store)
 3. [Android → Google Play](#-android--google-play)
 4. [Fluxo de trabalho diário](#-fluxo-de-trabalho-diário)
 5. [Dúvidas frequentes](#-dúvidas-frequentes)
+
+---
+
+## 🧭 Checklist rápido (do zero até publicar)
+
+1) **Acessos e permissões**
+
+- Conta **Admin** no App Store Connect e na Google Play Console
+- Repositório GitHub com permissão para criar **Secrets** e habilitar **Pages**
+- Apple Developer Program e Google Play Dev criados (veja custos abaixo)
+
+2) **Conectar CI/CD**
+
+- Web:
+  - GitHub → Settings → **Pages → Source: GitHub Actions**.
+  - O workflow `Deploy static content to Pages` roda `npm ci`, compila o Vite e publica o **dist/**.
+  - `VITE_BASE_URL` vem de uma variável de repositório (ou usa o padrão `/<nome-do-repo>/`) e é lido em `vite.config.ts` para configurar o `base`.
+- Fez fork? O workflow já usa `/<nome-do-repo>/` por padrão.
+  - Quer outro caminho (domínio custom, subpasta diferente)? Crie uma variável de repositório `VITE_BASE_URL` com `/<seu-repo>/` em **Settings → Secrets and variables → Actions → Variables**.
+  - O passo **Build static site** do `.github/workflows/static.yml` lê essa variável e passa para o `base` do Vite.
+- iOS: cadastre os secrets `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `BUILD_CERTIFICATE_BASE64`, `BUILD_CERTIFICATE_PASSWORD`, `PROVISION_PROFILE_BASE64`, `KEYCHAIN_PASSWORD` (tabela completa abaixo).
+- Android: cadastre `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `ANDROID_STORE_PASSWORD`, `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`.
+- Acesse **Actions** e rode manualmente cada workflow (`iOS Build`, `Android Build`, `Deploy static content to Pages`) para validar credenciais e conexões.
+
+3) **Permissões no app**
+
+- iOS/Android: o app não pede permissões sensíveis (sem câmera, sem localização). Tudo funciona offline; use apenas rede para recursos externos opcionais.
+- Políticas de privacidade/termos devem ser publicados nas lojas (veja seção dedicada).
+
+4) **Deploy**
+
+- Push em `main` → iOS/TestFlight + Android/Internal + Web/Pages saem automaticamente. Monitore a aba **Actions** para ver se há erros de credencial ou de build.
 
 ---
 

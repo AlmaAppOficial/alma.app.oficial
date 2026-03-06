@@ -13,6 +13,14 @@ Aplicativo de bem-estar mental com meditações guiadas, exercícios de respira�
 
 > Abra no celular para ver exatamente como vai parecer no app!
 
+### Quer ver agora, em 1 minuto?
+- **Web (mais rápido):** clique no link acima ou rode localmente:  
+  ```bash
+  npm install
+  npm run dev   # http://localhost:5173
+  ```
+- **iOS/Android:** veja as seções abaixo para abrir o projeto no Xcode ou Android Studio, ou use os builds automáticos do GitHub Actions.
+
 **Ativar uma única vez** (Settings → Pages → Source → **GitHub Actions**):
 
 ```
