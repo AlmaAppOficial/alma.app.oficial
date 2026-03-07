@@ -28,6 +28,7 @@ Aplicativo de bem-estar mental com meditações guiadas, exercícios de respira�
   VITE_AI_KEY=SEU_TOKEN
   ```
   Depois rode `npm run dev` ou `npm run build && npm run preview`. O coach usa esses valores automaticamente; se não definir, ele roda em modo demonstração.
+  > Segurança: não commite o token. Em produção, prefira expor a IA via backend/proxy para não vazar a chave no cliente.
 
 ### Quero testar as funcionalidades em HTML (navegador)
 - **Preview online (0 esforço):** use o link acima — é o mesmo app rodando em HTML/CSS/JS.

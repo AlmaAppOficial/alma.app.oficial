@@ -155,7 +155,7 @@ function InteractiveDemo() {
   const [breathRemaining, setBreathRemaining] = useState(breathSequence[0].seconds)
 
   const [aiMessages, setAiMessages] = useState<ChatMessage[]>([
-    { role: 'assistant', content: 'Oi! Sou sua guia dentro do app. Pergunte sobre rotina, ansiedade ou sono que eu ajudo.' },
+    { role: 'assistant', content: 'Oi! Sou sua coach com IA. Pergunte sobre rotina, ansiedade ou sono que eu ajudo.' },
   ])
   const [aiInput, setAiInput] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
@@ -167,7 +167,7 @@ function InteractiveDemo() {
   useEffect(() => {
     if (!isMeditating) return
     const id = setInterval(() => {
-      setMeditationSeconds((prev) => Math.min(prev + 1, 20 * 60))
+      setMeditationSeconds((prev) => Math.min(prev + 1, 10 * 60))
     }, 1000)
     return () => clearInterval(id)
   }, [isMeditating])
@@ -212,9 +212,12 @@ function InteractiveDemo() {
       setAiLoading(false)
     }
 
-    const moodHint = selectedMood === '😔'
-      ? 'Percebi que você marcou um humor mais baixo. Que tal tentar a respiração 4-7-8 agora?'
-      : 'Bora manter a consistência? Uma sessão curta de meditação guiada já ajuda.'
+    const moodHint =
+      selectedMood === '😔'
+        ? 'Percebi que você marcou um humor mais baixo. Que tal tentar a respiração 4-7-8 agora?'
+        : selectedMood === '😐' || selectedMood === '🙂'
+          ? 'Bora manter a consistência? Uma sessão curta de meditação guiada já ajuda.'
+          : 'Ótima energia! Registre seu humor e faça uma meditação curta para manter o ritmo.'
 
     try {
       if (aiEnabled) {
@@ -290,7 +293,7 @@ function InteractiveDemo() {
                   Resetar
                 </button>
               </div>
-              <p className="demo-helper">Dica: deixe rodando 30s e veja o gráfico preencher.</p>
+              <p className="demo-helper">Dica: deixe rodando 30–60s e veja o gráfico preencher.</p>
             </div>
           </div>
 
