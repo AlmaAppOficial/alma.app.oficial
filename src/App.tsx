@@ -23,11 +23,17 @@ function Navbar() {
     <nav className="navbar">
       <div className="container navbar__inner">
         <a href="#" className="navbar__logo">
-          <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="32" cy="32" r="32" fill="#6B46C1"/>
-            <path d="M32 14c-2 0-4 2-4 4s2 4 4 4 4-2 4-4-2-4-4-4z" fill="white"/>
-            <path d="M20 26c0 8 6 18 12 22 6-4 12-14 12-22a12 12 0 0 0-24 0z" fill="white" opacity="0.85"/>
-            <path d="M26 30c0 4 3 8 6 10 3-2 6-6 6-10a6 6 0 0 0-12 0z" fill="#6B46C1" opacity="0.5"/>
+          <svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="almaGradientNav" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#6B46C1" />
+                <stop offset="100%" stopColor="#9F7AEA" />
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="30.5" fill="url(#almaGradientNav)" stroke="#4B2C88" strokeWidth="3" />
+            <path d="M32 14c-2 0-4 2-4 4s2 4 4 4 4-2 4-4-2-4-4-4z" fill="#F5F3FF" opacity="0.95" />
+            <path d="M20 26c0 8 6 18 12 22 6-4 12-14 12-22a12 12 0 0 0-24 0z" fill="#F5F3FF" opacity="0.92" />
+            <path d="M26 30c0 4 3 8 6 10 3-2 6-6 6-10a6 6 0 0 0-12 0z" fill="#6B46C1" opacity="0.65" />
           </svg>
           <span>Alma</span>
         </a>
@@ -345,10 +351,17 @@ function Footer() {
       <div className="container footer__inner">
         <div className="footer__brand">
           <a href="#" className="navbar__logo">
-            <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="32" cy="32" r="32" fill="#9F7AEA"/>
-              <path d="M32 14c-2 0-4 2-4 4s2 4 4 4 4-2 4-4-2-4-4-4z" fill="white"/>
-              <path d="M20 26c0 8 6 18 12 22 6-4 12-14 12-22a12 12 0 0 0-24 0z" fill="white" opacity="0.85"/>
+            <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="almaGradientFooter" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#6B46C1" />
+                  <stop offset="100%" stopColor="#9F7AEA" />
+                </linearGradient>
+              </defs>
+              <circle cx="32" cy="32" r="30.5" fill="url(#almaGradientFooter)" stroke="#4B2C88" strokeWidth="3" />
+              <path d="M32 14c-2 0-4 2-4 4s2 4 4 4 4-2 4-4-2-4-4-4z" fill="#F5F3FF" opacity="0.95" />
+              <path d="M20 26c0 8 6 18 12 22 6-4 12-14 12-22a12 12 0 0 0-24 0z" fill="#F5F3FF" opacity="0.92" />
+              <path d="M26 30c0 4 3 8 6 10 3-2 6-6 6-10a6 6 0 0 0-12 0z" fill="#6B46C1" opacity="0.65" />
             </svg>
             <span>Alma</span>
           </a>
