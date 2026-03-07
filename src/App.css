@@ -743,6 +743,236 @@
   margin: 0;
 }
 
+/* ── Demo ─────────────────────────────────────────── */
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.demo-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.demo-card--ai {
+  grid-column: span 2;
+}
+
+.demo-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+}
+
+.pill--primary {
+  background: rgba(107, 70, 193, 0.12);
+  color: var(--primary);
+  border-color: rgba(107, 70, 193, 0.25);
+}
+
+.pill--outline {
+  background: transparent;
+  color: var(--text-mid);
+}
+
+.pill--neutral {
+  background: var(--bg-light);
+}
+
+.pill--tiny {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.demo-helper {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.demo-meditation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-meditation__timer {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.progress {
+  width: 100%;
+  background: var(--bg-light);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 10px;
+  border: 1px solid var(--border);
+}
+
+.progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  width: 40%;
+}
+
+.demo-meditation__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.progress--segments {
+  display: flex;
+  height: 12px;
+  border-radius: 12px;
+}
+
+.progress__segment {
+  background: var(--bg-light);
+  border-right: 1px solid var(--border);
+}
+
+.progress__segment:last-child {
+  border-right: none;
+}
+
+.progress__segment--active {
+  background: linear-gradient(90deg, var(--primary-light), var(--primary));
+}
+
+.demo-breath {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-breath__step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  font-weight: 700;
+}
+
+.demo-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.demo-mood {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-mood__buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mood-chip {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.mood-chip--active {
+  box-shadow: 0 8px 24px rgba(107, 70, 193, 0.18);
+  transform: translateY(-2px);
+}
+
+.demo-mood__history {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.demo-ai {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-ai__messages {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  height: 220px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-bubble {
+  max-width: 90%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.ai-bubble--assistant {
+  align-self: flex-start;
+  background: linear-gradient(135deg, rgba(107, 70, 193, 0.1), rgba(159, 122, 234, 0.15));
+  border-color: rgba(107, 70, 193, 0.25);
+}
+
+.ai-bubble--user {
+  align-self: flex-end;
+  background: white;
+}
+
+.demo-ai__input {
+  display: flex;
+  gap: 8px;
+}
+
+.demo-ai__input input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-size: 0.9375rem;
+}
+
 /* ── Responsive ─────────────────────────────────── */
 @media (max-width: 900px) {
   .hero__inner {
@@ -808,5 +1038,16 @@
     width: 240px;
     height: 480px;
   }
-}
 
+  .demo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-card--ai {
+    grid-column: auto;
+  }
+
+  .demo-ai__input {
+    flex-direction: column;
+  }
+}

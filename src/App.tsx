@@ -1,4 +1,5 @@
 import './App.css'
+import { useEffect, useMemo, useState } from 'react'
 
 function App() {
   return (
@@ -6,6 +7,7 @@ function App() {
       <Navbar />
       <main>
         <Hero />
+        <InteractiveDemo />
         <Stats />
         <Features />
         <HowItWorks />
@@ -39,6 +41,7 @@ function Navbar() {
         </a>
 
         <ul className="navbar__links">
+          <li><a href="#demo">Demo interativo</a></li>
           <li><a href="#funcionalidades">Funcionalidades</a></li>
           <li><a href="#como-funciona">Como Funciona</a></li>
           <li><a href="#depoimentos">Depoimentos</a></li>
@@ -75,8 +78,8 @@ function Hero() {
             <a href="#download" className="btn btn--primary btn--lg">
               📱 Baixar Gratuitamente
             </a>
-            <a href="#como-funciona" className="btn btn--ghost btn--lg">
-              ▶ Ver como funciona
+            <a href="#demo" className="btn btn--ghost btn--lg">
+              ▶ Testar agora
             </a>
           </div>
           <p className="hero__note">Grátis para sempre no plano básico · Sem cartão de crédito</p>
@@ -120,6 +123,284 @@ function Hero() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Interactive Demo ───────────────────────────────────── */
+type ChatMessage = { role: 'user' | 'assistant'; content: string }
+
+function InteractiveDemo() {
+  const moods = useMemo(() => ['😔', '😐', '🙂', '😊', '😄'], [])
+  const breathSequence = useMemo(
+    () => [
+      { label: 'Inspire', seconds: 4 },
+      { label: 'Segure', seconds: 7 },
+      { label: 'Expire', seconds: 8 },
+    ],
+    [],
+  )
+
+  const [selectedMood, setSelectedMood] = useState(moods[3])
+  const [moodHistory, setMoodHistory] = useState<string[]>([moods[3]])
+  const [isMeditating, setIsMeditating] = useState(false)
+  const [meditationSeconds, setMeditationSeconds] = useState(0)
+
+  const [isBreathing, setIsBreathing] = useState(true)
+  const [breathStepIndex, setBreathStepIndex] = useState(0)
+  const [breathRemaining, setBreathRemaining] = useState(breathSequence[0].seconds)
+
+  const [aiMessages, setAiMessages] = useState<ChatMessage[]>([
+    { role: 'assistant', content: 'Oi! Sou sua guia dentro do app. Pergunte sobre rotina, ansiedade ou sono que eu ajudo.' },
+  ])
+  const [aiInput, setAiInput] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+
+  const aiEndpoint = import.meta.env.VITE_AI_ENDPOINT
+  const aiKey = import.meta.env.VITE_AI_KEY
+  const aiEnabled = Boolean(aiEndpoint && aiKey)
+
+  useEffect(() => {
+    if (!isMeditating) return
+    const id = setInterval(() => {
+      setMeditationSeconds((prev) => Math.min(prev + 1, 20 * 60))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [isMeditating])
+
+  useEffect(() => {
+    if (!isBreathing) return
+    const id = setInterval(() => {
+      setBreathRemaining((prev) => {
+        if (prev > 1) return prev - 1
+        setBreathStepIndex((idx) => {
+          const next = (idx + 1) % breathSequence.length
+          setBreathRemaining(breathSequence[next].seconds)
+          return next
+        })
+        return prev
+      })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [isBreathing, breathSequence])
+
+  const handleMood = (mood: string) => {
+    setSelectedMood(mood)
+    setMoodHistory((prev) => [...prev.slice(-5), mood])
+  }
+
+  const toggleMeditation = () => {
+    setIsMeditating((v) => !v)
+    if (isMeditating) {
+      setMeditationSeconds(0)
+    }
+  }
+
+  const sendAiMessage = async () => {
+    if (!aiInput.trim()) return
+    const userMessage: ChatMessage = { role: 'user', content: aiInput.trim() }
+    setAiMessages((prev) => [...prev, userMessage])
+    setAiInput('')
+    setAiLoading(true)
+
+    const finishWith = (text: string) => {
+      setAiMessages((prev) => [...prev, { role: 'assistant', content: text }])
+      setAiLoading(false)
+    }
+
+    const moodHint = selectedMood === '😔'
+      ? 'Percebi que você marcou um humor mais baixo. Que tal tentar a respiração 4-7-8 agora?'
+      : 'Bora manter a consistência? Uma sessão curta de meditação guiada já ajuda.'
+
+    try {
+      if (aiEnabled) {
+        const response = await fetch(aiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(aiKey ? { Authorization: `Bearer ${aiKey}` } : {}),
+          },
+          body: JSON.stringify({
+            message: userMessage.content,
+            mood: selectedMood,
+            context: 'Alma app preview',
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}`)
+        }
+
+        const data = await response.json()
+        const reply = data.reply || data.message || JSON.stringify(data)
+        return finishWith(reply)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+
+    finishWith(`(Modo demonstração) ${moodHint}`)
+  }
+
+  const meditationLabel = isMeditating ? 'Encerrar sessão' : 'Iniciar sessão'
+  const meditationProgress = Math.min(meditationSeconds / (10 * 60), 1)
+  const breathStep = breathSequence[breathStepIndex]
+
+  return (
+    <section id="demo" className="section section--alt">
+      <div className="container">
+        <div className="section-header">
+          <span className="section-tag">Teste agora</span>
+          <h2 className="section-title">Demo interativa sem publicar na loja</h2>
+          <p className="section-sub">
+            Experimente as principais rotinas (meditação, respiração, humor e IA) direto no navegador.
+            Ideal para QA antes de enviar para App Store/Play Store.
+          </p>
+        </div>
+
+        <div className="demo-grid">
+          <div className="demo-card">
+            <div className="demo-card__header">
+              <div>
+                <h3>Meditação guiada</h3>
+                <p>Timer de foco + progresso semanal</p>
+              </div>
+              <span className="pill pill--primary">{isMeditating ? 'Ao vivo' : 'Pronto'}</span>
+            </div>
+            <div className="demo-meditation">
+              <div className="demo-meditation__timer">
+                <span>{Math.floor(meditationSeconds / 60)
+                  .toString()
+                  .padStart(2, '0')}</span>
+                <span>:</span>
+                <span>{(meditationSeconds % 60).toString().padStart(2, '0')}</span>
+              </div>
+              <div className="progress">
+                <div className="progress__bar" style={{ width: `${meditationProgress * 100}%` }} />
+              </div>
+              <div className="demo-meditation__actions">
+                <button className="btn btn--primary btn--lg" onClick={toggleMeditation}>
+                  {meditationLabel}
+                </button>
+                <button className="btn btn--ghost btn--lg" onClick={() => setMeditationSeconds(0)}>
+                  Resetar
+                </button>
+              </div>
+              <p className="demo-helper">Dica: deixe rodando 30s e veja o gráfico preencher.</p>
+            </div>
+          </div>
+
+          <div className="demo-card">
+            <div className="demo-card__header">
+              <div>
+                <h3>Respiração 4-7-8</h3>
+                <p>Loop automático para reduzir ansiedade</p>
+              </div>
+              <span className="pill pill--outline">{isBreathing ? 'Rodando' : 'Pausado'}</span>
+            </div>
+            <div className="demo-breath">
+              <div className="demo-breath__step">
+                <strong>{breathStep.label}</strong>
+                <span>{breathRemaining}s</span>
+              </div>
+              <div className="progress progress--segments">
+                {breathSequence.map((step, idx) => (
+                  <div
+                    key={step.label}
+                    className={`progress__segment${idx === breathStepIndex ? ' progress__segment--active' : ''}`}
+                    style={{ width: `${(step.seconds / breathSequence.reduce((t, s) => t + s.seconds, 0)) * 100}%` }}
+                  />
+                ))}
+              </div>
+              <div className="demo-actions">
+                <button className="btn btn--primary btn--sm" onClick={() => setIsBreathing((v) => !v)}>
+                  {isBreathing ? 'Pausar' : 'Retomar'}
+                </button>
+                <button
+                  className="btn btn--ghost btn--sm"
+                  onClick={() => {
+                    setBreathStepIndex(0)
+                    setBreathRemaining(breathSequence[0].seconds)
+                    setIsBreathing(true)
+                  }}
+                >
+                  Reiniciar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="demo-card">
+            <div className="demo-card__header">
+              <div>
+                <h3>Humor e consistência</h3>
+                <p>Registre e veja as últimas entradas</p>
+              </div>
+              <span className="pill pill--neutral">{moodHistory.length} logs</span>
+            </div>
+            <div className="demo-mood">
+              <div className="demo-mood__buttons">
+                {moods.map((mood) => (
+                  <button
+                    key={mood}
+                    className={`mood-chip${mood === selectedMood ? ' mood-chip--active' : ''}`}
+                    onClick={() => handleMood(mood)}
+                  >
+                    {mood}
+                  </button>
+                ))}
+              </div>
+              <div className="demo-mood__history">
+                {moodHistory.slice(-6).map((m, idx) => (
+                  <span key={`${m}-${idx}`} className="pill pill--tiny">
+                    {m}
+                  </span>
+                ))}
+              </div>
+              <p className="demo-helper">Use isso como QA: selecione humores diferentes e veja o histórico atualizar.</p>
+            </div>
+          </div>
+
+          <div className="demo-card demo-card--ai">
+            <div className="demo-card__header">
+              <div>
+                <h3>Coach com IA</h3>
+                <p>{aiEnabled ? 'API conectada com memória' : 'Modo demonstração local'}</p>
+              </div>
+              <span className={`pill ${aiEnabled ? 'pill--primary' : 'pill--outline'}`}>
+                {aiEnabled ? 'Ativa' : 'Demo'}
+              </span>
+            </div>
+            <div className="demo-ai">
+              <div className="demo-ai__messages" role="log" aria-live="polite">
+                {aiMessages.map((m, idx) => (
+                  <div key={idx} className={`ai-bubble ai-bubble--${m.role}`}>
+                    {m.content}
+                  </div>
+                ))}
+                {aiLoading && <div className="ai-bubble ai-bubble--assistant">Digitando...</div>}
+              </div>
+              <div className="demo-ai__input">
+                <input
+                  type="text"
+                  placeholder="Pergunte sobre ansiedade, sono ou foco"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && sendAiMessage()}
+                />
+                <button className="btn btn--primary btn--sm" onClick={sendAiMessage} disabled={aiLoading}>
+                  Enviar
+                </button>
+              </div>
+              {!aiEnabled && (
+                <p className="demo-helper">
+                  Para usar sua API real, defina <code>VITE_AI_ENDPOINT</code> e <code>VITE_AI_KEY</code> em <code>.env.local</code>.
+                </p>
+              )}
             </div>
           </div>
         </div>

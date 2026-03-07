@@ -15,6 +15,20 @@ Aplicativo de bem-estar mental com meditações guiadas, exercícios de respira�
 
 > Abra no celular para ver exatamente como vai parecer no app!
 
+### Teste tudo antes de enviar para a loja
+- **Demo interativa (web):** abra o link acima e role até a seção **“Demo interativa”** para testar meditação, respiração, humor e o coach com IA (sem publicar nada).
+- **Localmente:**  
+  ```bash
+  npm install
+  npm run dev   # http://localhost:5173
+  ```
+- **Ativar IA real (já com memória):** crie um `.env.local` na raiz com:
+  ```bash
+  VITE_AI_ENDPOINT=https://sua-api-de-ia
+  VITE_AI_KEY=SEU_TOKEN
+  ```
+  Depois rode `npm run dev` ou `npm run build && npm run preview`. O coach usa esses valores automaticamente; se não definir, ele roda em modo demonstração.
+
 ### Quero testar as funcionalidades em HTML (navegador)
 - **Preview online (0 esforço):** use o link acima — é o mesmo app rodando em HTML/CSS/JS.
 - **Rodar localmente:**  
