@@ -2,6 +2,8 @@
 
 Aplicativo de bem-estar mental com meditações guiadas, exercícios de respiração, rastreio de humor e muito mais.
 
+[🔗 **Link direto (preview web): https://felipeassislara170.github.io/alma.app.oficial/**](https://felipeassislara170.github.io/alma.app.oficial/)
+
 [![Live Preview](https://img.shields.io/badge/👁%20Ver%20ao%20Vivo-GitHub%20Pages-6B46C1?style=for-the-badge)](https://felipeassislara170.github.io/alma.app.oficial/)
 [![iOS Build](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/ios.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/ios.yml)
 [![Android Build](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/android.yml/badge.svg)](https://github.com/felipeassislara170/alma.app.oficial/actions/workflows/android.yml)
@@ -12,6 +14,36 @@ Aplicativo de bem-estar mental com meditações guiadas, exercícios de respira�
 **URL:** **https://felipeassislara170.github.io/alma.app.oficial/**
 
 > Abra no celular para ver exatamente como vai parecer no app!
+
+### Teste tudo antes de enviar para a loja
+- **Demo interativa (web):** abra o link acima e role até a seção **“Demo interativa”** para testar meditação, respiração, humor e o coach com IA (sem publicar nada).
+- **Localmente:**  
+  ```bash
+  npm install
+  npm run dev   # http://localhost:5173
+  ```
+- **Ativar IA real (já com memória):** crie um `.env.local` na raiz com:
+  ```bash
+  VITE_AI_ENDPOINT=https://sua-api-de-ia
+  VITE_AI_KEY=SEU_TOKEN
+  ```
+  - Rode `npm run dev` ou `npm run build && npm run preview`. O coach usa esses valores automaticamente; se não definir, ele roda em modo demonstração.
+  - Se alterar o `.env.local`, pare e suba o servidor de novo para o Vite recarregar as variáveis.
+  > Segurança: não faça commit do token. Em produção, prefira expor a IA via backend/proxy para não vazar a chave no cliente.
+
+### Quero testar as funcionalidades em HTML (navegador)
+- **Preview online (0 esforço):** use o link acima — é o mesmo app rodando em HTML/CSS/JS.
+- **Rodar localmente:**  
+  ```bash
+  npm install
+  npm run dev   # http://localhost:5173
+  ```
+- **Enviar um pacote HTML para QA:**  
+  ```bash
+  npm run build         # gera /dist com HTML estático
+  npm run preview       # opcional: servir o build localmente
+  # compacte a pasta dist/ e compartilhe; basta abrir dist/index.html em qualquer navegador
+  ```
 
 ### Quer ver agora, em 1 minuto?
 - **Web (mais rápido):** clique no link acima ou rode localmente:  
