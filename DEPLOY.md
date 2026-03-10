@@ -9,10 +9,12 @@
 
 0. [Checklist rápido (do zero até publicar)](#-checklist-rápido-do-zero-até-publicar)
 1. [Custos e contas necessárias](#-custos-e-contas-necessárias)
-2. [iOS → App Store](#-ios--app-store)
-3. [Android → Google Play](#-android--google-play)
-4. [Fluxo de trabalho diário](#-fluxo-de-trabalho-diário)
-5. [Dúvidas frequentes](#-dúvidas-frequentes)
+2. [Firebase — Backend Seguro e Chat PWA](#-firebase--backend-seguro-e-chat-pwa) ← **Novo**
+3. [Testar no iPhone como PWA](#-testar-no-iphone-como-pwa) ← **Novo**
+4. [iOS → App Store](#-ios--app-store)
+5. [Android → Google Play](#-android--google-play)
+6. [Fluxo de trabalho diário](#-fluxo-de-trabalho-diário)
+7. [Dúvidas frequentes](#-dúvidas-frequentes)
 
 ---
 
@@ -316,6 +318,136 @@ Sim! Adicione traduções em `fastlane/metadata/ios/en-US/` (inglês americano) 
 ## 📞 Suporte
 
 Dúvidas sobre a publicação? Abra uma [issue no GitHub](https://github.com/felipeassislara170/alma.app.oficial/issues).
+
+---
+
+## 🔥 Firebase — Backend Seguro e Chat PWA
+
+> Esta seção explica como configurar o backend Firebase (Cloud Functions) que serve
+> de proxy seguro para a OpenAI. **A chave da OpenAI nunca fica no cliente.**
+
+### Pré-requisitos
+
+- Conta Google (gratuita)
+- Node.js 20+ instalado localmente (apenas para deploy inicial)
+- Firebase CLI: `npm install -g firebase-tools`
+
+### Passo 1 — Criar projeto Firebase
+
+1. Acesse [console.firebase.google.com](https://console.firebase.google.com)
+2. Clique em **"Adicionar projeto"** → nomeie (ex.: `alma-app`)
+3. Ative o **plano Blaze** (pay-as-you-go) — necessário para Cloud Functions  
+   > O plano tem um generoso nível gratuito: 2 milhões de chamadas/mês grátis.
+4. Em **Authentication** → **Sign-in method** → habilite **"Anônimo"**
+5. Em **Firestore** → **Criar banco de dados** → modo Produção → região `southamerica-east1`
+
+### Passo 2 — Configurar secrets da Function
+
+A chave da OpenAI é armazenada no **Secret Manager do Firebase** — nunca no código.
+
+```bash
+# Faça login no Firebase CLI
+firebase login
+
+# Selecione o projeto
+firebase use YOUR_FIREBASE_PROJECT_ID
+
+# Configure o secret (o CLI vai pedir o valor interativamente)
+firebase functions:secrets:set OPENAI_API_KEY
+# → Cole sua chave OpenAI quando solicitado (ex.: sk-...)
+```
+
+### Passo 3 — Deploy da Cloud Function
+
+```bash
+# Na raiz do repositório
+cd functions
+npm install
+npm run build
+cd ..
+
+# Faça deploy apenas das functions
+firebase deploy --only functions
+```
+
+Após o deploy, o CLI exibirá a URL da function, similar a:  
+`https://southamerica-east1-YOUR_PROJECT_ID.cloudfunctions.net/chat`
+
+**Guarde essa URL** — você vai precisar dela no próximo passo.
+
+### Passo 4 — Configurar variáveis no GitHub Actions
+
+Acesse: **GitHub → Settings → Secrets and variables → Actions → Variables**  
+Crie as variáveis abaixo (são variáveis públicas de configuração, **não** secrets):
+
+| Variável | Onde encontrar |
+|---------|----------------|
+| `VITE_FIREBASE_API_KEY` | Firebase Console → Configurações do projeto → Web app |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `<project-id>.firebaseapp.com` |
+| `VITE_FIREBASE_PROJECT_ID` | ID do projeto Firebase |
+| `VITE_FIREBASE_STORAGE_BUCKET` | `<project-id>.appspot.com` |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase Console → Configurações → Cloud Messaging |
+| `VITE_FIREBASE_APP_ID` | Firebase Console → Configurações do projeto → Web app |
+| `VITE_FIREBASE_FUNCTIONS_URL` | URL da Function do Passo 3 |
+
+> **Por que não são secrets?** A configuração do cliente Firebase (`apiKey`, `projectId`, etc.)
+> é um identificador público do projeto — não dá acesso aos dados. A segurança real
+> é garantida pelas **Firebase Security Rules** e pela **autenticação obrigatória** na Function.
+
+### Passo 5 — Deploy das Firestore Rules
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+Isso aplica as regras de segurança que impedem acesso direto à coleção `rate_limits`.
+
+### Passo 6 — Push e verificar o build
+
+```bash
+git add .
+git commit -m "feat: Firebase backend + PWA chat"
+git push origin main
+```
+
+O GitHub Actions vai compilar o site com as variáveis Firebase e publicar no GitHub Pages.
+
+---
+
+## 📱 Testar no iPhone como PWA
+
+Depois de configurar o Firebase e fazer o push:
+
+### Passo 1 — Abrir no Safari do iPhone
+
+1. No iPhone, abra o **Safari** (não Chrome/Firefox — apenas Safari suporta PWA no iOS)
+2. Navegue até: `https://felipeassislara170.github.io/alma.app.oficial/`
+
+### Passo 2 — Adicionar à Tela de Início
+
+1. Toque no ícone **Compartilhar** (□ com seta para cima) na barra inferior do Safari
+2. Role e toque em **"Adicionar à Tela de Início"**
+3. Confirme o nome **"Alma"** e toque em **"Adicionar"**
+4. O ícone roxo da Alma aparecerá na tela inicial
+
+### Passo 3 — Usar o chat
+
+1. Abra o app pela tela inicial → ele abre em **modo tela cheia** (sem barra do Safari)
+2. Toque em **"Conversar com Alma"**
+3. Uma sessão anônima Firebase é criada automaticamente
+4. Escreva uma mensagem e envie — a Alma responde em PT-BR via Cloud Function
+
+### Diagrama do fluxo seguro
+
+```
+iPhone (PWA)
+  └─> Firebase Auth (login anônimo) ──> ID Token
+  └─> POST /chat  + Bearer <token>
+        └─> Cloud Function (southamerica-east1)
+              ├─> Verifica ID Token (Firebase Admin)
+              ├─> Rate limit (Firestore)
+              └─> OpenAI API (chave somente no servidor)
+```
 
 ---
 

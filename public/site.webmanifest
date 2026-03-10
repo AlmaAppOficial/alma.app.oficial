@@ -1,20 +1,27 @@
 {
-  "name": "Alma",
+  "name": "Alma — Cuide da sua Alma",
   "short_name": "Alma",
+  "description": "Mentora emocional empática com meditações guiadas e bem-estar emocional.",
   "icons": [
     {
       "src": "./android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "./android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "theme_color": "#6B46C1",
   "background_color": "#6B46C1",
   "display": "standalone",
-  "start_url": "."
+  "orientation": "portrait",
+  "start_url": ".",
+  "scope": ".",
+  "lang": "pt-BR",
+  "categories": ["health", "lifestyle"]
 }

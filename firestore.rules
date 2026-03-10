@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // rate_limits: only the Cloud Function (admin SDK) can write;
+    // no client can read or write this collection directly.
+    match /rate_limits/{uid} {
+      allow read, write: if false;
+    }
+
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
