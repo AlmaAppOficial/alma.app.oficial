@@ -1,24 +1,112 @@
+import { useState } from 'react'
 import './App.css'
+import { AuthProvider } from './contexts/AuthContext'
+import { useAuth } from './contexts/useAuth'
+import { AuthScreen } from './components/AuthScreen'
+import { ConsentModal } from './components/ConsentModal'
+import { ChatScreen } from './components/ChatScreen'
+import { TermsPage } from './components/TermsPage'
+import { PrivacyPage } from './components/PrivacyPage'
+import { firebaseConfigured } from './lib/firebase'
 
 const STREAK_DAYS = 7
 
-function App() {
+type Page = 'home' | 'terms' | 'privacy'
+
+/* ─── Root wrapper ──────────────────────────────────── */
+function AppShell() {
+  const { user, loading, healthConsent, logout } = useAuth()
+  const [showChat, setShowChat] = useState(false)
+  const [chatInitialMessage, setChatInitialMessage] = useState<string | undefined>()
+  const [page, setPage] = useState<Page>('home')
+
+  // Show consent modal on first login when healthConsent has not been set yet
+  const showConsent = user !== null && healthConsent === null
+
+  if (loading) {
+    return (
+      <div className="app-loading" aria-label="Carregando…">
+        <div className="app-loading__spinner" />
+      </div>
+    )
+  }
+
+  // Legal pages are accessible regardless of auth state
+  if (page === 'terms') return <TermsPage onBack={() => setPage('home')} />
+  if (page === 'privacy') return <PrivacyPage onBack={() => setPage('home')} />
+
+  if (!user) {
+    return <AuthScreen onShowTerms={() => setPage('terms')} onShowPrivacy={() => setPage('privacy')} />
+  }
+
+  const openChat = (initial?: string) => {
+    setChatInitialMessage(initial)
+    setShowChat(true)
+  }
+
   return (
     <div className="app">
-      <Navbar />
-      <main className="dashboard">
-        <DashboardHeader />
-        <MeditacoesSection />
-        <AlmaAISection />
-        <SaudeSection />
-      </main>
-      <Footer />
+      {showConsent && (
+        <ConsentModal
+          onShowTerms={() => setPage('terms')}
+          onShowPrivacy={() => setPage('privacy')}
+        />
+      )}
+
+      {showChat ? (
+        <ChatScreen onClose={() => setShowChat(false)} initialMessage={chatInitialMessage} />
+      ) : (
+        <>
+          <Navbar onLogout={logout} onOpenChat={openChat} />
+          <main className="dashboard">
+            <DashboardHeader />
+            <MeditacoesSection />
+            <AlmaAISection onOpenChat={openChat} />
+            <SaudeSection />
+          </main>
+          <Footer onShowTerms={() => setPage('terms')} onShowPrivacy={() => setPage('privacy')} />
+        </>
+      )}
+    </div>
+  )
+}
+
+function App() {
+  if (!firebaseConfigured) {
+    return <FirebaseSetupBanner />
+  }
+  return (
+    <AuthProvider>
+      <AppShell />
+    </AuthProvider>
+  )
+}
+
+/* ─── Firebase Setup Banner (dev only) ──────────────── */
+function FirebaseSetupBanner() {
+  return (
+    <div className="setup-banner">
+      <div className="setup-banner__card">
+        <div className="setup-banner__icon" aria-hidden="true">🔧</div>
+        <h1 className="setup-banner__title">Firebase não configurado</h1>
+        <p className="setup-banner__body">
+          As variáveis de ambiente do Firebase estão faltando. Para rodar o Alma localmente:
+        </p>
+        <ol className="setup-banner__steps">
+          <li>Copie o arquivo de exemplo: <code>cp .env.example .env.local</code></li>
+          <li>Preencha as variáveis <code>VITE_FIREBASE_*</code> com suas credenciais.</li>
+          <li>Reinicie o servidor de desenvolvimento: <code>npm run dev</code></li>
+        </ol>
+        <p className="setup-banner__body">
+          Consulte o <strong>FIREBASE_SETUP.md</strong> para um guia completo.
+        </p>
+      </div>
     </div>
   )
 }
 
 /* ─── Navbar ─────────────────────────────────────────────── */
-function Navbar() {
+function Navbar({ onLogout, onOpenChat }: { onLogout: () => void; onOpenChat: () => void }) {
   return (
     <nav className="navbar">
       <div className="container navbar__inner">
@@ -46,7 +134,8 @@ function Navbar() {
 
         <div className="navbar__actions">
           <span className="streak-badge">🔥 {STREAK_DAYS} dias</span>
-          <a href="#" className="btn btn--primary btn--sm">Entrar</a>
+          <button className="btn btn--ghost btn--sm" onClick={onOpenChat} aria-label="Abrir chat">💬 Chat</button>
+          <button className="btn btn--primary btn--sm" onClick={onLogout}>Sair</button>
         </div>
       </div>
     </nav>
@@ -165,7 +254,7 @@ const quickActions = [
   { emoji: '🫁', label: 'Guia de respiração' },
 ]
 
-function AlmaAISection() {
+function AlmaAISection({ onOpenChat }: { onOpenChat: (msg?: string) => void }) {
   return (
     <section id="alma-ai" className="dash-section dash-section--dark">
       <div className="container">
@@ -194,14 +283,16 @@ function AlmaAISection() {
             <p className="ai-card__sub">
               Sua assistente de bem-estar. Conversa em português, sem julgamentos, disponível 24h.
             </p>
-            <button className="btn btn--primary btn--lg">Iniciar conversa →</button>
+            <button className="btn btn--primary btn--lg" onClick={() => onOpenChat()}>
+              Iniciar conversa →
+            </button>
           </div>
         </div>
 
         <h3 className="cards-row-title cards-row-title--light">Como posso te ajudar agora?</h3>
         <div className="quick-actions">
           {quickActions.map((a) => (
-            <button key={a.label} className="quick-action-btn">
+            <button key={a.label} className="quick-action-btn" onClick={() => onOpenChat(a.label)}>
               <span className="quick-action-btn__emoji">{a.emoji}</span>
               <span>{a.label}</span>
             </button>
@@ -300,7 +391,7 @@ function SaudeSection() {
 }
 
 /* ─── Footer ─────────────────────────────────────────────── */
-function Footer() {
+function Footer({ onShowTerms, onShowPrivacy }: { onShowTerms: () => void; onShowPrivacy: () => void }) {
   const year = new Date().getFullYear()
   return (
     <footer className="footer">
@@ -340,9 +431,9 @@ function Footer() {
           <div className="footer__col">
             <h4>Suporte</h4>
             <a href="#">Central de Ajuda</a>
-            <a href="#">Contato</a>
-            <a href="#">Privacidade</a>
-            <a href="#">Termos de Uso</a>
+            <a href="mailto:alma@almaappoficial.com">Contato</a>
+            <button type="button" className="footer__link-btn" onClick={onShowPrivacy}>Privacidade</button>
+            <button type="button" className="footer__link-btn" onClick={onShowTerms}>Termos de Uso</button>
           </div>
         </div>
       </div>

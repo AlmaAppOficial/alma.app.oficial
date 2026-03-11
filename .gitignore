@@ -60,4 +60,11 @@ build/
 # Gemfile.lock (optional but saves CI time if committed)
 # Gemfile.lock
 
+# Environment variables — NEVER commit real values
+.env
+.env.local
+.env.*.local
 
+# Firebase Functions build artifacts
+functions/lib/
+functions/node_modules/
