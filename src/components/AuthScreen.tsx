@@ -3,7 +3,12 @@ import { useAuth } from '../contexts/useAuth'
 
 type Mode = 'login' | 'register'
 
-export function AuthScreen() {
+interface AuthScreenProps {
+  onShowTerms: () => void
+  onShowPrivacy: () => void
+}
+
+export function AuthScreen({ onShowTerms, onShowPrivacy }: AuthScreenProps) {
   const { login, register } = useAuth()
   const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
@@ -138,6 +143,16 @@ export function AuthScreen() {
           >
             {mode === 'login' ? 'Cadastre-se' : 'Faça login'}
           </button>
+        </p>
+        <p className="auth-card__legal">
+          Ao criar uma conta, você concorda com nossos{' '}
+          <button type="button" className="auth-card__switch-btn" onClick={onShowTerms}>
+            Termos de Uso
+          </button>{' '}
+          e{' '}
+          <button type="button" className="auth-card__switch-btn" onClick={onShowPrivacy}>
+            Política de Privacidade
+          </button>.
         </p>
       </div>
     </div>

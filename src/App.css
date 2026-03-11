@@ -1378,3 +1378,273 @@
     max-width: 90%;
   }
 }
+
+/* ── Legal Pages (Terms / Privacy) ──────────────────── */
+.legal-page {
+  min-height: 100vh;
+  background: var(--bg-white);
+  display: flex;
+  flex-direction: column;
+}
+
+.legal-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+}
+
+.legal-page__back {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  font-family: inherit;
+}
+
+.legal-page__back:hover {
+  background: var(--border);
+  transform: translateX(-2px);
+}
+
+.legal-page__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.legal-page__content {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  flex: 1;
+}
+
+.legal-page__content h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  color: var(--text-dark);
+  margin: 0 0 8px;
+}
+
+.legal-page__updated {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin: 0 0 40px;
+}
+
+.legal-page__content section {
+  margin-bottom: 32px;
+}
+
+.legal-page__content h2 {
+  font-size: 1.25rem;
+  color: var(--text-dark);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
+.legal-page__content h3 {
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin: 16px 0 8px;
+}
+
+.legal-page__content p {
+  font-size: 0.9375rem;
+  color: var(--text-mid);
+  line-height: 1.75;
+  margin: 0 0 12px;
+}
+
+.legal-page__content ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+
+.legal-page__content li {
+  font-size: 0.9375rem;
+  color: var(--text-mid);
+  line-height: 1.75;
+  margin-bottom: 6px;
+}
+
+.legal-page__content a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.legal-page__content a:hover {
+  color: var(--primary-dark);
+}
+
+.legal-page__content code {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.875em;
+  font-family: 'Courier New', monospace;
+}
+
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-bottom: 12px;
+}
+
+.legal-table th,
+.legal-table td {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: left;
+  color: var(--text-mid);
+}
+
+.legal-table th {
+  background: var(--bg-light);
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* ── Consent Modal extras ────────────────────────────── */
+.consent-modal__body--note {
+  background: rgba(107, 70, 193, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.consent-modal__legal {
+  font-size: 0.8125rem;
+  color: var(--text-mid);
+  margin: 0;
+  text-align: center;
+}
+
+.consent-modal__link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.consent-modal__link:hover {
+  color: var(--primary-dark);
+}
+
+/* ── Footer link buttons ─────────────────────────────── */
+.footer__link-btn {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+  transition: color var(--transition);
+}
+
+.footer__link-btn:hover {
+  color: white;
+}
+
+/* ── Auth card legal note ────────────────────────────── */
+.auth-card__legal {
+  font-size: 0.8125rem;
+  color: var(--text-light);
+  text-align: center;
+  margin: 4px 0 0;
+}
+
+@media (max-width: 640px) {
+  .legal-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* ── Firebase Setup Banner ───────────────────────────── */
+.setup-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #FAF5FF 0%, #EDE9FE 60%, #F5F3FF 100%);
+  padding: 24px;
+}
+
+.setup-banner__card {
+  background: white;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 40px;
+  max-width: 540px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setup-banner__icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.setup-banner__title {
+  font-size: 1.625rem;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.setup-banner__body {
+  font-size: 0.9375rem;
+  color: var(--text-mid);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.setup-banner__steps {
+  text-align: left;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.setup-banner__steps li {
+  font-size: 0.9375rem;
+  color: var(--text-mid);
+  line-height: 1.75;
+  margin-bottom: 8px;
+}
+
+.setup-banner__steps code {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.875em;
+  font-family: 'Courier New', monospace;
+  color: var(--primary);
+}
