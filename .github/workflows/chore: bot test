@@ -1,0 +1,8 @@
+PR de teste do Auto PR Bot
+diff --git a/BOT_TEST.md b/BOT_TEST.md
+new file mode 100644
+index 0000000..f9b3db9
+--- /dev/null
++++ b/BOT_TEST.md
+@@ -0,0 +1 @@
++Auto PR Bot is working.
