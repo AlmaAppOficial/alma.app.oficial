@@ -36,7 +36,10 @@ struct ChatView: View {
         }
     }
     
-    func send() {
+    func guard manager.isPremium else {
+    showSubscription = true
+    return
+}send() {
         
         guard !text.isEmpty else { return }
         
