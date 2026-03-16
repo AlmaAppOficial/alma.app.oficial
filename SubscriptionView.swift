@@ -1,26 +1,48 @@
-
 import SwiftUI
 import StoreKit
 
-struct SubscriptionView: View {
+// MARK: - SubscriptionManager
+@MainActor
+class SubscriptionManager: ObservableObject {
     
-    var body: some View {
-        
-        VStack(spacing: 25) {
-            
-            Text("Alma Premium")
-                .font(.largeTitle)
-            
-            Text("7 dias grátis • 4,99€/mês")
-                .foregroundColor(.gray)
-            
-            Button("Começar teste grátis") {
-            }
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(12)
+    @Published var isPremium = false
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    
+    private var product: Product?
+    let productId = "alma_premium_monthly" // o ID que criaste no App Store Connect
+    
+    init() {
+        Task {
+            await loadProduct()
+            await checkSubscriptionStatus()
         }
-        .padding()
     }
-}
+    
+    func loadProduct() async {
+        do {
+            let products = try await Product.products(for: [productId])
+            product = products.first
+        } catch {
+            errorMessage = "Erro ao carregar planos."
+        }
+    }
+    
+    func purchase() async {
+        guard let product = product else { return }
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            let result = try await product.purchase()
+            
+            switch result {
+            case .success(let verification):
+                switch verification {
+                case .verified:
+                    isPremium = true
+                case .unverified:
+                    errorMessage = "Compra não verificada."
+                }
+            case .userCancelled:
+                break
