@@ -1,0 +1,2 @@
+name: Setup Copilot CLI
+uses: actions/setup-copilot@v0.0.4
