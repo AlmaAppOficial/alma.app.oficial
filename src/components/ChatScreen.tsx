@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 
+export const ChatScreen: React.FC = () => {
+  // ... (o resto igual)
+};
+
 const ChatScreen: React.FC = () => {
     const FUNCTIONS_BASE_URL = import.meta.env.VITE_FUNCTIONS_BASE_URL;
     const chatEnabled = Boolean(FUNCTIONS_BASE_URL);
