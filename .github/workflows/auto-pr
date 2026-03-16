@@ -1,0 +1,95 @@
+name: Auto PR Bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: "Descreva a mudança a ser feita (o bot vai abrir um PR)"
+        required: true
+        type: string
+      branch_prefix:
+        description: "Prefixo do branch"
+        required: false
+        default: "bot"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure git identity
+        run: |
+          git config user.name "alma-bot"
+          git config user.email "alma-bot@users.noreply.github.com"
+
+      - name: Create branch
+        id: branch
+        run: |
+          SAFE_PREFIX="${{ inputs.branch_prefix }}"
+          TS="$(date +%Y%m%d-%H%M%S)"
+          BRANCH="${SAFE_PREFIX}/change-${TS}"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          git checkout -b "$BRANCH"
+
+      # === AQUI entra o "motor" que faz a mudança ===
+      # Por enquanto, deixo um exemplo simples (editar um arquivo texto).
+      - name: Apply change (placeholder)
+        env:
+          PROMPT: ${{ inputs.prompt }}
+        run: |
+          echo "PROMPT: $PROMPT" >> BOT_PROMPT_LOG.md
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Test (if present)
+        run: |
+          if npm run -s | grep -qE '^  test'; then
+            npm test
+          else
+            echo "No test script found; skipping."
+          fi
+
+      - name: Build
+        run: npm run build
+
+      - name: Commit changes (if any)
+        run: |
+          if git status --porcelain | grep -q .; then
+            git add -A
+            git commit -m "bot: ${{ inputs.prompt }}"
+          else
+            echo "No changes to commit."
+          fi
+
+      - name: Push branch
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+        run: |
+          git push -u origin "${{ steps.branch.outputs.branch }}"
+
+      - name: Open PR
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+        run: |
+          gh auth status || true
+          gh pr create \
+            --title "bot: ${{ inputs.prompt }}" \
+            --body "PR criado automaticamente pelo workflow.\n\nPrompt: ${{ inputs.prompt }}" \
+            --base main \
+            --head "${{ steps.branch.outputs.branch }}"
