@@ -1,0 +1,91 @@
+// MARK: - HealthSummaryCard (adicionar ao InsightsView)
+struct HealthSummaryCard: View {
+    
+    @StateObject private var hk = HealthKitManager()
+    @State private var authorized = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            
+            HStack {
+                Text("Saúde hoje")
+                    .font(.headline)
+                Spacer()
+                // badge de stress
+                Text(hk.stressLevel.label)
+                    .font(.caption)
+                    .fontWeight(.500)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(hk.stressLevel.color.opacity(0.15))
+                    .foregroundColor(hk.stressLevel.color)
+                    .cornerRadius(20)
+            }
+            
+            if authorized {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    HealthMetric(icon: "heart.fill",    color: .red,
+                                 value: "\(Int(hk.heartRate))", unit: "bpm",  label: "Frequência")
+                    HealthMetric(icon: "waveform.path", color: .purple,
+                                 value: "\(Int(hk.hrv))",       unit: "ms",   label: "HRV")
+                    HealthMetric(icon: "moon.fill",     color: .indigo,
+                                 value: String(format: "%.1f", hk.sleepHours), unit: "h", label: "Sono")
+                    HealthMetric(icon: "figure.walk",   color: .green,
+                                 value: "\(hk.steps)",          unit: "passo", label: "Passos")
+                }
+            } else {
+                Button(action: {
+                    Task {
+                        authorized = await hk.requestAuthorization()
+                        if authorized { await hk.loadAll() }
+                    }
+                }) {
+                    Label("Ligar Apple Watch", systemImage: "applewatch")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                }
+                .background(AlmaTheme.card)
+                .cornerRadius(10)
+            }
+        }
+        .padding()
+        .background(AlmaTheme.card)
+        .cornerRadius(16)
+        .onAppear {
+            Task {
+                authorized = await hk.requestAuthorization()
+                if authorized { await hk.loadAll() }
+            }
+        }
+    }
+}
+
+struct HealthMetric: View {
+    let icon: String
+    let color: Color
+    let value: String
+    let unit: String
+    let label: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Image(systemName: icon)
+                .foregroundColor(color)
+                .font(.system(size: 16))
+            HStack(alignment: .lastTextBaseline, spacing: 2) {
+                Text(value)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                Text(unit)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+        .padding(10)
+        .background(AlmaTheme.background)
+        .cornerRadius(10)
+    }
+}
