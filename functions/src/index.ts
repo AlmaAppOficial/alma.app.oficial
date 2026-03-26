@@ -149,7 +149,7 @@ export const chat = onRequest(
         `[chat] uid=${uid.slice(0, 8)}… tokens=${completion.usage?.total_tokens ?? '?'}`,
       );
 
-      res.status(200).json({ reply });
+      res.status(200).json({ response: reply });
     } catch (err) {
       console.error('[chat] OpenAI error:', err);
       res.status(500).json({ error: 'Serviço temporariamente indisponível. Tente novamente.' });
