@@ -1,32 +1,37 @@
 import Foundation
 
-struct MoodEntry: Identifiable, Codable {
-    var id = UUID()
-    var date: Date
-    var mood: MoodLevel
-    var note: String
+struct MoodEntry: Identifiable {
+    let id: String
+    let text: String
+    let emoji: String
+    let date: Date
 
-    enum MoodLevel: Int, Codable, CaseIterable {
-        case terrible = 1, bad = 2, okay = 3, good = 4, great = 5
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_PT")
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
 
-        var emoji: String {
-            switch self {
-            case .terrible: return "😔"
-            case .bad:      return "😕"
-            case .okay:     return "😐"
-            case .good:     return "🙂"
-            case .great:    return "😄"
-            }
-        }
+    var isToday: Bool {
+        Calendar.current.isDateInToday(date)
+    }
 
-        var label: String {
-            switch self {
-            case .terrible: return "Péssimo"
-            case .bad:      return "Ruim"
-            case .okay:     return "Ok"
-            case .good:     return "Bem"
-            case .great:    return "Ótimo"
-            }
+    var isYesterday: Bool {
+        Calendar.current.isDateInYesterday(date)
+    }
+
+    var friendlyDate: String {
+        if isToday {
+            return "Hoje"
+        } else if isYesterday {
+            return "Ontem"
+        } else {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "pt_PT")
+            formatter.dateStyle = .medium
+            return formatter.string(from: date)
         }
     }
 }
