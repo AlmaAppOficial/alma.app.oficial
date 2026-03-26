@@ -1,51 +1,80 @@
 import SwiftUI
-import HealthKit
+import UIKit
 
-// MARK: - HealthSummaryCard
-struct HealthSummaryCard: View {
-    
-    // recebe o manager do MainTabView em vez de criar um novo
-    @EnvironmentObject private var hk: HealthKitManager
-    @State private var authorized = false
-    
+struct MainTabView: View {
+    @EnvironmentObject var authManager: AuthManager
+
+    @StateObject private var subscriptionManager = SubscriptionManager()
+    @StateObject private var healthKitManager = HealthKitManager()
+
+    init() {
+        configureTabBarAppearance()
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            
-            HStack {
-                Text("Saúde hoje")
-                    .font(.headline)
-                Spacer()
-                Text(hk.stressLevel.label)
-                    .font(.caption)
-                    .fontWeight(.medium)  // .500 não existe em SwiftUI — usa .medium
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(hk.stressLevel.color.opacity(0.15))
-                    .foregroundColor(hk.stressLevel.color)
-                    .cornerRadius(20)
-            }
-            
-            if authorized {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                    HealthMetric(icon: "heart.fill",    color: .red,
-                                 value: "\(Int(hk.heartRate))",
-                                 unit: "bpm",   label: "Frequência")
-                    HealthMetric(icon: "waveform.path", color: .purple,
-                                 value: "\(Int(hk.hrv))",
-                                 unit: "ms",    label: "HRV")
-                    HealthMetric(icon: "moon.fill",     color: .indigo,
-                                 value: String(format: "%.1f", hk.sleepHours),
-                                 unit: "h",     label: "Sono")
-                    HealthMetric(icon: "figure.walk",   color: .green,
-                                 value: "\(hk.steps)",
-                                 unit: "passos", label: "Passos")
+        TabView {
+            // Home Tab
+            HomeView()
+                .tabItem {
+                    Label("Início", systemImage: "house.fill")
                 }
-            } else {
-                Button(action: {
-                    Task {
-                        authorized = await hk.requestAuthorization()
-                        if authorized { await hk.loadAll() }
-                    }
-                }) {
-                    Label("Ligar Apple Watch", systemImage: "applewatch")
-                        .frame(maxWidth:
+
+            // Chat Tab
+            ChatView()
+                .tabItem {
+                    Label("Alma IA", systemImage: "bubble.left.fill")
+                }
+
+            // Insights Tab
+            InsightsView()
+                .tabItem {
+                    Label("Insights", systemImage: "chart.bar.fill")
+                }
+
+            // Profile Tab
+            ProfileView()
+                .tabItem {
+                    Label("Perfil", systemImage: "person.fill")
+                }
+        }
+        .accentColor(AlmaTheme.accent)
+        .environmentObject(subscriptionManager)
+        .environmentObject(healthKitManager)
+    }
+
+    private func configureTabBarAppearance() {
+        let appearance = UITabBarAppearance()
+
+        // Background color
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(AlmaTheme.card)
+
+        // Text colors
+        let itemAppearance = UITabBarItemAppearance()
+        itemAppearance.normal.iconColor = UIColor(AlmaTheme.textSecondary)
+        itemAppearance.normal.titleTextAttributes = [
+            NSAttributedString.Key.foregroundColor: UIColor(AlmaTheme.textSecondary)
+        ]
+
+        itemAppearance.selected.iconColor = UIColor(AlmaTheme.accent)
+        itemAppearance.selected.titleTextAttributes = [
+            NSAttributedString.Key.foregroundColor: UIColor(AlmaTheme.accent)
+        ]
+
+        appearance.stackedLayoutAppearance = itemAppearance
+        appearance.inlineLayoutAppearance = itemAppearance
+        appearance.compactInlineLayoutAppearance = itemAppearance
+
+        // Apply to all tab bars
+        UITabBar.appearance().standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
+    }
+}
+
+#Preview {
+    MainTabView()
+        .environmentObject(AuthManager())
+        .preferredColorScheme(.dark)
+}
