@@ -4,25 +4,28 @@ import { auth, FUNCTIONS_CHAT_URL } from '../firebase';
 import './ChatPage.css';
 
 interface Message {
+  id: string;
   role: 'user' | 'alma';
   text: string;
 }
 
 interface ChatPageProps {
   onBack: () => void;
+  initialMessage?: string;
 }
 
-export default function ChatPage({ onBack }: ChatPageProps) {
+export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
+      id: 'welcome',
       role: 'alma',
-      text: 'Olá! Sou a Alma, sua mentora emocional. Como você está se sentindo hoje? 💜',
+      text: 'OlÃ¡! Sou a Alma, sua mentora emocional. Como vocÃª estÃ¡ se sentindo hoje? ð',
     },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(initialMessage ?? '');
   const [sending, setSending] = useState(false);
   const [chatError, setChatError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -35,10 +38,12 @@ export default function ChatPage({ onBack }: ChatPageProps) {
         setAuthLoading(false);
       } else {
         try {
-          await signInAnonymously(auth);
+          const cred = await signInAnonymously(auth);
+          setUser(cred.user);
+          setAuthLoading(false);
         } catch (err) {
           console.error('[ChatPage] anonymous sign-in failed:', err);
-          setAuthError('Não foi possível iniciar a sessão. Recarregue a página.');
+          setAuthError('NÃ£o foi possÃ­vel iniciar a sessÃ£o. Recarregue a pÃ¡gina.');
           setAuthLoading(false);
         }
       }
@@ -57,12 +62,12 @@ export default function ChatPage({ onBack }: ChatPageProps) {
 
     setChatError('');
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', text }]);
+    setMessages((prev) => [...prev, { id: `user-${Date.now()}`, role: 'user', text }]);
     setSending(true);
 
     try {
       if (!FUNCTIONS_CHAT_URL) {
-        throw new Error('VITE_FIREBASE_FUNCTIONS_URL não configurada.');
+        throw new Error('VITE_FIREBASE_FUNCTIONS_URL nÃ£o configurada.');
       }
       const idToken = await user.getIdToken();
       const resp = await fetch(FUNCTIONS_CHAT_URL, {
@@ -80,7 +85,7 @@ export default function ChatPage({ onBack }: ChatPageProps) {
       }
 
       const data = (await resp.json()) as { reply: string };
-      setMessages((prev) => [...prev, { role: 'alma', text: data.reply }]);
+      setMessages((prev) => [...prev, { id: `alma-${Date.now()}`, role: 'alma', text: data.reply }]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro desconhecido.';
       setChatError(msg);
@@ -105,8 +110,8 @@ export default function ChatPage({ onBack }: ChatPageProps) {
   if (authLoading) {
     return (
       <div className="chat-loading">
-        <span className="chat-spinner" aria-label="Carregando…" />
-        <p>Iniciando sessão…</p>
+        <span className="chat-spinner" aria-label="Carregandoâ¦" />
+        <p>Iniciando sessÃ£oâ¦</p>
       </div>
     );
   }
@@ -127,36 +132,36 @@ export default function ChatPage({ onBack }: ChatPageProps) {
       {/* Header */}
       <header className="chat-header">
         <button className="chat-back" onClick={onBack} aria-label="Voltar">
-          ←
+          â
         </button>
         <div className="chat-header__info">
-          <span className="chat-header__avatar">💜</span>
+          <span className="chat-header__avatar">ð</span>
           <div>
             <strong>Alma</strong>
             <span className="chat-header__status">Mentora emocional</span>
           </div>
         </div>
-        <button className="chat-signout" onClick={handleSignOut} title="Encerrar sessão">
+        <button className="chat-signout" onClick={handleSignOut} title="Encerrar sessÃ£o">
           Sair
         </button>
       </header>
 
       {/* Messages */}
       <div className="chat-messages" role="log" aria-live="polite" aria-label="Conversa com Alma">
-        {messages.map((m, i) => (
-          <div key={i} className={`chat-bubble chat-bubble--${m.role}`}>
+        {messages.map((m) => (
+          <div key={m.id} className={`chat-bubble chat-bubble--${m.role}`}>
             {m.role === 'alma' && (
               <span className="chat-bubble__avatar" aria-hidden="true">
-                💜
+                ð
               </span>
             )}
             <p className="chat-bubble__text">{m.text}</p>
           </div>
         ))}
         {sending && (
-          <div className="chat-bubble chat-bubble--alma chat-bubble--typing">
-            <span className="chat-bubble__avatar" aria-hidden="true">💜</span>
-            <span className="chat-typing" aria-label="Alma está digitando">
+          <div classNama="chat-bubble chat-bubble--alma chat-bubble--typing">
+            <span className="chat-bubble__avatar" aria-hidden="true">ð</span>
+            <span className="chat-typing" aria-label="Alma estÃ¡ digitando">
               <span /><span /><span />
             </span>
           </div>
@@ -168,7 +173,7 @@ export default function ChatPage({ onBack }: ChatPageProps) {
       {chatError && (
         <div className="chat-error" role="alert">
           {chatError}
-          <button onClick={() => setChatError('')} aria-label="Fechar erro">×</button>
+          <button onClick={() => setChatError('')} aria-label="Fechar erro">Ã</button>
         </div>
       )}
 
@@ -176,7 +181,7 @@ export default function ChatPage({ onBack }: ChatPageProps) {
       <form className="chat-input-bar" onSubmit={handleFormSubmit}>
         <textarea
           className="chat-input"
-          placeholder="Escreva sua mensagem…"
+          placeholder="Escreva sua mensagemâ¦"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -196,7 +201,7 @@ export default function ChatPage({ onBack }: ChatPageProps) {
           disabled={sending || !input.trim()}
           aria-label="Enviar mensagem"
         >
-          {sending ? <span className="chat-spinner chat-spinner--sm" /> : '➤'}
+          {sending ? <span className="chat-spinner chat-spinner--sm" /> : 'â¤'}
         </button>
       </form>
     </div>
