@@ -87,11 +87,14 @@ function AppShell() {
 
   // Check if user has completed onboarding
   useEffect(() => {
-    if (!user || !db) { setOnboarded(true); return }
+    if (!user || !db) {
+      Promise.resolve().then(() => setOnboarded(true))
+      return
+    }
     getDoc(doc(db, 'users', user.uid)).then((snap) => {
       setOnboarded(snap.data()?.onboarded === true)
     }).catch(() => setOnboarded(true))
-  }, [user, db])
+  }, [user])
 
   const showConsent = user !== null && healthConsent === null
 
