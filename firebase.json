@@ -1,4 +1,3 @@
-cat > /workspaces/alma.app.oficial/firebase.json << 'EOF'
 {
   "functions": [
     {
@@ -25,4 +24,3 @@ cat > /workspaces/alma.app.oficial/firebase.json << 'EOF'
     "ui": { "enabled": true }
   }
 }
-EOF
