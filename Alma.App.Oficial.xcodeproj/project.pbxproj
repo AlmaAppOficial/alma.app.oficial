@@ -44,6 +44,7 @@
 		9ECED1072F589311009412A7 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1062F589311009412A7 /* FirebaseAnalytics */; };
 		9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1082F589311009412A7 /* FirebaseAuth */; };
 		9ECED10B2F589311009412A7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED10A2F589311009412A7 /* FirebaseFirestore */; };
+		PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +89,7 @@
 		9ECED0EE2F58902E009412A7 /* SubscriptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
 		9ECED0EF2F58902F009412A7 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		9ECED0F02F58902F009412A7 /* InsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -329,6 +331,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9ECED0CE2F588F21009412A7 /* Assets.xcassets in Resources */,
+				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
