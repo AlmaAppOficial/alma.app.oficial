@@ -159,7 +159,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
           </div>
         ))}
         {sending && (
-          <div classNama="chat-bubble chat-bubble--alma chat-bubble--typing">
+          <div className="chat-bubble chat-bubble--alma chat-bubble--typing">
             <span className="chat-bubble__avatar" aria-hidden="true">ð</span>
             <span className="chat-typing" aria-label="Alma estÃ¡ digitando">
               <span /><span /><span />
