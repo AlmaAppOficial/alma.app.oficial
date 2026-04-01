@@ -28,3 +28,23 @@ if (firebaseConfigured) {
   auth = getAuth(app)
   db = getFirestore(app)
 }
+
+/**
+ * Full URL of the Firebase Cloud Function /chat endpoint.
+ * Accepts both env var names for backward compatibility:
+ *   VITE_FUNCTIONS_BASE_URL      → append /chat   (legacy name)
+ *   VITE_FIREBASE_FUNCTIONS_URL  → use as-is      (GitHub Actions variable)
+ *
+ * Production value:
+ *   https://southamerica-east1-alma-app-7dae6.cloudfunctions.net/chat
+ */
+const _baseUrl =
+  (import.meta.env.VITE_FIREBASE_FUNCTIONS_URL as string | undefined) ??
+  (import.meta.env.VITE_FUNCTIONS_BASE_URL as string | undefined) ??
+  ''
+
+export const FUNCTIONS_CHAT_URL = _baseUrl
+  ? _baseUrl.endsWith('/chat')
+    ? _baseUrl
+    : `${_baseUrl.replace(/\/\/$/, '')}/chat`
+  : ''
