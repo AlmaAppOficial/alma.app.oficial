@@ -22,7 +22,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
     {
       id: 'welcome',
       role: 'alma',
-      text: 'OlÃ¡! Sou a Alma, sua mentora emocional. Como vocÃª estÃ¡ se sentindo hoje? ð',
+      text: 'Olá! Sou a Alma, sua mentora emocional. Como você está se sentindo hoje? 💜',
     },
   ]);
   const [input, setInput] = useState(initialMessage ?? '');
@@ -32,18 +32,23 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
 
   // Auto-sign-in anonymously
   useEffect(() => {
+    if (!auth) {
+      setAuthError('Firebase não configurado. Verifique as variáveis de ambiente.');
+      setAuthLoading(false);
+      return;
+    }
     const unsubscribe = auth.onAuthStateChanged(async (u) => {
       if (u) {
         setUser(u);
         setAuthLoading(false);
       } else {
         try {
-          const cred = await signInAnonymously(auth);
+          const cred = await signInAnonymously(auth!);
           setUser(cred.user);
           setAuthLoading(false);
         } catch (err) {
           console.error('[ChatPage] anonymous sign-in failed:', err);
-          setAuthError('NÃ£o foi possÃ­vel iniciar a sessÃ£o. Recarregue a pÃ¡gina.');
+          setAuthError('Não foi possível iniciar a sessão. Recarregue a página.');
           setAuthLoading(false);
         }
       }
@@ -67,7 +72,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
 
     try {
       if (!FUNCTIONS_CHAT_URL) {
-        throw new Error('VITE_FIREBASE_FUNCTIONS_URL nÃ£o configurada.');
+        throw new Error('VITE_FIREBASE_FUNCTIONS_URL não configurada.');
       }
       const idToken = await user.getIdToken();
       const resp = await fetch(FUNCTIONS_CHAT_URL, {
@@ -103,15 +108,15 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
   }
 
   async function handleSignOut() {
-    await signOut(auth);
+    if (auth) await signOut(auth);
     onBack();
   }
 
   if (authLoading) {
     return (
       <div className="chat-loading">
-        <span className="chat-spinner" aria-label="Carregandoâ¦" />
-        <p>Iniciando sessÃ£oâ¦</p>
+        <span className="chat-spinner" aria-label="Carregando…" />
+        <p>Iniciando sessão…</p>
       </div>
     );
   }
@@ -132,16 +137,16 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
       {/* Header */}
       <header className="chat-header">
         <button className="chat-back" onClick={onBack} aria-label="Voltar">
-          â
+          ←
         </button>
         <div className="chat-header__info">
-          <span className="chat-header__avatar">ð</span>
+          <span className="chat-header__avatar">💜</span>
           <div>
             <strong>Alma</strong>
             <span className="chat-header__status">Mentora emocional</span>
           </div>
         </div>
-        <button className="chat-signout" onClick={handleSignOut} title="Encerrar sessÃ£o">
+        <button className="chat-signout" onClick={handleSignOut} title="Encerrar sessão">
           Sair
         </button>
       </header>
@@ -152,7 +157,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
           <div key={m.id} className={`chat-bubble chat-bubble--${m.role}`}>
             {m.role === 'alma' && (
               <span className="chat-bubble__avatar" aria-hidden="true">
-                ð
+                💜
               </span>
             )}
             <p className="chat-bubble__text">{m.text}</p>
@@ -160,8 +165,8 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
         ))}
         {sending && (
           <div className="chat-bubble chat-bubble--alma chat-bubble--typing">
-            <span className="chat-bubble__avatar" aria-hidden="true">ð</span>
-            <span className="chat-typing" aria-label="Alma estÃ¡ digitando">
+            <span className="chat-bubble__avatar" aria-hidden="true">💜</span>
+            <span className="chat-typing" aria-label="Alma está digitando">
               <span /><span /><span />
             </span>
           </div>
@@ -173,7 +178,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
       {chatError && (
         <div className="chat-error" role="alert">
           {chatError}
-          <button onClick={() => setChatError('')} aria-label="Fechar erro">Ã</button>
+          <button onClick={() => setChatError('')} aria-label="Fechar erro">×</button>
         </div>
       )}
 
@@ -181,7 +186,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
       <form className="chat-input-bar" onSubmit={handleFormSubmit}>
         <textarea
           className="chat-input"
-          placeholder="Escreva sua mensagemâ¦"
+          placeholder="Escreva sua mensagem…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -201,7 +206,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
           disabled={sending || !input.trim()}
           aria-label="Enviar mensagem"
         >
-          {sending ? <span className="chat-spinner chat-spinner--sm" /> : 'â¤'}
+          {sending ? <span className="chat-spinner chat-spinner--sm" /> : '➤'}
         </button>
       </form>
     </div>
