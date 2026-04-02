@@ -1,0 +1,39 @@
+name: Deploy Firebase Functions
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "functions/**"
+      - ".github/workflows/firebase-functions.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: functions
+
+      - name: Build TypeScript
+        run: npm run build
+        working-directory: functions
+
+      - name: Deploy Firebase Functions
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa.json
+          npx firebase-tools deploy --only functions:chat,functions:tts --project alma-app-7dae6
+        working-directory: functions
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa.json
