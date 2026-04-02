@@ -9,19 +9,40 @@ service cloud.firestore {
 
     // cada utilizador só acede aos seus próprios dados
     match /users/{userId} {
-      allow read, write: if request.auth != null 
+      allow read, write: if request.auth != null
                          && request.auth.uid == userId;
 
       // moods do utilizador
       match /moods/{moodId} {
-        allow read, write: if request.auth != null 
+        allow read, write: if request.auth != null
                            && request.auth.uid == userId;
       }
 
-      // chat do utilizador
+      // chat do utilizador (legacy)
       match /chat/{messageId} {
-        allow read, write: if request.auth != null 
+        allow read, write: if request.auth != null
                            && request.auth.uid == userId;
+      }
+
+      // consentimentos de saúde (leitura e escrita pelo próprio utilizador)
+      match /consents/{consentId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+      }
+
+      // histórico de mensagens (escrito pela Cloud Function via admin SDK;
+      // leitura permitida ao próprio utilizador)
+      match /messages/{messageId} {
+        allow read: if request.auth != null
+                    && request.auth.uid == userId;
+        allow write: if false;
+      }
+
+      // memória contextual (escrita pela Cloud Function via admin SDK)
+      match /memory/{docId} {
+        allow read: if request.auth != null
+                    && request.auth.uid == userId;
+        allow write: if false;
       }
     }
   }
