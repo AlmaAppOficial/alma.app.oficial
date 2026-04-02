@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
-import { type User, signInAnonymously, signOut } from 'firebase/auth';
-import { auth, FUNCTIONS_CHAT_URL } from '../firebase';
+import { type User, signInAnonymously } from 'firebase/auth';
+import { auth, FUNCTIONS_CHAT_URL } from '../lib/firebase';
 import './ChatPage.css';
 
 interface Message {
@@ -107,8 +107,7 @@ export default function ChatPage({ onBack, initialMessage }: ChatPageProps) {
     void submitMessage();
   }
 
-  async function handleSignOut() {
-    if (auth) await signOut(auth);
+  function handleSignOut() {
     onBack();
   }
 
