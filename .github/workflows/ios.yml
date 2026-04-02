@@ -21,12 +21,14 @@ on:
     paths:
       - 'ios/**'
       - 'Shared/**'
+      - 'Alma.App.Oficial.xcodeproj/**'
       - '.github/workflows/ios.yml'
   pull_request:
     branches: [main]
     paths:
       - 'ios/**'
       - 'Shared/**'
+      - 'Alma.App.Oficial.xcodeproj/**'
   workflow_dispatch:
 
 concurrency:
@@ -68,8 +70,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           xcodebuild \
-            -project ios/Alma.xcodeproj \
-            -scheme Alma \
+            -project Alma.App.Oficial.xcodeproj \
+            -scheme "Alma.App.Oficial (iOS)" \
             -destination "generic/platform=iOS Simulator" \
             -configuration Debug \
             CODE_SIGN_IDENTITY="" \
@@ -84,8 +86,8 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           xcodebuild \
-            -project ios/Alma.xcodeproj \
-            -scheme Alma \
+            -project Alma.App.Oficial.xcodeproj \
+            -scheme "Alma.App.Oficial (iOS)" \
             -destination "generic/platform=iOS" \
             -configuration Release \
             DEVELOPMENT_TEAM=$APPLE_TEAM_ID \
