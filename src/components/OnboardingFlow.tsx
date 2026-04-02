@@ -119,7 +119,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const handleOption = (value: string) => {
     const newAnswers = { ...answers, [step.id]: value }
     setAnswers(newAnswers)
-    setTimeout(() => advance(newAnswers), 300)
+    setTimeout(() => { void advance(newAnswers).catch(console.warn); }, 300)
   }
 
   const handleTextNext = () => {
