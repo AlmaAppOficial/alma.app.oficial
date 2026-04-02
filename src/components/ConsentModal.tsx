@@ -28,12 +28,14 @@ export function ConsentModal({ onShowTerms, onShowPrivacy }: ConsentModalProps) 
         </p>
         <div className="consent-modal__actions">
           <button
+            type="button"
             className="btn btn--primary btn--lg consent-modal__btn"
             onClick={() => setHealthConsent('granted')}
           >
             ✅ Aceitar e continuar
           </button>
           <button
+            type="button"
             className="btn btn--ghost btn--lg consent-modal__btn"
             onClick={() => setHealthConsent('denied')}
           >
