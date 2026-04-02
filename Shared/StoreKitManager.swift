@@ -1,13 +1,11 @@
 // StoreKitManager.swift
 // Alma App — In-App Purchase via Apple StoreKit 2
 //
-// Product IDs a criar no App Store Connect:
-//   com.almaapp.app.monthly   → Assinatura mensal renovável (com 7 dias grátis)
-//   com.almaapp.app.lifetime  → Compra única vitalícia
+// Product IDs no App Store Connect:
+//   com.almaapp.app.premium_monthly  → Assinatura mensal com 7 dias grátis
 //
-// Como criar no App Store Connect:
-//   App Store Connect → Teu App → Monetização → Compras no Aplicativo
-//   Adicionar cada produto, definir preço e período de trial
+// Como verificar no App Store Connect:
+//   App Store Connect → Alma App Oficial → Monetização → Assinaturas
 
 import StoreKit
 import SwiftUI
@@ -17,14 +15,13 @@ class StoreKitManager: ObservableObject {
 
     // MARK: - Product IDs
 
-    static let monthlyID  = "com.almaapp.app.monthly"
-    static let lifetimeID = "com.almaapp.app.lifetime"
-    static let allIDs: Set<String> = [monthlyID, lifetimeID]
+    static let monthlyID = "com.almaapp.app.premium_monthly"
+    static let allIDs: Set<String> = [monthlyID]
 
     // MARK: - Published State
 
-    @Published var products: [Product]   = []
-    @Published var isPurchasing: Bool    = false
+    @Published var products: [Product]    = []
+    @Published var isPurchasing: Bool     = false
     @Published var purchaseError: String? = nil
 
     // MARK: - Private
@@ -45,8 +42,7 @@ class StoreKitManager: ObservableObject {
     func loadProducts() async {
         do {
             let loaded = try await Product.products(for: Self.allIDs)
-            // monthly primeiro, lifetime depois
-            products = loaded.sorted { $0.id == Self.monthlyID && $1.id != Self.monthlyID }
+            products = loaded
         } catch {
             print("[StoreKit] Erro ao carregar produtos: \(error)")
         }
@@ -119,7 +115,6 @@ class StoreKitManager: ObservableObject {
     // MARK: - Convenience
 
     var monthlyProduct: Product? { products.first { $0.id == Self.monthlyID } }
-    var lifetimeProduct: Product? { products.first { $0.id == Self.lifetimeID } }
 
     // MARK: - Transaction Listener
 
