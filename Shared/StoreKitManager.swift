@@ -3,6 +3,7 @@
 //
 // Product IDs no App Store Connect:
 //   com.almaapp.app.premium_monthly  → Assinatura mensal com 7 dias grátis
+//   com.almaapp.app.premium_annual   → Assinatura anual com 7 dias grátis
 //
 // Como verificar no App Store Connect:
 //   App Store Connect → Alma App Oficial → Monetização → Assinaturas
@@ -16,7 +17,8 @@ class StoreKitManager: ObservableObject {
     // MARK: - Product IDs
 
     static let monthlyID = "com.almaapp.app.premium_monthly"
-    static let allIDs: Set<String> = [monthlyID]
+    static let annualID  = "com.almaapp.app.premium_annual"
+    static let allIDs: Set<String> = [monthlyID, annualID]
 
     // MARK: - Published State
 
@@ -42,7 +44,12 @@ class StoreKitManager: ObservableObject {
     func loadProducts() async {
         do {
             let loaded = try await Product.products(for: Self.allIDs)
-            products = loaded
+            // Mensal primeiro, anual depois
+            products = loaded.sorted { lhs, rhs in
+                if lhs.id == Self.monthlyID { return true }
+                if rhs.id == Self.monthlyID { return false }
+                return false
+            }
         } catch {
             print("[StoreKit] Erro ao carregar produtos: \(error)")
         }
@@ -115,6 +122,7 @@ class StoreKitManager: ObservableObject {
     // MARK: - Convenience
 
     var monthlyProduct: Product? { products.first { $0.id == Self.monthlyID } }
+    var annualProduct:  Product? { products.first { $0.id == Self.annualID } }
 
     // MARK: - Transaction Listener
 
