@@ -17,8 +17,8 @@ platform :ios do
   desc "Run tests"
   lane :test do
     run_tests(
-      project:     "ios/Alma.xcodeproj",
-      scheme:      "Alma",           # use the main scheme; tests are included via AlmaTests target
+      project:     "Alma.App.Oficial.xcodeproj",
+      scheme:      "Alma.App.Oficial (iOS)",
       destination: "platform=iOS Simulator,name=iPhone 15"
     )
   end
@@ -26,11 +26,11 @@ platform :ios do
   desc "Build and upload to TestFlight (beta)"
   lane :beta do
     increment_build_number(
-      xcodeproj: "ios/Alma.xcodeproj"
+      xcodeproj: "Alma.App.Oficial.xcodeproj"
     )
     build_ios_app(
-      project:           "ios/Alma.xcodeproj",
-      scheme:            "Alma",
+      project:           "Alma.App.Oficial.xcodeproj",
+      scheme:            "Alma.App.Oficial (iOS)",
       configuration:     "Release",
       export_method:     "app-store",
       output_directory:  "./build",
@@ -45,11 +45,11 @@ platform :ios do
   desc "Build and submit to App Store"
   lane :release do
     increment_build_number(
-      xcodeproj: "ios/Alma.xcodeproj"
+      xcodeproj: "Alma.App.Oficial.xcodeproj"
     )
     build_ios_app(
-      project:           "ios/Alma.xcodeproj",
-      scheme:            "Alma",
+      project:           "Alma.App.Oficial.xcodeproj",
+      scheme:            "Alma.App.Oficial (iOS)",
       configuration:     "Release",
       export_method:     "app-store",
       output_directory:  "./build",
