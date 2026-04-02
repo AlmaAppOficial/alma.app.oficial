@@ -33,7 +33,13 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Facebook Login -->
+	<key>FacebookAppID</key>
+	<string>872133652529378</string>
+	<key>FacebookClientToken</key>
+	<string>f267fb95a01515037a3f046511eedf5f</string>
 	<!-- Google Sign-In: reversed CLIENT_ID for OAuth redirect back to app -->
+	<!-- Facebook Login: fb{AppID} URL scheme for auth callback -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -42,6 +48,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.824031625799-7a5n2nn6haa4447a37r9mo3lvtbp0qav</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb872133652529378</string>
 			</array>
 		</dict>
 	</array>
