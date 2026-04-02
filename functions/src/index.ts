@@ -19,6 +19,7 @@ const metaAccessToken = defineSecret('META_ACCESS_TOKEN');
 //        firebase functions:secrets:set WHATSAPP_VERIFY_TOKEN
 const whatsappAccessToken = defineSecret('WHATSAPP_ACCESS_TOKEN');
 const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
+const whatsappAppSecret = defineSecret('WHATSAPP_APP_SECRET');
 
 /** Max requests per user per sliding-window hour */
 const RATE_LIMIT = 20;
@@ -256,7 +257,7 @@ ${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jorn
       await batch.commit().catch((e) => console.warn('[chat] history save failed:', e));
 
       if (newCount % 10 === 0) {
-        void generateMemorySummary(openai, uid, db, newCount);
+        generateMemorySummary(openai, uid, db, newCount).catch(err => console.error('[memory] summary error:', err));
       } else {
         await db.collection('users').doc(uid)
           .collection('memory').doc('summary')
@@ -397,7 +398,7 @@ export const trackConversion = onRequest(
 
     try {
       const response = await fetch(
-        `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`,
+        `https://graph.facebook.com/v22.0/${pixelId}/events?access_token=${accessToken}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -450,7 +451,7 @@ const ALMA_SYSTEM_PROMPT =
 export const whatsapp = onRequest(
   {
     region: 'southamerica-east1',
-    secrets: [whatsappAccessToken, whatsappVerifyToken, openaiApiKey],
+    secrets: [whatsappAccessToken, whatsappVerifyToken, whatsappAppSecret, openaiApiKey],
     timeoutSeconds: 60,
   },
   async (req, res) => {
@@ -473,6 +474,23 @@ export const whatsapp = onRequest(
     if (req.method !== 'POST') {
       res.status(405).send('Method Not Allowed');
       return;
+    }
+
+    // Verificar assinatura Meta (X-Hub-Signature-256)
+    const appSecret = whatsappAppSecret.value();
+    if (appSecret) {
+      const sigHeader = (req.headers['x-hub-signature-256'] as string | undefined) ?? '';
+      const rawBody: Buffer = (req as any).rawBody;
+      const expectedSig =
+        'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
+      const signatureValid =
+        sigHeader.length === expectedSig.length &&
+        crypto.timingSafeEqual(Buffer.from(sigHeader), Buffer.from(expectedSig));
+      if (!signatureValid) {
+        console.warn('[whatsapp] Assinatura invalida.');
+        res.status(403).send('Forbidden');
+        return;
+      }
     }
 
     // Responder 200 imediatamente (exigido pelo WhatsApp — máx. 20 segundos)
