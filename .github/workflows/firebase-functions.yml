@@ -5,7 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "functions/**"
-      - ".github/workflows/firebase-functions.yml"
+      - ".github/workflows/firebase-functio.yml"
   workflow_dispatch:
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
       - name: Deploy Firebase Functions
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa.json
-          npx firebase-tools deploy --only functions:chat,functions:tts --project alma-app-7dae6
+          npx firebase-tools deploy --only functions:chat,functions:tts --project alma-app-7dae6 --force
         working-directory: functions
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa.json
