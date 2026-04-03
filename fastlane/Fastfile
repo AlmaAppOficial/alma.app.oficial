@@ -30,7 +30,8 @@ platform :ios do
     cert(
       api_key:           api_key,
       keychain_path:     File.expand_path("~/Library/Keychains/fastlane_tmp_keychain-db"),
-      keychain_password: ""
+      keychain_password: "",
+      force:             true
     )
 
     sigh(
