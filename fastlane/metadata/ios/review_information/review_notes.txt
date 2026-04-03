@@ -1,0 +1,32 @@
+Dear App Review Team,
+
+Thank you for reviewing Alma – Meditation & Wellness.
+
+APP OVERVIEW
+Alma is a mental wellness app offering guided meditations, breathing exercises, daily reflection articles, mood tracking and an AI-powered wellness companion. The app is primarily in Portuguese (pt-BR) with English also supported.
+
+ACCOUNT / LOGIN
+The app supports both email/password login and Google Sign-In via Firebase Authentication. You may create a test account or use the following demo credentials:
+
+Email: review@almaapp.com
+Password: AlmaReview2026!
+
+Alternatively, the app can be explored using the "Continue as Guest" option available on the login screen, which provides access to free-tier content without an account.
+
+IN-APP PURCHASES
+The app offers a monthly and annual subscription (Premium plan) via Apple StoreKit. Subscriptions unlock the full content library and AI companion. The subscription paywall appears after onboarding. You can dismiss it and continue with the free tier.
+
+PERMISSIONS
+- Notifications: requested optionally for daily wellness reminders. Not required to use the app.
+- No camera, microphone, location or contacts access is required.
+
+CONTENT RATING
+The app is appropriate for ages 12+. All content is focused on mental wellness, self-care and positive habit formation. There is no violent, sexual or harmful content.
+
+If you have any questions or need additional test accounts, please contact us at:
+alma.app.oficial@gmail.com
+
+We appreciate your time and look forward to making Alma available to users worldwide.
+
+Kind regards,
+Alma App Team
