@@ -2,7 +2,7 @@
 #  Fastfile — Alma App automation
 #
 #  Usage:
-#    bundle exec fastlane ios ci_beta       → CI: build + TestFlight
+#    bundle exec fastlane ios ci_beta       → CI: build + TestFlight (p12 cert)
 #    bundle exec fastlane ios beta          → build + TestFlight
 #    bundle exec fastlane ios release       → build + App Store
 #    bundle exec fastlane android beta      → build + Play Internal
@@ -27,17 +27,19 @@ platform :ios do
       in_house:     false
     )
 
-    # Revoke any existing iOS Distribution certificates to free up quota.
-    # These are orphaned certs from previous CI runs — their private keys
-    # no longer exist, so they are unusable. Revoking them makes room for
-    # a fresh certificate below.
+    # Revoke ALL existing Distribution certificates to free up quota.
+    # Each CI run creates a new cert (ephemeral runners lose private keys),
+    # so orphaned certs accumulate. We revoke both DISTRIBUTION and
+    # IOS_DISTRIBUTION types — Apple now uses DISTRIBUTION for new certs.
     begin
-      existing_certs = Spaceship::ConnectAPI::Certificate.all(
-        filter: { certificateType: "IOS_DISTRIBUTION" }
-      )
-      existing_certs.each do |c|
-        UI.message("Revoking orphaned Distribution cert: #{c.display_name} (#{c.id})")
-        Spaceship::ConnectAPI.delete_certificate(certificate_id: c.id)
+      %w[DISTRIBUTION IOS_DISTRIBUTION].each do |cert_type|
+        certs = Spaceship::ConnectAPI::Certificate.all(
+          filter: { certificateType: cert_type }
+        )
+        certs.each do |c|
+          UI.message("Revoking orphaned #{cert_type} cert: #{c.display_name} (#{c.id})")
+          Spaceship::ConnectAPI.delete_certificate(certificate_id: c.id)
+        end
       end
     rescue => e
       UI.important("Could not revoke existing certs (non-fatal): #{e.message}")
@@ -55,9 +57,8 @@ platform :ios do
       add_to_search_list: true
     )
 
-    # Download or create an Apple Distribution certificate and install it
-    # into the signing keychain. generate_apple_certs: true uses openssl to
-    # generate the CSR locally — required for headless CI on macOS 12+.
+    # Download or create an Apple Distribution certificate.
+    # generate_apple_certs: true uses openssl — required for headless CI on macOS 12+.
     cert(
       api_key:              api_key,
       keychain_path:        File.expand_path("~/Library/Keychains/signing-db"),
@@ -135,7 +136,7 @@ platform :ios do
     upload_to_app_store(
       skip_metadata:         false,
       skip_screenshots:      false,
-      submit_for_review:     false,
+      submit_for_review:     false,   # set true when ready
       automatic_release:     false,
       metadata_path:         "./fastlane/metadata/ios",
       screenshots_path:      "./fastlane/screenshots/ios"
