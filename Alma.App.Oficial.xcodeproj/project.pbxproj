@@ -48,7 +48,7 @@
 		ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */; };
 		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
 		FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0004 /* FacebookLogin */; };
-		FF001001FF001001FF001001 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
+		BB001001BB001001BB001001 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB100001BB100001BB100001 /* GoogleService-Info.plist */; };
 		PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */; };
@@ -524,7 +524,7 @@
 				9ECED1032F589030009412A7 /* InsightsView.swift in Sources */,
 				9ECED0CA2F588F21009412A7 /* Alma_App_OficialApp.swift in Sources */,
 				9ECED0FF2F589030009412A7 /* SubscriptionView.swift in Sources */,
-				FF001001FF001001FF001001 /* StoreKitManager.swift in Sources */,
+				BB001001BB001001BB001001 /* StoreKitManager.swift in Sources */,
 				9ECED0F32F589030009412A7 /* Theme.swift in Sources */,
 				9ECED0F72F589030009412A7 /* HomeView.swift in Sources */,
 				9ECED0FB2F589030009412A7 /* OpenAIService.swift in Sources */,
