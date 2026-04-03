@@ -1,4 +1,4 @@
-# ─────────────────────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────────────────────────────────────
 # iOS Build & TestFlight Upload — Automatic Signing via ASC API
 #
 # Required GitHub Secrets:
@@ -6,7 +6,7 @@
 #   ASC_KEY_ID         – App Store Connect API Key ID
 #   ASC_ISSUER_ID      – App Store Connect Issuer ID (UUID)
 #   ASC_API_KEY        – Contents of the .p8 file from ASC API
-# ─────────────────────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────────────────────────────────────
 
 name: iOS Build & TestFlight
 
@@ -78,6 +78,7 @@ jobs:
             -destination "generic/platform=iOS" \
             -configuration Release \
             DEVELOPMENT_TEAM=$APPLE_TEAM_ID \
+            CODE_SIGN_STYLE=Automatic \
             -archivePath $RUNNER_TEMP/Alma.xcarchive \
             -allowProvisioningUpdates \
             -authenticationKeyPath ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8 \
@@ -95,6 +96,10 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store</string>
+            <key>teamID</key>
+            <string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
             <key>uploadBitcode</key>
             <false/>
             <key>uploadSymbols</key>
@@ -102,6 +107,7 @@ jobs:
           </dict>
           </plist>
           PLIST
+
           xcodebuild -exportArchive \
             -archivePath $RUNNER_TEMP/Alma.xcarchive \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
