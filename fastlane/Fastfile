@@ -14,11 +14,17 @@ platform :ios do
       in_house:     false
     )
 
-    cert(
-      api_key:           api_key,
-      keychain_path:     File.expand_path("~/Library/Keychains/fastlane_tmp_keychain-db"),
-      keychain_password: ""
+    # Decode and install the .p12 distribution certificate from secrets
+    require "base64"
+    cert_path = "/tmp/dist_cert.p12"
+    File.binwrite(cert_path, Base64.decode64(ENV["CERTIFICATE_BASE64"]))
+    import_certificate(
+      certificate_path:     cert_path,
+      certificate_password: ENV["CERTIFICATE_PASSWORD"],
+      keychain_path:        File.expand_path("~/Library/Keychains/fastlane_tmp_keychain-db"),
+      keychain_password:    ""
     )
+    File.delete(cert_path)
 
     sigh(
       api_key:        api_key,
