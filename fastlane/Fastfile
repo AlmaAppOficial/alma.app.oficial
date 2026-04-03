@@ -1,4 +1,17 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Fastfile — Alma App automation
+#
+#  Usage:
+#    bundle exec fastlane ios ci_beta       → CI: build + TestFlight
+#    bundle exec fastlane ios beta          → build + TestFlight
+#    bundle exec fastlane ios release       → build + App Store
+#    bundle exec fastlane android beta      → build + Play Internal
+#    bundle exec fastlane android release   → build + Play Production
+# ─────────────────────────────────────────────────────────────────────────────
+
 default_platform(:ios)
+
+# ══ iOS ═══════════════════════════════════════════════════════════════════════
 
 platform :ios do
 
@@ -12,6 +25,28 @@ platform :ios do
       key_filepath: ENV["ASC_KEY_FILE"],
       duration:     1200,
       in_house:     false
+    )
+
+    # Create a signing keychain with a NON-EMPTY password.
+    # Empty-password keychains cause 'security set-key-partition-list' to fail
+    # silently on macOS 14, leaving the private key inaccessible to codesign.
+    create_keychain(
+      name:               "signing",
+      password:           "gh-actions-signing",
+      default_keychain:   false,
+      unlock:             true,
+      timeout:            3600,
+      add_to_search_list: true
+    )
+
+    # Download or create an Apple Distribution certificate and install it
+    # into the signing keychain. generate_apple_certs: true uses openssl to
+    # generate the CSR locally — required for headless CI on macOS 12+.
+    cert(
+      api_key:              api_key,
+      keychain_path:        File.expand_path("~/Library/Keychains/signing-db"),
+      keychain_password:    "gh-actions-signing",
+      generate_apple_certs: true
     )
 
     sigh(
@@ -93,6 +128,8 @@ platform :ios do
 
 end
 
+# ══ Android ═══════════════════════════════════════════════════════════════════
+
 platform :android do
 
   desc "Build and upload to Google Play Internal track"
@@ -115,7 +152,7 @@ platform :android do
     )
   end
 
-  desc "Promote Internal to Production on Google Play"
+  desc "Promote Internal → Production on Google Play"
   lane :release do
     upload_to_play_store(
       track:              "internal",
