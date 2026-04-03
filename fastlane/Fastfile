@@ -27,6 +27,22 @@ platform :ios do
       in_house:     false
     )
 
+    # Revoke any existing iOS Distribution certificates to free up quota.
+    # These are orphaned certs from previous CI runs — their private keys
+    # no longer exist, so they are unusable. Revoking them makes room for
+    # a fresh certificate below.
+    begin
+      existing_certs = Spaceship::ConnectAPI::Certificate.all(
+        filter: { certificateType: "IOS_DISTRIBUTION" }
+      )
+      existing_certs.each do |c|
+        UI.message("Revoking orphaned Distribution cert: #{c.display_name} (#{c.id})")
+        Spaceship::ConnectAPI.delete_certificate(certificate_id: c.id)
+      end
+    rescue => e
+      UI.important("Could not revoke existing certs (non-fatal): #{e.message}")
+    end
+
     # Create a signing keychain with a NON-EMPTY password.
     # Empty-password keychains cause 'security set-key-partition-list' to fail
     # silently on macOS 14, leaving the private key inaccessible to codesign.
