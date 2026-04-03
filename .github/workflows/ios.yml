@@ -69,8 +69,20 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Build & upload to TestFlight via Fastlane
+      - name: Write ASC API key to file
         if: github.event_name != 'pull_request'
         env:
           ASC_API_KEY: ${{ secrets.ASC_API_KEY }}
+        run: |
+          echo "$ASC_API_KEY" > /tmp/asc_api_key.p8
+          chmod 600 /tmp/asc_api_key.p8
+
+      - name: Build & upload to TestFlight via Fastlane
+        if: github.event_name != 'pull_request'
+        env:
+          ASC_KEY_FILE: /tmp/asc_api_key.p8
         run: bundle exec fastlane ios ci_beta
+
+      - name: Clean up ASC API key
+        if: always() && github.event_name != 'pull_request'
+        run: rm -f /tmp/asc_api_key.p8
