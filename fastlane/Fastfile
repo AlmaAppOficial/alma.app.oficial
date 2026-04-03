@@ -1,4 +1,4 @@
-# ───────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 #  Fastfile — Alma App automation
 #
 #  Usage:
@@ -7,11 +7,11 @@
 #    bundle exec fastlane ios ci_beta       → CI build + TestFlight (uses ASC API key)
 #    bundle exec fastlane android beta      → build + Play Internal
 #    bundle exec fastlane android release   → build + Play Production
-# ───────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 
 default_platform(:ios)
 
-# ══ iOS ════════════════════════════════════════════════════════════════════════════
+# ══ iOS ═══════════════════════════════════════════════════════════════════════
 
 platform :ios do
 
@@ -37,10 +37,20 @@ platform :ios do
       in_house:     false
     )
 
+    # Keychain created by setup_ci — unlock explicitly so the identity is found
+    keychain_name     = "fastlane_tmp_keychain"
+    keychain_password = ""
+    unlock_keychain(
+      path:     keychain_name,
+      password: keychain_password
+    )
+
     # Create/download distribution certificate (generates key + CSR on runner)
     cert(
-      api_key:      api_key,
-      output_path:  "/tmp/fastlane_certs"
+      api_key:           api_key,
+      keychain_path:     File.expand_path("~/Library/Keychains/#{keychain_name}"),
+      keychain_password: keychain_password,
+      output_path:       "/tmp/fastlane_certs"
     )
 
     # Create/download provisioning profile for App Store distribution
@@ -106,27 +116,27 @@ platform :ios do
       output_name:       "Alma.ipa"
     )
     upload_to_app_store(
-      skip_metadata:     false,
-      skip_screenshots:  false,
-      submit_for_review: false,
-      automatic_release: false,
-      metadata_path:     "./fastlane/metadata/ios",
-      screenshots_path:  "./fastlane/screenshots/ios"
+      skip_metadata:         false,
+      skip_screenshots:      false,
+      submit_for_review:     false,   # set true when ready
+      automatic_release:     false,
+      metadata_path:         "./fastlane/metadata/ios",
+      screenshots_path:      "./fastlane/screenshots/ios"
     )
   end
 
 end
 
-# ══ Android ══════════════════════════════════════════════════════───────────────────────
+# ══ Android ═══════════════════════════════════════════════════════════════════
 
 platform :android do
 
   desc "Build and upload to Google Play Internal track"
   lane :beta do
     gradle(
-      task:        "bundle",
-      build_type:  "Release",
-      project_dir: "android",
+      task:            "bundle",
+      build_type:      "Release",
+      project_dir:     "android",
       properties: {
         "android.injected.signing.store.file"     => ENV["ANDROID_KEYSTORE_PATH"],
         "android.injected.signing.store.password" => ENV["ANDROID_STORE_PASSWORD"],
@@ -144,9 +154,9 @@ platform :android do
   desc "Promote Internal → Production on Google Play"
   lane :release do
     upload_to_play_store(
-      track:            "internal",
-      track_promote_to: "production",
-      package_name:     "AlmaOficial.Alma"
+      track:              "internal",
+      track_promote_to:   "production",
+      package_name:       "AlmaOficial.Alma"
     )
   end
 
