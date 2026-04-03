@@ -1,16 +1,17 @@
-# ─────────────────────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────────────────────────────────────
 #  Fastfile — Alma App automation
 #
 #  Usage:
 #    bundle exec fastlane ios beta          → build + TestFlight
 #    bundle exec fastlane ios release       → build + App Store
+#    bundle exec fastlane ios ci_beta       → CI build + TestFlight (uses ASC API key)
 #    bundle exec fastlane android beta      → build + Play Internal
 #    bundle exec fastlane android release   → build + Play Production
-# ─────────────────────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────────────────────────────────────
 
 default_platform(:ios)
 
-# ══ iOS ═══════════════════════════════════════════════════════════════════════
+# ══ iOS ════════════════════════════════════════════════════════════════════════════
 
 platform :ios do
 
@@ -20,6 +21,54 @@ platform :ios do
       project:     "Alma.App.Oficial.xcodeproj",
       scheme:      "Alma.App.Oficial (iOS)",
       destination: "platform=iOS Simulator,name=iPhone 15"
+    )
+  end
+
+  desc "CI: build and upload to TestFlight using ASC API key (no .p12 needed)"
+  lane :ci_beta do
+    setup_ci
+
+    api_key = app_store_connect_api_key(
+      key_id:     ENV["ASC_KEY_ID"],
+      issuer_id:  ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_API_KEY"],
+      duration:   1200,
+      in_house:   false
+    )
+
+    # Create/download distribution certificate (generates key + CSR on runner)
+    cert(
+      api_key:      api_key,
+      output_path:  "/tmp/fastlane_certs"
+    )
+
+    # Create/download provisioning profile for App Store distribution
+    sigh(
+      api_key:            api_key,
+      app_identifier:     "com.almaapp.app",
+      provisioning_name:  "Alma App CI Distribution",
+      force:              true,
+      output_path:        "/tmp/fastlane_profiles"
+    )
+
+    # Use GitHub run number as build number (always increasing)
+    increment_build_number(
+      build_number: ENV["GITHUB_RUN_NUMBER"] || Time.now.to_i.to_s,
+      xcodeproj:    "Alma.App.Oficial.xcodeproj"
+    )
+
+    build_ios_app(
+      project:          "Alma.App.Oficial.xcodeproj",
+      scheme:           "Alma.App.Oficial (iOS)",
+      configuration:    "Release",
+      export_method:    "app-store",
+      output_directory: "./build",
+      output_name:      "Alma.ipa"
+    )
+
+    upload_to_testflight(
+      api_key:                          api_key,
+      skip_waiting_for_build_processing: true
     )
   end
 
@@ -56,27 +105,27 @@ platform :ios do
       output_name:       "Alma.ipa"
     )
     upload_to_app_store(
-      skip_metadata:         false,
-      skip_screenshots:      false,
-      submit_for_review:     false,   # set true when ready
-      automatic_release:     false,
-      metadata_path:         "./fastlane/metadata/ios",
-      screenshots_path:      "./fastlane/screenshots/ios"
+      skip_metadata:     false,
+      skip_screenshots:  false,
+      submit_for_review: false,
+      automatic_release: false,
+      metadata_path:     "./fastlane/metadata/ios",
+      screenshots_path:  "./fastlane/screenshots/ios"
     )
   end
 
 end
 
-# ══ Android ═══════════════════════════════════════════════════════════════════
+# ══ Android ═════════════════════════════════════════════════════════════════════════════
 
 platform :android do
 
   desc "Build and upload to Google Play Internal track"
   lane :beta do
     gradle(
-      task:            "bundle",
-      build_type:      "Release",
-      project_dir:     "android",
+      task:        "bundle",
+      build_type:  "Release",
+      project_dir: "android",
       properties: {
         "android.injected.signing.store.file"     => ENV["ANDROID_KEYSTORE_PATH"],
         "android.injected.signing.store.password" => ENV["ANDROID_STORE_PASSWORD"],
@@ -94,9 +143,9 @@ platform :android do
   desc "Promote Internal → Production on Google Play"
   lane :release do
     upload_to_play_store(
-      track:              "internal",
-      track_promote_to:   "production",
-      package_name:       "AlmaOficial.Alma"
+      track:            "internal",
+      track_promote_to: "production",
+      package_name:     "AlmaOficial.Alma"
     )
   end
 
