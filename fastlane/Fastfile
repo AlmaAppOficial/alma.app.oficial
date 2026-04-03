@@ -77,13 +77,18 @@ platform :ios do
       xcodeproj:    "Alma.App.Oficial.xcodeproj"
     )
 
+    # Override code signing via xcargs so the project's own CODE_SIGN_IDENTITY
+    # setting (which may point to Development) doesn't interfere.
     build_ios_app(
       project:           "Alma.App.Oficial.xcodeproj",
       scheme:            "Alma.App.Oficial (iOS)",
       configuration:     "Release",
       export_method:     "app-store",
       output_directory:  "./build",
-      output_name:       "Alma.ipa"
+      output_name:       "Alma.ipa",
+      xcargs:            "CODE_SIGN_IDENTITY='Apple Distribution' " \
+                         "DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}' " \
+                         "PROVISIONING_PROFILE_SPECIFIER='#{lane_context[SharedValues::SIGH_UUID]}'"
     )
 
     upload_to_testflight(
