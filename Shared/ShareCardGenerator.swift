@@ -82,7 +82,7 @@ actor ShareCardGenerator {
         guard let image = await renderCardAsImage(type: type) else { return }
 
         let activityViewController = UIActivityViewController(
-            activityItems: [image, "Confira minha jornada com Alma 🧘 https://alma.app"],
+            activityItems: [image, "Confira minha jornada com Alma 🧘 #AlmaMeditação"],
             applicationActivities: nil
         )
 
