@@ -76,6 +76,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: ruby/setup-ruby@v1
         with:
+          ruby-version: '3.2'
           bundler-cache: true
 
       - name: Build & upload to TestFlight via Fastlane
