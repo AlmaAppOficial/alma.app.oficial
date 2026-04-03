@@ -1,14 +1,11 @@
 # ─────────────────────────────────────────────────────────────────────────────
-#  iOS Build & TestFlight Upload — Manual Signing
+# iOS Build & TestFlight Upload — Automatic Signing via ASC API
 #
-#  Required GitHub Secrets:
-#    APPLE_TEAM_ID               – Team ID (J9U729KYR7)
-#    CERTIFICATE_BASE64          – base64 of Distribution .p12 file
-#    CERTIFICATE_PASSWORD        – password for the .p12 file
-#    PROVISIONING_PROFILE_BASE64 – base64 of the .mobileprovision file
-#    ASC_KEY_ID                  – App Store Connect API Key ID
-#    ASC_ISSUER_ID               – App Store Connect Issuer ID (UUID)
-#    ASC_API_KEY                 – Contents of the .p8 file from ASC API
+# Required GitHub Secrets:
+#   APPLE_TEAM_ID      – Team ID (J9U729KYR7)
+#   ASC_KEY_ID         – App Store Connect API Key ID
+#   ASC_ISSUER_ID      – App Store Connect Issuer ID (UUID)
+#   ASC_API_KEY        – Contents of the .p8 file from ASC API
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: iOS Build & TestFlight
@@ -42,6 +39,8 @@ jobs:
       contents: read
     env:
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
 
     steps:
       - uses: actions/checkout@v4
@@ -49,35 +48,14 @@ jobs:
       - name: Select Xcode 15
         run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
 
-      - name: Install Distribution Certificate
+      - name: Install App Store Connect API key
         if: github.event_name != 'pull_request'
         env:
-          CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_BASE64 }}
-          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          ASC_API_KEY: ${{ secrets.ASC_API_KEY }}
         run: |
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          echo -n "$CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
-          security import "$CERTIFICATE_PATH" -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH"
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-
-      - name: Install Provisioning Profile
-        if: github.event_name != 'pull_request'
-        env:
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PROFILE_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$PROFILE_PATH"
-          PP_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID xml1 - -o - | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
-          echo "PP_UUID=$PP_UUID" >> $GITHUB_ENV
-          cp "$PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PP_UUID.mobileprovision"
-          echo "Installed profile UUID: $PP_UUID"
+          mkdir -p ~/.private_keys
+          echo "$ASC_API_KEY" > ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8
+          chmod 600 ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8
 
       - name: Build (PR — no signing)
         if: github.event_name == 'pull_request'
@@ -100,10 +78,11 @@ jobs:
             -destination "generic/platform=iOS" \
             -configuration Release \
             DEVELOPMENT_TEAM=$APPLE_TEAM_ID \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="Alma App Oficial - App Store" \
             -archivePath $RUNNER_TEMP/Alma.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8 \
+            -authenticationKeyID $ASC_KEY_ID \
+            -authenticationKeyIssuerID $ASC_ISSUER_ID \
             archive
 
       - name: Export IPA
@@ -116,15 +95,6 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store</string>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>signingCertificate</key>
-            <string>iPhone Distribution</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>com.almaapp.app</key>
-              <string>Alma App Oficial - App Store</string>
-            </dict>
             <key>uploadBitcode</key>
             <false/>
             <key>uploadSymbols</key>
@@ -135,7 +105,11 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath $RUNNER_TEMP/Alma.xcarchive \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
-            -exportPath $RUNNER_TEMP/ipa
+            -exportPath $RUNNER_TEMP/ipa \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8 \
+            -authenticationKeyID $ASC_KEY_ID \
+            -authenticationKeyIssuerID $ASC_ISSUER_ID
 
       - name: Upload IPA artifact
         if: github.event_name != 'pull_request'
@@ -154,18 +128,16 @@ jobs:
       - name: Upload to TestFlight
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_API_KEY: ${{ secrets.ASC_API_KEY }}
         run: |
           python3 -c "
           import json, os
           api_key = {
-            'key_id': os.environ['ASC_KEY_ID'],
-            'issuer_id': os.environ['ASC_ISSUER_ID'],
-            'key': os.environ['ASC_API_KEY'],
-            'duration': 1200,
-            'in_house': False
+              'key_id': os.environ['ASC_KEY_ID'],
+              'issuer_id': os.environ['ASC_ISSUER_ID'],
+              'key': os.environ['ASC_API_KEY'],
+              'duration': 1200,
+              'in_house': False
           }
           with open('/tmp/asc_api_key.json', 'w') as f:
               json.dump(api_key, f)
@@ -177,7 +149,6 @@ jobs:
             skip_waiting_for_build_processing:true
           rm -f /tmp/asc_api_key.json
 
-      - name: Clean up keychain
+      - name: Clean up API key
         if: always() && github.event_name != 'pull_request'
-        run: |
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db 2>/dev/null || true
+        run: rm -f ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8 2>/dev/null || true
