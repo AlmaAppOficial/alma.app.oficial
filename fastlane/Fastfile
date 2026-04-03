@@ -2,7 +2,7 @@ default_platform(:ios)
 
 platform :ios do
 
-  desc "CI: Build + TestFlight via Fastlane (cert + sigh)"
+  desc "CI: Build and upload to TestFlight"
   lane :ci_beta do
     setup_ci
 
@@ -13,18 +13,6 @@ platform :ios do
       duration:     1200,
       in_house:     false
     )
-
-    # Decode and install the .p12 distribution certificate from secrets
-    require "base64"
-    cert_path = "/tmp/dist_cert.p12"
-    File.binwrite(cert_path, Base64.decode64(ENV["CERTIFICATE_BASE64"]))
-    import_certificate(
-      certificate_path:     cert_path,
-      certificate_password: ENV["CERTIFICATE_PASSWORD"],
-      keychain_path:        File.expand_path("~/Library/Keychains/fastlane_tmp_keychain-db"),
-      keychain_password:    ""
-    )
-    File.delete(cert_path)
 
     sigh(
       api_key:        api_key,
@@ -52,13 +40,67 @@ platform :ios do
     )
   end
 
+  desc "Run tests"
+  lane :test do
+    run_tests(
+      project:     "Alma.App.Oficial.xcodeproj",
+      scheme:      "Alma.App.Oficial (iOS)",
+      destination: "platform=iOS Simulator,name=iPhone 15"
+    )
+  end
+
+  desc "Build and upload to TestFlight (beta)"
+  lane :beta do
+    increment_build_number(
+      xcodeproj: "Alma.App.Oficial.xcodeproj"
+    )
+    build_ios_app(
+      project:           "Alma.App.Oficial.xcodeproj",
+      scheme:            "Alma.App.Oficial (iOS)",
+      configuration:     "Release",
+      export_method:     "app-store",
+      output_directory:  "./build",
+      output_name:       "Alma.ipa"
+    )
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      apple_id:                          ENV["APPLE_ID"]
+    )
+  end
+
+  desc "Build and submit to App Store"
+  lane :release do
+    increment_build_number(
+      xcodeproj: "Alma.App.Oficial.xcodeproj"
+    )
+    build_ios_app(
+      project:           "Alma.App.Oficial.xcodeproj",
+      scheme:            "Alma.App.Oficial (iOS)",
+      configuration:     "Release",
+      export_method:     "app-store",
+      output_directory:  "./build",
+      output_name:       "Alma.ipa"
+    )
+    upload_to_app_store(
+      skip_metadata:         false,
+      skip_screenshots:      false,
+      submit_for_review:     false,
+      automatic_release:     false,
+      metadata_path:         "./fastlane/metadata/ios",
+      screenshots_path:      "./fastlane/screenshots/ios"
+    )
+  end
+
 end
 
 platform :android do
 
+  desc "Build and upload to Google Play Internal track"
   lane :beta do
     gradle(
-      task: "bundle", build_type: "Release", project_dir: "android",
+      task:            "bundle",
+      build_type:      "Release",
+      project_dir:     "android",
       properties: {
         "android.injected.signing.store.file"     => ENV["ANDROID_KEYSTORE_PATH"],
         "android.injected.signing.store.password" => ENV["ANDROID_STORE_PASSWORD"],
@@ -66,11 +108,20 @@ platform :android do
         "android.injected.signing.key.password"   => ENV["ANDROID_KEY_PASSWORD"],
       }
     )
-    upload_to_play_store(track: "internal", aab: "android/app/build/outputs/bundle/release/app-release.aab", package_name: "AlmaOficial.Alma")
+    upload_to_play_store(
+      track:        "internal",
+      aab:          "android/app/build/outputs/bundle/release/app-release.aab",
+      package_name: "AlmaOficial.Alma"
+    )
   end
 
+  desc "Promote Internal to Production on Google Play"
   lane :release do
-    upload_to_play_store(track: "internal", track_promote_to: "production", package_name: "AlmaOficial.Alma")
+    upload_to_play_store(
+      track:              "internal",
+      track_promote_to:   "production",
+      package_name:       "AlmaOficial.Alma"
+    )
   end
 
 end
