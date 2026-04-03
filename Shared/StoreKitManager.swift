@@ -129,7 +129,7 @@ class StoreKitManager: ObservableObject {
     private func listenForTransactions() -> Task<Void, Error> {
         Task.detached(priority: .background) {
             for await result in Transaction.updates {
-                if let tx = try? await MainActor.run(body: { self.checkVerified(result) }) {
+                if let tx = try? await MainActor.run(body: { try self.checkVerified(result) }) {
                     await tx.finish()
                     NotificationCenter.default.post(name: .storeKitPurchaseCompleted, object: nil)
                 }
