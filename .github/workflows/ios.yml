@@ -37,7 +37,7 @@ concurrency:
 jobs:
   build:
     name: Build iOS App
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     permissions:
       contents: read
@@ -49,12 +49,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode 16
+      - name: Select Xcode 26
         run: |
-          # Pick the latest Xcode 16.x available on this runner
-          XCODE16=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1)
-          if [ -n "$XCODE16" ]; then
-            sudo xcode-select -s "$XCODE16/Contents/Developer"
+          # Pick the latest Xcode 26.x available on this runner
+          XCODE26=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XCODE26" ]; then
+            sudo xcode-select -s "$XCODE26/Contents/Developer"
           fi
           xcodebuild -version
 
