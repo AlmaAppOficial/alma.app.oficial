@@ -314,12 +314,3 @@ private struct FlowLayout: View {
     }
 }
 
-// MARK: - Share sheet
-
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
-}

@@ -39,6 +39,7 @@
 		9ECED1002F589030009412A7 /* SubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0EE2F58902E009412A7 /* SubscriptionView.swift */; };
 		9ECED1012F589030009412A7 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0EF2F58902F009412A7 /* ProfileView.swift */; };
 		9ECED1022F589030009412A7 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0EF2F58902F009412A7 /* ProfileView.swift */; };
+		9ECED1032F589030009412A7 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0F02F58902F009412A7 /* InsightsView.swift */; };
 		9ECED1042F589030009412A7 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0F02F58902F009412A7 /* InsightsView.swift */; };
 		9ECED1072F589311009412A7 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1062F589311009412A7 /* FirebaseAnalytics */; };
 		9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1082F589311009412A7 /* FirebaseAuth */; };
@@ -47,6 +48,8 @@
 		ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */; };
 		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
 		FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0004 /* FacebookLogin */; };
+		FF001001FF001001FF001001 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
+		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB100001BB100001BB100001 /* GoogleService-Info.plist */; };
 		PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */; };
 		C63FF451FA7A99DD13A6089E /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
@@ -129,6 +132,7 @@
 		9ECED0EC2F58902E009412A7 /* OpenAIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
 		9ECED0ED2F58902E009412A7 /* MessageBubble.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		9ECED0EE2F58902E009412A7 /* SubscriptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
+		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		9ECED0EF2F58902F009412A7 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		9ECED0F02F58902F009412A7 /* InsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		AA001001AA001001AA001001 /* AlmaWatchApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchApp.swift; sourceTree = "<group>"; };
@@ -239,6 +243,7 @@
 				9ECED0EF2F58902F009412A7 /* ProfileView.swift */,
 				9ECED0E72F58902C009412A7 /* RootView.swift */,
 				9ECED0EE2F58902E009412A7 /* SubscriptionView.swift */,
+				FF001000FF001000FF001000 /* StoreKitManager.swift */,
 				9ECED0E82F58902C009412A7 /* Theme.swift */,
 				CC001000CC001000CC001000 /* PraticasView.swift */,
 				DD001000DD001000DD001000 /* AlmaLogo.swift */,
@@ -519,6 +524,7 @@
 				9ECED1032F589030009412A7 /* InsightsView.swift in Sources */,
 				9ECED0CA2F588F21009412A7 /* Alma_App_OficialApp.swift in Sources */,
 				9ECED0FF2F589030009412A7 /* SubscriptionView.swift in Sources */,
+				FF001001FF001001FF001001 /* StoreKitManager.swift in Sources */,
 				9ECED0F32F589030009412A7 /* Theme.swift in Sources */,
 				9ECED0F72F589030009412A7 /* HomeView.swift in Sources */,
 				9ECED0FB2F589030009412A7 /* OpenAIService.swift in Sources */,
@@ -570,6 +576,7 @@
 				9ECED1042F589030009412A7 /* InsightsView.swift in Sources */,
 				9ECED0BB2F588F21009412A7 /* Tests_iOS.swift in Sources */,
 				9ECED1002F589030009412A7 /* SubscriptionView.swift in Sources */,
+				FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */,
 				9ECED0F42F589030009412A7 /* Theme.swift in Sources */,
 				9ECED0F82F589030009412A7 /* HomeView.swift in Sources */,
 				9ECED0FC2F589030009412A7 /* OpenAIService.swift in Sources */,
