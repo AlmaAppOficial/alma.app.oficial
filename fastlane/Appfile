@@ -1,7 +1,7 @@
 # Appfile — app identifiers for fastlane
 # https://docs.fastlane.tools/advanced/Appfile/
 
-app_identifier("AlmaOficial.Alma")   # iOS Bundle ID / Android package name
+app_identifier("com.almaapp.app")    # iOS Bundle ID
 apple_id(ENV["APPLE_ID"])            # Your Apple ID email (stored as env var)
 
 # Google Play service account
