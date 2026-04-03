@@ -2,13 +2,12 @@
 #  Fastfile — Alma App automation
 #
 #  Usage:
-#    bundle exec fastlane ios ci_beta       → CI: build + TestFlight (p12 cert)
+#    bundle exec fastlane ios ci_beta       → CI: build + TestFlight (cert action)
 #    bundle exec fastlane ios beta          → build + TestFlight
 #    bundle exec fastlane ios release       → build + App Store
 #    bundle exec fastlane android beta      → build + Play Internal
 #    bundle exec fastlane android release   → build + Play Production
 # ─────────────────────────────────────────────────────────────────────────────
-
 
 default_platform(:ios)
 
@@ -16,7 +15,7 @@ default_platform(:ios)
 
 platform :ios do
 
-  desc "CI: Build and upload to TestFlight using .p12 certificate from env"
+  desc "CI: Build and upload to TestFlight using cert action"
   lane :ci_beta do
     setup_ci
 
@@ -28,10 +27,9 @@ platform :ios do
       in_house:     false
     )
 
-    # Write p12 from env var to temp file
     cert(
       api_key:           api_key,
-      keychain_name:     "fastlane_tmp_keychain",
+      keychain_path:     File.expand_path("~/Library/Keychains/fastlane_tmp_keychain-db"),
       keychain_password: ""
     )
 
@@ -115,7 +113,7 @@ platform :ios do
 
 end
 
-# ══ Android ═════════════════════════════════════════════════════════════════════════════
+# ══ Android ═══════════════════════════════════════════════════════════════════
 
 platform :android do
 
