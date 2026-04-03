@@ -19,6 +19,7 @@ on:
       - 'ios/**'
       - 'Shared/**'
       - 'Alma.App.Oficial.xcodeproj/**'
+      - 'fastlane/**'
       - '.github/workflows/ios.yml'
   pull_request:
     branches: [main]
@@ -26,6 +27,7 @@ on:
       - 'ios/**'
       - 'Shared/**'
       - 'Alma.App.Oficial.xcodeproj/**'
+      - 'fastlane/**'
   workflow_dispatch:
 
 concurrency:
