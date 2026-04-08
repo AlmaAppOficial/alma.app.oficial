@@ -46,7 +46,7 @@ class AccessManager: ObservableObject {
 
     // MARK: - Verificação de Acesso
 
-    /// Verifica acesso via StoreKit (IAP) ou Firebase Custom Claims
+    /// Verifica acesso via StoreKit (IAP), Firebase Custom Claims ou trial gratuito de 7 dias
     func checkAccess(user: User) async {
         isChecking = true
         let previousValue = isPremium
@@ -57,6 +57,11 @@ class AccessManager: ObservableObject {
         } else {
             // 2. Fallback: Firebase Custom Claims (subscritores web / Stripe)
             await checkFirebaseClaims(user: user)
+
+            // 3. Trial gratuito de 7 dias após criação da conta
+            if !isPremium && isInFreeTrial(user: user) {
+                isPremium = true
+            }
         }
 
         isChecking = false
@@ -65,6 +70,20 @@ class AccessManager: ObservableObject {
         if !previousValue && isPremium {
             MetaEventsManager.shared.trackStartTrial()
         }
+    }
+
+    /// Verifica se o utilizador está dentro dos 7 dias gratuitos após criação da conta
+    private func isInFreeTrial(user: User) -> Bool {
+        guard let creationDate = user.metadata.creationDate else { return false }
+        let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
+        return days < 7
+    }
+
+    /// Número de dias restantes do trial gratuito (0 se expirado ou com subscrição)
+    func trialDaysRemaining(user: User) -> Int {
+        guard let creationDate = user.metadata.creationDate else { return 0 }
+        let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
+        return max(0, 7 - days)
     }
 
     /// Verifica se existe uma compra activa no StoreKit 2
