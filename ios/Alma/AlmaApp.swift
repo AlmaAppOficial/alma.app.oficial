@@ -1,8 +1,6 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAuth
-import GoogleSignIn
-
 // MARK: - App Delegate
 class AppDelegate: NSObject, UIApplicationDelegate {
 
@@ -12,11 +10,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 
-    // Necessário para Google Sign-In
     func application(_ app: UIApplication,
                      open url: URL,
                      options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        return GIDSignIn.sharedInstance.handle(url)
+        return Auth.auth().canHandle(url)
     }
 }
 
