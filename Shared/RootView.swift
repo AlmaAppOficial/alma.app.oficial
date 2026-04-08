@@ -7,6 +7,7 @@ struct RootView: View {
     @StateObject private var store  = StoreKitManager()
     @State private var logged = false
     @State private var isLoading = true
+    @State private var currentUser: User? = nil
     @AppStorage("onboardingComplete") private var onboardingComplete = false
 
     var body: some View {
@@ -31,11 +32,21 @@ struct RootView: View {
                 MainTabView()
                     .environmentObject(access)
                     .environmentObject(store)
+                    .overlay(alignment: .top) {
+                        // Banner de trial gratuito (apenas durante os 7 dias grátis)
+                        if let user = currentUser {
+                            let days = access.trialDaysRemaining(user: user)
+                            if days > 0 {
+                                trialBanner(daysRemaining: days)
+                            }
+                        }
+                    }
             }
         }
         .onAppear {
             Auth.auth().addStateDidChangeListener { _, user in
                 logged = user != nil
+                currentUser = user
                 if user == nil {
                     isLoading = false
                 }
@@ -43,6 +54,37 @@ struct RootView: View {
         }
         .onChange(of: access.isChecking) { checking in
             if !checking { isLoading = false }
+        }
+    }
+
+    // MARK: - Trial Banner
+
+    @State private var trialBannerDismissed = false
+
+    @ViewBuilder
+    private func trialBanner(daysRemaining: Int) -> some View {
+        if !trialBannerDismissed {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .foregroundColor(.yellow)
+                Text(daysRemaining == 1
+                     ? "Último dia do teu trial gratuito"
+                     : "\(daysRemaining) dias grátis restantes")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.white)
+                Spacer()
+                Button {
+                    withAnimation { trialBannerDismissed = true }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.purple.opacity(0.85))
+            .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
 
