@@ -3,8 +3,6 @@ import FirebaseAuth
 import FirebaseCore
 import AuthenticationServices
 import CryptoKit
-import GoogleSignIn
-import FacebookLogin
 
 struct LoginView: View {
 
@@ -364,48 +362,23 @@ struct AuthSheet: View {
 
     // MARK: - Google Sign In
     private func signInWithGoogle() {
-        guard let clientID = FirebaseApp.app()?.options.clientID else {
-            errorMessage = "Erro de configuração do Firebase."
-            return
-        }
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootViewController = windowScene.windows.first?.rootViewController else {
-            errorMessage = "Erro ao obter a janela principal."
-            return
-        }
-
         isLoading = true
-        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                if let error = error {
-                    if (error as NSError).domain != "com.google.GIDSignIn" ||
-                        (error as NSError).code != -5 { // GIDSignInError.canceled
-                        self.errorMessage = error.localizedDescription
-                    }
-                    return
+        Task {
+            do {
+                let provider = OAuthProvider(providerID: "google.com")
+                provider.customParameters = ["prompt": "select_account"]
+                let credential = try await provider.credential(with: nil)
+                try await Auth.auth().signIn(with: credential)
+                await MainActor.run {
+                    self.isLoading = false
+                    self.logged = true
+                    self.dismiss()
                 }
-                guard let user = result?.user,
-                      let idToken = user.idToken?.tokenString else {
-                    self.errorMessage = "Não foi possível obter o token do Google."
-                    return
-                }
-                let credential = GoogleAuthProvider.credential(
-                    withIDToken: idToken,
-                    accessToken: user.accessToken.tokenString
-                )
-                self.isLoading = true
-                Auth.auth().signIn(with: credential) { _, error in
-                    DispatchQueue.main.async {
-                        self.isLoading = false
-                        if let error = error {
-                            self.errorMessage = self.firebaseMessage(error)
-                        } else {
-                            self.logged = true
-                            self.dismiss()
-                        }
+            } catch let error as NSError {
+                await MainActor.run {
+                    self.isLoading = false
+                    if error.code != AuthErrorCode.webContextCancelled.rawValue {
+                        self.errorMessage = self.firebaseMessage(error)
                     }
                 }
             }
@@ -414,31 +387,23 @@ struct AuthSheet: View {
 
     // MARK: - Facebook Sign In
     private func signInWithFacebook() {
-        let loginManager = LoginManager()
         isLoading = true
-        loginManager.logIn(permissions: ["email", "public_profile"], from: nil) { result, error in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                if let error = error {
-                    self.errorMessage = error.localizedDescription
-                    return
+        Task {
+            do {
+                let provider = OAuthProvider(providerID: "facebook.com")
+                provider.scopes = ["email", "public_profile"]
+                let credential = try await provider.credential(with: nil)
+                try await Auth.auth().signIn(with: credential)
+                await MainActor.run {
+                    self.isLoading = false
+                    self.logged = true
+                    self.dismiss()
                 }
-                guard let result = result, !result.isCancelled else { return }
-                guard let tokenString = AccessToken.current?.tokenString else {
-                    self.errorMessage = "Não foi possível obter o token do Facebook."
-                    return
-                }
-                let credential = FacebookAuthProvider.credential(withAccessToken: tokenString)
-                self.isLoading = true
-                Auth.auth().signIn(with: credential) { _, error in
-                    DispatchQueue.main.async {
-                        self.isLoading = false
-                        if let error = error {
-                            self.errorMessage = self.firebaseMessage(error)
-                        } else {
-                            self.logged = true
-                            self.dismiss()
-                        }
+            } catch let error as NSError {
+                await MainActor.run {
+                    self.isLoading = false
+                    if error.code != AuthErrorCode.webContextCancelled.rawValue {
+                        self.errorMessage = self.firebaseMessage(error)
                     }
                 }
             }
