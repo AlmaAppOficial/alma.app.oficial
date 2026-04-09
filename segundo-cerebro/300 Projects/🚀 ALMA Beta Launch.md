@@ -161,4 +161,4 @@ Ver: [[400 Resources/Psicologia e Gatilhos ALMA]]
 **Depois:** Verificar respostas dos influencers. Enviar follow-up com PT-BR correto.
 
 ---
-*Projecto activo — [[300 Projects]]*
+*Projeto ativo — [[300 Projects]]*
