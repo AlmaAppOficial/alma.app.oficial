@@ -104,7 +104,41 @@
 	<key>UIAppFonts</key>
 	<array/>
 
-	<!-- Note: Google Sign-In URL scheme will be added in CICLO 2 -->
-	<!-- CFBundleURLTypes for Google Sign-In will be configured via Xcode -->
+	<!-- Google Sign-In: reversed CLIENT_ID para callback OAuth -->
+	<!-- Facebook Login: fb{AppID} URL scheme para callback de autenticação -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.824031625799-7a5n2nn6haa4447a37r9mo3lvtbp0qav</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb872133652529378</string>
+			</array>
+		</dict>
+	</array>
+	<!-- Permite iOS abrir apps do Google e Facebook durante autenticação -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlegmail</string>
+		<string>googleapis</string>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
+	</array>
+	<!-- Facebook App ID -->
+	<key>FacebookAppID</key>
+	<string>872133652529378</string>
+	<key>FacebookClientToken</key>
+	<string>f267fb95a01515037a3f046511eedf5f</string>
 </dict>
 </plist>
