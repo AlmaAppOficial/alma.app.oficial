@@ -19,28 +19,15 @@ struct RootView: View {
                 NavigationView {
                     LoginView(logged: $logged)
                 }
-            } else if !access.isPremium {
-                // Autenticado mas sem subscrição activa → Paywall (Apple IAP)
-                PremiumWallView()
-                    .environmentObject(access)
-                    .environmentObject(store)
             } else if !onboardingComplete {
-                // Premium mas ainda não fez onboarding
+                // Logado mas ainda não fez onboarding
                 OnboardingBiometricsView()
             } else {
-                // Premium + onboarding completo → App completa
+                // Logado + onboarding completo → App completa
+                // BETA: acesso livre para todos os beta testers
                 MainTabView()
                     .environmentObject(access)
                     .environmentObject(store)
-                    .overlay(alignment: .top) {
-                        // Banner de trial gratuito (apenas durante os 7 dias grátis)
-                        if let user = currentUser {
-                            let days = access.trialDaysRemaining(user: user)
-                            if days > 0 {
-                                trialBanner(daysRemaining: days)
-                            }
-                        }
-                    }
             }
         }
         .onAppear {

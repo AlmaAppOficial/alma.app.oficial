@@ -72,18 +72,24 @@ class AccessManager: ObservableObject {
         }
     }
 
-    /// Verifica se o utilizador está dentro dos 7 dias gratuitos após criação da conta
+    /// BETA: todos os utilizadores têm acesso gratuito durante 365 dias
+    /// TODO: reduzir para 7 dias após lançamento oficial
+    private let betaTrialDays = 365
+
+    /// Verifica se o utilizador está dentro do período beta gratuito
     private func isInFreeTrial(user: User) -> Bool {
-        guard let creationDate = user.metadata.creationDate else { return false }
+        // BETA: usuários anônimos e novos sempre têm acesso
+        if user.isAnonymous { return true }
+        guard let creationDate = user.metadata.creationDate else { return true }
         let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
-        return days < 7
+        return days < betaTrialDays
     }
 
-    /// Número de dias restantes do trial gratuito (0 se expirado ou com subscrição)
+    /// Número de dias restantes do trial (para exibição no banner)
     func trialDaysRemaining(user: User) -> Int {
-        guard let creationDate = user.metadata.creationDate else { return 0 }
+        guard let creationDate = user.metadata.creationDate else { return betaTrialDays }
         let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
-        return max(0, 7 - days)
+        return max(0, betaTrialDays - days)
     }
 
     /// Verifica se existe uma compra activa no StoreKit 2

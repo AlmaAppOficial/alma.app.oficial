@@ -69,7 +69,7 @@ struct LoginView: View {
                     .background(CalmTheme.heroGradient)
                     .cornerRadius(CalmTheme.rMedium)
                     Button { authMode = .register; showAuthSheet = true } label: {
-                        Text("Criar conta gratuita")
+                        Text("Criar conta grátis")
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
@@ -133,9 +133,9 @@ struct AuthSheet: View {
                         .padding(.top, 24)
                         VStack(spacing: 14) {
                             authField(icon: "envelope.fill", placeholder: "Email", text: $email, isSecure: false)
-                            authField(icon: "lock.fill", placeholder: "Password", text: $password, isSecure: true)
+                            authField(icon: "lock.fill", placeholder: "Senha", text: $password, isSecure: true)
                             if isRegister {
-                                authField(icon: "lock.fill", placeholder: "Confirmar password", text: $confirmPassword, isSecure: true)
+                                authField(icon: "lock.fill", placeholder: "Confirmar senha", text: $confirmPassword, isSecure: true)
                             }
                         }
                         .padding(.horizontal, 24)
@@ -156,12 +156,12 @@ struct AuthSheet: View {
                         Button {
                             withAnimation { mode = isRegister ? .login : .register; errorMessage = nil }
                         } label: {
-                            Text(isRegister ? "Já tens conta? Entra aqui" : "Não tens conta? Cria uma")
+                            Text(isRegister ? "Já tem conta? Entre aqui" : "Não tens conta? Cria uma")
                                 .font(.subheadline).foregroundColor(CalmTheme.primary)
                         }
                         if !isRegister {
                             Button { sendPasswordReset() } label: {
-                                Text("Esqueceste a password?").font(.subheadline).foregroundColor(CalmTheme.textSecondary)
+                                Text("Esqueceu a senha?").font(.subheadline).foregroundColor(CalmTheme.textSecondary)
                             }
                         }
 
@@ -282,10 +282,10 @@ struct AuthSheet: View {
         errorMessage = nil
         let e = email.trimmingCharacters(in: .whitespaces)
         let p = password.trimmingCharacters(in: .whitespaces)
-        guard !e.isEmpty, !p.isEmpty else { errorMessage = "Preenche o email e a password."; return }
+        guard !e.isEmpty, !p.isEmpty else { errorMessage = "Preencha o e-mail e a senha."; return }
         if isRegister {
-            guard p == confirmPassword.trimmingCharacters(in: .whitespaces) else { errorMessage = "As passwords não coincidem."; return }
-            guard p.count >= 6 else { errorMessage = "A password deve ter pelo menos 6 caracteres."; return }
+            guard p == confirmPassword.trimmingCharacters(in: .whitespaces) else { errorMessage = "As senhas não coincidem."; return }
+            guard p.count >= 6 else { errorMessage = "A senha deve ter no mínimo 6 caracteres."; return }
             createAccount(email: e, password: p)
         } else {
             signIn(email: e, password: p)
