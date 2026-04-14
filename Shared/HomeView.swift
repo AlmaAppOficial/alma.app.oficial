@@ -384,20 +384,9 @@ struct HomeView: View {
                 Spacer()
                 if hasValidBirthDate {
                     Button(action: {
-                        if let date = birthDate {
-                            let insight = KabbalisticEngine.dailyInsight(birthDate: date)
-                            // Render branded share card
-                            let card = AlmaInsightShareCard(insight: insight)
-                            if #available(iOS 16.0, *) {
-                                let renderer = ImageRenderer(content: card.frame(width: 1080, height: 1080))
-                                renderer.scale = 2.0
-                                if let img = renderer.uiImage {
-                                    insightShareImage = img
-                                } else {
-                                    // Fallback: texto puro
-                                    insightShareImage = nil
-                                }
-                            }
+                        if birthDate != nil {
+                            // Share as plain text (image card not implemented)
+                            insightShareImage = nil
                             showInsightShare = true
                         }
                     }) {

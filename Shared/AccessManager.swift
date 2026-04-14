@@ -82,11 +82,16 @@ class AccessManager: ObservableObject {
         return days < betaTrialDays
     }
 
-    /// Número de dias restantes do trial (para exibição no banner)
+    /// Number of days remaining in the free trial (for banner display)
     func trialDaysRemaining(user: User) -> Int {
         guard let creationDate = user.metadata.creationDate else { return betaTrialDays }
         let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
         return max(0, betaTrialDays - days)
+    }
+
+    /// Returns true if the user's access comes from the free trial window (not a paid subscription)
+    func isTrialActive(for user: User) -> Bool {
+        isInFreeTrial(user: user)
     }
 
     /// Verifica se existe uma compra activa no StoreKit 2

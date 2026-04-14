@@ -23,11 +23,21 @@ struct RootView: View {
                 // Logado mas ainda não fez onboarding
                 OnboardingBiometricsView()
             } else {
-                // Logado + onboarding completo → App completa
-                // BETA: acesso livre para todos os beta testers
-                MainTabView()
-                    .environmentObject(access)
-                    .environmentObject(store)
+                // Logged in + onboarding complete → Full app
+                ZStack(alignment: .top) {
+                    MainTabView()
+                        .environmentObject(access)
+                        .environmentObject(store)
+
+                    // Trial banner — shown only during free trial, dismissible per session
+                    if let user = currentUser, access.isTrialActive(for: user) {
+                        VStack(spacing: 0) {
+                            trialBanner(daysRemaining: access.trialDaysRemaining(user: user))
+                                .animation(.easeInOut(duration: 0.3), value: trialBannerDismissed)
+                            Spacer()
+                        }
+                    }
+                }
             }
         }
         .onAppear {

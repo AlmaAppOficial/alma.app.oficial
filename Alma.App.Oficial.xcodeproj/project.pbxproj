@@ -90,10 +90,7 @@
 		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
 		FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0004 /* FacebookLogin */; };
-		MA001001MA001001MA001001 /* MeditationAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = MA001000MA001000MA001000 /* MeditationAudioPlayer.swift */; };
-		MN001001MN001001MN001001 /* MeditationNarratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MN001000MN001000MN001000 /* MeditationNarratorView.swift */; };
 		PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */; };
-		TT001001TT001001TT001001 /* TTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TT001000TT001000TT001000 /* TTSService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -167,10 +164,7 @@
 		EE018000EE018000EE018000 /* Feed/FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
 		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		FF001001FF001001FF001001 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
-		MA001000MA001000MA001000 /* MeditationAudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeditationAudioPlayer.swift; sourceTree = "<group>"; };
-		MN001000MN001000MN001000 /* MeditationNarratorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeditationNarratorView.swift; sourceTree = "<group>"; };
 		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		TT001000TT001000TT001000 /* TTSService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -264,9 +258,6 @@
 				DD007000DD007000DD007000 /* MetaEventsManager.swift */,
 				DD008000DD008000DD008000 /* FeminineHealthView.swift */,
 				DD009000DD009000DD009000 /* AddictionFreeView.swift */,
-				TT001000TT001000TT001000 /* TTSService.swift */,
-				MA001000MA001000MA001000 /* MeditationAudioPlayer.swift */,
-				MN001000MN001000MN001000 /* MeditationNarratorView.swift */,
 				DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */,
 				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
 				EE012000EE012000EE012000 /* Feed/FeedRepository.swift */,
@@ -556,9 +547,6 @@
 				DD007001DD007001DD007001 /* MetaEventsManager.swift in Sources */,
 				DD008001DD008001DD008001 /* FeminineHealthView.swift in Sources */,
 				DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */,
-				TT001001TT001001TT001001 /* TTSService.swift in Sources */,
-				MA001001MA001001MA001001 /* MeditationAudioPlayer.swift in Sources */,
-				MN001001MN001001MN001001 /* MeditationNarratorView.swift in Sources */,
 				DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */,
 				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,
 				EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */,
