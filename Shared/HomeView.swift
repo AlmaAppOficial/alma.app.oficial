@@ -6,7 +6,8 @@ struct HomeView: View {
     @State private var authorized = false
     @State private var showMoodChat = false
     @State private var showInsightShare = false
-    @State private var insightShareText = ""
+    @State private var insightShareImage: UIImage? = nil
+    @State private var navigateToPraticas = false
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -111,36 +112,41 @@ struct HomeView: View {
 
     // MARK: - Quick Start Button
     private var quickStartButton: some View {
-        Button(action: {
-            // Ação para iniciar meditação rápida
-        }) {
-            HStack(spacing: 16) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Meditar Agora")
-                        .font(.title3.bold())
-                        .foregroundColor(.white)
-                    Text("Comece uma sessão rápida de meditação")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.85))
-                        .lineLimit(2)
-                }
-                Spacer()
-                Image(systemName: "play.circle.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.white.opacity(0.9))
+        ZStack {
+            NavigationLink(destination: PraticasView(), isActive: $navigateToPraticas) {
+                EmptyView()
             }
-            .padding(20)
-            .background(
-                LinearGradient(
-                    colors: [CalmTheme.accent, CalmTheme.accent.opacity(0.8)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+            .hidden()
+
+            Button(action: { navigateToPraticas = true }) {
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Meditar Agora")
+                            .font(.title3.bold())
+                            .foregroundColor(.white)
+                        Text("Comece uma sessão guiada de meditação")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.85))
+                            .lineLimit(2)
+                    }
+                    Spacer()
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(.white.opacity(0.9))
+                }
+                .padding(20)
+                .background(
+                    LinearGradient(
+                        colors: [CalmTheme.accent, CalmTheme.accent.opacity(0.8)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
-            )
-            .cornerRadius(CalmTheme.rLarge)
-            .shadow(color: CalmTheme.accent.opacity(0.3), radius: 12, x: 0, y: 6)
+                .cornerRadius(CalmTheme.rLarge)
+                .shadow(color: CalmTheme.accent.opacity(0.3), radius: 12, x: 0, y: 6)
+            }
+            .padding(.horizontal, 4)
         }
-        .padding(.horizontal, 4)
     }
 
     // MARK: - Mood Check-in Button (small, optional)
@@ -380,7 +386,18 @@ struct HomeView: View {
                     Button(action: {
                         if let date = birthDate {
                             let insight = KabbalisticEngine.dailyInsight(birthDate: date)
-                            insightShareText = "✨ \(insight.energy)\n\n\(insight.message)\n\n\"\(insight.quote)\" — \(insight.quoteAuthor)\n\n— via Alma App"
+                            // Render branded share card
+                            let card = AlmaInsightShareCard(insight: insight)
+                            if #available(iOS 16.0, *) {
+                                let renderer = ImageRenderer(content: card.frame(width: 1080, height: 1080))
+                                renderer.scale = 2.0
+                                if let img = renderer.uiImage {
+                                    insightShareImage = img
+                                } else {
+                                    // Fallback: texto puro
+                                    insightShareImage = nil
+                                }
+                            }
                             showInsightShare = true
                         }
                     }) {
@@ -422,7 +439,7 @@ struct HomeView: View {
             } else {
                 NavigationLink(destination: ProfileView()) {
                     HStack(spacing: 6) {
-                        Text("Define a tua data de nascimento no Perfil para receber Insights da Alma personalizados.")
+                        Text("Defina sua data de nascimento no Perfil para receber Insights da Alma personalizados.")
                             .font(.subheadline)
                             .foregroundColor(CalmTheme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -437,7 +454,16 @@ struct HomeView: View {
         }
         .calmCard()
         .sheet(isPresented: $showInsightShare) {
-            ShareSheet(items: [insightShareText])
+            let caption = "Meu insight do dia com o Alma 💜 #AlmaApp #autoconhecimento"
+            if let image = insightShareImage {
+                ShareSheet(items: [image, caption])
+            } else {
+                // iOS 15 fallback — compartilhar texto puro
+                if let date = UserMemoryManager.shared.birthDate {
+                    let insight = KabbalisticEngine.dailyInsight(birthDate: date)
+                    ShareSheet(items: ["✨ \(insight.energy)\n\n\(insight.message)\n\n\"\(insight.quote)\" — \(insight.quoteAuthor)\n\n\(caption)"])
+                }
+            }
         }
     }
 

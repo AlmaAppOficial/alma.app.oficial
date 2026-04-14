@@ -165,7 +165,7 @@ struct ChatView: View {
             Spacer().frame(height: 40)
             AlmaLogo(size: 72)
 
-            Text("Ola! Eu sou a Alma")
+            Text("Olá! Eu sou a Alma")
                 .font(.title3.bold())
                 .foregroundColor(CalmTheme.textPrimary)
 
@@ -242,13 +242,6 @@ struct ChatView: View {
         let trimmed = inputText.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
-        // Check authentication first
-        if Auth.auth().currentUser == nil {
-            authError = "Por favor faz login para conversar com a Alma."
-            showAuthError = true
-            return
-        }
-
         if timerExpired {
             showLimitAlert = true
             return
@@ -269,6 +262,20 @@ struct ChatView: View {
 
         isTyping = true
         Task {
+            // Se não há utilizador autenticado, fazer login anônimo automaticamente
+            if Auth.auth().currentUser == nil {
+                do {
+                    try await Auth.auth().signInAnonymously()
+                } catch {
+                    await MainActor.run {
+                        isTyping = false
+                        let errMsg = ChatMessage("Não foi possível conectar. Verifique sua internet e tente novamente.", isUser: false)
+                        messages.append(errMsg)
+                    }
+                    return
+                }
+            }
+
             do {
                 let reply = try await OpenAIService.shared.sendMessage(trimmed)
                 let almaMsg = ChatMessage(reply, isUser: false)
@@ -276,11 +283,28 @@ struct ChatView: View {
                     isTyping = false
                     messages.append(almaMsg)
                 }
+            } catch AlmaError.serverError(let code) where code == 401 {
+                // Token expirado — força refresh e tenta de novo
+                await MainActor.run { isTyping = true }
+                do {
+                    if let user = Auth.auth().currentUser {
+                        _ = try await user.getIDToken()
+                    }
+                    let retry = try await OpenAIService.shared.sendMessage(trimmed)
+                    await MainActor.run {
+                        isTyping = false
+                        messages.append(ChatMessage(retry, isUser: false))
+                    }
+                } catch {
+                    await MainActor.run {
+                        isTyping = false
+                        messages.append(ChatMessage("Sessão expirada. Feche e abra o chat novamente para continuar.", isUser: false))
+                    }
+                }
             } catch {
                 await MainActor.run {
                     isTyping = false
-                    let errorDescription = error.localizedDescription
-                    let errMsg = ChatMessage("Desculpe, houve um erro: \(errorDescription). Tente novamente.", isUser: false)
+                    let errMsg = ChatMessage("Não foi possível obter resposta agora. Verifique sua internet e tente novamente.", isUser: false)
                     messages.append(errMsg)
                 }
             }

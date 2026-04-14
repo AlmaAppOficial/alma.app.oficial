@@ -68,3 +68,16 @@ build/
 # Firebase Functions build artifacts
 functions/lib/
 functions/node_modules/
+
+# Segundo cerebro / notas Obsidian — conteúdo pessoal, fora do scope do app
+segundo-cerebro/
+
+# Backup Xcode project zipado — não deve ficar no repo
+Alma.App.Oficial.xcodeproj.zip
+
+# Pastas arquivadas (código descontinuado preservado para referência)
+_archive/
+
+# macOS
+.DS_Store
+**/.DS_Store

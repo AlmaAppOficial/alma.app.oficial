@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
+		9A7045ACB39443178EA04B8F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
 		9ECED0BB2F588F21009412A7 /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BA2F588F21009412A7 /* Tests_iOS.swift */; };
 		9ECED0BD2F588F21009412A7 /* Tests_iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BC2F588F21009412A7 /* Tests_iOSLaunchTests.swift */; };
 		9ECED0C72F588F21009412A7 /* Tests_macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0C62F588F21009412A7 /* Tests_macOS.swift */; };
@@ -46,19 +48,14 @@
 		AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001001AA001001AA001001 /* AlmaWatchApp.swift */; };
 		AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001002AA001002AA001002 /* AlmaWatchContentView.swift */; };
 		ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */; };
-		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
-		FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0004 /* FacebookLogin */; };
 		BB001001BB001001BB001001 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
-		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB100001BB100001BB100001 /* GoogleService-Info.plist */; };
-		PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */; };
 		C63FF451FA7A99DD13A6089E /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
 		CC001001CC001001CC001001 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		CC001002CC001002CC001002 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		DD001001DD001001DD001001 /* AlmaLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD001000DD001000DD001000 /* AlmaLogo.swift */; };
 		DD001002DD001002DD001002 /* AlmaLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD001000DD001000DD001000 /* AlmaLogo.swift */; };
 		DD002001DD002001DD002001 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD002000DD002000DD002000 /* AudioManager.swift */; };
-		DD002002DD002002DD002002 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD002000DD002000DD002000 /* AudioManager.swift */; };
 		DD002002DD002002DD002002 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD002000DD002000DD002000 /* AudioManager.swift */; };
 		DD003001DD003001DD003001 /* KabbalisticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD003000DD003000DD003000 /* KabbalisticEngine.swift */; };
 		DD003002DD003002DD003002 /* KabbalisticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD003000DD003000DD003000 /* KabbalisticEngine.swift */; };
@@ -90,6 +87,13 @@
 		EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
 		EE018002EE018002EE018002 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
 		F6C4D3274F65C38F029D2EC8 /* OnboardingBiometricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */; };
+		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
+		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
+		FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0004 /* FacebookLogin */; };
+		MA001001MA001001MA001001 /* MeditationAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = MA001000MA001000MA001000 /* MeditationAudioPlayer.swift */; };
+		MN001001MN001001MN001001 /* MeditationNarratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MN001000MN001000MN001000 /* MeditationNarratorView.swift */; };
+		PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */; };
+		TT001001TT001001TT001001 /* TTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TT001000TT001000TT001000 /* TTSService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,6 +114,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		9ECED0A22F588F1D009412A7 /* Alma_App_OficialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alma_App_OficialApp.swift; sourceTree = "<group>"; };
 		9ECED0A32F588F1D009412A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9ECED0A42F588F21009412A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -132,14 +137,12 @@
 		9ECED0EC2F58902E009412A7 /* OpenAIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
 		9ECED0ED2F58902E009412A7 /* MessageBubble.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		9ECED0EE2F58902E009412A7 /* SubscriptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
-		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		9ECED0EF2F58902F009412A7 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		9ECED0F02F58902F009412A7 /* InsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		AA001001AA001001AA001001 /* AlmaWatchApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchApp.swift; sourceTree = "<group>"; };
 		AA001002AA001002AA001002 /* AlmaWatchContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchContentView.swift; sourceTree = "<group>"; };
 		BB100001BB100001BB100001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BB300001BB300001BB300001 /* iOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iOS-Info.plist"; sourceTree = "<group>"; };
-		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingBiometricsView.swift; sourceTree = "<group>"; };
 		CC001000CC001000CC001000 /* PraticasView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PraticasView.swift; sourceTree = "<group>"; };
 		CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SmartPlaylistEngine.swift; sourceTree = "<group>"; };
@@ -162,7 +165,12 @@
 		EE016000EE016000EE016000 /* Feed/MeditationPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/MeditationPlayerView.swift; sourceTree = "<group>"; };
 		EE017000EE017000EE017000 /* Feed/PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
 		EE018000EE018000EE018000 /* Feed/FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
+		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		FF001001FF001001FF001001 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
+		MA001000MA001000MA001000 /* MeditationAudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeditationAudioPlayer.swift; sourceTree = "<group>"; };
+		MN001000MN001000MN001000 /* MeditationNarratorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeditationNarratorView.swift; sourceTree = "<group>"; };
+		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		TT001000TT001000TT001000 /* TTSService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -238,6 +246,7 @@
 				9ECED0F02F58902F009412A7 /* InsightsView.swift */,
 				9ECED0E92F58902C009412A7 /* LoginView.swift */,
 				9ECED0EB2F58902D009412A7 /* MainTabView.swift */,
+				6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */,
 				9ECED0ED2F58902E009412A7 /* MessageBubble.swift */,
 				9ECED0EC2F58902E009412A7 /* OpenAIService.swift */,
 				9ECED0EF2F58902F009412A7 /* ProfileView.swift */,
@@ -255,6 +264,9 @@
 				DD007000DD007000DD007000 /* MetaEventsManager.swift */,
 				DD008000DD008000DD008000 /* FeminineHealthView.swift */,
 				DD009000DD009000DD009000 /* AddictionFreeView.swift */,
+				TT001000TT001000TT001000 /* TTSService.swift */,
+				MA001000MA001000MA001000 /* MeditationAudioPlayer.swift */,
+				MN001000MN001000MN001000 /* MeditationNarratorView.swift */,
 				DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */,
 				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
 				EE012000EE012000EE012000 /* Feed/FeedRepository.swift */,
@@ -421,7 +433,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1320;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					9ECED0A82F588F21009412A7 = {
 						CreatedOnToolsVersion = 13.2.1;
@@ -520,6 +532,7 @@
 				9ECED1012F589030009412A7 /* ProfileView.swift in Sources */,
 				9ECED0F52F589030009412A7 /* LoginView.swift in Sources */,
 				9ECED0F92F589030009412A7 /* MainTabView.swift in Sources */,
+				4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */,
 				9ECED0CC2F588F21009412A7 /* ContentView.swift in Sources */,
 				9ECED1032F589030009412A7 /* InsightsView.swift in Sources */,
 				9ECED0CA2F588F21009412A7 /* Alma_App_OficialApp.swift in Sources */,
@@ -543,6 +556,9 @@
 				DD007001DD007001DD007001 /* MetaEventsManager.swift in Sources */,
 				DD008001DD008001DD008001 /* FeminineHealthView.swift in Sources */,
 				DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */,
+				TT001001TT001001TT001001 /* TTSService.swift in Sources */,
+				MA001001MA001001MA001001 /* MeditationAudioPlayer.swift in Sources */,
+				MN001001MN001001MN001001 /* MeditationNarratorView.swift in Sources */,
 				DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */,
 				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,
 				EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */,
@@ -572,6 +588,7 @@
 				9ECED1022F589030009412A7 /* ProfileView.swift in Sources */,
 				9ECED0F62F589030009412A7 /* LoginView.swift in Sources */,
 				9ECED0FA2F589030009412A7 /* MainTabView.swift in Sources */,
+				9A7045ACB39443178EA04B8F /* HealthKitManager.swift in Sources */,
 				9ECED0BD2F588F21009412A7 /* Tests_iOSLaunchTests.swift in Sources */,
 				9ECED1042F589030009412A7 /* InsightsView.swift in Sources */,
 				9ECED0BB2F588F21009412A7 /* Tests_iOS.swift in Sources */,
@@ -640,6 +657,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -670,9 +688,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -690,6 +710,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -699,6 +720,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -729,9 +751,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -742,6 +766,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
@@ -825,6 +850,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -853,6 +879,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -875,7 +902,6 @@
 		9ECED0D92F588F21009412A7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J9U729KYR7;
@@ -895,7 +921,6 @@
 		9ECED0DA2F588F21009412A7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J9U729KYR7;
@@ -916,9 +941,9 @@
 		9ECED0DC2F588F21009412A7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
@@ -935,9 +960,9 @@
 		9ECED0DD2F588F21009412A7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;

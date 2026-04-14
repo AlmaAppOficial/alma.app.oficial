@@ -24,11 +24,11 @@ struct MeditationDay: Identifiable {
 
         // Week 2: Consciência Corporal (Days 8-14)
         days.append(MeditationDay(day: 8, title: "Escaneio Corporal Guiado", subtitle: "Percurso atenta pelo corpo", durationMinutes: 8, category: "Consciência Corporal"))
-        days.append(MeditationDay(day: 9, title: "Pés Enraizados", subtitle: "Conexão com a terra abaixo de ti", durationMinutes: 8, category: "Consciência Corporal"))
+        days.append(MeditationDay(day: 9, title: "Pés Enraizados", subtitle: "Conexão com a terra sob seus pés", durationMinutes: 8, category: "Consciência Corporal"))
         days.append(MeditationDay(day: 10, title: "Coluna da Luz", subtitle: "Energia ao longo da coluna vertebral", durationMinutes: 9, category: "Consciência Corporal"))
         days.append(MeditationDay(day: 11, title: "Coração Atento", subtitle: "Consciência do coração e tórax", durationMinutes: 9, category: "Consciência Corporal"))
         days.append(MeditationDay(day: 12, title: "Mãos Reflexivas", subtitle: "Sensibilidade nas mãos", durationMinutes: 10, category: "Consciência Corporal"))
-        days.append(MeditationDay(day: 13, title: "Aura Pessoal", subtitle: "Expansão do espaço ao teu redor", durationMinutes: 10, category: "Consciência Corporal"))
+        days.append(MeditationDay(day: 13, title: "Aura Pessoal", subtitle: "Expansão do espaço ao seu redor", durationMinutes: 10, category: "Consciência Corporal"))
         days.append(MeditationDay(day: 14, title: "Integração Semana 2", subtitle: "O corpo como mapa de serenidade", durationMinutes: 11, category: "Consciência Corporal"))
 
         // Week 3: Emoções (Days 15-21)
@@ -44,7 +44,7 @@ struct MeditationDay: Identifiable {
         days.append(MeditationDay(day: 22, title: "Síntese Holística", subtitle: "Unificar respiração, corpo e emoção", durationMinutes: 12, category: "Integração"))
         days.append(MeditationDay(day: 23, title: "Força Silenciosa", subtitle: "Meditação de observação sem julgamento", durationMinutes: 13, category: "Integração"))
         days.append(MeditationDay(day: 24, title: "Consciência Expandida", subtitle: "Transcender limitações pessoais", durationMinutes: 13, category: "Integração"))
-        days.append(MeditationDay(day: 25, title: "Propósito e Intenção", subtitle: "Clarificar a tua missão pessoal", durationMinutes: 13, category: "Integração"))
+        days.append(MeditationDay(day: 25, title: "Propósito e Intenção", subtitle: "Clarificar sua missão pessoal", durationMinutes: 13, category: "Integração"))
         days.append(MeditationDay(day: 26, title: "Alinhamento Cósmico", subtitle: "Conectar com a energia do universo", durationMinutes: 14, category: "Integração"))
         days.append(MeditationDay(day: 27, title: "Renovação Celular", subtitle: "Reparação energética profunda", durationMinutes: 14, category: "Integração"))
         days.append(MeditationDay(day: 28, title: "Radiância Pessoal", subtitle: "Cultivar brilho interior", durationMinutes: 14, category: "Integração"))
@@ -299,7 +299,7 @@ struct PraticasView: View {
 
                 // Música Clássica
                 sectionHeader(icon: "music.note.list", color: .orange, title: "Música Clássica")
-                Text("Bach, Vivaldi, Beethoven e Mozart — para cada momento do teu dia")
+                Text("Bach, Vivaldi, Beethoven e Mozart — para cada momento do seu dia")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                     .padding(.horizontal, 20)
@@ -321,6 +321,11 @@ struct PraticasView: View {
         }
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationBarHidden(true)
+        .onDisappear {
+            // Garantir que todo o áudio para ao sair da tela
+            GuidedMeditationEngine.shared.stop()
+            AudioManager.shared.stop()
+        }
     }
 
     // MARK: - Page Header
@@ -330,7 +335,7 @@ struct PraticasView: View {
                 Text("Práticas")
                     .font(.largeTitle.bold())
                     .foregroundColor(CalmTheme.textPrimary)
-                Text("Meditações e sons para o teu bem-estar")
+                Text("Meditações e sons para o seu bem-estar")
                     .font(.subheadline)
                     .foregroundColor(CalmTheme.textSecondary)
             }

@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import Combine
+import FirebaseAuth
 
 // MARK: - Meditation Script Structure
 struct MeditationScript {
@@ -135,11 +136,15 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
         ttsTask = Task { [weak self] in
             guard let self = self else { return }
             do {
+                // Garantir que há utilizador autenticado antes de chamar o TTS
+                if FirebaseAuth.Auth.auth().currentUser == nil {
+                    try await FirebaseAuth.Auth.auth().signInAnonymously()
+                }
                 let data = try await OpenAIService.shared.generateSpeech(text: text, voice: "nova", speed: 0.88)
                 if Task.isCancelled { return }
                 await MainActor.run { self.playTTSAudio(data: data) }
             } catch {
-                // Fallback: AVSpeechSynthesizer (if no API key or network issue)
+                // Fallback: AVSpeechSynthesizer (se não há rede ou token)
                 if !Task.isCancelled {
                     await MainActor.run { self.fallbackSpeakText(text: text, pause: pause) }
                 }

@@ -72,14 +72,11 @@ class AccessManager: ObservableObject {
         }
     }
 
-    /// BETA: todos os utilizadores têm acesso gratuito durante 365 dias
-    /// TODO: reduzir para 7 dias após lançamento oficial
-    private let betaTrialDays = 365
+    /// Trial gratuito de 7 dias após criação da conta
+    private let betaTrialDays = 7
 
-    /// Verifica se o utilizador está dentro do período beta gratuito
+    /// Verifica se o utilizador está dentro do período de trial de 7 dias
     private func isInFreeTrial(user: User) -> Bool {
-        // BETA: usuários anônimos e novos sempre têm acesso
-        if user.isAnonymous { return true }
         guard let creationDate = user.metadata.creationDate else { return true }
         let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
         return days < betaTrialDays

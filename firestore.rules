@@ -45,5 +45,24 @@ service cloud.firestore {
         allow write: if false;
       }
     }
+
+    // ─── Feed social ─────────────────────────────────────────────────────────
+    // feed_posts: conteúdo editorial/curado publicado pela equipa Alma.
+    //   - Leitura: qualquer utilizador autenticado.
+    //   - Escrita: apenas via Admin SDK (Cloud Function / Firebase Console).
+    match /feed_posts/{postId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // user_interactions: likes, favoritos, conclusões por utilizador.
+    //   - O próprio utilizador lê e escreve os seus próprios documentos.
+    match /user_interactions/{userId}/posts/{postId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // ─── Fallback: qualquer outro path é proibido por omissão ────────────────
+    // (regra implícita do Firestore — mantida explícita aqui como defesa em profundidade)
   }
 }

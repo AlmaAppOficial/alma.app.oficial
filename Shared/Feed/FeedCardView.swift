@@ -12,6 +12,9 @@ struct FeedCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
 
+            // ── Cover visual ───────────────────────────────────────
+            FeedCoverImage(post: post)
+
             // ── Top: badge + title + description ──────────────────
             VStack(alignment: .leading, spacing: 8) {
                 ContentTypeBadge(type: post.contentType)
@@ -105,6 +108,112 @@ struct FeedCardView: View {
             .padding(.vertical, CalmTheme.s8)
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Feed Cover Image
+
+struct FeedCoverImage: View {
+    let post: FeedPost
+
+    // Gradients por tipo de conteúdo — identidade visual ALMA
+    private var gradientColors: [Color] {
+        switch post.contentType {
+        case .meditation:
+            return [Color(red: 0.33, green: 0.22, blue: 0.71), Color(red: 0.20, green: 0.13, blue: 0.47)]
+        case .article:
+            return [Color(red: 0.13, green: 0.40, blue: 0.55), Color(red: 0.07, green: 0.22, blue: 0.33)]
+        case .study:
+            return [Color(red: 0.22, green: 0.55, blue: 0.45), Color(red: 0.11, green: 0.33, blue: 0.27)]
+        case .reflectionCard:
+            return [Color(red: 0.45, green: 0.35, blue: 0.60), Color(red: 0.25, green: 0.18, blue: 0.40)]
+        case .userPost:
+            return [Color(red: 0.25, green: 0.33, blue: 0.55), Color(red: 0.13, green: 0.18, blue: 0.33)]
+        }
+    }
+
+    // Ícone decorativo por tipo
+    private var decorativeSymbol: String {
+        switch post.contentType {
+        case .meditation: return "sparkles"
+        case .article: return "text.book.closed.fill"
+        case .study: return "chart.bar.xaxis"
+        case .reflectionCard: return "quote.bubble.fill"
+        case .userPost: return "person.fill"
+        }
+    }
+
+    // Palavra-chave do título para o símbolo visual
+    private var keywordIcon: String {
+        let t = post.title.lowercased()
+        if t.contains("ansiedade") || t.contains("anxiety") { return "waveform.path.ecg" }
+        if t.contains("sono") || t.contains("sleep") { return "moon.stars.fill" }
+        if t.contains("respiração") || t.contains("breath") { return "lungs.fill" }
+        if t.contains("gratidão") || t.contains("gratitude") { return "heart.fill" }
+        if t.contains("foco") || t.contains("focus") { return "target" }
+        if t.contains("stress") || t.contains("burnout") { return "flame.fill" }
+        if t.contains("propósito") || t.contains("alma") { return "sparkles" }
+        if t.contains("solidão") || t.contains("solitude") { return "person.fill" }
+        return decorativeSymbol
+    }
+
+    var body: some View {
+        ZStack {
+            // Gradient background
+            LinearGradient(
+                colors: gradientColors,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            // Remote image (se disponível)
+            if let urlString = post.coverImage, let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let img):
+                        img
+                            .resizable()
+                            .scaledToFill()
+                            .clipped()
+                            .opacity(0.85)
+                    default:
+                        decorativeOverlay
+                    }
+                }
+            } else {
+                decorativeOverlay
+            }
+        }
+        .frame(height: 140)
+        .clipped()
+    }
+
+    // Overlay decorativo quando não há imagem real
+    private var decorativeOverlay: some View {
+        ZStack {
+            // Círculo de fundo suave
+            Circle()
+                .fill(Color.white.opacity(0.06))
+                .frame(width: 160, height: 160)
+                .offset(x: 80, y: -30)
+
+            Circle()
+                .fill(Color.white.opacity(0.04))
+                .frame(width: 100, height: 100)
+                .offset(x: -70, y: 40)
+
+            HStack {
+                Spacer()
+                VStack {
+                    Spacer()
+                    Image(systemName: keywordIcon)
+                        .font(.system(size: 48, weight: .light))
+                        .foregroundColor(.white.opacity(0.25))
+                    Spacer()
+                }
+                .padding(.trailing, 24)
+            }
+        }
     }
 }
 

@@ -39,5 +39,6 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: almaappoficial
+          # Consistente com .firebaserc (alma-app-7dae6)
+          projectId: alma-app-7dae6
           channelId: live
