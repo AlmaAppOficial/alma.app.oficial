@@ -64,7 +64,7 @@ final class AccountDeletionService: ObservableObject {
     }
 
     private func reauthErrorMessage(for error: NSError) -> String {
-        switch AuthErrorCode(rawValue: error.code) {
+        switch AuthErrorCode.Code(rawValue: error.code) {
         case .wrongPassword:
             return "Senha incorreta. Verifique e tente novamente."
         case .tooManyRequests:
