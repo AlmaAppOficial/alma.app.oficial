@@ -11,15 +11,12 @@ struct ChatView: View {
     @State private var showAuthError = false
     @Environment(\.dismiss) private var dismiss
 
-    // 5-min session timer
-    private let sessionDuration: Double = 300  // 5 minutes
+    // Sessão de 5 minutos — única limitação vigente
+    private let sessionDuration: Double = 300  // 5 minutos
     @State private var sessionStarted = false
     @State private var timeRemaining: Double = 300
     @State private var sessionTimer: Timer? = nil
     @State private var timerExpired = false
-
-    // Daily limit (kept for backend logic)
-    private let dailyLimit = 5
 
     var body: some View {
         VStack(spacing: 0) {
@@ -61,12 +58,10 @@ struct ChatView: View {
         }
         .background(CalmTheme.background)
         .navigationBarHidden(true)
-        .alert("Limite diário atingido", isPresented: $showLimitAlert) {
+        .alert("Sessão encerrada", isPresented: $showLimitAlert) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(timerExpired
-                 ? "A tua sessão de 5 minutos terminou. Volta amanhã para continuar com a Alma."
-                 : "Podes enviar \(dailyLimit) mensagens por sessão. Volta amanhã para continuar.")
+            Text("A sua sessão de 5 minutos terminou. Feche e abra o chat para iniciar uma nova sessão.")
         }
         .alert("Autenticação necessária", isPresented: $showAuthError) {
             Button("OK", role: .cancel) {}
@@ -247,18 +242,12 @@ struct ChatView: View {
             return
         }
 
-        if todayMessageCount() >= dailyLimit {
-            showLimitAlert = true
-            return
-        }
-
-        // Start the 5-min session timer on first message
+        // Inicia o timer de sessão de 5 min na primeira mensagem
         startSessionTimer()
 
         let userMsg = ChatMessage(trimmed, isUser: true)
         messages.append(userMsg)
         inputText = ""
-        incrementTodayCount()
 
         isTyping = true
         Task {
@@ -311,20 +300,4 @@ struct ChatView: View {
         }
     }
 
-    // MARK: - Daily Limit Helpers
-    private func todayKey() -> String {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        return "alma_msg_count_\(f.string(from: Date()))"
-    }
-
-    private func todayMessageCount() -> Int {
-        UserDefaults.standard.integer(forKey: todayKey())
-    }
-
-    private func incrementTodayCount() {
-        let key = todayKey()
-        let current = UserDefaults.standard.integer(forKey: key)
-        UserDefaults.standard.set(current + 1, forKey: key)
-    }
 }
