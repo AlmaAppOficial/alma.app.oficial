@@ -1,5 +1,6 @@
 import * as admin from 'firebase-admin';
 import { onRequest } from 'firebase-functions/v2/https';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import OpenAI from 'openai';
 import * as crypto from 'crypto';
@@ -465,6 +466,99 @@ export const trackConversion = onRequest(
 
 function hashSha256(value: string): string {
   return crypto.createHash('sha256').update(value.toLowerCase().trim()).digest('hex');
+}
+
+// ─── Account Deletion ─────────────────────────────────────────────────────────
+//
+// Triggered when users/{uid} is created or updated.
+// Only acts when deletionRequested transitions from false/undefined → true.
+// Deletes: all user subcollections, rate_limits/{uid}, user_interactions/{uid},
+//          the users/{uid} document itself, and the Firebase Auth account.
+// On failure: writes deletionError + deletionErrorAt for audit (admin SDK only).
+//
+export const onUserDeletionRequested = onDocumentWritten(
+  {
+    document: 'users/{uid}',
+    region: 'southamerica-east1',
+  },
+  async (event) => {
+    const before = event.data?.before?.data() as Record<string, unknown> | undefined;
+    const after  = event.data?.after?.data()  as Record<string, unknown> | undefined;
+    const uid    = event.params.uid;
+
+    // Idempotency: only process the false→true transition
+    if (before?.deletionRequested === true || after?.deletionRequested !== true) {
+      return;
+    }
+
+    console.info(`[delete] Starting deletion for uid=${uid.slice(0, 8)}…`);
+    const db = admin.firestore();
+
+    try {
+      // 1. Subcollections under users/{uid}
+      await deleteCollection(db, `users/${uid}/messages`);
+      await deleteCollection(db, `users/${uid}/memory`);
+      await deleteCollection(db, `users/${uid}/moods`);
+      await deleteCollection(db, `users/${uid}/chat`);
+      await deleteCollection(db, `users/${uid}/consents`);
+      console.info(`[delete] Subcollections deleted for uid=${uid.slice(0, 8)}…`);
+
+      // 2. Top-level collections referencing this uid
+      await deleteCollection(db, `user_interactions/${uid}/posts`);
+      await db.collection('user_interactions').doc(uid).delete().catch(() => {});
+      await db.collection('rate_limits').doc(uid).delete().catch(() => {});
+      console.info(`[delete] Top-level refs deleted for uid=${uid.slice(0, 8)}…`);
+
+      // 3. Root user document — delete last so the trigger isn't re-fired
+      await db.collection('users').doc(uid).delete();
+      console.info(`[delete] users/${uid.slice(0, 8)}… document deleted`);
+
+      // 4. Firebase Auth account — point of no return
+      await admin.auth().deleteUser(uid);
+      console.info(`[delete] ✅ Auth account deleted for uid=${uid.slice(0, 8)}…`);
+
+      // Note: active StoreKit/RevenueCat subscriptions are cancelled automatically
+      // by Apple upon Auth account deletion. No action needed server-side.
+
+    } catch (err) {
+      const message = (err as Error).message ?? 'Unknown error';
+      console.error(`[delete] ❌ Deletion failed for uid=${uid.slice(0, 8)}…:`, message);
+
+      // Write audit fields via admin SDK (bypasses client security rules)
+      try {
+        await db.collection('users').doc(uid).set(
+          {
+            deletionError:   message,
+            deletionErrorAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
+      } catch {
+        // Ignore — document may already have been deleted
+      }
+    }
+  },
+);
+
+// Deletes all documents in a Firestore collection path in batches of 100.
+async function deleteCollection(
+  db:             admin.firestore.Firestore,
+  collectionPath: string,
+  batchSize       = 100,
+): Promise<void> {
+  const ref = db.collection(collectionPath);
+
+  for (;;) {
+    const snapshot = await ref.limit(batchSize).get();
+    if (snapshot.empty) break;
+
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+
+    // If fewer docs than batchSize came back, we're done
+    if (snapshot.size < batchSize) break;
+  }
 }
 
 const WHATSAPP_PHONE_NUMBER_ID = '1008608272342824';
