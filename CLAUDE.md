@@ -26,3 +26,18 @@ Código novo desta fase deve:
 - Manter camada de cálculo interna, isolando-a da apresentação
 
 Submissão à Apple está PAUSADA até refatoração completa.
+
+## Deploy log
+
+### 2026-04-20 — Cloud Functions
+- onUserDeletionRequested deployada em produção
+  - Region: southamerica-east1
+  - Runtime: Node.js 20
+  - Trigger: Firestore document write em users/{uid}
+  - Estado: ACTIVE
+  - Primeira função 2nd gen do projeto (provisionou Eventarc + Pub/Sub)
+
+## Pendências técnicas conhecidas
+
+- Migrar Cloud Functions de Node 20 para Node 22 antes de 30/10/2026
+- Atualizar firebase-functions package (warning de versão antiga ao deployar)
