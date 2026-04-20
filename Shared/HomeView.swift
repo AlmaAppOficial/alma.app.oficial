@@ -273,24 +273,49 @@ struct HomeView: View {
     // MARK: - Sound Suggestions
     private var soundSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Sons recomendados")
-                .font(.headline)
-                .foregroundColor(CalmTheme.textPrimary)
+            HStack {
+                Text("Sons recomendados")
+                    .font(.headline)
+                    .foregroundColor(CalmTheme.textPrimary)
+                Spacer()
+                Text("para você agora")
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+            }
 
-            let tracks = SmartPlaylistEngine.generate(
-                stressLevel: hk.stressLevel,
-                sleepHours: hk.sleepHours,
-                heartRate: hk.heartRate
-            )
+            let tracks = recommendedTracks
 
-            ScrollView(Axis.Set.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(tracks) { track in
-                        SoundTile(track: track)
+            if tracks.isEmpty {
+                Text("Abra o app de Saúde para ver recomendações personalizadas")
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+                    .padding(.vertical, 8)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(tracks) { track in
+                            SoundTile(track: track)
+                        }
                     }
+                    .padding(.vertical, 4)
+                    .padding(.trailing, 4)
                 }
+                .frame(height: 140)
             }
         }
+    }
+
+    private var recommendedTracks: [BinauralTrack] {
+        let tracks = SmartPlaylistEngine.generate(
+            stressLevel: hk.stressLevel,
+            sleepHours: hk.sleepHours,
+            heartRate: hk.heartRate
+        )
+        // Fallback: garante pelo menos 4 tracks padrão quando não há dados de saúde
+        if tracks.isEmpty {
+            return Array(SmartPlaylistEngine.library.prefix(4))
+        }
+        return tracks
     }
 
     // MARK: - Feminine Health Card (apenas mulheres)
