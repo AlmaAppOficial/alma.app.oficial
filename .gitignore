@@ -81,3 +81,27 @@ _archive/
 # macOS
 .DS_Store
 **/.DS_Store
+
+# === Credenciais sensíveis (adicionado 2026-04-17) ===
+# Apple Developer
+*.p8
+AuthKey_*.p8
+SubscriptionKey_*.p8
+
+# Firebase Admin / Service Accounts
+*adminsdk*
+*-firebase-adminsdk-*.json
+*.iam.gserviceaccount.com.json
+
+# Certificados e senhas em texto
+CERTIFICATE_BASE64*
+CERTIFICATE_PASSWORD*
+distribution.csr
+
+# Pastas inteiras de credenciais (se alguém criar)
+Certificados/
+Firebase/*.json
+Firebase/alma-app-*
+
+# Backup de project files
+*.pbxproj.bak
