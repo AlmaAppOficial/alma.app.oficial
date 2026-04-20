@@ -7,6 +7,7 @@ struct ProfileView: View {
 
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var showLogoutAlert = false
+    @State private var showDeleteAccountSheet = false
     @State private var showAboutSheet = false
     @State private var showPrivacySheet = false
     @State private var notifStatus: UNAuthorizationStatus = .notDetermined
@@ -58,6 +59,10 @@ struct ProfileView: View {
                     settingsRow(icon: "rectangle.portrait.and.arrow.right", color: .red, title: "Sair da conta", showChevron: false) {
                         showLogoutAlert = true
                     }
+                    Divider().padding(.leading, 52)
+                    settingsRow(icon: "trash.fill", color: .red, title: "Excluir minha conta", showChevron: true) {
+                        showDeleteAccountSheet = true
+                    }
                 }
 
                 Text("Alma v1.0.0 · Feito com ♡ em Portugal")
@@ -83,6 +88,7 @@ struct ProfileView: View {
         } message: {
             Text("Para ativar notificações, abre as Definições do iPhone e permite notificações para a Alma.")
         }
+        .sheet(isPresented: $showDeleteAccountSheet) { DeleteAccountView() }
         .sheet(isPresented: $showAboutSheet) { AboutView() }
         .sheet(isPresented: $showPrivacySheet) { PrivacyView() }
     }
