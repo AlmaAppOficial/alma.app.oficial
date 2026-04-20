@@ -57,8 +57,8 @@
 		DD001002DD001002DD001002 /* AlmaLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD001000DD001000DD001000 /* AlmaLogo.swift */; };
 		DD002001DD002001DD002001 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD002000DD002000DD002000 /* AudioManager.swift */; };
 		DD002002DD002002DD002002 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD002000DD002000DD002000 /* AudioManager.swift */; };
-		DD003001DD003001DD003001 /* KabbalisticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD003000DD003000DD003000 /* KabbalisticEngine.swift */; };
-		DD003002DD003002DD003002 /* KabbalisticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD003000DD003000DD003000 /* KabbalisticEngine.swift */; };
+		DD003001DD003001DD003001 /* GuidanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD003000DD003000DD003000 /* GuidanceEngine.swift */; };
+		DD003002DD003002DD003002 /* GuidanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD003000DD003000DD003000 /* GuidanceEngine.swift */; };
 		DD004001DD004001DD004001 /* UserMemoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD004000DD004000DD004000 /* UserMemoryManager.swift */; };
 		DD004002DD004002DD004002 /* UserMemoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD004000DD004000DD004000 /* UserMemoryManager.swift */; };
 		DD005001DD005001DD005001 /* AlmaLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD005000DD005000DD005000 /* AlmaLogoView.swift */; };
@@ -70,6 +70,10 @@
 		DD008001DD008001DD008001 /* FeminineHealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD008000DD008000DD008000 /* FeminineHealthView.swift */; };
 		DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD009000DD009000DD009000 /* AddictionFreeView.swift */; };
 		DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */; };
+		E2E5A2522F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
+		E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
+		E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
+		E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
 		EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
 		EE011002EE011002EE011002 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
 		EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* Feed/FeedRepository.swift */; };
@@ -145,7 +149,7 @@
 		CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SmartPlaylistEngine.swift; sourceTree = "<group>"; };
 		DD001000DD001000DD001000 /* AlmaLogo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaLogo.swift; sourceTree = "<group>"; };
 		DD002000DD002000DD002000 /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
-		DD003000DD003000DD003000 /* KabbalisticEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KabbalisticEngine.swift; sourceTree = "<group>"; };
+		DD003000DD003000DD003000 /* GuidanceEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuidanceEngine.swift; sourceTree = "<group>"; };
 		DD004000DD004000DD004000 /* UserMemoryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserMemoryManager.swift; sourceTree = "<group>"; };
 		DD005000DD005000DD005000 /* AlmaLogoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaLogoView.swift; sourceTree = "<group>"; };
 		DD006000DD006000DD006000 /* AccessManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessManager.swift; sourceTree = "<group>"; };
@@ -154,6 +158,8 @@
 		DD009000DD009000DD009000 /* AddictionFreeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddictionFreeView.swift; sourceTree = "<group>"; };
 		DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuidedMeditationEngine.swift; sourceTree = "<group>"; };
 		E25ED1DA2F77018D0089226E /* Alma Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alma Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
+		E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountView.swift; sourceTree = "<group>"; };
 		EE011000EE011000EE011000 /* Feed/FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
 		EE012000EE012000EE012000 /* Feed/FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
 		EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
@@ -229,6 +235,8 @@
 		9ECED0A12F588F1D009412A7 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */,
+				E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */,
 				BB100001BB100001BB100001 /* GoogleService-Info.plist */,
 				BB300001BB300001BB300001 /* iOS-Info.plist */,
 				PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */,
@@ -251,7 +259,7 @@
 				CC001000CC001000CC001000 /* PraticasView.swift */,
 				DD001000DD001000DD001000 /* AlmaLogo.swift */,
 				DD002000DD002000DD002000 /* AudioManager.swift */,
-				DD003000DD003000DD003000 /* KabbalisticEngine.swift */,
+				DD003000DD003000DD003000 /* GuidanceEngine.swift */,
 				DD004000DD004000DD004000 /* UserMemoryManager.swift */,
 				DD005000DD005000DD005000 /* AlmaLogoView.swift */,
 				DD006000DD006000DD006000 /* AccessManager.swift */,
@@ -540,7 +548,7 @@
 				CC001001CC001001CC001001 /* PraticasView.swift in Sources */,
 				DD001001DD001001DD001001 /* AlmaLogo.swift in Sources */,
 				DD002001DD002001DD002001 /* AudioManager.swift in Sources */,
-				DD003001DD003001DD003001 /* KabbalisticEngine.swift in Sources */,
+				DD003001DD003001DD003001 /* GuidanceEngine.swift in Sources */,
 				DD004001DD004001DD004001 /* UserMemoryManager.swift in Sources */,
 				DD005001DD005001DD005001 /* AlmaLogoView.swift in Sources */,
 				DD006001DD006001DD006001 /* AccessManager.swift in Sources */,
@@ -555,6 +563,8 @@
 				EE015001EE015001EE015001 /* Feed/FeedCardView.swift in Sources */,
 				EE016001EE016001EE016001 /* Feed/MeditationPlayerView.swift in Sources */,
 				EE017001EE017001EE017001 /* Feed/PostDetailView.swift in Sources */,
+				E2E5A2522F966F61003759A5 /* DeleteAccountView.swift in Sources */,
+				E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */,
 				EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -585,13 +595,15 @@
 				9ECED0F42F589030009412A7 /* Theme.swift in Sources */,
 				9ECED0F82F589030009412A7 /* HomeView.swift in Sources */,
 				9ECED0FC2F589030009412A7 /* OpenAIService.swift in Sources */,
+				E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */,
+				E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */,
 				9ECED0E32F58900C009412A7 /* AlmaApp.swift in Sources */,
 				9ECED0F22F589030009412A7 /* RootView.swift in Sources */,
 				9ECED0FE2F589030009412A7 /* MessageBubble.swift in Sources */,
 				CC001002CC001002CC001002 /* PraticasView.swift in Sources */,
 				DD001002DD001002DD001002 /* AlmaLogo.swift in Sources */,
 				DD002002DD002002DD002002 /* AudioManager.swift in Sources */,
-				DD003002DD003002DD003002 /* KabbalisticEngine.swift in Sources */,
+				DD003002DD003002DD003002 /* GuidanceEngine.swift in Sources */,
 				DD004002DD004002DD004002 /* UserMemoryManager.swift in Sources */,
 				DD005002DD005002DD005002 /* AlmaLogoView.swift in Sources */,
 				DD006002DD006002DD006002 /* AccessManager.swift in Sources */,

@@ -222,7 +222,7 @@ struct InsightsView: View {
             }
 
             if let birthDate = UserMemoryManager.shared.birthDate {
-                let insight = KabbalisticEngine.dailyInsight(birthDate: birthDate)
+                let insight = GuidanceEngine.dailyInsight(birthDate: birthDate)
 
                 VStack(alignment: .leading, spacing: 10) {
                     // Energy header
@@ -280,7 +280,7 @@ struct InsightsView: View {
         .calmCard()
     }
 
-    private func insightShareText(_ insight: KabbalisticInsight) -> String {
+    private func insightShareText(_ insight: GuidanceInsight) -> String {
         return "\(insight.message)\n\n\"\(insight.quote)\"\n— \(insight.quoteAuthor)"
     }
 }

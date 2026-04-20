@@ -423,7 +423,7 @@ struct HomeView: View {
             }
 
             if hasValidBirthDate, let date = birthDate {
-                let insight = KabbalisticEngine.dailyInsight(birthDate: date)
+                let insight = GuidanceEngine.dailyInsight(birthDate: date)
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(insight.energy)
@@ -474,7 +474,7 @@ struct HomeView: View {
             } else {
                 // iOS 15 fallback — compartilhar texto puro
                 if let date = UserMemoryManager.shared.birthDate {
-                    let insight = KabbalisticEngine.dailyInsight(birthDate: date)
+                    let insight = GuidanceEngine.dailyInsight(birthDate: date)
                     ShareSheet(items: ["✨ \(insight.energy)\n\n\(insight.message)\n\n\"\(insight.quote)\" — \(insight.quoteAuthor)\n\n\(caption)"])
                 }
             }

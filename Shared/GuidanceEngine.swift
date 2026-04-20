@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - Kabbalistic Insight Model
-struct KabbalisticInsight {
+// MARK: - Guidance Insight Model
+struct GuidanceInsight {
     let message: String
     let quote: String
     let quoteAuthor: String
@@ -11,8 +11,8 @@ struct KabbalisticInsight {
     let icon: String
 }
 
-// MARK: - Kabbalistic Engine
-struct KabbalisticEngine {
+// MARK: - Guidance Engine
+struct GuidanceEngine {
     // MARK: - Life Path Number Calculation
     static func lifePathNumber(birthDate: Date) -> Int {
         let calendar = Calendar.current
@@ -58,7 +58,7 @@ struct KabbalisticEngine {
     }
 
     // MARK: - Daily Insight
-    static func dailyInsight(birthDate: Date) -> KabbalisticInsight {
+    static func dailyInsight(birthDate: Date) -> GuidanceInsight {
         let lifePathNum = lifePathNumber(birthDate: birthDate)
         let personalYearNum = personalYear(birthDate: birthDate)
         let personalMonthNum = personalMonth(birthDate: birthDate)
@@ -77,7 +77,7 @@ struct KabbalisticEngine {
         let color = colorForNumber(lifePathNum)
         let icon = iconForNumber(lifePathNum)
 
-        return KabbalisticInsight(
+        return GuidanceInsight(
             message: message,
             quote: selectedQuote.text,
             quoteAuthor: selectedQuote.author,
