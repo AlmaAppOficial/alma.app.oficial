@@ -78,11 +78,14 @@ struct SoundItem: Identifiable, Equatable {
     static func == (lhs: SoundItem, rhs: SoundItem) -> Bool { lhs.id == rhs.id }
 }
 
-// MARK: - RoutePickerView (AirPlay/Bluetooth)
+// MARK: - RoutePickerView (AirPlay/Bluetooth/TV)
 struct RoutePickerView: UIViewRepresentable {
     func makeUIView(context: Context) -> AVRoutePickerView {
         let routePicker = AVRoutePickerView()
-        routePicker.tintColor = UIColor(Color.white)
+        // Roxo Alma para ser visível em fundo escuro
+        routePicker.tintColor = UIColor(red: 0.624, green: 0.478, blue: 0.918, alpha: 1)
+        routePicker.activeTintColor = UIColor(red: 0.965, green: 0.678, blue: 0.333, alpha: 1)
+        routePicker.backgroundColor = UIColor.clear
         return routePicker
     }
 
@@ -92,60 +95,54 @@ struct RoutePickerView: UIViewRepresentable {
 // MARK: - MiniPlayerBar
 struct MiniPlayerBar: View {
     @ObservedObject var audio = AudioManager.shared
-    @State private var showRoutePicker = false
-
     var body: some View {
         VStack(spacing: 0) {
-            // Progress bar at top
+            // Barra de progresso no topo
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.white.opacity(0.1))
-                        .frame(height: 2)
+                        .fill(Color.white.opacity(0.15))
+                        .frame(height: 3)
 
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(CalmTheme.primary)
-                        .frame(width: geo.size.width * (audio.duration > 0 ? audio.elapsed / audio.duration : 0), height: 2)
+                        .fill(
+                            LinearGradient(
+                                colors: [CalmTheme.primary, CalmTheme.primaryLight],
+                                startPoint: .leading, endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * (audio.duration > 0 ? min(audio.elapsed / audio.duration, 1) : 0), height: 3)
                         .animation(.linear(duration: 0.1), value: audio.elapsed)
                 }
             }
-            .frame(height: 2)
+            .frame(height: 3)
 
             HStack(spacing: 12) {
-                // Track info
+                // Track info — sempre branco sobre fundo escuro
                 VStack(alignment: .leading, spacing: 2) {
                     Text(audio.currentTrackTitle ?? "")
                         .font(.subheadline.bold())
-                        .foregroundColor(CalmTheme.textPrimary)
+                        .foregroundColor(.white)
                         .lineLimit(1)
 
                     HStack(spacing: 4) {
                         Text(formatTime(audio.elapsed))
                             .font(.caption2)
-                            .foregroundColor(CalmTheme.textSecondary)
+                            .foregroundColor(.white.opacity(0.65))
                         Text("/")
                             .font(.caption2)
-                            .foregroundColor(CalmTheme.textSecondary.opacity(0.5))
+                            .foregroundColor(.white.opacity(0.35))
                         Text(formatTime(audio.duration))
                             .font(.caption2)
-                            .foregroundColor(CalmTheme.textSecondary)
+                            .foregroundColor(.white.opacity(0.65))
                     }
                 }
 
                 Spacer()
 
-                // AirPlay button
-                VStack {
-                    RoutePickerView()
-                        .frame(width: 28, height: 28)
-                }
-
-                // Share button
-                Button(action: { /* Share functionality */ }) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.body)
-                        .foregroundColor(CalmTheme.primary)
-                }
+                // AirPlay/Bluetooth/TV — picker nativo do iOS
+                RoutePickerView()
+                    .frame(width: 32, height: 32)
 
                 // Play/Pause
                 Button(action: {
@@ -155,16 +152,16 @@ struct MiniPlayerBar: View {
                         audio.resume()
                     }
                 }) {
-                    Image(systemName: audio.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.body)
-                        .foregroundColor(CalmTheme.primary)
+                    Image(systemName: audio.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(CalmTheme.primaryLight)
                 }
 
-                // Stop
+                // Parar
                 Button(action: { audio.stop() }) {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.body)
-                        .foregroundColor(CalmTheme.primary.opacity(0.7))
+                        .font(.title2)
+                        .foregroundColor(.white.opacity(0.5))
                 }
             }
             .padding(.horizontal, 14)
@@ -172,12 +169,18 @@ struct MiniPlayerBar: View {
         }
         .background(
             ZStack {
-                CalmTheme.surface
-                    .ignoresSafeArea()
-
-                VisualEffectBlur(blurStyle: .systemMaterial)
-                    .ignoresSafeArea()
+                // Fundo escuro roxo — sempre visível em modo claro e escuro
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.059, green: 0.031, blue: 0.180),  // #0f0830 — púrpura profundo
+                        Color(red: 0.102, green: 0.047, blue: 0.251),  // #1a0c40 — roxo escuro
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .ignoresSafeArea()
             }
+            .shadow(color: CalmTheme.primary.opacity(0.4), radius: 16, x: 0, y: -4)
         )
     }
 
@@ -259,28 +262,28 @@ struct PraticasView: View {
     var sleepSounds: [SoundItem] = [
         SoundItem(
             title: "Chuva na Floresta",
-            subtitle: "Chuva tropical · Relaxamento profundo",
+            subtitle: "Chuva com rajadas suaves · sono profundo",
             category: .sleep,
             audioTitle: "Chuva na Floresta",
             audioType: .ambient(.rainForest)
         ),
         SoundItem(
             title: "Ondas do Oceano",
-            subtitle: "Mar sereno · Adormecer suave",
+            subtitle: "Ondas rítmicas · respiração natural do mar",
             category: .sleep,
             audioTitle: "Ondas do Oceano",
             audioType: .ambient(.ocean)
         ),
         SoundItem(
             title: "Floresta Noturna",
-            subtitle: "Grilos e brisa · Sono restaurador",
+            subtitle: "Grilos, brisa e sussurro da mata",
             category: .sleep,
             audioTitle: "Floresta Noturna",
             audioType: .ambient(.forestNight)
         ),
         SoundItem(
             title: "Fogueira Crepitante",
-            subtitle: "Fogo crepitante · Aconchego total",
+            subtitle: "Estalar do fogo · calor e aconchego",
             category: .sleep,
             audioTitle: "Fogueira Crepitante",
             audioType: .ambient(.campfire)
@@ -389,6 +392,8 @@ struct PraticasView: View {
                                     .onTapGesture {
                                         withAnimation(.easeInOut(duration: 0.3)) {
                                             selectedMeditationDay = med
+                                            // Para qualquer música/som antes de iniciar meditação
+                                            AudioManager.shared.stop()
                                             GuidedMeditationEngine.shared.play(day: med)
                                         }
                                     }
@@ -419,6 +424,8 @@ struct PraticasView: View {
         if audio.currentTrackTitle == item.audioTitle && audio.isPlaying {
             audio.stop()
         } else {
+            // Garante que a meditação guiada para completamente antes de iniciar qualquer novo áudio
+            GuidedMeditationEngine.shared.stop()
             switch item.audioType {
             case .binaural(let freqHz):
                 AudioManager.shared.playBinaural(title: item.audioTitle, frequencyHz: freqHz, duration: 3600)
