@@ -567,16 +567,18 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
 
-    /// Rain: pink noise with two layered LFOs simulating varying intensity + raindrop splatter
+    /// Chuva na Floresta: ruído rosa com LFOs de intensidade variável + impacto de gotas
     private func rainRTSample() -> Float {
-        ambLFO1 += 2.0 * .pi * 0.08 / 44100.0   // 0.08 Hz — 12.5s intensity cycle
-        ambLFO2 += 2.0 * .pi * 0.31 / 44100.0   // 0.31 Hz — 3.2s gust cycle
+        ambLFO1 += 2.0 * .pi * 0.07 / 44100.0   // 0.07 Hz — ciclo de 14 s (chuva pesada→leve)
+        ambLFO2 += 2.0 * .pi * 0.28 / 44100.0   // 0.28 Hz — rajada de 3.6 s
         if ambLFO1 > 2.0 * .pi { ambLFO1 -= 2.0 * .pi }
         if ambLFO2 > 2.0 * .pi { ambLFO2 -= 2.0 * .pi }
-        let env = Float(0.60 + 0.25 * sin(ambLFO1) + 0.15 * sin(ambLFO2))
+        let env = Float(0.65 + 0.22 * sin(ambLFO1) + 0.13 * sin(ambLFO2))
         let pink = pinkRT()
-        let splatter = lcgRand() * 0.06   // high-freq raindrop impact texture
-        return (pink * env + splatter) * 0.65
+        // Gotas individuais: impacto de alta frequência + corpo de baixa frequência
+        let drop = lcgRand() * 0.08
+        let dropBody = lcgRand() < -0.98 ? brownRT() * 0.3 : 0  // gotas grossas ocasionais
+        return (pink * env + drop + dropBody) * 0.72
     }
 
     /// Ocean: two wave LFOs with asymmetric build-crash envelope on pink noise layers
@@ -591,24 +593,31 @@ class AudioManager: NSObject, ObservableObject {
         return (pinkRT() * 2.2 * wave1 * 0.65 + pinkRT() * 1.5 * wave2 * 0.35) * 0.58
     }
 
-    /// Forest night: very quiet base + periodic 3.8 kHz cricket chirps
+    /// Floresta Noturna: ruído base com grilos (3.8 kHz) e vento suave com LFO
     private func forestRTSample() -> Float {
-        let base = pinkRT() * 0.07
+        // Ruído rosa base audível como sussurro de floresta (aumentado de 0.07 → 0.18)
+        let base = pinkRT() * 0.18
+
+        // LFO lento simulando brisa (0.04 Hz — ciclo de 25 s)
+        ambLFO1 += 2.0 * .pi * 0.04 / 44100.0
+        if ambLFO1 > 2.0 * .pi { ambLFO1 -= 2.0 * .pi }
+        let breeze = pinkRT() * Float(0.06 + 0.04 * sin(ambLFO1))
+
+        // Grilos: 3800 Hz, disparados probabilisticamente (~18/s)
         var chirp: Float = 0
         if !ambCrackleActive {
-            // Probabilistic trigger: ~13 chirp-groups per second on average
-            if (lcgRand() + 1.0) * 0.5 < 0.0003 {
-                ambCrackleActive = true; ambCrackleDecay = 0.22
+            if (lcgRand() + 1.0) * 0.5 < 0.0004 {
+                ambCrackleActive = true; ambCrackleDecay = 0.32
             }
         }
         if ambCrackleActive {
             ambOscPhase += 2.0 * .pi * 3800.0 / 44100.0
             if ambOscPhase > 2.0 * .pi { ambOscPhase -= 2.0 * .pi }
-            chirp = Float(sin(ambOscPhase)) * ambCrackleDecay * 0.22
-            ambCrackleDecay -= 1.5 / 44100.0
+            chirp = Float(sin(ambOscPhase)) * ambCrackleDecay * 0.28
+            ambCrackleDecay -= 1.2 / 44100.0
             if ambCrackleDecay <= 0 { ambCrackleActive = false; ambCrackleDecay = 0 }
         }
-        return base + chirp
+        return (base + breeze + chirp) * 0.78
     }
 
     /// Campfire: brown noise rumble + slow fire-breath LFO + random crackle pops
