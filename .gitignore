@@ -105,3 +105,12 @@ Firebase/alma-app-*
 
 # Backup de project files
 *.pbxproj.bak
+
+# === Higienização 20/04/2026 ===
+# Configs pessoais do Xcode (não versionar)
+**/xcuserdata/
+**/*.xcworkspace/xcuserdata/
+
+# Claude Code worktrees e configs locais
+.claude/
+
