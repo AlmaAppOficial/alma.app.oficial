@@ -146,7 +146,7 @@ struct OnboardingBiometricsView: View {
                         .font(.caption)
                         .foregroundColor(CalmTheme.textSecondary)
                 }
-                Text("Usada para calcular os seus Insights Kabbalisticos diários.")
+                Text("Cada data guarda um convite. Ajuda a Alma a te encontrar.")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                 Toggle("Definir minha data de nascimento", isOn: $hasBirthDate)
