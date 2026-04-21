@@ -6,7 +6,6 @@ struct HomeView: View {
     @State private var authorized = false
     @State private var showMoodChat = false
     @State private var showInsightShare = false
-    @State private var insightShareImage: UIImage? = nil
     @State private var navigateToPraticas = false
 
     var body: some View {
@@ -408,13 +407,7 @@ struct HomeView: View {
                     .foregroundColor(CalmTheme.textPrimary)
                 Spacer()
                 if hasValidBirthDate {
-                    Button(action: {
-                        if birthDate != nil {
-                            // Share as plain text (image card not implemented)
-                            insightShareImage = nil
-                            showInsightShare = true
-                        }
-                    }) {
+                    Button(action: { showInsightShare = true }) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.subheadline)
                             .foregroundColor(CalmTheme.primary)
@@ -426,29 +419,21 @@ struct HomeView: View {
                 let insight = GuidanceEngine.dailyInsight(birthDate: date)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(insight.energy)
-                        .font(.subheadline)
-                        .foregroundColor(insight.color)
-                        .fontWeight(.semibold)
+                    Rectangle()
+                        .fill(CalmTheme.primary)
+                        .frame(height: 3)
+                        .cornerRadius(2)
 
                     Text(insight.message)
                         .font(.subheadline)
                         .foregroundColor(CalmTheme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    HStack {
-                        Spacer()
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text(insight.quote)
-                                .font(.caption)
-                                .foregroundColor(CalmTheme.textSecondary)
-                                .italic()
-
-                            Text("— \(insight.quoteAuthor)")
-                                .font(.system(size: 11))
-                                .foregroundColor(CalmTheme.textSecondary.opacity(0.8))
-                        }
-                    }
+                    Text("\"\(insight.quote)\"")
+                        .font(.caption)
+                        .foregroundColor(CalmTheme.textSecondary.opacity(0.85))
+                        .italic()
+                        .padding(.top, 2)
                 }
             } else {
                 NavigationLink(destination: ProfileView()) {
@@ -468,15 +453,11 @@ struct HomeView: View {
         }
         .calmCard()
         .sheet(isPresented: $showInsightShare) {
-            let caption = "Meu insight do dia com o Alma 💜 #AlmaApp #autoconhecimento"
-            if let image = insightShareImage {
-                ShareSheet(items: [image, caption])
-            } else {
-                // iOS 15 fallback — compartilhar texto puro
-                if let date = UserMemoryManager.shared.birthDate {
-                    let insight = GuidanceEngine.dailyInsight(birthDate: date)
-                    ShareSheet(items: ["✨ \(insight.energy)\n\n\(insight.message)\n\n\"\(insight.quote)\" — \(insight.quoteAuthor)\n\n\(caption)"])
-                }
+            if let date = UserMemoryManager.shared.birthDate {
+                InsightShareSheet(
+                    insight: GuidanceEngine.dailyInsight(birthDate: date),
+                    isPresented: $showInsightShare
+                )
             }
         }
     }

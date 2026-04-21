@@ -8,6 +8,7 @@ struct InsightsView: View {
     @State private var todayMood: String = ""
     @State private var moodHistory: [(name: String, date: Date)] = []
     @State private var showMoodPicker = false
+    @State private var showInsightShare = false
 
     private let moods = [
         ("Ótimo", "sun.max.fill", Color.yellow),
@@ -225,15 +226,10 @@ struct InsightsView: View {
                 let insight = GuidanceEngine.dailyInsight(birthDate: birthDate)
 
                 VStack(alignment: .leading, spacing: 10) {
-                    // Energy header
-                    HStack {
-                        Image(systemName: insight.icon)
-                            .font(.body)
-                            .foregroundColor(insight.color)
-                        Text(insight.energy)
-                            .font(.subheadline.bold())
-                            .foregroundColor(insight.color)
-                    }
+                    Rectangle()
+                        .fill(CalmTheme.primary)
+                        .frame(height: 3)
+                        .cornerRadius(2)
 
                     // Main message
                     Text(insight.message)
@@ -242,24 +238,23 @@ struct InsightsView: View {
                         .fixedSize(horizontal: false, vertical: true)
 
                     // Quote
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(insight.quote)
-                            .font(.caption)
-                            .italic()
-                            .foregroundColor(CalmTheme.textSecondary)
-                        Text("— \(insight.quoteAuthor)")
-                            .font(.caption2)
-                            .foregroundColor(CalmTheme.textSecondary.opacity(0.6))
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .padding(.top, 6)
+                    Text("\"\(insight.quote)\"")
+                        .font(.caption)
+                        .italic()
+                        .foregroundColor(CalmTheme.textSecondary.opacity(0.85))
+                        .padding(.top, 4)
 
-                    // Share buttons
-                    HStack(spacing: 12) {
-                        ShareButton(icon: "square.and.arrow.up", label: "Facebook", text: insightShareText(insight))
-                        ShareButton(icon: "camera.fill", label: "Instagram", text: insightShareText(insight))
-                        ShareButton(icon: "square.fill", label: "TikTok", text: insightShareText(insight))
-                        Spacer()
+                    Button(action: { showInsightShare = true }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Compartilhar")
+                        }
+                        .font(.caption)
+                        .foregroundColor(CalmTheme.primary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(CalmTheme.primary.opacity(0.1))
+                        .cornerRadius(CalmTheme.rSmall)
                     }
                     .padding(.top, 6)
                 }
@@ -278,32 +273,13 @@ struct InsightsView: View {
             }
         }
         .calmCard()
-    }
-
-    private func insightShareText(_ insight: GuidanceInsight) -> String {
-        return "\(insight.message)\n\n\"\(insight.quote)\"\n— \(insight.quoteAuthor)"
-    }
-}
-
-// MARK: - ShareButton
-struct ShareButton: View {
-    let icon: String
-    let label: String
-    let text: String
-
-    @State private var showShareSheet = false
-
-    var body: some View {
-        Button(action: { showShareSheet = true }) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundColor(CalmTheme.primary)
-                .frame(width: 28, height: 28)
-                .background(CalmTheme.primary.opacity(0.1))
-                .cornerRadius(6)
-        }
-        .sheet(isPresented: $showShareSheet) {
-            ShareSheet(items: [text])
+        .sheet(isPresented: $showInsightShare) {
+            if let birthDate = UserMemoryManager.shared.birthDate {
+                InsightShareSheet(
+                    insight: GuidanceEngine.dailyInsight(birthDate: birthDate),
+                    isPresented: $showInsightShare
+                )
+            }
         }
     }
 }

@@ -74,6 +74,10 @@
 		E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
 		E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
 		E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
+		F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
+		F1001002F1001002F1001002 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
+		F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
+		F1002002F1002002F1002002 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
 		EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
 		EE011002EE011002EE011002 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
 		EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* Feed/FeedRepository.swift */; };
@@ -160,6 +164,8 @@
 		E25ED1DA2F77018D0089226E /* Alma Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alma Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
 		E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountView.swift; sourceTree = "<group>"; };
+		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
+		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
 		EE011000EE011000EE011000 /* Feed/FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
 		EE012000EE012000EE012000 /* Feed/FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
 		EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
@@ -237,6 +243,8 @@
 			children = (
 				E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */,
 				E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */,
+				F1001000F1001000F1001000 /* InsightShareCardView.swift */,
+				F1002000F1002000F1002000 /* InsightShareSheet.swift */,
 				BB100001BB100001BB100001 /* GoogleService-Info.plist */,
 				BB300001BB300001BB300001 /* iOS-Info.plist */,
 				PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */,
@@ -565,6 +573,8 @@
 				EE017001EE017001EE017001 /* Feed/PostDetailView.swift in Sources */,
 				E2E5A2522F966F61003759A5 /* DeleteAccountView.swift in Sources */,
 				E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */,
+				F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */,
+				F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */,
 				EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -597,6 +607,8 @@
 				9ECED0FC2F589030009412A7 /* OpenAIService.swift in Sources */,
 				E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */,
 				E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */,
+				F1001002F1001002F1001002 /* InsightShareCardView.swift in Sources */,
+				F1002002F1002002F1002002 /* InsightShareSheet.swift in Sources */,
 				9ECED0E32F58900C009412A7 /* AlmaApp.swift in Sources */,
 				9ECED0F22F589030009412A7 /* RootView.swift in Sources */,
 				9ECED0FE2F589030009412A7 /* MessageBubble.swift in Sources */,
