@@ -54,6 +54,7 @@ struct OnboardingBiometricsView: View {
                         insertion: .move(edge: .trailing).combined(with: .opacity),
                         removal: .move(edge: .leading).combined(with: .opacity)
                     ))
+                    .adaptiveContentWidth()
                     .padding(.horizontal, 24)
                     .padding(.bottom, 100)
                 }

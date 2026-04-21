@@ -65,7 +65,7 @@ struct InsightsView: View {
             }
 
             if todayMood.isEmpty {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 10) {
                     ForEach(moods, id: \.0) { mood in
                         Button(action: {
                             todayMood = mood.0

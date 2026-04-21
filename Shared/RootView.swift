@@ -16,7 +16,7 @@ struct RootView: View {
                 splashScreen
             } else if !logged {
                 // Não autenticado → Login
-                NavigationView {
+                NavigationStack {
                     LoginView(logged: $logged)
                 }
             } else if !onboardingComplete {

@@ -45,29 +45,29 @@ struct MainTabView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             TabView {
-                NavigationView {
+                NavigationStack {
                     HomeView()
                         .environmentObject(hk)
                 }
                 .tabItem { Label("Início", systemImage: "house.fill") }
 
-                NavigationView {
+                NavigationStack {
                     FeedView()
                 }
                 .tabItem { Label("Feed", systemImage: "newspaper.fill") }
 
-                NavigationView {
+                NavigationStack {
                     PraticasView()
                 }
                 .tabItem { Label("Práticas", systemImage: "sparkles") }
 
-                NavigationView {
+                NavigationStack {
                     InsightsView()
                         .environmentObject(hk)
                 }
                 .tabItem { Label("Insights", systemImage: "chart.bar.fill") }
 
-                NavigationView {
+                NavigationStack {
                     ProfileView()
                 }
                 .tabItem { Label("Perfil", systemImage: "person.fill") }

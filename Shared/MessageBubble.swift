@@ -49,6 +49,7 @@ struct MessageBubble: View {
 
             if !message.isUser { Spacer(minLength: 48) }
         }
+        .frame(maxWidth: 720)
         .padding(.horizontal, 16)
         .padding(.vertical, 2)
     }
