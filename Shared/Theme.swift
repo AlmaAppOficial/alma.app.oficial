@@ -31,6 +31,8 @@ enum CalmTheme {
                                     ? UIColor(red: 0.655, green: 0.545, blue: 0.980, alpha: 1)  // #a78bfa
                                     : UIColor(red: 0.48,  green: 0.42,  blue: 0.60,  alpha: 1) })
 
+    static let shareCardBackground = Color(red: 0.102, green: 0.059, blue: 0.180)  // #1a0f2e
+
     // Gradients — espelham o visual das artes
     static let heroGradient = LinearGradient(
         colors: [
