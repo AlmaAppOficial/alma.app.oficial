@@ -8,22 +8,27 @@ struct InsightShareSheet: View {
     @State private var isRendering = false
     @State private var showActivitySheet = false
 
-    private let cardWidth: CGFloat = 1080
-    private let cardHeight: CGFloat = 1350
-    private let previewWidth: CGFloat = 280
-
-    var previewHeight: CGFloat { previewWidth * cardHeight / cardWidth }
+    private let renderWidth:  CGFloat = 1080
+    private let renderHeight: CGFloat = 1350
 
     var body: some View {
         NavigationView {
             VStack(spacing: 24) {
-                InsightShareCardView(quote: insight.quote)
-                    .frame(width: cardWidth, height: cardHeight)
-                    .scaleEffect(previewWidth / cardWidth, anchor: .center)
-                    .frame(width: previewWidth, height: previewHeight)
+                // Card preview — GeometryReader measures real available width,
+                // aspectRatio constrains height to card proportions (4:5),
+                // containerWidth flows into card so all sizes scale proportionally.
+                GeometryReader { geo in
+                    InsightShareCardView(
+                        quote: insight.quote,
+                        author: insight.quoteAuthor,
+                        containerWidth: geo.size.width
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rMedium))
                     .shadow(color: CalmTheme.primary.opacity(0.35), radius: 20, x: 0, y: 8)
-                    .padding(.top, 32)
+                }
+                .aspectRatio(renderWidth / renderHeight, contentMode: .fit)
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
 
                 Spacer()
 
@@ -76,8 +81,12 @@ struct InsightShareSheet: View {
     private func renderAndShare() {
         isRendering = true
         Task {
-            let card = InsightShareCardView(quote: insight.quote)
-                .frame(width: cardWidth, height: cardHeight)
+            let card = InsightShareCardView(
+                quote: insight.quote,
+                author: insight.quoteAuthor,
+                containerWidth: renderWidth
+            )
+            .frame(width: renderWidth, height: renderHeight)
             let renderer = ImageRenderer(content: card)
             renderer.scale = 2.0
             renderedImage = renderer.uiImage
