@@ -75,6 +75,10 @@ extension View {
     func calmCard() -> some View {
         modifier(CalmCardModifier())
     }
+
+    func adaptiveContentWidth() -> some View {
+        self.frame(maxWidth: 720, alignment: .center)
+    }
 }
 
 // MARK: - Color from Hex

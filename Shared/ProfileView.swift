@@ -70,6 +70,7 @@ struct ProfileView: View {
                     .foregroundColor(CalmTheme.textSecondary)
                     .padding(.bottom, 32)
             }
+            .adaptiveContentWidth()
         }
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationBarHidden(true)

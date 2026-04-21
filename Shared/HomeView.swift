@@ -46,6 +46,7 @@ struct HomeView: View {
 
                 Spacer(minLength: 32)
             }
+            .adaptiveContentWidth()
             .padding(.horizontal, 20)
             .padding(.top, 8)
         }
