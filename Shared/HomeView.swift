@@ -229,7 +229,7 @@ struct HomeView: View {
             }
 
             if authorized {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 10) {
                     HealthMetric(icon: "heart.fill", color: .red,
                                  value: "\(Int(hk.heartRate))", unit: "bpm", label: "Frequencia")
                     HealthMetric(icon: "waveform.path", color: .purple,
