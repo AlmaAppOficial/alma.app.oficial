@@ -57,24 +57,12 @@ actor ShareCardGenerator {
     /// Render card as UIImage for sharing
     func renderCardAsImage(type: ShareCardType) async -> UIImage? {
         let view = generateShareCard(type: type)
-            .frame(width: 1080, height: 1920) // Instagram story dimension
+            .frame(width: 1080, height: 1920)
             .background(CalmTheme.background)
 
-        let controller = UIHostingController(rootViewController: view)
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1080, height: 1920))
-        window.rootViewController = controller
-        window.makeKeyAndVisible()
-
-        // Render using ImageRenderer (iOS 16+)
-        if #available(iOS 16.0, *) {
-            let renderer = ImageRenderer(content: view)
-            renderer.scale = UIScreen.main.scale
-            return renderer.uiImage
-        } else {
-            // Fallback for earlier iOS versions
-            let snapshot = view.snapshot()
-            return snapshot
-        }
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = UIScreen.main.scale
+        return renderer.uiImage
     }
 
     /// Share card via UIActivityViewController
@@ -427,21 +415,6 @@ struct DailyQuoteShareCard: View {
                 endPoint: .bottomTrailing
             )
         )
-    }
-}
-
-// MARK: - View Extension for Snapshot
-extension View {
-    func snapshot() -> UIImage? {
-        let controller = UIHostingController(rootViewController: self)
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = controller
-        window.makeKeyAndVisible()
-
-        let renderer = UIGraphicsImageRenderer(size: UIScreen.main.bounds.size)
-        return renderer.image { _ in
-            window.drawHierarchy(in: window.bounds, afterScreenUpdates: false)
-        }
     }
 }
 

@@ -189,32 +189,28 @@ struct MoodInsightsView: View {
 
             VStack(spacing: 16) {
                 // Line chart showing mood intensity over time
-                if #available(iOS 16.0, *) {
-                    Chart(moodHistory) { entry in
-                        LineMark(
-                            x: .value("Data", entry.timestamp),
-                            y: .value("Intensidade", entry.intensity)
-                        )
-                        .foregroundStyle(CalmTheme.primary)
-                        .lineStyle(StrokeStyle(lineWidth: 2))
+                Chart(moodHistory) { entry in
+                    LineMark(
+                        x: .value("Data", entry.timestamp),
+                        y: .value("Intensidade", entry.intensity)
+                    )
+                    .foregroundStyle(CalmTheme.primary)
+                    .lineStyle(StrokeStyle(lineWidth: 2))
 
-                        PointMark(
-                            x: .value("Data", entry.timestamp),
-                            y: .value("Intensidade", entry.intensity)
-                        )
-                        .foregroundStyle(CalmTheme.primary)
-                    }
-                    .chartYAxis {
-                        AxisMarks(position: .leading, values: [1, 5, 10])
-                    }
-                    .chartXAxis {
-                        AxisMarks(format: .dateTime.weekday())
-                    }
-                    .foregroundColor(CalmTheme.textSecondary)
-                    .frame(height: 200)
-                } else {
-                    simpleMoodChart
+                    PointMark(
+                        x: .value("Data", entry.timestamp),
+                        y: .value("Intensidade", entry.intensity)
+                    )
+                    .foregroundStyle(CalmTheme.primary)
                 }
+                .chartYAxis {
+                    AxisMarks(position: .leading, values: [1, 5, 10])
+                }
+                .chartXAxis {
+                    AxisMarks(format: .dateTime.weekday())
+                }
+                .foregroundColor(CalmTheme.textSecondary)
+                .frame(height: 200)
 
                 // Legend
                 HStack(spacing: 16) {
@@ -233,32 +229,6 @@ struct MoodInsightsView: View {
         .padding(16)
         .background(CalmTheme.surface)
         .cornerRadius(CalmTheme.rMedium)
-    }
-
-    // Fallback simple chart for iOS 15
-    private var simpleMoodChart: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ForEach(moodHistory.suffix(7), id: \.id) { entry in
-                HStack(spacing: 12) {
-                    Text(formatDate(entry.timestamp))
-                        .font(.caption2)
-                        .foregroundColor(CalmTheme.textSecondary)
-                        .frame(width: 50, alignment: .leading)
-
-                    GeometryReader { geo in
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(CalmTheme.heroGradient)
-                            .frame(width: geo.size.width * CGFloat(entry.intensity) / 10.0)
-                    }
-
-                    Text("\(entry.intensity)/10")
-                        .font(.caption2)
-                        .foregroundColor(CalmTheme.textPrimary)
-                        .frame(width: 35, alignment: .trailing)
-                }
-                .frame(height: 24)
-            }
-        }
     }
 
     // MARK: - Statistics Section
