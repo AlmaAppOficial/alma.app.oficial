@@ -529,6 +529,10 @@ struct WellnessRow: View {
 struct SoundTile: View {
     let track: BinauralTrack
     @State private var isPlaying = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var tileWidth:  CGFloat { sizeClass == .regular ? 160 : 120 }
+    private var tileHeight: CGFloat { sizeClass == .regular ? 90  : 70  }
 
     var body: some View {
         Button(action: {
@@ -555,7 +559,7 @@ struct SoundTile: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 120, height: 70)
+                    .frame(width: tileWidth, height: tileHeight)
                     .overlay {
                         Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .font(.title2)
@@ -566,13 +570,13 @@ struct SoundTile: View {
                     .font(.caption.bold())
                     .foregroundColor(CalmTheme.textPrimary)
                     .lineLimit(2)
-                    .frame(width: 120, alignment: .leading)
+                    .frame(width: tileWidth, alignment: .leading)
 
                 Text("\(Int(track.frequencyHz)) Hz")
                     .font(.system(size: 10))
                     .foregroundColor(CalmTheme.textSecondary)
             }
-            .frame(width: 120)
+            .frame(width: tileWidth)
         }
         .buttonStyle(.plain)
     }
