@@ -63,7 +63,7 @@ struct AddictionFreeView: View {
             )
         }
         .sheet(isPresented: $showStartPicker) {
-            DatePickerSheet(title: "Quando paraste?", date: $tempDate) {
+            DatePickerSheet(title: "Quando você parou?", date: $tempDate) {
                 startTimestamp = tempDate.timeIntervalSince1970
                 isActive = true
                 scheduleMotivationalNotifications()
@@ -229,7 +229,7 @@ struct AddictionFreeView: View {
     // MARK: - Craving Help
     private var cravingSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Estás com vontade de recaída?")
+            Text("Está com vontade de recair?")
                 .font(.headline)
                 .foregroundColor(CalmTheme.textPrimary)
 
@@ -254,7 +254,7 @@ struct AddictionFreeView: View {
             if lastCravingResisted {
                 HStack(spacing: 8) {
                     Image(systemName: "hand.thumbsup.fill").foregroundColor(green)
-                    Text("Superaste mais uma! Continua! 🎉")
+                    Text("Você superou mais uma! Continue! 🎉")
                         .font(.subheadline)
                         .foregroundColor(green)
                 }
@@ -267,7 +267,7 @@ struct AddictionFreeView: View {
             Button("Consegui resistir! ✅") { lastCravingResisted = true }
             Button("Preciso de ajuda", role: .cancel) { }
         } message: {
-            Text("A vontade dura apenas alguns minutos. Inspira 4 segundos... segura 4... expira 6 segundos. Repete 3 vezes. Já está melhor?")
+            Text("A vontade dura apenas alguns minutos. Inspire 4 segundos... segure 4... expire 6 segundos. Repita 3 vezes. Está melhor?")
         }
     }
 
@@ -279,11 +279,11 @@ struct AddictionFreeView: View {
                 .foregroundColor(green)
                 .padding(.top, 8)
 
-            Text("Começa a tua jornada livre")
+            Text("Comece sua jornada livre")
                 .font(.title3.bold())
                 .foregroundColor(CalmTheme.textPrimary)
 
-            Text("Regista o dia em que paraste e acompanha o teu progresso. Cada hora conta.")
+            Text("Registre o dia em que você parou e acompanhe seu progresso. Cada hora conta.")
                 .font(.subheadline)
                 .foregroundColor(CalmTheme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -345,11 +345,11 @@ struct AddictionFreeView: View {
             guard granted else { return }
 
             let messages = [
-                (hours: 1, msg: "1 hora livre! O teu corpo já está a agradecer. 💪"),
+                (hours: 1, msg: "1 hora livre! Seu corpo já está agradecendo. 💪"),
                 (hours: 12, msg: "12 horas! O CO₂ no sangue já baixou. Continue!"),
-                (hours: 24, msg: "1 DIA COMPLETO! Fantástico. Sentes a diferença?"),
-                (hours: 168, msg: "1 SEMANA SEM VÍCIO! A tua circulação melhorou. 🎉"),
-                (hours: 720, msg: "1 MÊS! Os teus pulmões estão 30% mais saudáveis. 🌟"),
+                (hours: 24, msg: "1 DIA COMPLETO! Fantástico. Você sente a diferença?"),
+                (hours: 168, msg: "1 SEMANA SEM VÍCIO! Sua circulação melhorou. 🎉"),
+                (hours: 720, msg: "1 MÊS! Seus pulmões estão 30% mais saudáveis. 🌟"),
             ]
 
             for msg in messages {
@@ -451,7 +451,7 @@ struct AddictionSetupSheet: View {
                     }
                 }
                 if addictionType == "cigarette" {
-                    Section("Detalhes (para calcular poupança)") {
+                    Section("Detalhes (para calcular economia)") {
                         Stepper("Cigarros/dia: \(cigarettesPerDay)", value: $cigarettesPerDay, in: 1...60)
                         HStack {
                             Text("Preço por maço (R$)")

@@ -12,10 +12,10 @@ enum AlmaError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noUser:            return "Nenhum utilizador autenticado."
+        case .noUser:            return "Nenhum usuário autenticado."
         case .tokenFailed:       return "Falha ao obter token de autenticacao."
         case .serverError(let c): return "Erro do servidor (\(c))."
-        case .rateLimited:       return "Limite de mensagens atingido. Tente novamente amanha."
+        case .rateLimited:       return "Limite de mensagens atingido. Tente novamente amanhã."
         case .parseFailed:       return "Resposta inesperada do servidor."
         case .networkError(let m): return "Erro de rede: \(m)"
         }

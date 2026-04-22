@@ -65,7 +65,7 @@ struct ProfileView: View {
                     }
                 }
 
-                Text("Alma v1.0.0 · Feito com ♡ em Portugal")
+                Text("Alma v1.0.0 · Feito com ♡ no Brasil")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                     .padding(.bottom, 32)
@@ -80,14 +80,14 @@ struct ProfileView: View {
             Button("Sair", role: .destructive) { try? Auth.auth().signOut() }
         }
         .alert("Notificações bloqueadas", isPresented: $showNotifDeniedAlert) {
-            Button("Abrir Definições") {
+            Button("Abrir Configurações") {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
             Button("Cancelar", role: .cancel) {}
         } message: {
-            Text("Para ativar notificações, abre as Definições do iPhone e permite notificações para a Alma.")
+            Text("Para ativar notificações, abra as Configurações do iPhone e permita notificações para a Alma.")
         }
         .sheet(isPresented: $showDeleteAccountSheet) { DeleteAccountView() }
         .sheet(isPresented: $showAboutSheet) { AboutView() }
@@ -123,7 +123,7 @@ struct ProfileView: View {
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
             } else {
-                Text("Conta anónima")
+                Text("Conta anônima")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
             }
@@ -260,7 +260,7 @@ struct ProfileView: View {
 
     // MARK: - Computed Properties
     private var displayName: String {
-        Auth.auth().currentUser?.displayName ?? "Utilizador"
+        Auth.auth().currentUser?.displayName ?? "Usuário"
     }
 
     private var totalMessages: Int {
@@ -323,17 +323,17 @@ struct AboutView: View {
                     }
                     .padding(.top, 20)
 
-                    aboutCard(icon: "heart.fill", color: .pink, title: "A Nossa Missão",
-                        body: "A Alma nasceu para ser a tua companheira de bem-estar emocional. Acreditamos que cuidar da mente é tão importante quanto cuidar do corpo — e que todos merecem acesso a uma mentora empática, disponível a qualquer hora.\n\nA nossa missão é democratizar o apoio emocional e tornar o mindfulness acessível a todos no mundo lusófono.")
+                    aboutCard(icon: "heart.fill", color: .pink, title: "Nossa Missão",
+                        body: "A Alma nasceu para ser sua companheira de bem-estar emocional. Acreditamos que cuidar da mente é tão importante quanto cuidar do corpo — e que todos merecem acesso a uma mentora empática, disponível a qualquer hora.\n\nNossa missão é democratizar o apoio emocional e tornar o mindfulness acessível a todos.")
 
                     aboutCard(icon: "brain.head.profile", color: CalmTheme.primary, title: "Como Funciona",
-                        body: "A Alma usa inteligência artificial avançada para te ouvir sem julgamentos. As sessões de chat são processadas de forma segura e os teus dados de saúde são lidos diretamente do Apple Health — nunca saem do teu dispositivo sem a tua permissão.\n\nAs meditações guiadas e os sons terapêuticos são desenvolvidos com base em evidências científicas sobre bem-estar.")
+                        body: "A Alma usa inteligência artificial avançada para ouvi-la sem julgamentos. As sessões de chat são processadas de forma segura e seus dados de saúde são lidos diretamente do Apple Health — nunca saem do seu dispositivo.\n\nAs meditações guiadas e os sons terapêuticos são desenvolvidos com base em evidências científicas sobre bem-estar.")
 
                     aboutCard(icon: "cpu", color: .orange, title: "Tecnologia",
-                        body: "Construída com SwiftUI para uma experiência nativa no iOS e Apple Watch. Integrada com HealthKit para dados de saúde em tempo real. A IA conversacional é alimentada por modelos de linguagem de última geração.\n\nTodos os dados sensíveis são encriptados e a tua privacidade é a nossa prioridade.")
+                        body: "Construída com SwiftUI para uma experiência nativa no iOS e Apple Watch. Integrada com HealthKit para dados de saúde em tempo real. A IA conversacional é alimentada por modelos de linguagem de última geração.\n\nTodos os dados sensíveis são criptografados e sua privacidade é nossa prioridade.")
 
                     aboutCard(icon: "person.2.fill", color: .green, title: "Feito com ♡",
-                        body: "A Alma é desenvolvida com dedicação em Portugal, por uma equipa que acredita que a tecnologia pode fazer o bem. Cada funcionalidade é pensada para genuinamente melhorar o teu bem-estar.")
+                        body: "A Alma é desenvolvida com dedicação, por uma equipe que acredita que a tecnologia pode fazer o bem. Cada funcionalidade é pensada para genuinamente melhorar o seu bem-estar.")
 
                     Text("© 2026 Alma App. Todos os direitos reservados.")
                         .font(.caption)
@@ -380,7 +380,7 @@ struct PrivacyView: View {
                         Image(systemName: "lock.shield.fill")
                             .font(.system(size: 52))
                             .foregroundColor(CalmTheme.primary)
-                        Text("A tua privacidade\né sagrada para nós")
+                        Text("Sua privacidade\né sagrada para nós")
                             .font(.title2.bold())
                             .foregroundColor(CalmTheme.textPrimary)
                             .multilineTextAlignment(.center)
@@ -388,19 +388,19 @@ struct PrivacyView: View {
                     .padding(.top, 20)
 
                     privacyCard(icon: "lock.fill", color: .green, title: "Dados de Saúde",
-                        body: "Os teus dados do Apple Health (frequência cardíaca, sono, passos, variabilidade) são lidos diretamente no teu dispositivo e NUNCA são transmitidos para os nossos servidores. São usados exclusivamente para personalizar a tua experiência dentro da app.")
+                        body: "Seus dados do Apple Health (frequência cardíaca, sono, passos, variabilidade) são lidos diretamente no seu dispositivo e NUNCA saem do seu dispositivo. São usados exclusivamente para personalizar sua experiência dentro do app.")
 
                     privacyCard(icon: "bubble.left.and.bubble.right.fill", color: CalmTheme.primary, title: "Conversas com a Alma",
-                        body: "As mensagens que envias são processadas de forma segura para gerar respostas personalizadas. Não partilhamos o conteúdo das tuas conversas com terceiros. Podes eliminar o histórico a qualquer momento.")
+                        body: "As mensagens são processadas por sistemas de IA (OpenAI) sob acordo de confidencialidade. Não compartilhamos conteúdo com outros terceiros nem para publicidade. Você pode excluir o histórico a qualquer momento.")
 
                     privacyCard(icon: "eye.slash.fill", color: .orange, title: "Sem Publicidade",
-                        body: "A Alma não contém publicidade. Não vendemos os teus dados a anunciantes. O nosso modelo de negócio baseia-se apenas nas subscrições — o que significa que os nossos interesses estão sempre alinhados com os teus.")
+                        body: "A Alma não contém publicidade. Não vendemos seus dados a anunciantes. Nosso modelo de negócio baseia-se apenas nas assinaturas — o que significa que nossos interesses estão sempre alinhados com os seus.")
 
                     privacyCard(icon: "icloud.and.arrow.down", color: .blue, title: "Armazenamento e Segurança",
-                        body: "Os dados da conta são armazenados encriptados. Usamos Firebase Authentication com ligações seguras. Os teus dados biométricos nunca saem do teu dispositivo Apple — processados localmente pelo iOS.")
+                        body: "Os dados da conta são armazenados criptografados. Usamos Firebase Authentication com conexões seguras. Seus dados biométricos nunca saem do seu dispositivo Apple — processados localmente pelo iOS.")
 
-                    privacyCard(icon: "hand.raised.fill", color: .red, title: "Os Teus Direitos (RGPD)",
-                        body: "Tens direito a aceder, corrigir ou eliminar todos os dados pessoais que temos sobre ti. Para exercer estes direitos, contacta-nos em privacidade@almaapp.pt. Responderemos em até 30 dias úteis, conforme o RGPD.")
+                    privacyCard(icon: "hand.raised.fill", color: .red, title: "Seus Direitos (Proteção de Dados)",
+                        body: "Você tem direito a acessar, corrigir ou excluir todos os dados pessoais que temos sobre você. Para exercer esses direitos, entre em contato em privacidade@almaapp.pt. Responderemos em até 30 dias úteis, conforme a LGPD e o RGPD.")
 
                     VStack(spacing: 4) {
                         Text("Política de Privacidade completa em")

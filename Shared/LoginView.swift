@@ -14,9 +14,9 @@ struct LoginView: View {
     enum AuthMode { case login, register }
 
     let slides: [(icon: String, title: String, subtitle: String)] = [
-        ("heart.fill",       "Bem-vindo à Alma",       "O teu espaço seguro para cuidar da saúde mental."),
+        ("heart.fill",       "Bem-vindo à Alma",       "Seu espaço seguro para cuidar da saúde mental."),
         ("bubble.left.fill", "Fala com a Alma IA",     "Uma mentora empática disponível a qualquer hora."),
-        ("chart.bar.fill",   "Acompanha o teu humor",  "Descobre padrões e evolui dia após dia."),
+        ("chart.bar.fill",   "Acompanhe seu humor",     "Descubra padrões e evolua dia após dia."),
     ]
 
     var body: some View {
@@ -79,7 +79,7 @@ struct LoginView: View {
                         RoundedRectangle(cornerRadius: CalmTheme.rMedium)
                             .strokeBorder(CalmTheme.primary, lineWidth: 1.5)
                     )
-                        Text("Ao continuar, aceitas os Termos de Uso e Política de Privacidade.")
+                        Text("Ao continuar, você aceita os Termos de Uso e Política de Privacidade.")
                         .font(.caption2)
                         .foregroundColor(CalmTheme.textSecondary)
                         .multilineTextAlignment(.center)
@@ -156,7 +156,7 @@ struct AuthSheet: View {
                         Button {
                             withAnimation { mode = isRegister ? .login : .register; errorMessage = nil }
                         } label: {
-                            Text(isRegister ? "Já tem conta? Entre aqui" : "Não tens conta? Cria uma")
+                            Text(isRegister ? "Já tem conta? Entre aqui" : "Não tem conta? Crie uma")
                                 .font(.subheadline).foregroundColor(CalmTheme.primary)
                         }
                         if !isRegister {
@@ -169,7 +169,7 @@ struct AuthSheet: View {
                         VStack(spacing: 12) {
                             HStack {
                                 Rectangle().frame(height: 0.5).foregroundColor(CalmTheme.textSecondary.opacity(0.4))
-                                Text("ou continua com")
+                                Text("ou continue com")
                                     .font(.caption)
                                     .foregroundColor(CalmTheme.textSecondary)
                                     .fixedSize()
@@ -310,7 +310,7 @@ struct AuthSheet: View {
                 // Send email verification
                 Auth.auth().currentUser?.sendEmailVerification { verificationError in
                     if verificationError == nil {
-                        errorMessage = "Conta criada! Verifica o teu email para confirmar."
+                        errorMessage = "Conta criada! Verifique seu email para confirmar."
                     }
                 }
                 logged = true
@@ -321,7 +321,7 @@ struct AuthSheet: View {
 
     private func sendPasswordReset() {
         let t = email.trimmingCharacters(in: .whitespaces)
-        guard !t.isEmpty else { errorMessage = "Escreve o teu email primeiro."; return }
+        guard !t.isEmpty else { errorMessage = "Digite seu email primeiro."; return }
         Auth.auth().sendPasswordReset(withEmail: t) { error in
             errorMessage = error == nil ? "Email de recuperação enviado para \(t)" : firebaseMessage(error!)
         }
@@ -412,7 +412,7 @@ struct AuthSheet: View {
 
     private func sendEmailLink() {
         let t = email.trimmingCharacters(in: .whitespaces)
-        guard !t.isEmpty else { errorMessage = "Escreve o teu email primeiro."; return }
+        guard !t.isEmpty else { errorMessage = "Digite seu email primeiro."; return }
         errorMessage = "Sign in com Email link será ativado em breve."
     }
 
@@ -435,10 +435,10 @@ struct AuthSheet: View {
         switch code {
         case AuthErrorCode.emailAlreadyInUse.rawValue: return "Este email já está em uso."
         case AuthErrorCode.invalidEmail.rawValue:      return "Email inválido."
-        case AuthErrorCode.wrongPassword.rawValue:     return "Password incorreta."
+        case AuthErrorCode.wrongPassword.rawValue:     return "Senha incorreta."
         case AuthErrorCode.userNotFound.rawValue:      return "Conta não encontrada."
-        case AuthErrorCode.weakPassword.rawValue:      return "Password demasiado fraca."
-        case AuthErrorCode.networkError.rawValue:      return "Sem ligação à internet."
+        case AuthErrorCode.weakPassword.rawValue:      return "Senha muito fraca."
+        case AuthErrorCode.networkError.rawValue:      return "Sem conexão com a internet."
         default:                                        return error.localizedDescription
         }
     }

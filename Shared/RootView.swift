@@ -65,8 +65,8 @@ struct RootView: View {
                 Image(systemName: "sparkles")
                     .foregroundColor(.yellow)
                 Text(daysRemaining == 1
-                     ? "Último dia do teu trial gratuito"
-                     : "\(daysRemaining) dias grátis restantes")
+                     ? "Último dia do seu período gratuito"
+                     : "\(daysRemaining) dias gratuitos restantes")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.white)
                 Spacer()

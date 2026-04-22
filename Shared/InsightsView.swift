@@ -93,7 +93,7 @@ struct InsightsView: View {
                         .font(.system(size: 40))
                         .foregroundColor(moodColor(for: todayMood))
                     VStack(alignment: .leading) {
-                        Text("Check-in registado!")
+                        Text("Check-in registrado!")
                             .font(.subheadline.bold())
                             .foregroundColor(CalmTheme.textPrimary)
                         Text("Volte amanhã para outro check-in")
@@ -157,7 +157,7 @@ struct InsightsView: View {
                     EmptyRing(label: "BPM", unit: "", target: "60-90", color: .red)
                 }
                 .frame(maxWidth: .infinity)
-                Text("Liga o Apple Health para veres os teus dados em tempo real")
+                Text("Ative o Apple Health para ver seus dados em tempo real")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                     .multilineTextAlignment(.center)
@@ -263,7 +263,7 @@ struct InsightsView: View {
                     Image(systemName: "calendar")
                         .font(.title2)
                         .foregroundColor(CalmTheme.primary)
-                    Text("Defina a sua data de nascimento no perfil para receber Insights personalizados da Alma")
+                    Text("Defina sua data de nascimento no perfil para receber Insights personalizados da Alma")
                         .font(.caption)
                         .foregroundColor(CalmTheme.textSecondary)
                         .multilineTextAlignment(.center)
