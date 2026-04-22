@@ -80,7 +80,7 @@ class StoreKitManager: ObservableObject {
                 return false
             }
         } catch {
-            purchaseError = "Erro ao processar compra. Tenta novamente."
+            purchaseError = "Erro ao processar compra. Tente novamente."
             print("[StoreKit] Erro de compra: \(error)")
             return false
         }
@@ -101,7 +101,7 @@ class StoreKitManager: ObservableObject {
             }
             return active
         } catch {
-            purchaseError = "Erro ao restaurar compras. Verifica a tua ligação."
+            purchaseError = "Erro ao restaurar compras. Verifique sua conexão."
             print("[StoreKit] Erro restore: \(error)")
             return false
         }

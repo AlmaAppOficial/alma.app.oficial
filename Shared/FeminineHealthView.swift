@@ -62,7 +62,7 @@ struct FeminineHealthView: View {
                 Text(pregnancyMode ? "Gravidez" : "Ciclo Menstrual")
                     .font(.title3.bold())
                     .foregroundColor(CalmTheme.textPrimary)
-                Text(pregnancyMode ? "Acompanha a tua jornada" : "Conhece o teu corpo")
+                Text(pregnancyMode ? "Acompanhe sua jornada" : "Conheça seu corpo")
                     .font(.subheadline)
                     .foregroundColor(CalmTheme.textSecondary)
             }
@@ -126,7 +126,7 @@ struct FeminineHealthView: View {
                     : Date()
                 showCyclePicker = true
             } label: {
-                Label("Registar início da menstruação", systemImage: "drop.fill")
+                Label("Registrar início da menstruação", systemImage: "drop.fill")
                     .font(.subheadline)
                     .frame(maxWidth: .infinity)
                     .padding(12)
@@ -291,7 +291,7 @@ struct FeminineHealthView: View {
                         Text(pregnancyMode ? "Modo Gravidez" : "Ativar modo Gravidez")
                             .font(.subheadline)
                             .foregroundColor(CalmTheme.textPrimary)
-                        Text(pregnancyMode ? "A acompanhar a tua gravidez" : "Muda para acompanhamento gestacional")
+                        Text(pregnancyMode ? "Acompanhando sua gravidez" : "Mude para acompanhamento gestacional")
                             .font(.caption)
                             .foregroundColor(CalmTheme.textSecondary)
                     }
@@ -367,9 +367,9 @@ struct FeminineHealthView: View {
 
     private func trimesterDescription(_ trimester: Int) -> String {
         switch trimester {
-        case 1: return "1º Trimestre (semanas 1–13): O bebé está a desenvolver todos os órgãos principais. Pode sentir náuseas e cansaço — é completamente normal."
-        case 2: return "2º Trimestre (semanas 14–27): O período mais confortável para muitas mulheres. O bebé começa a mover-se e já pode ouvir a tua voz."
-        default: return "3º Trimestre (semanas 28–40): A fase final. O bebé está a ganhar peso e a preparar-se para o nascimento. Descansa sempre que puderes."
+        case 1: return "1º Trimestre (semanas 1–13): O bebê está desenvolvendo todos os órgãos principais. Você pode sentir náuseas e cansaço — é completamente normal."
+        case 2: return "2º Trimestre (semanas 14–27): O período mais confortável para muitas mulheres. O bebê começa a se mexer e já pode ouvir a sua voz."
+        default: return "3º Trimestre (semanas 28–40): A fase final. O bebê está ganhando peso e se preparando para o nascimento. Descanse sempre que puder."
         }
     }
 }
@@ -426,7 +426,7 @@ struct CycleLengthPickerSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Guardar") { dismiss() }
+                    Button("Salvar") { dismiss() }
                 }
             }
         }
