@@ -114,3 +114,19 @@ Firebase/alma-app-*
 # Claude Code worktrees e configs locais
 .claude/
 
+# === Geração de áudio (2026-04-22) ===
+# Samples de teste — nunca commitar áudios gerados
+meditation_samples/
+
+# Produção de áudio — voice takes, músicas e outputs mixados
+# (só credits/ vai pro repo)
+meditation_production/voice_takes/
+meditation_production/music/
+meditation_production/output/
+
+# Python cache do scripts/
+scripts/__pycache__/
+
+# API keys em arquivo (variável de ambiente é o método recomendado)
+*.env
+

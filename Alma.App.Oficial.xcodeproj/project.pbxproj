@@ -74,10 +74,7 @@
 		E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
 		E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
 		E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
-		F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
-		F1001002F1001002F1001002 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
-		F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
-		F1002002F1002002F1002002 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
+		E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */ = {isa = PBXBuildFile; fileRef = E2F257192F991C9500BE42F1 /* meditation_01.m4a */; };
 		EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
 		EE011002EE011002EE011002 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
 		EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* Feed/FeedRepository.swift */; };
@@ -94,6 +91,10 @@
 		EE017002EE017002EE017002 /* Feed/PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* Feed/PostDetailView.swift */; };
 		EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
 		EE018002EE018002EE018002 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
+		F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
+		F1001002F1001002F1001002 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
+		F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
+		F1002002F1002002F1002002 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
 		F6C4D3274F65C38F029D2EC8 /* OnboardingBiometricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */; };
 		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
@@ -164,8 +165,7 @@
 		E25ED1DA2F77018D0089226E /* Alma Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alma Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
 		E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountView.swift; sourceTree = "<group>"; };
-		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
-		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
+		E2F257192F991C9500BE42F1 /* meditation_01.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_01.m4a; sourceTree = "<group>"; };
 		EE011000EE011000EE011000 /* Feed/FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
 		EE012000EE012000EE012000 /* Feed/FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
 		EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
@@ -174,6 +174,8 @@
 		EE016000EE016000EE016000 /* Feed/MeditationPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/MeditationPlayerView.swift; sourceTree = "<group>"; };
 		EE017000EE017000EE017000 /* Feed/PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
 		EE018000EE018000EE018000 /* Feed/FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
+		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
+		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
 		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		FF001001FF001001FF001001 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
 		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 		9ECED09C2F588F1C009412A7 = {
 			isa = PBXGroup;
 			children = (
+				E2F2571A2F991C9500BE42F1 /* Meditations */,
 				FF001001FF001001FF001001 /* iOS.entitlements */,
 				9ECED0A12F588F1D009412A7 /* Shared */,
 				9ECED0B02F588F21009412A7 /* macOS */,
@@ -333,6 +336,14 @@
 				AA001002AA001002AA001002 /* AlmaWatchContentView.swift */,
 			);
 			path = AlmaWatch;
+			sourceTree = "<group>";
+		};
+		E2F2571A2F991C9500BE42F1 /* Meditations */ = {
+			isa = PBXGroup;
+			children = (
+				E2F257192F991C9500BE42F1 /* meditation_01.m4a */,
+			);
+			path = Meditations;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -496,6 +507,7 @@
 				9ECED0CE2F588F21009412A7 /* Assets.xcassets in Resources */,
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
+				E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
