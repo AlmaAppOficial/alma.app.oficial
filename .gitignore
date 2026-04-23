@@ -130,3 +130,12 @@ scripts/__pycache__/
 # API keys em arquivo (variável de ambiente é o método recomendado)
 *.env
 
+# Meditation production (local work, never commit)
+meditation_production/translations/
+meditation_production/voice_takes_FULL/
+meditation_production/backup/
+
+# Scripts (local work — may reference API keys via env vars)
+scripts/
+!scripts/.gitkeep
+

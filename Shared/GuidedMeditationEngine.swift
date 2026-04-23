@@ -41,9 +41,13 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
 
     @MainActor
     func play(day: MeditationDay) {
+        print("🧘 [Engine] play(day:\(day.day)) — \(day.title)")
         stop()
 
-        guard let script = meditationScripts.first(where: { $0.dayNumber == day.day }) else { return }
+        guard let script = meditationScripts.first(where: { $0.dayNumber == day.day }) else {
+            print("🧘 [Engine] ❌ no script found for day \(day.day)")
+            return
+        }
 
         currentDayTitle = day.title
         isSpeaking = true
@@ -81,6 +85,8 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             player.volume   = 1.0
             player.play()
             ttsPlayer = player          // reuse existing player slot
+            // Correct the duration in AudioManager to the actual file length
+            AudioManager.shared.updateMeditationDuration(player.duration)
         } catch {
             // Bundled file failed — fall back to TTS
             print("Bundled meditation load error: \(error)")
@@ -88,6 +94,20 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             currentSegmentIndex = 0
             speakNextSegment()
         }
+    }
+
+    @MainActor
+    func pause() {
+        ttsPlayer?.pause()
+        if synthesizer.isSpeaking { synthesizer.pauseSpeaking(at: .word) }
+        isSpeaking = false
+    }
+
+    @MainActor
+    func resume() {
+        ttsPlayer?.play()
+        if synthesizer.isPaused { synthesizer.continueSpeaking() }
+        isSpeaking = true
     }
 
     @MainActor

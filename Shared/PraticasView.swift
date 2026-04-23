@@ -158,7 +158,7 @@ struct MiniPlayerBar: View {
                 }
 
                 // Parar
-                Button(action: { audio.stop() }) {
+                Button(action: { audio.stopAllIncludingMeditation() }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
                         .foregroundColor(.white.opacity(0.5))

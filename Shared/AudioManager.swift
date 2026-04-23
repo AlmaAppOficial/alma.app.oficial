@@ -268,6 +268,14 @@ class AudioManager: NSObject, ObservableObject {
         audioEngine.mainMixerNode.outputVolume = 1.0
     }
 
+    /// Called by GuidedMeditationEngine after loading the bundled .m4a to
+    /// correct the duration from the estimated script value to the real file length.
+    func updateMeditationDuration(_ actualDuration: Double) {
+        currentDuration = actualDuration
+        duration = actualDuration
+        updateNowPlayingInfo()
+    }
+
     /// Called by GuidedMeditationEngine to register the meditation track in
     /// Now Playing Center, lock screen, Control Center, and Apple Watch.
     func registerMeditationNowPlaying(title: String, durationMinutes: Int) {
@@ -281,6 +289,7 @@ class AudioManager: NSObject, ObservableObject {
         isPlaying = true
         duration  = dur
         elapsed   = 0
+        print("🎵 [AudioManager] registerMeditationNowPlaying — title=\(title), isPlaying=\(isPlaying), thread=\(Thread.isMainThread ? "main" : "bg")")
         startTimerUpdates()
         updateNowPlayingInfo()
     }
@@ -425,9 +434,10 @@ class AudioManager: NSObject, ObservableObject {
 
     func pause() {
         guard isPlaying else { return }
-        // Pause both AVPlayer (streams) and AVAudioEngine (synthesized)
+        // Pause AVPlayer (streams), AVAudioEngine (synthesized), and guided meditation voice
         player?.pause()
         if audioEngine.isRunning { audioEngine.pause() }
+        Task { await MainActor.run { GuidedMeditationEngine.shared.pause() } }
         pausedElapsed = elapsed
         displayLink?.invalidate()
         displayLink = nil
@@ -437,6 +447,7 @@ class AudioManager: NSObject, ObservableObject {
 
     func resume() {
         guard !isPlaying, currentTrackTitle != nil else { return }
+        Task { await MainActor.run { GuidedMeditationEngine.shared.resume() } }
         if player != nil {
             // Resume AVPlayer stream
             player?.play()
@@ -444,7 +455,7 @@ class AudioManager: NSObject, ObservableObject {
             DispatchQueue.main.async { self.isPlaying = true }
             startTimerUpdates()
         } else {
-            // Resume AVAudioEngine synthesized sound
+            // Resume AVAudioEngine synthesized sound (or meditation background)
             do {
                 try startEngine()
                 startTime = CACurrentMediaTime() - pausedElapsed
@@ -460,6 +471,16 @@ class AudioManager: NSObject, ObservableObject {
     func stop() {
         stopAndReset()
         clearNowPlayingInfo()
+    }
+
+    /// Explicit "kill switch" for user-initiated full stop — includes the guided
+    /// meditation voice (ttsPlayer) that generic stop() intentionally does not touch.
+    /// Call only from UI actions that mean "encerrar sessão" (MiniPlayer X button).
+    /// Never from lifecycle hooks that also precede a new play() — would race.
+    @MainActor
+    func stopAllIncludingMeditation() {
+        GuidedMeditationEngine.shared.stop()
+        stop()
     }
 
     // MARK: - Internal Reset
@@ -485,12 +506,16 @@ class AudioManager: NSObject, ObservableObject {
 
         detachCurrentNode()
 
-        DispatchQueue.main.async {
+        // Use sync when already on main thread to avoid a race where a deferred
+        // async block clears state that registerMeditationNowPlaying() already set.
+        let resetState = {
             self.isPlaying = false
             self.elapsed = 0
             self.duration = 0
             self.currentTrackTitle = nil
         }
+        print("🛑 [AudioManager] stopAndReset — thread=\(Thread.isMainThread ? "main(sync)" : "bg(async)")")
+        if Thread.isMainThread { resetState() } else { DispatchQueue.main.async(execute: resetState) }
         sinePhase = 0
         noiseIndex = 0
         pausedElapsed = 0
