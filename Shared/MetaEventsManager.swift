@@ -21,11 +21,18 @@ import Foundation
 import FirebaseAuth
 import CryptoKit
 
+// MARK: - Privacy-first: Meta CAPI desligado em 28/04/2026
+// Para reativar, mudar isCAPIEnabled para true.
+// Toda chamada externa (trackStartTrial, trackAppOpen, etc.)
+// continua existindo, mas vira no-op silencioso quando desligado.
+
 // MARK: - MetaEventsManager
 final class MetaEventsManager {
 
     static let shared = MetaEventsManager()
     private init() {}
+
+    private let isCAPIEnabled: Bool = false
 
     // Endpoint da Cloud Function — mesmo base URL do chat
     private let baseURL = "https://southamerica-east1-alma-app-7dae6.cloudfunctions.net"
@@ -51,6 +58,7 @@ final class MetaEventsManager {
     // MARK: - Implementação privada
 
     private func sendEvent(name: String, value: Double?, currency: String?) {
+        guard isCAPIEnabled else { return }
         guard let user = Auth.auth().currentUser else { return }
 
         // Hash SHA256 do email para privacidade (padrão Meta CAPI)
