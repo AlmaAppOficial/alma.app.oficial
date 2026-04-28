@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
+		51AAFE1E9BDF372601C72D4C /* AppleAuthCodeKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */; };
+		76891EB20C9D18D6E4692BAF /* LocalDataCleanupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */; };
 		9A7045ACB39443178EA04B8F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
 		9ECED0BB2F588F21009412A7 /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BA2F588F21009412A7 /* Tests_iOS.swift */; };
 		9ECED0BD2F588F21009412A7 /* Tests_iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BC2F588F21009412A7 /* Tests_iOSLaunchTests.swift */; };
@@ -75,27 +77,28 @@
 		E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
 		E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
 		E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */ = {isa = PBXBuildFile; fileRef = E2F257192F991C9500BE42F1 /* meditation_01.m4a */; };
-		EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
-		EE011002EE011002EE011002 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
-		EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* Feed/FeedRepository.swift */; };
-		EE012002EE012002EE012002 /* Feed/FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* Feed/FeedRepository.swift */; };
-		EE013001EE013001EE013001 /* Feed/FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */; };
-		EE013002EE013002EE013002 /* Feed/FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */; };
-		EE014001EE014001EE014001 /* Feed/FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */; };
-		EE014002EE014002EE014002 /* Feed/FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */; };
-		EE015001EE015001EE015001 /* Feed/FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* Feed/FeedCardView.swift */; };
-		EE015002EE015002EE015002 /* Feed/FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* Feed/FeedCardView.swift */; };
-		EE016001EE016001EE016001 /* Feed/MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* Feed/MeditationPlayerView.swift */; };
-		EE016002EE016002EE016002 /* Feed/MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* Feed/MeditationPlayerView.swift */; };
-		EE017001EE017001EE017001 /* Feed/PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* Feed/PostDetailView.swift */; };
-		EE017002EE017002EE017002 /* Feed/PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* Feed/PostDetailView.swift */; };
-		EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
-		EE018002EE018002EE018002 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
+		EE011001EE011001EE011001 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* FeedModels.swift */; };
+		EE011002EE011002EE011002 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* FeedModels.swift */; };
+		EE012001EE012001EE012001 /* FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* FeedRepository.swift */; };
+		EE012002EE012002EE012002 /* FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* FeedRepository.swift */; };
+		EE013001EE013001EE013001 /* FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */; };
+		EE013002EE013002EE013002 /* FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */; };
+		EE014001EE014001EE014001 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* FeedViewModel.swift */; };
+		EE014002EE014002EE014002 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* FeedViewModel.swift */; };
+		EE015001EE015001EE015001 /* FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* FeedCardView.swift */; };
+		EE015002EE015002EE015002 /* FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* FeedCardView.swift */; };
+		EE016001EE016001EE016001 /* MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* MeditationPlayerView.swift */; };
+		EE016002EE016002EE016002 /* MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* MeditationPlayerView.swift */; };
+		EE017001EE017001EE017001 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* PostDetailView.swift */; };
+		EE017002EE017002EE017002 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* PostDetailView.swift */; };
+		EE018001EE018001EE018001 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* FeedView.swift */; };
+		EE018002EE018002EE018002 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* FeedView.swift */; };
 		F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
 		F1001002F1001002F1001002 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
 		F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
 		F1002002F1002002F1002002 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
 		F6C4D3274F65C38F029D2EC8 /* OnboardingBiometricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */; };
+		FB4F3FB4EF8265C8B340D982 /* OAuthRevocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357884C4D09FF75933EB433D /* OAuthRevocationService.swift */; };
 		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
 		FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0004 /* FacebookLogin */; };
@@ -120,7 +123,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		357884C4D09FF75933EB433D /* OAuthRevocationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OAuthRevocationService.swift; sourceTree = "<group>"; };
+		6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataCleanupService.swift; sourceTree = "<group>"; };
 		6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleAuthCodeKeychainStore.swift; sourceTree = "<group>"; };
 		9ECED0A22F588F1D009412A7 /* Alma_App_OficialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alma_App_OficialApp.swift; sourceTree = "<group>"; };
 		9ECED0A32F588F1D009412A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9ECED0A42F588F21009412A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -166,14 +172,14 @@
 		E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
 		E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountView.swift; sourceTree = "<group>"; };
 		E2F257192F991C9500BE42F1 /* meditation_01.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_01.m4a; sourceTree = "<group>"; };
-		EE011000EE011000EE011000 /* Feed/FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
-		EE012000EE012000EE012000 /* Feed/FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
-		EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
-		EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedViewModel.swift; sourceTree = "<group>"; };
-		EE015000EE015000EE015000 /* Feed/FeedCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedCardView.swift; sourceTree = "<group>"; };
-		EE016000EE016000EE016000 /* Feed/MeditationPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/MeditationPlayerView.swift; sourceTree = "<group>"; };
-		EE017000EE017000EE017000 /* Feed/PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
-		EE018000EE018000EE018000 /* Feed/FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
+		EE011000EE011000EE011000 /* FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
+		EE012000EE012000EE012000 /* FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
+		EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
+		EE014000EE014000EE014000 /* FeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedViewModel.swift; sourceTree = "<group>"; };
+		EE015000EE015000EE015000 /* FeedCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedCardView.swift; sourceTree = "<group>"; };
+		EE016000EE016000EE016000 /* MeditationPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/MeditationPlayerView.swift; sourceTree = "<group>"; };
+		EE017000EE017000EE017000 /* PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
+		EE018000EE018000EE018000 /* FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
 		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
 		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
 		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
@@ -278,15 +284,18 @@
 				DD008000DD008000DD008000 /* FeminineHealthView.swift */,
 				DD009000DD009000DD009000 /* AddictionFreeView.swift */,
 				DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */,
-				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
-				EE012000EE012000EE012000 /* Feed/FeedRepository.swift */,
-				EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */,
-				EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */,
-				EE015000EE015000EE015000 /* Feed/FeedCardView.swift */,
-				EE016000EE016000EE016000 /* Feed/MeditationPlayerView.swift */,
-				EE017000EE017000EE017000 /* Feed/PostDetailView.swift */,
-				EE018000EE018000EE018000 /* Feed/FeedView.swift */,
+				EE011000EE011000EE011000 /* FeedModels.swift */,
+				EE012000EE012000EE012000 /* FeedRepository.swift */,
+				EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */,
+				EE014000EE014000EE014000 /* FeedViewModel.swift */,
+				EE015000EE015000EE015000 /* FeedCardView.swift */,
+				EE016000EE016000EE016000 /* MeditationPlayerView.swift */,
+				EE017000EE017000EE017000 /* PostDetailView.swift */,
+				EE018000EE018000EE018000 /* FeedView.swift */,
 				9ECED0A42F588F21009412A7 /* Assets.xcassets */,
+				956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */,
+				357884C4D09FF75933EB433D /* OAuthRevocationService.swift */,
+				6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -576,18 +585,21 @@
 				DD008001DD008001DD008001 /* FeminineHealthView.swift in Sources */,
 				DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */,
 				DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */,
-				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,
-				EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */,
-				EE013001EE013001EE013001 /* Feed/FirestoreFeedRepository.swift in Sources */,
-				EE014001EE014001EE014001 /* Feed/FeedViewModel.swift in Sources */,
-				EE015001EE015001EE015001 /* Feed/FeedCardView.swift in Sources */,
-				EE016001EE016001EE016001 /* Feed/MeditationPlayerView.swift in Sources */,
-				EE017001EE017001EE017001 /* Feed/PostDetailView.swift in Sources */,
+				EE011001EE011001EE011001 /* FeedModels.swift in Sources */,
+				EE012001EE012001EE012001 /* FeedRepository.swift in Sources */,
+				EE013001EE013001EE013001 /* FirestoreFeedRepository.swift in Sources */,
+				EE014001EE014001EE014001 /* FeedViewModel.swift in Sources */,
+				EE015001EE015001EE015001 /* FeedCardView.swift in Sources */,
+				EE016001EE016001EE016001 /* MeditationPlayerView.swift in Sources */,
+				EE017001EE017001EE017001 /* PostDetailView.swift in Sources */,
 				E2E5A2522F966F61003759A5 /* DeleteAccountView.swift in Sources */,
 				E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */,
 				F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */,
 				F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */,
-				EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */,
+				EE018001EE018001EE018001 /* FeedView.swift in Sources */,
+				51AAFE1E9BDF372601C72D4C /* AppleAuthCodeKeychainStore.swift in Sources */,
+				FB4F3FB4EF8265C8B340D982 /* OAuthRevocationService.swift in Sources */,
+				76891EB20C9D18D6E4692BAF /* LocalDataCleanupService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,14 +644,14 @@
 				DD005002DD005002DD005002 /* AlmaLogoView.swift in Sources */,
 				DD006002DD006002DD006002 /* AccessManager.swift in Sources */,
 				DD007002DD007002DD007002 /* MetaEventsManager.swift in Sources */,
-				EE011002EE011002EE011002 /* Feed/FeedModels.swift in Sources */,
-				EE012002EE012002EE012002 /* Feed/FeedRepository.swift in Sources */,
-				EE013002EE013002EE013002 /* Feed/FirestoreFeedRepository.swift in Sources */,
-				EE014002EE014002EE014002 /* Feed/FeedViewModel.swift in Sources */,
-				EE015002EE015002EE015002 /* Feed/FeedCardView.swift in Sources */,
-				EE016002EE016002EE016002 /* Feed/MeditationPlayerView.swift in Sources */,
-				EE017002EE017002EE017002 /* Feed/PostDetailView.swift in Sources */,
-				EE018002EE018002EE018002 /* Feed/FeedView.swift in Sources */,
+				EE011002EE011002EE011002 /* FeedModels.swift in Sources */,
+				EE012002EE012002EE012002 /* FeedRepository.swift in Sources */,
+				EE013002EE013002EE013002 /* FirestoreFeedRepository.swift in Sources */,
+				EE014002EE014002EE014002 /* FeedViewModel.swift in Sources */,
+				EE015002EE015002EE015002 /* FeedCardView.swift in Sources */,
+				EE016002EE016002EE016002 /* MeditationPlayerView.swift in Sources */,
+				EE017002EE017002EE017002 /* PostDetailView.swift in Sources */,
+				EE018002EE018002EE018002 /* FeedView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
