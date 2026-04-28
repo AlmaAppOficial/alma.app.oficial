@@ -285,7 +285,11 @@ actor StreakManager: ObservableObject {
 
         Task {
             do {
-                try await cloudKitContainer.publicCloudDatabase.save(record)
+                // Salvar em privateCloudDatabase: dados de streak são pessoais
+                // do usuário e devem ficar no escopo iCloud privado dele.
+                // (Era publicCloudDatabase antes — corrigido em 28/04/2026 para
+                //  conformidade com privacidade Apple Guideline 5.1.2.)
+                try await cloudKitContainer.privateCloudDatabase.save(record)
             } catch {
                 print("CloudKit sync error: \(error)")
                 // Fallback to local storage is already done
