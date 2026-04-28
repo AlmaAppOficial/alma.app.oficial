@@ -67,6 +67,10 @@ final class AccountDeletionService: ObservableObject {
             print("Deletion revoke outcome: \(outcome)")
         }
 
+        // Step 4: Limpa todos os dados locais (UserDefaults + Keychain)
+        // Exigido por Apple Guideline 5.1.1(v) e LGPD Art. 18
+        LocalDataCleanupService.clearAll()
+
         // Step 5: Sign out immediately — UI returns to login; cleanup continues server-side
         try? Auth.auth().signOut()
     }

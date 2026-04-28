@@ -77,7 +77,11 @@ struct ProfileView: View {
         .task { await checkNotificationStatus() }
         .alert("Sair da conta?", isPresented: $showLogoutAlert) {
             Button("Cancelar", role: .cancel) {}
-            Button("Sair", role: .destructive) { try? Auth.auth().signOut() }
+            Button("Sair", role: .destructive) {
+                    let uid = Auth.auth().currentUser?.uid
+                    LocalDataCleanupService.clearUserData(uid: uid)
+                    try? Auth.auth().signOut()
+                }
         }
         .alert("Notificações bloqueadas", isPresented: $showNotifDeniedAlert) {
             Button("Abrir Configurações") {
