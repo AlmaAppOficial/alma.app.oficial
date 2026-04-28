@@ -59,7 +59,15 @@ final class AccountDeletionService: ObservableObject {
             return
         }
 
-        // Step 3: Sign out immediately — UI returns to login; cleanup continues server-side
+        // Step 3: Revoga tokens OAuth (Apple obrigatório, Google/FB best-effort)
+        // antes do signOut. Falhas não bloqueiam a deleção — Cloud Function
+        // chamará admin.auth().deleteUser(uid) de qualquer forma.
+        let outcomes = await OAuthRevocationService.revokeAllProviders()
+        for outcome in outcomes {
+            print("Deletion revoke outcome: \(outcome)")
+        }
+
+        // Step 5: Sign out immediately — UI returns to login; cleanup continues server-side
         try? Auth.auth().signOut()
     }
 

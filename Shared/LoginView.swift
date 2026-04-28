@@ -338,6 +338,13 @@ struct AuthSheet: View {
                 errorMessage = "Erro ao obter credenciais da Apple."
                 return
             }
+            // Salva authorizationCode no Keychain para revogação futura
+            // (Apple Guideline 5.1.1(v) — required for account deletion)
+            if let codeData = appleIDCredential.authorizationCode,
+               let codeString = String(data: codeData, encoding: .utf8) {
+                AppleAuthCodeKeychainStore.save(codeString)
+            }
+
             let credential = OAuthProvider.appleCredential(
                 withIDToken: idTokenString,
                 rawNonce: nonce,
