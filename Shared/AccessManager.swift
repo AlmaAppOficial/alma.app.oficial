@@ -18,6 +18,8 @@ class AccessManager: ObservableObject {
 
     @Published var isPremium: Bool = false
     @Published var isChecking: Bool = true
+    @Published var isInTrial: Bool = false
+    @Published var trialDays: Int = 0
 
     init() {
         // Ouvir mudanças de autenticação Firebase
@@ -54,13 +56,22 @@ class AccessManager: ObservableObject {
         // 1. Verificar StoreKit — Apple IAP tem prioridade
         if await checkStoreKitEntitlement() {
             isPremium = true
+            isInTrial = false
+            trialDays = 0
         } else {
             // 2. Fallback: Firebase Custom Claims (subscritores web / Stripe)
             await checkFirebaseClaims(user: user)
 
             // 3. Trial gratuito de 7 dias após criação da conta
-            if !isPremium && isInFreeTrial(user: user) {
-                isPremium = true
+            if isInFreeTrial(user: user) {
+                isInTrial = true
+                trialDays = trialDaysRemaining(user: user)
+                if !isPremium {
+                    isPremium = true
+                }
+            } else {
+                isInTrial = false
+                trialDays = 0
             }
         }
 
