@@ -116,17 +116,17 @@ struct ProfileView: View {
     private var premiumRow: some View {
         Button(action: { showPaywall = true }) {
             HStack(spacing: 12) {
-                Image(systemName: "star.circle.fill")
+                Image(systemName: access.isInTrial ? "gift.fill" : "star.circle.fill")
                     .font(.body)
                     .foregroundColor(.yellow)
                     .frame(width: 32, height: 32)
                     .background(Color.yellow.opacity(0.12))
                     .cornerRadius(8)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Alma Premium")
+                    Text(premiumRowTitle)
                         .font(.body)
                         .foregroundColor(CalmTheme.textPrimary)
-                    Text(access.isPremium ? "Você é Premium" : "Conheça os benefícios")
+                    Text(premiumRowSubtitle)
                         .font(.caption)
                         .foregroundColor(CalmTheme.textSecondary)
                 }
@@ -138,6 +138,23 @@ struct ProfileView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
+    }
+
+    private var premiumRowTitle: String {
+        if access.isInTrial { return "Trial Premium ativo" }
+        if access.isPremium { return "Alma Premium" }
+        return "Alma Premium"
+    }
+
+    private var premiumRowSubtitle: String {
+        if access.isInTrial {
+            let d = access.trialDays
+            if d <= 0 { return "Continue Premium — assine agora" }
+            if d == 1 { return "Último dia · Toque para continuar" }
+            return "\(d) dias restantes · Toque para continuar"
+        }
+        if access.isPremium { return "Você é Premium" }
+        return "Conheça os benefícios"
     }
 
     // MARK: - Alma Brand Header
