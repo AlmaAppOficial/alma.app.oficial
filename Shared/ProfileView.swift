@@ -10,8 +10,12 @@ struct ProfileView: View {
     @State private var showDeleteAccountSheet = false
     @State private var showAboutSheet = false
     @State private var showPrivacySheet = false
+    @State private var showPaywall = false
     @State private var notifStatus: UNAuthorizationStatus = .notDetermined
     @State private var showNotifDeniedAlert = false
+
+    @EnvironmentObject var access: AccessManager
+    @EnvironmentObject var store: StoreKitManager
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -29,6 +33,11 @@ struct ProfileView: View {
                     ProfileStat(value: "\(daysActive)", label: "Dias ativos", icon: "flame.fill", color: .orange)
                 }
                 .padding(.horizontal, 20)
+
+                // ── Assinatura ───────────────────────
+                settingsSection(title: "Assinatura") {
+                    premiumRow
+                }
 
                 // ── Preferências ─────────────────────
                 settingsSection(title: "Preferências") {
@@ -96,6 +105,39 @@ struct ProfileView: View {
         .sheet(isPresented: $showDeleteAccountSheet) { DeleteAccountView() }
         .sheet(isPresented: $showAboutSheet) { AboutView() }
         .sheet(isPresented: $showPrivacySheet) { PrivacyView() }
+        .sheet(isPresented: $showPaywall) {
+            PremiumWallView()
+                .environmentObject(access)
+                .environmentObject(store)
+        }
+    }
+
+    // MARK: - Premium Row
+    private var premiumRow: some View {
+        Button(action: { showPaywall = true }) {
+            HStack(spacing: 12) {
+                Image(systemName: "star.circle.fill")
+                    .font(.body)
+                    .foregroundColor(.yellow)
+                    .frame(width: 32, height: 32)
+                    .background(Color.yellow.opacity(0.12))
+                    .cornerRadius(8)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Alma Premium")
+                        .font(.body)
+                        .foregroundColor(CalmTheme.textPrimary)
+                    Text(access.isPremium ? "Você é Premium" : "Conheça os benefícios")
+                        .font(.caption)
+                        .foregroundColor(CalmTheme.textSecondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
     }
 
     // MARK: - Alma Brand Header
