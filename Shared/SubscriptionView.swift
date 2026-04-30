@@ -73,6 +73,14 @@ struct PremiumWallView: View {
                         .padding(.bottom, 10)
                 }
 
+                // Auto-renewal disclosure (Apple Guideline 3.1.2)
+                Text("Assinatura renovada automaticamente. Cancele a qualquer momento nas configurações da sua conta Apple.")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.55))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 12)
+
                 // CTA principal: comprar via Apple IAP
                 subscribeButton
                     .padding(.horizontal, 28)
@@ -106,13 +114,19 @@ struct PremiumWallView: View {
                 .disabled(isRefreshing || store.isPurchasing)
                 .padding(.bottom, 8)
 
-                // Termos (obrigatório pela Apple)
-                Text("Renovação automática · Cancelamento a qualquer momento\nTermos de serviço · Política de privacidade")
-                    .font(.caption2)
-                    .foregroundColor(.white.opacity(0.32))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 28)
-                    .padding(.bottom, 32)
+                // Termos (obrigatório pela Apple — Guideline 3.1.2(c) EULA + Privacy)
+                HStack(spacing: 16) {
+                    Link("Termos de Uso",
+                         destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                    Text("·")
+                        .foregroundColor(.white.opacity(0.4))
+                    Link("Política de Privacidade",
+                         destination: URL(string: "https://almaappoficial.github.io/alma.app.oficial/privacy-policy.html")!)
+                }
+                .font(.caption2)
+                .foregroundColor(.white.opacity(0.6))
+                .padding(.horizontal, 28)
+                .padding(.bottom, 32)
             }
         }
         .task {
