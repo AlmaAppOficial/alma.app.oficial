@@ -3,10 +3,13 @@ import SwiftUI
 struct HomeView: View {
 
     @EnvironmentObject var hk: HealthKitManager
+    @EnvironmentObject var access: AccessManager
+    @EnvironmentObject var store: StoreKitManager
     @State private var authorized = false
     @State private var showMoodChat = false
     @State private var showInsightShare = false
     @State private var navigateToPraticas = false
+    @State private var showHomePaywall = false
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -14,6 +17,11 @@ struct HomeView: View {
 
                 // ── Header ─────────────────────────────
                 headerSection
+
+                // ── Premium banner (only if not premium) ───────────────
+                if !access.isPremium {
+                    premiumBanner
+                }
 
                 // ── HERO: Quick Start "Meditar Agora" Button (1 tap) ─────
                 quickStartButton
@@ -55,6 +63,43 @@ struct HomeView: View {
         .task {
             authorized = await hk.requestAuthorization()
             if authorized { await hk.loadAll() }
+        }
+        .sheet(isPresented: $showHomePaywall) {
+            PremiumWallView()
+                .environmentObject(access)
+                .environmentObject(store)
+        }
+    }
+
+    // MARK: - Premium Banner
+    private var premiumBanner: some View {
+        Button(action: { showHomePaywall = true }) {
+            HStack(spacing: 12) {
+                Image(systemName: "sparkles")
+                    .font(.title3)
+                    .foregroundColor(.white)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Conheça Alma Premium")
+                        .font(.subheadline.bold())
+                        .foregroundColor(.white)
+                    Text("7 dias grátis · Acesso completo")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.85))
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.bold())
+                    .foregroundColor(.white.opacity(0.9))
+            }
+            .padding(14)
+            .background(
+                LinearGradient(
+                    colors: [CalmTheme.primary, CalmTheme.primary.opacity(0.75)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(CalmTheme.rMedium)
         }
     }
 
