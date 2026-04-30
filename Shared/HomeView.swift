@@ -18,8 +18,8 @@ struct HomeView: View {
                 // ── Header ─────────────────────────────
                 headerSection
 
-                // ── Premium banner (only if not premium) ───────────────
-                if !access.isPremium {
+                // ── Premium banner (always tappable; copy adapts to state) ─
+                if access.isInTrial || !access.isPremium {
                     premiumBanner
                 }
 
@@ -75,14 +75,14 @@ struct HomeView: View {
     private var premiumBanner: some View {
         Button(action: { showHomePaywall = true }) {
             HStack(spacing: 12) {
-                Image(systemName: "sparkles")
+                Image(systemName: access.isInTrial ? "gift.fill" : "sparkles")
                     .font(.title3)
                     .foregroundColor(.white)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Conheça Alma Premium")
+                    Text(access.isInTrial ? "Aproveite seu Premium" : "Conheça Alma Premium")
                         .font(.subheadline.bold())
                         .foregroundColor(.white)
-                    Text("7 dias grátis · Acesso completo")
+                    Text(bannerSubtitle)
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.85))
                 }
@@ -100,6 +100,21 @@ struct HomeView: View {
                 )
             )
             .cornerRadius(CalmTheme.rMedium)
+        }
+    }
+
+    private var bannerSubtitle: String {
+        if access.isInTrial {
+            let d = access.trialDays
+            if d <= 0 {
+                return "Continue Premium · Toque para assinar"
+            } else if d == 1 {
+                return "Último dia · Toque para continuar Premium"
+            } else {
+                return "\(d) dias restantes · Toque para continuar Premium"
+            }
+        } else {
+            return "7 dias grátis · Acesso completo"
         }
     }
 
