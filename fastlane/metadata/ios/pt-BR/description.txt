@@ -1,23 +1,52 @@
-Bem-vindo ao Alma — seu companheiro diário de bem-estar mental.
+A IA que aprende quem você é.
 
-✨ MEDITAÇÕES GUIADAS
-Explore nossa coleção de meditações para todos os momentos do dia: manhã energizante, foco profundo, alívio da ansiedade, sono tranquilo e muito mais.
+Você responde algumas perguntas. A Alma observa padrões. Conversa com você. E aos poucos, começa a refletir de volta uma imagem cada vez mais nítida da sua personalidade, da sua forma de pensar, das suas tendências.
 
-🌬️ EXERCÍCIOS DE RESPIRAÇÃO
-A técnica 4-7-8 — cientificamente comprovada para reduzir o estresse e a ansiedade em menos de 2 minutos. Um círculo animado te guia em cada fase da respiração.
+Não é um chatbot genérico. É uma IA que constrói um perfil seu ao longo do tempo — e usa esse perfil em cada conversa, cada recomendação, cada insight.
 
-📊 RASTREIE SEU HUMOR
-Registre como você se sente todos os dias com um simples toque. Descubra padrões, celebre os dias bons e cuide dos difíceis.
+--------------------
 
-🔥 SEQUÊNCIAS & ESTATÍSTICAS
-Construa hábitos saudáveis com sua sequência de dias consecutivos. Veja o total de sessões e minutos meditados — cada progresso importa.
+O QUE A ALMA FAZ
 
-💜 PERSONALIZADO PARA VOCÊ
-Configuração rápida com seu nome, saudações personalizadas por horário, e uma experiência que cresce com você.
+Conversa que te conhece
+A IA já parte de quem você é. Cada conversa começa com contexto, não do zero. Quanto mais você usa, mais precisa ela fica.
 
-━━━━━━━━━━━━━━━━━━━
-SEM ANÚNCIOS. SEM DISTRAÇÕES.
-Alma foi criado para ser um refúgio de paz — não uma fonte de interrupções.
-━━━━━━━━━━━━━━━━━━━
+Insights sobre você
+Padrões da sua personalidade, tendências do seu comportamento, reflexões sobre o seu momento atual. Não estatísticas genéricas — observações específicas sobre você.
 
-Baixe agora e comece sua jornada para uma vida mais equilibrada. Sua alma agradece. 💜
+Práticas que fazem sentido
+Meditações, exercícios e reflexões selecionados pelo seu perfil. Não uma biblioteca aleatória — o que combina com onde você está.
+
+Acompanhamento de humor
+Registre como se sente. A Alma cruza com seus padrões de personalidade e devolve contexto, não julgamento.
+
+--------------------
+
+PRIVACIDADE EM PRIMEIRO LUGAR
+
+A Alma não rastreia você entre apps.
+Não compartilha dados com plataformas de publicidade.
+Não usa identificadores de anúncios.
+
+Suas conversas e seu perfil são seus. Você pode excluir tudo a qualquer momento, dentro do app.
+
+--------------------
+
+Alma não te diz quem você é.
+Mostra o que você já é — e te ajuda a ver com mais clareza.
+
+Comece pela configuração inicial. Os primeiros insights chegam nas primeiras conversas. Quanto mais você usa, melhor a Alma te entende.
+
+--------------------
+
+ASSINATURA
+
+A Alma oferece um nível gratuito com acesso a recursos básicos. Os assinantes Premium desbloqueiam a biblioteca completa, conversas ilimitadas com a IA, acompanhamento avançado e conteúdo exclusivo.
+
+- Alma Premium Mensal: assinatura mensal renovada automaticamente
+- Alma Premium Anual: assinatura anual renovada automaticamente
+
+O pagamento é cobrado na conta do iTunes ao confirmar a compra. A assinatura é renovada automaticamente, a menos que seja cancelada pelo menos 24 horas antes do fim do período atual. A renovação é cobrada nas 24 horas anteriores ao fim do período. Você pode gerenciar e cancelar sua assinatura a qualquer momento em Ajustes > [seu nome] > Assinaturas no iPhone.
+
+Política de Privacidade: https://almaappoficial.github.io/alma.app.oficial/privacy-policy.html
+Termos de Uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
