@@ -86,8 +86,19 @@ class AccessManager: ObservableObject {
     /// Trial gratuito de 7 dias após criação da conta
     private let betaTrialDays = 7
 
+    /// Contas usadas pela Apple App Review — nunca entram em trial automático,
+    /// para que o reviewer veja o paywall e consiga testar a compra IAP em sandbox.
+    /// Sem isso, a conta cai em trial premium e Apple reporta "IAPs não encontrados no binário".
+    private static let appleReviewEmails: Set<String> = [
+        "contact@almaappoficial.com"
+    ]
+
     /// Verifica se o utilizador está dentro do período de trial de 7 dias
     private func isInFreeTrial(user: User) -> Bool {
+        if let email = user.email?.lowercased(),
+           Self.appleReviewEmails.contains(email) {
+            return false
+        }
         guard let creationDate = user.metadata.creationDate else { return true }
         let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
         return days < betaTrialDays
