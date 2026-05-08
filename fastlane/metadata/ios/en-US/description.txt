@@ -35,8 +35,7 @@ SUBSCRIPTION
 
 Alma offers a free tier with access to core content. Premium subscribers unlock the full library, AI companion, advanced tracking and exclusive content.
 
-- Alma Premium Monthly: auto-renewing monthly subscription
-- Alma Premium Annual: auto-renewing annual subscription
+- Alma Premium Monthly: auto-renewing monthly subscription with 7-day free trial for new subscribers
 
 Payment will be charged to your iTunes account at confirmation of purchase. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Renewal is charged within 24 hours prior to the end of the current period. You can manage and cancel your subscription at any time in Settings > [your name] > Subscriptions on your iPhone.
 
