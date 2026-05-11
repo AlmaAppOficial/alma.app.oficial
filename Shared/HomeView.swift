@@ -290,22 +290,27 @@ struct HomeView: View {
 
             if authorized {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 10) {
+                    // Mostra MEDIA do dia (mais robusto que ultimo valor instantaneo)
                     HealthMetric(icon: "heart.fill", color: .red,
-                                 value: "\(Int(hk.heartRate))", unit: "bpm", label: "Frequencia")
+                                 value: "\(Int(hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate))",
+                                 unit: "bpm", label: "Freq. média")
                     HealthMetric(icon: "waveform.path", color: .purple,
-                                 value: "\(Int(hk.hrv))", unit: "ms", label: "HRV")
+                                 value: "\(Int(hk.averageHRV > 0 ? hk.averageHRV : hk.hrv))",
+                                 unit: "ms", label: "HRV")
+                    // Sono de ONTEM (janela 18h ontem -> 12h hoje, com fallback 48h)
                     HealthMetric(icon: "moon.fill", color: .indigo,
-                                 value: String(format: "%.1f", hk.sleepHours), unit: "h", label: "Sono")
+                                 value: String(format: "%.1f", hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours),
+                                 unit: "h", label: "Sono (ontem)")
                     HealthMetric(icon: "figure.walk", color: .green,
                                  value: "\(hk.steps)", unit: "passos", label: "Passos")
                 }
 
                 // Wellness bars (InsightsView style)
                 VStack(alignment: .leading, spacing: 12) {
-                    WellnessRow(label: "Sono", value: hk.sleepHours, max: 10, icon: "moon.fill", color: .indigo)
+                    WellnessRow(label: "Sono (ontem)", value: hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours, max: 10, icon: "moon.fill", color: .indigo)
                     WellnessRow(label: "Atividade", value: Double(hk.steps) / 10000.0, max: 1.0, icon: "figure.walk", color: .green)
-                    WellnessRow(label: "Variabilidade", value: hk.hrv / 100.0, max: 1.0, icon: "waveform.path", color: .purple)
-                    WellnessRow(label: "Cardio", value: hk.heartRate / 100.0, max: 1.0, icon: "heart.fill", color: .red)
+                    WellnessRow(label: "Variabilidade", value: (hk.averageHRV > 0 ? hk.averageHRV : hk.hrv) / 100.0, max: 1.0, icon: "waveform.path", color: .purple)
+                    WellnessRow(label: "Freq. cardíaca", value: (hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate) / 100.0, max: 1.0, icon: "heart.fill", color: .red)
                 }
                 .padding(.top, 8)
                 .onAppear {

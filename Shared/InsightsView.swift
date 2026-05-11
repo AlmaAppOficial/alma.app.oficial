@@ -162,15 +162,18 @@ struct InsightsView: View {
                     .foregroundColor(CalmTheme.textSecondary)
                     .multilineTextAlignment(.center)
             } else {
+                let sleepHrs = hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours
+                let hrvVal = hk.averageHRV > 0 ? hk.averageHRV : hk.hrv
+                let hrAvg = hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate
                 VStack(spacing: 10) {
-                    InsightWellnessRow(label: "Sono", value: String(format: "%.1fh", hk.sleepHours),
-                                progress: min(hk.sleepHours / 8.0, 1.0), color: .indigo)
+                    InsightWellnessRow(label: "Sono (ontem)", value: String(format: "%.1fh", sleepHrs),
+                                progress: min(sleepHrs / 8.0, 1.0), color: .indigo)
                     InsightWellnessRow(label: "Atividade", value: "\(hk.steps) passos",
                                 progress: min(Double(hk.steps) / 10000.0, 1.0), color: .green)
-                    InsightWellnessRow(label: "Variabilidade", value: "\(Int(hk.hrv)) ms",
-                                progress: min(hk.hrv / 80.0, 1.0), color: .purple)
-                    InsightWellnessRow(label: "Cardio", value: "\(Int(hk.heartRate)) bpm",
-                                progress: hk.heartRate > 0 ? min(80.0 / max(hk.heartRate, 50.0), 1.0) : 0, color: .red)
+                    InsightWellnessRow(label: "HRV (variabilidade)", value: "\(Int(hrvVal)) ms",
+                                progress: min(hrvVal / 80.0, 1.0), color: .purple)
+                    InsightWellnessRow(label: "Freq. média", value: "\(Int(hrAvg)) bpm",
+                                progress: hrAvg > 0 ? min(80.0 / max(hrAvg, 50.0), 1.0) : 0, color: .red)
                 }
             }
         }

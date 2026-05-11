@@ -212,50 +212,39 @@ struct PraticasView: View {
     @ObservedObject var audio = AudioManager.shared
     @State private var selectedMeditationDay: MeditationDay? = nil
 
+    // Day sounds: estados mentais via binaurais sintetizados localmente.
+    // Substituiu URLs externas de musica classica (Bach/Vivaldi/Beethoven/Mozart) que
+    // se mostraram nao fidedignas — alguns servidores estavam offline ou retornavam
+    // conteudo diferente do prometido. Binaurais sao 100% offline, deterministicos
+    // e tematicamente alinhados com o estado mental anunciado em cada card.
     var daySounds: [SoundItem] = [
         SoundItem(
             title: "Foco Total",
-            subtitle: "J.S. Bach · Ária na Corda Sol",
+            subtitle: "Onda Beta · concentração e produtividade",
             category: .day,
-            audioTitle: "Foco Total — Bach, Ária na Corda Sol",
-            audioType: .stream(
-                url: "https://www.quantumdigitalmedia.de/Classicals-Music/Classicals.de%20-%20Bach%20-%20Air%20on%20the%20G%20String%20-%20BWV%201068%20-%20Arranged%20for%20Woodwinds%20and%20Strings.mp3",
-                loops: false,
-                duration: 600
-            )
+            audioTitle: "Foco Total — Beta 18Hz",
+            audioType: .binaural(frequencyHz: 18)
         ),
         SoundItem(
             title: "Criatividade",
-            subtitle: "A. Vivaldi · As Quatro Estações, Primavera",
+            subtitle: "Onda Theta · estímulo criativo e intuição",
             category: .day,
-            audioTitle: "Criatividade — Vivaldi, As Quatro Estações",
-            audioType: .stream(
-                url: "https://www.classicals.de/s/Classicalsde-Vivaldi-The-Four-Seasons-Spring-Violin-Concerto-in-E-major-Op-8-No-1-RV-269.mp3",
-                loops: false,
-                duration: 980
-            )
+            audioTitle: "Criatividade — Theta 6Hz",
+            audioType: .binaural(frequencyHz: 6)
         ),
         SoundItem(
             title: "Serenidade",
-            subtitle: "L.v. Beethoven · Sonata ao Luar, Op. 27",
+            subtitle: "Onda Alpha · calma e presença",
             category: .day,
-            audioTitle: "Serenidade — Beethoven, Sonata ao Luar",
-            audioType: .stream(
-                url: "https://library.classicalmusicarchive.org/music/MS%20Collection/RVK/Classicals.de%20-%20Beethoven%20-%20Moonlight%20Sonata%20-%201.%20Adagio%20sostenuto%20-%20Piano%20Sonata%20Nr.%2014%2C%20Op.%2027%2C%20Nr.%202.mp3",
-                loops: false,
-                duration: 345
-            )
+            audioTitle: "Serenidade — Alpha 10Hz",
+            audioType: .binaural(frequencyHz: 10)
         ),
         SoundItem(
             title: "Leveza",
-            subtitle: "W.A. Mozart · Eine Kleine Nachtmusik",
+            subtitle: "Onda Alpha · harmonia mente-corpo",
             category: .day,
-            audioTitle: "Leveza — Mozart, Eine Kleine Nachtmusik",
-            audioType: .stream(
-                url: "https://www.quantumdigitalmedia.de/Classicals-Music/Music/PG%20Archive/Advent%20Chamber%20Orchestra/Classicals.de%20-%20Mozart%20-%20Eine%20Kleine%20Nachtmusik%20-%20Allegro%20%28Advent%20Chamber%20Orchestra%29.mp3",
-                loops: false,
-                duration: 390
-            )
+            audioTitle: "Leveza — Alpha 11Hz",
+            audioType: .binaural(frequencyHz: 11)
         ),
     ]
 
@@ -300,9 +289,9 @@ struct PraticasView: View {
                 sectionHeader(icon: "sparkles", color: CalmTheme.primary, title: "Meditação Guiada • 30 Dias")
                 meditationSectionGrouped
 
-                // Música Clássica
-                sectionHeader(icon: "music.note.list", color: .orange, title: "Música Clássica")
-                Text("Bach, Vivaldi, Beethoven e Mozart — para cada momento do seu dia")
+                // Estados Mentais (ondas binaurais)
+                sectionHeader(icon: "waveform", color: .orange, title: "Estados Mentais")
+                Text("Ondas binaurais geradas em tempo real — foco, criatividade, serenidade e leveza")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                     .padding(.horizontal, 20)
