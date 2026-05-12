@@ -121,9 +121,18 @@ platform :ios do
     )
   end
 
-  desc "Build and submit to App Store"
+  desc "Build and upload to App Store (metadata + binary, sem submit)"
   lane :release do
+    api_key = app_store_connect_api_key(
+      key_id:       ENV["ASC_KEY_ID"],
+      issuer_id:    ENV["ASC_ISSUER_ID"],
+      key_filepath: ENV["ASC_KEY_FILE"],
+      duration:     1200,
+      in_house:     false
+    )
+
     increment_build_number(xcodeproj: "Alma.App.Oficial.xcodeproj")
+
     build_ios_app(
       project:           "Alma.App.Oficial.xcodeproj",
       scheme:            "Alma.App.Oficial (iOS)",
@@ -132,13 +141,147 @@ platform :ios do
       output_directory:  "./build",
       output_name:       "Alma.ipa"
     )
+
     upload_to_app_store(
+      api_key:               api_key,
       skip_metadata:         false,
-      skip_screenshots:      false,
+      skip_screenshots:      true,
       submit_for_review:     false,
       automatic_release:     false,
-      metadata_path:         "./fastlane/metadata/ios",
-      screenshots_path:      "./fastlane/screenshots/ios"
+      precheck_include_in_app_purchases: false,
+      force:                 true,
+      metadata_path:         "./fastlane/metadata/ios"
+    )
+  end
+
+  desc "Sobe APENAS metadata para a ASC — sem build, sem screenshots, sem submit"
+  lane :deliver_metadata_only do
+    api_key = app_store_connect_api_key(
+      key_id:       ENV["ASC_KEY_ID"],
+      issuer_id:    ENV["ASC_ISSUER_ID"],
+      key_filepath: ENV["ASC_KEY_FILE"],
+      duration:     1200,
+      in_house:     false
+    )
+
+    upload_to_app_store(
+      api_key:                           api_key,
+      skip_binary_upload:                true,
+      skip_screenshots:                  true,
+      submit_for_review:                 false,
+      automatic_release:                 false,
+      precheck_include_in_app_purchases: false,
+      force:                             true,
+      metadata_path:                     "./fastlane/metadata/ios"
+    )
+  end
+
+  desc "Atualiza Sign-In Information (App Review) via Spaceship — NÃO toca outros metadata"
+  lane :submit_review_info do
+    api_key = app_store_connect_api_key(
+      key_id:       ENV["ASC_KEY_ID"],
+      issuer_id:    ENV["ASC_ISSUER_ID"],
+      key_filepath: ENV["ASC_KEY_FILE"],
+      duration:     1200,
+      in_house:     false
+    )
+
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id:    api_key[:key_id],
+      issuer_id: api_key[:issuer_id],
+      key:       api_key[:key]
+    )
+
+    bundle_id = ENV["APP_IDENTIFIER"] || "com.almaapp.app"
+    app = Spaceship::ConnectAPI::App.find(bundle_id)
+    UI.user_error!("App #{bundle_id} not found") unless app
+
+    candidates = [
+      File.expand_path("./metadata/ios/review_information"),
+      File.expand_path("./fastlane/metadata/ios/review_information")
+    ]
+    ri_path = candidates.find { |p| Dir.exist?(p) } || candidates.first
+    UI.message("Lendo de: #{ri_path}")
+
+    read_field = lambda do |name|
+      path = File.join(ri_path, "#{name}.txt")
+      next nil unless File.exist?(path)
+      content = File.read(path).strip
+      content.empty? ? nil : content
+    end
+
+    first_name    = read_field.call("first_name")
+    last_name     = read_field.call("last_name")
+    email_address = read_field.call("email_address")
+    phone         = read_field.call("phone_number")
+    demo_user     = read_field.call("demo_user")
+    demo_password = read_field.call("demo_password")
+    notes         = read_field.call("notes")
+
+    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    UI.user_error!("No editable iOS version found — create a draft version on ASC first") unless version
+
+    UI.message("Editable version: #{version.version_string} (state: #{version.app_store_state})")
+
+    review_detail = version.fetch_app_store_review_detail
+    UI.user_error!("Could not fetch app_store_review_detail") unless review_detail
+
+    attrs = {}
+    attrs[:contact_first_name]    = first_name    if first_name
+    attrs[:contact_last_name]     = last_name     if last_name
+    attrs[:contact_email]         = email_address if email_address
+    attrs[:contact_phone]         = phone         if phone
+    attrs[:demo_account_name]     = demo_user     if demo_user
+    attrs[:demo_account_password] = demo_password if demo_password
+    attrs[:demo_account_required] = true          if demo_user && demo_password
+    attrs[:notes]                 = notes         if notes
+
+    UI.message("Enviando #{attrs.keys.size} campos: #{attrs.keys.map(&:to_s).join(', ')}")
+    review_detail.update(attributes: attrs)
+
+    # Re-fetch pra confirmar
+    fresh = version.fetch_app_store_review_detail
+    UI.success("✅ Sign-In Information atualizada na ASC para versão #{version.version_string}")
+    UI.message("Estado pós-update no servidor:")
+    UI.message("  contact_first_name:   #{fresh.contact_first_name}")
+    UI.message("  contact_last_name:    #{fresh.contact_last_name}")
+    UI.message("  contact_email:        #{fresh.contact_email}")
+    UI.message("  contact_phone:        #{fresh.contact_phone || '(não setado)'}")
+    UI.message("  demo_account_name:    #{fresh.demo_account_name}")
+    UI.message("  demo_account_password: <#{fresh.demo_account_password ? 'set' : 'unset'}>")
+    UI.message("  demo_account_required: #{fresh.demo_account_required}")
+    UI.message("  notes (chars):        #{fresh.notes&.length || 0}")
+  end
+
+  desc "Dry-run: valida API key + metadata local, sem tocar a ASC"
+  lane :verify_metadata do
+    api_key = app_store_connect_api_key(
+      key_id:       ENV["ASC_KEY_ID"],
+      issuer_id:    ENV["ASC_ISSUER_ID"],
+      key_filepath: ENV["ASC_KEY_FILE"],
+      duration:     1200,
+      in_house:     false
+    )
+
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id:     api_key[:key_id],
+      issuer_id:  api_key[:issuer_id],
+      key:        api_key[:key]
+    )
+
+    bundle_id = ENV["APP_IDENTIFIER"] || "com.almaapp.app"
+    app = Spaceship::ConnectAPI::App.find(bundle_id)
+    if app
+      UI.success("API key OK — app encontrado: #{app.name} (#{app.bundle_id})")
+    else
+      UI.user_error!("App #{bundle_id} não encontrado com esta API key")
+    end
+
+    precheck(
+      api_key:                  api_key,
+      app_identifier:           bundle_id,
+      default_rule_level:       :warn,
+      include_in_app_purchases: false
     )
   end
 

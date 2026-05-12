@@ -139,3 +139,14 @@ meditation_production/backup/
 scripts/
 !scripts/.gitkeep
 
+
+# Ruby/Bundler — fastlane gems instalados localmente
+vendor/bundle/
+.bundle/
+
+# Apple Review demo credentials (never commit plaintext password)
+fastlane/metadata/ios/review_information/demo_password.txt
+
+# Fastlane review_information secrets (added 30/04/2026)
+# notes.txt pode conter contexto sensível; demo_password já estava protegido na linha 148
+fastlane/metadata/**/review_information/notes.txt

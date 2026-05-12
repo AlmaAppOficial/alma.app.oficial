@@ -73,6 +73,9 @@ struct SoundItem: Identifiable, Equatable {
         case ambient(AmbientType)
         case silent(durationMinutes: Int)
         case stream(url: String, loops: Bool, duration: Double)
+        // Audio bundlado dentro do app (Resources). Filename inclui extensao .mp3.
+        // Se loops=true, AudioManager reseta no fim e toca infinito (usado pra sleep sounds).
+        case bundled(filename: String, loops: Bool, duration: Double)
     }
 
     static func == (lhs: SoundItem, rhs: SoundItem) -> Bool { lhs.id == rhs.id }
@@ -212,70 +215,71 @@ struct PraticasView: View {
     @ObservedObject var audio = AudioManager.shared
     @State private var selectedMeditationDay: MeditationDay? = nil
 
-    // Day sounds: estados mentais via binaurais sintetizados localmente.
-    // Substituiu URLs externas de musica classica (Bach/Vivaldi/Beethoven/Mozart) que
-    // se mostraram nao fidedignas — alguns servidores estavam offline ou retornavam
-    // conteudo diferente do prometido. Binaurais sao 100% offline, deterministicos
-    // e tematicamente alinhados com o estado mental anunciado em cada card.
+    // Day sounds: 4 gravacoes reais de musica classica bundladas no app.
+    // Substituiu binaurais sintéticos por arquivos mp3 reais em /ClassicalMusic/.
+    // Build 77: Bach (CC0), Beethoven (PD), Mozart (PD), Pachelbel (CC).
     var daySounds: [SoundItem] = [
         SoundItem(
-            title: "Foco Total",
-            subtitle: "Onda Beta · concentração e produtividade",
+            title: "Bach",
+            subtitle: "Variações Goldberg",
             category: .day,
-            audioTitle: "Foco Total — Beta 18Hz",
-            audioType: .binaural(frequencyHz: 18)
+            audioTitle: "Bach — Variações Goldberg",
+            audioType: .bundled(filename: "bach_goldberg.mp3", loops: false, duration: 1535)
         ),
         SoundItem(
-            title: "Criatividade",
-            subtitle: "Onda Theta · estímulo criativo e intuição",
+            title: "Beethoven",
+            subtitle: "Sinfonia Pastoral · Mov I e II",
             category: .day,
-            audioTitle: "Criatividade — Theta 6Hz",
-            audioType: .binaural(frequencyHz: 6)
+            audioTitle: "Beethoven — Sinfonia Pastoral",
+            audioType: .bundled(filename: "beethoven_pastoral.mp3", loops: false, duration: 1212)
         ),
         SoundItem(
-            title: "Serenidade",
-            subtitle: "Onda Alpha · calma e presença",
+            title: "Mozart",
+            subtitle: "Concerto para Piano nº 21 · K.467",
             category: .day,
-            audioTitle: "Serenidade — Alpha 10Hz",
-            audioType: .binaural(frequencyHz: 10)
+            audioTitle: "Mozart — Concerto K.467",
+            audioType: .bundled(filename: "mozart_k467.mp3", loops: false, duration: 1196)
         ),
         SoundItem(
-            title: "Leveza",
-            subtitle: "Onda Alpha · harmonia mente-corpo",
+            title: "Pachelbel",
+            subtitle: "Canon em Ré Maior",
             category: .day,
-            audioTitle: "Leveza — Alpha 11Hz",
-            audioType: .binaural(frequencyHz: 11)
+            audioTitle: "Pachelbel — Canon em Ré Maior",
+            audioType: .bundled(filename: "pachelbel_canon.mp3", loops: false, duration: 1799)
         ),
     ]
 
+    // Sleep sounds: 4 gravacoes reais bundladas em /SleepSounds/, todas com loop infinito.
+    // Substituiu sons sinteticos (rainForest/ocean/forestNight/campfire gerados via DSP)
+    // por mp3s reais Pixabay + pink noise gerado via ffmpeg.
     var sleepSounds: [SoundItem] = [
         SoundItem(
-            title: "Chuva na Floresta",
-            subtitle: "Chuva com rajadas suaves · sono profundo",
+            title: "Água Corrente",
+            subtitle: "Riacho calmo",
             category: .sleep,
-            audioTitle: "Chuva na Floresta",
-            audioType: .ambient(.rainForest)
-        ),
-        SoundItem(
-            title: "Ondas do Oceano",
-            subtitle: "Ondas rítmicas · respiração natural do mar",
-            category: .sleep,
-            audioTitle: "Ondas do Oceano",
-            audioType: .ambient(.ocean)
+            audioTitle: "Água Corrente",
+            audioType: .bundled(filename: "sleep_water.mp3", loops: true, duration: 300)
         ),
         SoundItem(
             title: "Floresta Noturna",
-            subtitle: "Grilos, brisa e sussurro da mata",
+            subtitle: "Vento e grilos",
             category: .sleep,
             audioTitle: "Floresta Noturna",
-            audioType: .ambient(.forestNight)
+            audioType: .bundled(filename: "sleep_forest.mp3", loops: true, duration: 300)
         ),
         SoundItem(
-            title: "Fogueira Crepitante",
-            subtitle: "Estalar do fogo · calor e aconchego",
+            title: "Lareira",
+            subtitle: "Fogo crepitando",
             category: .sleep,
-            audioTitle: "Fogueira Crepitante",
-            audioType: .ambient(.campfire)
+            audioTitle: "Lareira",
+            audioType: .bundled(filename: "sleep_fireplace.mp3", loops: true, duration: 300)
+        ),
+        SoundItem(
+            title: "Ruído Rosa",
+            subtitle: "Frequências naturais para sono profundo",
+            category: .sleep,
+            audioTitle: "Ruído Rosa",
+            audioType: .bundled(filename: "sleep_pink_noise.mp3", loops: true, duration: 300)
         ),
     ]
 
@@ -289,9 +293,9 @@ struct PraticasView: View {
                 sectionHeader(icon: "sparkles", color: CalmTheme.primary, title: "Meditação Guiada • 30 Dias")
                 meditationSectionGrouped
 
-                // Estados Mentais (ondas binaurais)
-                sectionHeader(icon: "waveform", color: .orange, title: "Estados Mentais")
-                Text("Ondas binaurais geradas em tempo real — foco, criatividade, serenidade e leveza")
+                // Música Clássica (gravações reais bundladas)
+                sectionHeader(icon: "music.note.list", color: .orange, title: "Música Clássica")
+                Text("Bach, Beethoven, Mozart e Pachelbel — gravações completas em domínio público")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                     .padding(.horizontal, 20)
@@ -299,7 +303,7 @@ struct PraticasView: View {
                 soundGrid(sounds: daySounds)
 
                 // Sons para o Sono
-                sectionHeader(icon: "moon.stars.fill", color: .indigo, title: "Sons para o Sono")
+                sectionHeader(icon: "moon.stars.fill", color: .indigo, title: "Sons pra Dormir")
                 Text("Ruídos naturais e ambientes calmos para uma noite de sono reparador")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
@@ -425,6 +429,13 @@ struct PraticasView: View {
                 AudioManager.shared.playSilentMeditation(title: item.audioTitle, durationMinutes: durationMinutes)
             case .stream(let url, let loops, let duration):
                 AudioManager.shared.playStream(title: item.audioTitle, url: url, duration: duration, loops: loops)
+            case .bundled(let filename, let loops, let duration):
+                let nameWithoutExt = filename.replacingOccurrences(of: ".mp3", with: "")
+                if let url = Bundle.main.url(forResource: nameWithoutExt, withExtension: "mp3") {
+                    AudioManager.shared.playStream(title: item.audioTitle, url: url.absoluteString, duration: duration, loops: loops)
+                } else {
+                    print("AUDIO: arquivo \(filename) nao bundlado")
+                }
             }
         }
     }
@@ -549,6 +560,17 @@ struct SoundCard: View {
             if url.contains("night") || url.contains("forest") { return Color(red: 0.22, green: 0.55, blue: 0.40) }
             if url.contains("campfire") { return Color(red: 0.78, green: 0.42, blue: 0.22) }
             return Color(red: 0.50, green: 0.50, blue: 0.80)
+        case .bundled(let filename, _, _):
+            // Match por palavra-chave no filename do bundle
+            if filename.contains("bach") { return Color(red: 0.38, green: 0.28, blue: 0.70) }
+            if filename.contains("beethoven") { return Color(red: 0.38, green: 0.42, blue: 0.78) }
+            if filename.contains("mozart") { return Color(red: 0.85, green: 0.68, blue: 0.20) }
+            if filename.contains("pachelbel") { return Color(red: 0.55, green: 0.38, blue: 0.78) }
+            if filename.contains("water") || filename.contains("rain") { return Color(red: 0.28, green: 0.55, blue: 0.78) }
+            if filename.contains("forest") { return Color(red: 0.22, green: 0.55, blue: 0.40) }
+            if filename.contains("fireplace") { return Color(red: 0.78, green: 0.42, blue: 0.22) }
+            if filename.contains("pink_noise") { return Color(red: 0.65, green: 0.45, blue: 0.60) }
+            return Color(red: 0.50, green: 0.50, blue: 0.80)
         }
     }
 
@@ -578,6 +600,16 @@ struct SoundCard: View {
             if url.contains("ocean") { return "water.waves" }
             if url.contains("night") || url.contains("forest") { return "leaf.fill" }
             if url.contains("campfire") { return "flame.fill" }
+            return "music.note"
+        case .bundled(let filename, _, _):
+            if filename.contains("bach") { return "music.note" }
+            if filename.contains("beethoven") { return "moon.stars.fill" }
+            if filename.contains("mozart") { return "sparkles" }
+            if filename.contains("pachelbel") { return "music.quarternote.list" }
+            if filename.contains("water") || filename.contains("rain") { return "drop.fill" }
+            if filename.contains("forest") { return "leaf.fill" }
+            if filename.contains("fireplace") { return "flame.fill" }
+            if filename.contains("pink_noise") { return "waveform" }
             return "music.note"
         }
     }

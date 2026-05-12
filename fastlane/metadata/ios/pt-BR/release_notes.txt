@@ -1,1 +1,10 @@
-Lançamento inicial do Alma. Meditações guiadas, técnica de respiração 4-7-8 animada, rastreador de humor diário e perfil com estatísticas de bem-estar.
+Bem-vindo à Alma — a IA que aprende quem você é.
+
+Esta versão traz:
+- Conversas com IA que constrói seu perfil ao longo do tempo
+- Insights sobre padrões da sua personalidade
+- Práticas selecionadas pelo seu momento atual
+- Acompanhamento de humor com contexto
+- Privacidade em primeiro lugar: sem rastreamento, sem dados saindo do seu controle
+
+Comece pela configuração e veja a Alma evoluir junto com você.

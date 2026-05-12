@@ -7,9 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C6E7DC9AF0F80B508FFCD73 /* beethoven_pastoral.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */; };
+		3B3DBF0CFCB3CCAD55ED2BC3 /* sleep_forest.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4E8212392CD1E71B620535EF /* sleep_forest.mp3 */; };
 		4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
 		51AAFE1E9BDF372601C72D4C /* AppleAuthCodeKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */; };
+		65AE642A66D2D2A1AC049C94 /* sleep_water.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 41FFC8A153FE4E23B4B7C375 /* sleep_water.mp3 */; };
+		7650A7659DAE7293791FAC46 /* bach_goldberg.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B0931D3CA21F8310F5571932 /* bach_goldberg.mp3 */; };
 		76891EB20C9D18D6E4692BAF /* LocalDataCleanupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */; };
+		8828C327CEFC0B9B076D3F6D /* mozart_k467.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 57807D2FD00320D19F3B9A25 /* mozart_k467.mp3 */; };
 		9A7045ACB39443178EA04B8F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
 		9ECED0BB2F588F21009412A7 /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BA2F588F21009412A7 /* Tests_iOS.swift */; };
 		9ECED0BD2F588F21009412A7 /* Tests_iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BC2F588F21009412A7 /* Tests_iOSLaunchTests.swift */; };
@@ -55,6 +60,7 @@
 		C63FF451FA7A99DD13A6089E /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
 		CC001001CC001001CC001001 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		CC001002CC001002CC001002 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
+		DA8DC37B7FC02DF5CB40AF71 /* pachelbel_canon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */; };
 		DD001001DD001001DD001001 /* AlmaLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD001000DD001000DD001000 /* AlmaLogo.swift */; };
 		DD001002DD001002DD001002 /* AlmaLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD001000DD001000DD001000 /* AlmaLogo.swift */; };
 		DD002001DD002001DD002001 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD002000DD002000DD002000 /* AudioManager.swift */; };
@@ -97,6 +103,8 @@
 		F1001002F1001002F1001002 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
 		F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
 		F1002002F1002002F1002002 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
+		F16C4AD6C69CBD015232BCED /* sleep_pink_noise.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 747D23548A27853E9A52C7D7 /* sleep_pink_noise.mp3 */; };
+		F42310F69DAAC831FB709625 /* sleep_fireplace.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */; };
 		F6C4D3274F65C38F029D2EC8 /* OnboardingBiometricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */; };
 		FB4F3FB4EF8265C8B340D982 /* OAuthRevocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357884C4D09FF75933EB433D /* OAuthRevocationService.swift */; };
 		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
@@ -124,9 +132,15 @@
 
 /* Begin PBXFileReference section */
 		357884C4D09FF75933EB433D /* OAuthRevocationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OAuthRevocationService.swift; sourceTree = "<group>"; };
+		41FFC8A153FE4E23B4B7C375 /* sleep_water.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_water.mp3; sourceTree = "<group>"; };
+		48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = pachelbel_canon.mp3; sourceTree = "<group>"; };
+		4E8212392CD1E71B620535EF /* sleep_forest.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_forest.mp3; sourceTree = "<group>"; };
+		57807D2FD00320D19F3B9A25 /* mozart_k467.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mozart_k467.mp3; sourceTree = "<group>"; };
 		6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataCleanupService.swift; sourceTree = "<group>"; };
 		6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		747D23548A27853E9A52C7D7 /* sleep_pink_noise.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_pink_noise.mp3; sourceTree = "<group>"; };
 		956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleAuthCodeKeychainStore.swift; sourceTree = "<group>"; };
+		99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = beethoven_pastoral.mp3; sourceTree = "<group>"; };
 		9ECED0A22F588F1D009412A7 /* Alma_App_OficialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alma_App_OficialApp.swift; sourceTree = "<group>"; };
 		9ECED0A32F588F1D009412A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9ECED0A42F588F21009412A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -153,6 +167,7 @@
 		9ECED0F02F58902F009412A7 /* InsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		AA001001AA001001AA001001 /* AlmaWatchApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchApp.swift; sourceTree = "<group>"; };
 		AA001002AA001002AA001002 /* AlmaWatchContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchContentView.swift; sourceTree = "<group>"; };
+		B0931D3CA21F8310F5571932 /* bach_goldberg.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = bach_goldberg.mp3; sourceTree = "<group>"; };
 		BB100001BB100001BB100001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BB300001BB300001BB300001 /* iOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iOS-Info.plist"; sourceTree = "<group>"; };
 		C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingBiometricsView.swift; sourceTree = "<group>"; };
@@ -182,6 +197,7 @@
 		EE018000EE018000EE018000 /* FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
 		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
 		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
+		F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_fireplace.mp3; sourceTree = "<group>"; };
 		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		FF001001FF001001FF001001 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
 		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -231,6 +247,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7E80B9A204E436E459FE32F0 /* ClassicalMusic */ = {
+			isa = PBXGroup;
+			children = (
+				B0931D3CA21F8310F5571932 /* bach_goldberg.mp3 */,
+				99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */,
+				57807D2FD00320D19F3B9A25 /* mozart_k467.mp3 */,
+				48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */,
+			);
+			name = ClassicalMusic;
+			path = ClassicalMusic;
+			sourceTree = SOURCE_ROOT;
+		};
 		9ECED09C2F588F1C009412A7 = {
 			isa = PBXGroup;
 			children = (
@@ -244,6 +272,8 @@
 				9ECED0AA2F588F21009412A7 /* Products */,
 				CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */,
 				C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */,
+				7E80B9A204E436E459FE32F0 /* ClassicalMusic */,
+				CD4C54928E382CD20E7F22DE /* SleepSounds */,
 			);
 			sourceTree = "<group>";
 		};
@@ -346,6 +376,18 @@
 			);
 			path = AlmaWatch;
 			sourceTree = "<group>";
+		};
+		CD4C54928E382CD20E7F22DE /* SleepSounds */ = {
+			isa = PBXGroup;
+			children = (
+				F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */,
+				4E8212392CD1E71B620535EF /* sleep_forest.mp3 */,
+				747D23548A27853E9A52C7D7 /* sleep_pink_noise.mp3 */,
+				41FFC8A153FE4E23B4B7C375 /* sleep_water.mp3 */,
+			);
+			name = SleepSounds;
+			path = SleepSounds;
+			sourceTree = SOURCE_ROOT;
 		};
 		E2F2571A2F991C9500BE42F1 /* Meditations */ = {
 			isa = PBXGroup;
@@ -517,6 +559,14 @@
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
 				E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */,
+				7650A7659DAE7293791FAC46 /* bach_goldberg.mp3 in Resources */,
+				2C6E7DC9AF0F80B508FFCD73 /* beethoven_pastoral.mp3 in Resources */,
+				8828C327CEFC0B9B076D3F6D /* mozart_k467.mp3 in Resources */,
+				DA8DC37B7FC02DF5CB40AF71 /* pachelbel_canon.mp3 in Resources */,
+				F42310F69DAAC831FB709625 /* sleep_fireplace.mp3 in Resources */,
+				3B3DBF0CFCB3CCAD55ED2BC3 /* sleep_forest.mp3 in Resources */,
+				F16C4AD6C69CBD015232BCED /* sleep_pink_noise.mp3 in Resources */,
+				65AE642A66D2D2A1AC049C94 /* sleep_water.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
