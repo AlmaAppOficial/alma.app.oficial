@@ -55,6 +55,36 @@ class RateLimitError extends Error {
   }
 }
 
+/**
+ * Sanitize error objects before logging. Strips fields that may contain
+ * Authorization headers, API keys, or request URLs with secrets (e.g.
+ * OpenAI SDK errors embed the full Request in `err.cause`; undici fetch
+ * errors do the same).
+ *
+ * Keeps debug-useful fields: name, message, status, code, type.
+ */
+function sanitizeError(err: unknown): Record<string, unknown> {
+  if (err instanceof Error) {
+    const e = err as Error & {
+      status?: number;
+      code?: string | number;
+      type?: string;
+    };
+    return {
+      name: e.name,
+      message: e.message,
+      ...(e.status !== undefined && { status: e.status }),
+      ...(e.code !== undefined && { code: e.code }),
+      ...(e.type !== undefined && { type: e.type }),
+    };
+  }
+  if (typeof err === 'object' && err !== null) {
+    const e = err as Record<string, unknown>;
+    return { status: e.status, code: e.code, type: e.type, message: e.message };
+  }
+  return { error: String(err) };
+}
+
 export const chat = onRequest(
   {
     region: 'southamerica-east1',
@@ -258,7 +288,7 @@ ${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jorn
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      await batch.commit().catch((e) => console.warn('[chat] history save failed:', e));
+      await batch.commit().catch((e) => console.warn('[chat] history save failed:', sanitizeError(e)));
 
       if (newCount % 10 === 0) {
         void generateMemorySummary(openai, uid, db, newCount);
@@ -271,7 +301,21 @@ ${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jorn
 
       res.status(200).json({ reply });
     } catch (err) {
-      console.error('[chat] OpenAI error:', err);
+      console.error('[chat] OpenAI error:', sanitizeError(err));
+
+      // Propagar 429 (rate limit / insufficient_quota) ao cliente para que
+      // a UI mostre "limite de mensagens" em vez de "indisponível". O
+      // ChatView.errorMessage(for:) já trata 429 corretamente.
+      const e = err as { status?: number; code?: string };
+      if (e.status === 429 || e.code === 'insufficient_quota' || e.code === 'rate_limit_exceeded') {
+        res.status(429).json({
+          error: e.code === 'insufficient_quota'
+            ? 'Serviço com lotação alta no momento. Tente daqui a alguns minutos.'
+            : 'Limite de mensagens atingido. Tente novamente em alguns minutos.',
+        });
+        return;
+      }
+
       res.status(500).json({ error: 'Serviço temporariamente indisponível. Tente novamente.' });
     }
   },
@@ -325,7 +369,14 @@ export const tts = onRequest(
       res.set('Content-Length', mp3Buffer.length.toString());
       res.status(200).send(mp3Buffer);
     } catch (err) {
-      console.error('[tts] OpenAI error:', err);
+      console.error('[tts] OpenAI error:', sanitizeError(err));
+
+      const e = err as { status?: number; code?: string };
+      if (e.status === 429 || e.code === 'insufficient_quota' || e.code === 'rate_limit_exceeded') {
+        res.status(429).json({ error: 'Serviço de voz com lotação alta no momento.' });
+        return;
+      }
+
       res.status(500).json({ error: 'Serviço de voz temporariamente indisponível.' });
     }
   },
@@ -463,7 +514,7 @@ export const trackConversion = onRequest(
       console.info(`[meta] ✅ Evento ${eventName} enviado — received: ${result.events_received ?? '?'}`);
       res.status(200).json({ status: 'ok', events_received: result.events_received, event_id: eventId });
     } catch (err) {
-      console.error('[meta] fetch error:', err);
+      console.error('[meta] fetch error:', sanitizeError(err));
       res.status(500).json({ error: 'Network error calling Meta API' });
     }
   },
@@ -672,7 +723,7 @@ export const whatsapp = onRequest(
         console.info(`[whatsapp] ✅ Resposta enviada para ${senderPhone.slice(0, 6)}…`);
       }
     } catch (err) {
-      console.error('[whatsapp] Erro inesperado:', err);
+      console.error('[whatsapp] Erro inesperado:', sanitizeError(err));
     }
   },
 );
