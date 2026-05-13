@@ -58,6 +58,7 @@
 		BB001001BB001001BB001001 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB100001BB100001BB100001 /* GoogleService-Info.plist */; };
 		C63FF451FA7A99DD13A6089E /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
+		B77C73E51A5C2F88B7710001 /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
 		CC001001CC001001CC001001 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		CC001002CC001002CC001002 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		DA8DC37B7FC02DF5CB40AF71 /* pachelbel_canon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */; };
@@ -270,7 +271,6 @@
 				9ECED0B92F588F21009412A7 /* Tests iOS */,
 				9ECED0C52F588F21009412A7 /* Tests macOS */,
 				9ECED0AA2F588F21009412A7 /* Products */,
-				CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */,
 				C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */,
 				7E80B9A204E436E459FE32F0 /* ClassicalMusic */,
 				CD4C54928E382CD20E7F22DE /* SleepSounds */,
@@ -326,6 +326,7 @@
 				956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */,
 				357884C4D09FF75933EB433D /* OAuthRevocationService.swift */,
 				6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */,
+				CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -702,6 +703,7 @@
 				EE016002EE016002EE016002 /* MeditationPlayerView.swift in Sources */,
 				EE017002EE017002EE017002 /* PostDetailView.swift in Sources */,
 				EE018002EE018002EE018002 /* FeedView.swift in Sources */,
+				B77C73E51A5C2F88B7710001 /* SmartPlaylistEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
