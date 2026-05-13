@@ -271,7 +271,6 @@
 				9ECED0B92F588F21009412A7 /* Tests iOS */,
 				9ECED0C52F588F21009412A7 /* Tests macOS */,
 				9ECED0AA2F588F21009412A7 /* Products */,
-				C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */,
 				7E80B9A204E436E459FE32F0 /* ClassicalMusic */,
 				CD4C54928E382CD20E7F22DE /* SleepSounds */,
 			);
@@ -327,6 +326,7 @@
 				357884C4D09FF75933EB433D /* OAuthRevocationService.swift */,
 				6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */,
 				CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */,
+				C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
