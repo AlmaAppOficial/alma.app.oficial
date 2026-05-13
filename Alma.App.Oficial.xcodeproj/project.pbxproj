@@ -84,6 +84,35 @@
 		E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
 		E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
 		E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */ = {isa = PBXBuildFile; fileRef = E2F257192F991C9500BE42F1 /* meditation_01.m4a */; };
+		BED02FA0BABE00CAFE000B02 /* meditation_02.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */; };
+		BED03FA0BABE00CAFE000B03 /* meditation_03.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */; };
+		BED04FA0BABE00CAFE000B04 /* meditation_04.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */; };
+		BED05FA0BABE00CAFE000B05 /* meditation_05.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED05FA0BABE00CAFE000A05 /* meditation_05.m4a */; };
+		BED06FA0BABE00CAFE000B06 /* meditation_06.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED06FA0BABE00CAFE000A06 /* meditation_06.m4a */; };
+		BED07FA0BABE00CAFE000B07 /* meditation_07.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED07FA0BABE00CAFE000A07 /* meditation_07.m4a */; };
+		BED08FA0BABE00CAFE000B08 /* meditation_08.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED08FA0BABE00CAFE000A08 /* meditation_08.m4a */; };
+		BED09FA0BABE00CAFE000B09 /* meditation_09.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED09FA0BABE00CAFE000A09 /* meditation_09.m4a */; };
+		BED10FA0BABE00CAFE000B10 /* meditation_10.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED10FA0BABE00CAFE000A10 /* meditation_10.m4a */; };
+		BED11FA0BABE00CAFE000B11 /* meditation_11.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED11FA0BABE00CAFE000A11 /* meditation_11.m4a */; };
+		BED12FA0BABE00CAFE000B12 /* meditation_12.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED12FA0BABE00CAFE000A12 /* meditation_12.m4a */; };
+		BED13FA0BABE00CAFE000B13 /* meditation_13.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED13FA0BABE00CAFE000A13 /* meditation_13.m4a */; };
+		BED14FA0BABE00CAFE000B14 /* meditation_14.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED14FA0BABE00CAFE000A14 /* meditation_14.m4a */; };
+		BED15FA0BABE00CAFE000B15 /* meditation_15.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED15FA0BABE00CAFE000A15 /* meditation_15.m4a */; };
+		BED16FA0BABE00CAFE000B16 /* meditation_16.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED16FA0BABE00CAFE000A16 /* meditation_16.m4a */; };
+		BED17FA0BABE00CAFE000B17 /* meditation_17.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED17FA0BABE00CAFE000A17 /* meditation_17.m4a */; };
+		BED18FA0BABE00CAFE000B18 /* meditation_18.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED18FA0BABE00CAFE000A18 /* meditation_18.m4a */; };
+		BED19FA0BABE00CAFE000B19 /* meditation_19.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED19FA0BABE00CAFE000A19 /* meditation_19.m4a */; };
+		BED20FA0BABE00CAFE000B20 /* meditation_20.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED20FA0BABE00CAFE000A20 /* meditation_20.m4a */; };
+		BED21FA0BABE00CAFE000B21 /* meditation_21.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED21FA0BABE00CAFE000A21 /* meditation_21.m4a */; };
+		BED22FA0BABE00CAFE000B22 /* meditation_22.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED22FA0BABE00CAFE000A22 /* meditation_22.m4a */; };
+		BED23FA0BABE00CAFE000B23 /* meditation_23.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED23FA0BABE00CAFE000A23 /* meditation_23.m4a */; };
+		BED24FA0BABE00CAFE000B24 /* meditation_24.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED24FA0BABE00CAFE000A24 /* meditation_24.m4a */; };
+		BED25FA0BABE00CAFE000B25 /* meditation_25.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED25FA0BABE00CAFE000A25 /* meditation_25.m4a */; };
+		BED26FA0BABE00CAFE000B26 /* meditation_26.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED26FA0BABE00CAFE000A26 /* meditation_26.m4a */; };
+		BED27FA0BABE00CAFE000B27 /* meditation_27.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED27FA0BABE00CAFE000A27 /* meditation_27.m4a */; };
+		BED28FA0BABE00CAFE000B28 /* meditation_28.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED28FA0BABE00CAFE000A28 /* meditation_28.m4a */; };
+		BED29FA0BABE00CAFE000B29 /* meditation_29.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */; };
+		BED30FA0BABE00CAFE000B30 /* meditation_30.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */; };
 		EE011001EE011001EE011001 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* FeedModels.swift */; };
 		EE011002EE011002EE011002 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* FeedModels.swift */; };
 		EE012001EE012001EE012001 /* FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* FeedRepository.swift */; };
@@ -188,6 +217,35 @@
 		E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
 		E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountView.swift; sourceTree = "<group>"; };
 		E2F257192F991C9500BE42F1 /* meditation_01.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_01.m4a; sourceTree = "<group>"; };
+		AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_02.m4a; sourceTree = "<group>"; };
+		AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_03.m4a; sourceTree = "<group>"; };
+		AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_04.m4a; sourceTree = "<group>"; };
+		AED05FA0BABE00CAFE000A05 /* meditation_05.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_05.m4a; sourceTree = "<group>"; };
+		AED06FA0BABE00CAFE000A06 /* meditation_06.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_06.m4a; sourceTree = "<group>"; };
+		AED07FA0BABE00CAFE000A07 /* meditation_07.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_07.m4a; sourceTree = "<group>"; };
+		AED08FA0BABE00CAFE000A08 /* meditation_08.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_08.m4a; sourceTree = "<group>"; };
+		AED09FA0BABE00CAFE000A09 /* meditation_09.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_09.m4a; sourceTree = "<group>"; };
+		AED10FA0BABE00CAFE000A10 /* meditation_10.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_10.m4a; sourceTree = "<group>"; };
+		AED11FA0BABE00CAFE000A11 /* meditation_11.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_11.m4a; sourceTree = "<group>"; };
+		AED12FA0BABE00CAFE000A12 /* meditation_12.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_12.m4a; sourceTree = "<group>"; };
+		AED13FA0BABE00CAFE000A13 /* meditation_13.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_13.m4a; sourceTree = "<group>"; };
+		AED14FA0BABE00CAFE000A14 /* meditation_14.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_14.m4a; sourceTree = "<group>"; };
+		AED15FA0BABE00CAFE000A15 /* meditation_15.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_15.m4a; sourceTree = "<group>"; };
+		AED16FA0BABE00CAFE000A16 /* meditation_16.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_16.m4a; sourceTree = "<group>"; };
+		AED17FA0BABE00CAFE000A17 /* meditation_17.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_17.m4a; sourceTree = "<group>"; };
+		AED18FA0BABE00CAFE000A18 /* meditation_18.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_18.m4a; sourceTree = "<group>"; };
+		AED19FA0BABE00CAFE000A19 /* meditation_19.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_19.m4a; sourceTree = "<group>"; };
+		AED20FA0BABE00CAFE000A20 /* meditation_20.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_20.m4a; sourceTree = "<group>"; };
+		AED21FA0BABE00CAFE000A21 /* meditation_21.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_21.m4a; sourceTree = "<group>"; };
+		AED22FA0BABE00CAFE000A22 /* meditation_22.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_22.m4a; sourceTree = "<group>"; };
+		AED23FA0BABE00CAFE000A23 /* meditation_23.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_23.m4a; sourceTree = "<group>"; };
+		AED24FA0BABE00CAFE000A24 /* meditation_24.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_24.m4a; sourceTree = "<group>"; };
+		AED25FA0BABE00CAFE000A25 /* meditation_25.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_25.m4a; sourceTree = "<group>"; };
+		AED26FA0BABE00CAFE000A26 /* meditation_26.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_26.m4a; sourceTree = "<group>"; };
+		AED27FA0BABE00CAFE000A27 /* meditation_27.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_27.m4a; sourceTree = "<group>"; };
+		AED28FA0BABE00CAFE000A28 /* meditation_28.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_28.m4a; sourceTree = "<group>"; };
+		AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_29.m4a; sourceTree = "<group>"; };
+		AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_30.m4a; sourceTree = "<group>"; };
 		EE011000EE011000EE011000 /* FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
 		EE012000EE012000EE012000 /* FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
 		EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
@@ -394,6 +452,35 @@
 			isa = PBXGroup;
 			children = (
 				E2F257192F991C9500BE42F1 /* meditation_01.m4a */,
+				AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */,
+				AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */,
+				AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */,
+				AED05FA0BABE00CAFE000A05 /* meditation_05.m4a */,
+				AED06FA0BABE00CAFE000A06 /* meditation_06.m4a */,
+				AED07FA0BABE00CAFE000A07 /* meditation_07.m4a */,
+				AED08FA0BABE00CAFE000A08 /* meditation_08.m4a */,
+				AED09FA0BABE00CAFE000A09 /* meditation_09.m4a */,
+				AED10FA0BABE00CAFE000A10 /* meditation_10.m4a */,
+				AED11FA0BABE00CAFE000A11 /* meditation_11.m4a */,
+				AED12FA0BABE00CAFE000A12 /* meditation_12.m4a */,
+				AED13FA0BABE00CAFE000A13 /* meditation_13.m4a */,
+				AED14FA0BABE00CAFE000A14 /* meditation_14.m4a */,
+				AED15FA0BABE00CAFE000A15 /* meditation_15.m4a */,
+				AED16FA0BABE00CAFE000A16 /* meditation_16.m4a */,
+				AED17FA0BABE00CAFE000A17 /* meditation_17.m4a */,
+				AED18FA0BABE00CAFE000A18 /* meditation_18.m4a */,
+				AED19FA0BABE00CAFE000A19 /* meditation_19.m4a */,
+				AED20FA0BABE00CAFE000A20 /* meditation_20.m4a */,
+				AED21FA0BABE00CAFE000A21 /* meditation_21.m4a */,
+				AED22FA0BABE00CAFE000A22 /* meditation_22.m4a */,
+				AED23FA0BABE00CAFE000A23 /* meditation_23.m4a */,
+				AED24FA0BABE00CAFE000A24 /* meditation_24.m4a */,
+				AED25FA0BABE00CAFE000A25 /* meditation_25.m4a */,
+				AED26FA0BABE00CAFE000A26 /* meditation_26.m4a */,
+				AED27FA0BABE00CAFE000A27 /* meditation_27.m4a */,
+				AED28FA0BABE00CAFE000A28 /* meditation_28.m4a */,
+				AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */,
+				AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */,
 			);
 			path = Meditations;
 			sourceTree = "<group>";
@@ -560,6 +647,35 @@
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
 				E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */,
+				BED02FA0BABE00CAFE000B02 /* meditation_02.m4a in Resources */,
+				BED03FA0BABE00CAFE000B03 /* meditation_03.m4a in Resources */,
+				BED04FA0BABE00CAFE000B04 /* meditation_04.m4a in Resources */,
+				BED05FA0BABE00CAFE000B05 /* meditation_05.m4a in Resources */,
+				BED06FA0BABE00CAFE000B06 /* meditation_06.m4a in Resources */,
+				BED07FA0BABE00CAFE000B07 /* meditation_07.m4a in Resources */,
+				BED08FA0BABE00CAFE000B08 /* meditation_08.m4a in Resources */,
+				BED09FA0BABE00CAFE000B09 /* meditation_09.m4a in Resources */,
+				BED10FA0BABE00CAFE000B10 /* meditation_10.m4a in Resources */,
+				BED11FA0BABE00CAFE000B11 /* meditation_11.m4a in Resources */,
+				BED12FA0BABE00CAFE000B12 /* meditation_12.m4a in Resources */,
+				BED13FA0BABE00CAFE000B13 /* meditation_13.m4a in Resources */,
+				BED14FA0BABE00CAFE000B14 /* meditation_14.m4a in Resources */,
+				BED15FA0BABE00CAFE000B15 /* meditation_15.m4a in Resources */,
+				BED16FA0BABE00CAFE000B16 /* meditation_16.m4a in Resources */,
+				BED17FA0BABE00CAFE000B17 /* meditation_17.m4a in Resources */,
+				BED18FA0BABE00CAFE000B18 /* meditation_18.m4a in Resources */,
+				BED19FA0BABE00CAFE000B19 /* meditation_19.m4a in Resources */,
+				BED20FA0BABE00CAFE000B20 /* meditation_20.m4a in Resources */,
+				BED21FA0BABE00CAFE000B21 /* meditation_21.m4a in Resources */,
+				BED22FA0BABE00CAFE000B22 /* meditation_22.m4a in Resources */,
+				BED23FA0BABE00CAFE000B23 /* meditation_23.m4a in Resources */,
+				BED24FA0BABE00CAFE000B24 /* meditation_24.m4a in Resources */,
+				BED25FA0BABE00CAFE000B25 /* meditation_25.m4a in Resources */,
+				BED26FA0BABE00CAFE000B26 /* meditation_26.m4a in Resources */,
+				BED27FA0BABE00CAFE000B27 /* meditation_27.m4a in Resources */,
+				BED28FA0BABE00CAFE000B28 /* meditation_28.m4a in Resources */,
+				BED29FA0BABE00CAFE000B29 /* meditation_29.m4a in Resources */,
+				BED30FA0BABE00CAFE000B30 /* meditation_30.m4a in Resources */,
 				7650A7659DAE7293791FAC46 /* bach_goldberg.mp3 in Resources */,
 				2C6E7DC9AF0F80B508FFCD73 /* beethoven_pastoral.mp3 in Resources */,
 				8828C327CEFC0B9B076D3F6D /* mozart_k467.mp3 in Resources */,
