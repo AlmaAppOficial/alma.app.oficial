@@ -41,6 +41,7 @@ struct MainTabView: View {
     @StateObject private var hk = HealthKitManager()
     @ObservedObject private var audio = AudioManager.shared
     @AppStorage("isDarkMode") private var isDarkMode = false
+    @State private var keyboardVisible = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -75,13 +76,24 @@ struct MainTabView: View {
             .tint(CalmTheme.primary)
 
             // Persistent mini player — visible on ALL tabs when audio is playing
-            if audio.isPlaying || audio.currentTrackTitle != nil {
+            // and the on-screen keyboard is not open (avoids overlap with input
+            // bars like ChatView's TextField). Controls remain available via
+            // Control Center / Lock Screen / Apple Watch while typing.
+            if (audio.isPlaying || audio.currentTrackTitle != nil) && !keyboardVisible {
                 MiniPlayerBar()
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .padding(.bottom, 49) // height of tab bar
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
             }
         }
         .animation(.easeInOut(duration: 0.25), value: audio.isPlaying)
+        .animation(.easeInOut(duration: 0.2), value: keyboardVisible)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            keyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardVisible = false
+        }
         .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }
