@@ -1,5 +1,6 @@
 import SwiftUI
 import HealthKit
+import UIKit
 
 // StressLevel + HealthKitManager foram movidos para Shared/HealthKitManager.swift
 
@@ -83,11 +84,10 @@ struct MainTabView: View {
                 MiniPlayerBar()
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .padding(.bottom, 49) // height of tab bar
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
             }
         }
         .animation(.easeInOut(duration: 0.25), value: audio.isPlaying)
-        .animation(.easeInOut(duration: 0.2), value: keyboardVisible)
+        .animation(.easeInOut(duration: 0.05), value: keyboardVisible)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             keyboardVisible = true
         }
