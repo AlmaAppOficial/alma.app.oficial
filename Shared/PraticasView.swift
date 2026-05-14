@@ -323,9 +323,16 @@ struct PraticasView: View {
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationBarHidden(true)
         .onDisappear {
-            // Garantir que todo o áudio para ao sair da tela
+            // [Build 77 fix — 13/05/2026]
+            // Antes: tambem chamava AudioManager.shared.stop(), mas isso matava QUALQUER
+            // audio tocando (incluindo "Sons recomendados" da Home que vieram via
+            // AudioManager.playBundledSound). Resultado: usuario mudava de aba estando
+            // em Praticas e o som da Home parava sem motivo.
+            //
+            // Fix: parar SOMENTE a meditacao guiada (que e exclusiva da PraticasView).
+            // AudioManager segue tocando entre abas — comportamento esperado pra
+            // sons recomendados/classical music/sleep sounds.
             GuidedMeditationEngine.shared.stop()
-            AudioManager.shared.stop()
         }
     }
 
