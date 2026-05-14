@@ -41,6 +41,7 @@ class AudioManager: NSObject, ObservableObject {
     // AVPlayer for streaming
     var player: AVPlayer?
     private var playerLoopObserver: NSObjectProtocol?
+    private var isLooping = false
 
     private var sinePhase: Double = 0
     private var sineFrequency: Double = 0
@@ -197,6 +198,7 @@ class AudioManager: NSObject, ObservableObject {
         startTimerUpdates()
         updateNowPlayingInfo()
 
+        isLooping = loops
         if loops {
             playerLoopObserver = NotificationCenter.default.addObserver(
                 forName: AVPlayerItem.didPlayToEndTimeNotification,
@@ -205,6 +207,8 @@ class AudioManager: NSObject, ObservableObject {
             ) { [weak self] _ in
                 self?.player?.seek(to: .zero)
                 self?.player?.play()
+                self?.startTime = CACurrentMediaTime()
+                self?.pausedElapsed = 0
             }
         }
 
@@ -493,6 +497,7 @@ class AudioManager: NSObject, ObservableObject {
             NotificationCenter.default.removeObserver(obs)
             playerLoopObserver = nil
         }
+        isLooping = false
 
         displayLink?.invalidate()
         displayLink = nil
@@ -541,7 +546,7 @@ class AudioManager: NSObject, ObservableObject {
             }
         }
 
-        if currentElapsed >= currentDuration && currentDuration > 0 {
+        if currentElapsed >= currentDuration && currentDuration > 0 && !isLooping {
             stop()
         }
     }
@@ -757,5 +762,31 @@ class AudioManager: NSObject, ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + bellDuration + 0.5) { [weak self] in
             self?.audioEngine.detach(bellNode)
         }
+    }
+}
+
+// MARK: - Bundled Sound (Build 77 — 12/05/2026)
+// Toca arquivo .mp3 do bundle do app. Substitui o playBinaural antigo (que gerava
+// senos sinteticos <20 Hz inaudiveis) usado pela secao "Sons Recomendados" na HomeView.
+
+extension AudioManager {
+
+    /// Toca arquivo de audio do bundle. Reusa playStream com file:// URL.
+    /// - Parameters:
+    ///   - filename: nome do arquivo no bundle (ex: "bach_goldberg.mp3")
+    ///   - title: titulo exibido no now-playing
+    ///   - duration: duracao em segundos (default 30 min)
+    ///   - loops: se true, toca em loop infinito (sleep sounds)
+    func playBundledSound(filename: String,
+                          title: String,
+                          duration: Double = 1800,
+                          loops: Bool = false) {
+        let nameWithoutExt = (filename as NSString).deletingPathExtension
+        let ext = (filename as NSString).pathExtension
+        guard let url = Bundle.main.url(forResource: nameWithoutExt, withExtension: ext) else {
+            print("AudioManager.playBundledSound: \(filename) nao encontrado no bundle")
+            return
+        }
+        playStream(title: title, url: url.absoluteString, duration: duration, loops: loops)
     }
 }
