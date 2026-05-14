@@ -68,9 +68,13 @@ struct ChatView: View {
         } message: {
             Text(authError ?? "Por favor faz login para conversar com a Alma.")
         }
+        .onAppear {
+            TabVisibilityState.shared.hideMiniPlayer = true
+        }
         .onDisappear {
             sessionTimer?.invalidate()
             sessionTimer = nil
+            TabVisibilityState.shared.hideMiniPlayer = false
         }
     }
 
@@ -273,7 +277,7 @@ struct ChatView: View {
                     messages.append(almaMsg)
                 }
             } catch AlmaError.serverError(let code) where code == 401 {
-                // Token expirado — força refresh e tenta de novo
+                // Token expirado — forca refresh e tenta de novo (1 retry)
                 await MainActor.run { isTyping = true }
                 do {
                     if let user = Auth.auth().currentUser {
@@ -284,20 +288,54 @@ struct ChatView: View {
                         isTyping = false
                         messages.append(ChatMessage(retry, isUser: false))
                     }
-                } catch {
+                } catch let retryError {
+                    // [Build 77 — 12/05/2026] Mensagens especificas no segundo erro,
+                    // em vez do generico "Sessao expirada" que enganava o usuario.
                     await MainActor.run {
                         isTyping = false
-                        messages.append(ChatMessage("Sessão expirada. Feche e abra o chat novamente para continuar.", isUser: false))
+                        messages.append(ChatMessage(errorMessage(for: retryError), isUser: false))
                     }
                 }
-            } catch {
+            } catch let firstError {
+                // [Build 77 — 12/05/2026] Mensagens especificas por tipo de erro.
                 await MainActor.run {
                     isTyping = false
-                    let errMsg = ChatMessage("Não foi possível obter resposta agora. Verifique sua internet e tente novamente.", isUser: false)
-                    messages.append(errMsg)
+                    messages.append(ChatMessage(errorMessage(for: firstError), isUser: false))
                 }
             }
         }
+    }
+
+    // [Build 77 — 12/05/2026] Helper de mensagens especificas por tipo de erro.
+    // Substitui o catch-all "Sessao expirada" que aparecia pra qualquer falha no retry,
+    // confundindo o usuario sobre a causa real (rede, rate-limit, servidor, etc).
+    private func errorMessage(for error: Error) -> String {
+        if let almaError = error as? AlmaError {
+            switch almaError {
+            case .noUser:
+                return "Faca login para conversar com a Alma."
+            case .tokenFailed:
+                return "Nao consegui validar sua sessao. Feche e abra o app novamente."
+            case .serverError(let code):
+                switch code {
+                case 401, 403:
+                    return "Sua sessao expirou. Feche e abra o app novamente."
+                case 429:
+                    return "Voce atingiu o limite de mensagens. Tente novamente em alguns minutos."
+                case 500...599:
+                    return "A Alma esta temporariamente indisponivel. Tente em alguns instantes."
+                default:
+                    return "Algo deu errado (erro \(code)). Verifique sua conexao."
+                }
+            case .rateLimited:
+                return "Voce atingiu o limite de mensagens. Tente novamente em alguns minutos."
+            case .parseFailed:
+                return "Nao consegui processar a resposta. Tente novamente."
+            case .networkError:
+                return "Sem conexao. Verifique sua internet."
+            }
+        }
+        return "Algo deu errado. Tente novamente em alguns instantes."
     }
 
 }

@@ -1,6 +1,15 @@
 import SwiftUI
 import HealthKit
-import UIKit
+
+// MARK: - TabVisibilityState
+// Singleton para sinalizar visibilidade do mini player a partir de qualquer view.
+// Usado para esconder o mini player enquanto ChatView está em tela (não há
+// solução robusta via UIResponder.keyboardWillShow dentro de TabView+NavigationStack).
+final class TabVisibilityState: ObservableObject {
+    static let shared = TabVisibilityState()
+    @Published var hideMiniPlayer = false
+    private init() {}
+}
 
 // StressLevel + HealthKitManager foram movidos para Shared/HealthKitManager.swift
 
@@ -41,9 +50,8 @@ struct HealthMetric: View {
 struct MainTabView: View {
     @StateObject private var hk = HealthKitManager()
     @ObservedObject private var audio = AudioManager.shared
+    @ObservedObject private var tabVisibility = TabVisibilityState.shared
     @AppStorage("isDarkMode") private var isDarkMode = false
-    @State private var keyboardVisible = false
-    @State private var wasPlayingBeforeKeyboard = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -77,32 +85,19 @@ struct MainTabView: View {
             }
             .tint(CalmTheme.primary)
 
-            // Persistent mini player — visible on ALL tabs when audio is playing
-            // and the on-screen keyboard is not open (avoids overlap with input
-            // bars like ChatView's TextField). Controls remain available via
-            // Control Center / Lock Screen / Apple Watch while typing.
-            if (audio.isPlaying || audio.currentTrackTitle != nil) && !keyboardVisible {
+            // Persistent mini player — visível em TODAS as abas enquanto há áudio.
+            // Excecao: views que escondem o mini player explicitamente via
+            // TabVisibilityState (ex: ChatView, para evitar sobreposicao com
+            // o TextField). Áudio segue tocando; controles permanecem via
+            // Control Center / Lock Screen / Apple Watch.
+            if (audio.isPlaying || audio.currentTrackTitle != nil) && !tabVisibility.hideMiniPlayer {
                 MiniPlayerBar()
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .padding(.bottom, 49) // height of tab bar
             }
         }
         .animation(.easeInOut(duration: 0.25), value: audio.isPlaying)
-        .animation(.easeInOut(duration: 0.05), value: keyboardVisible)
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-            keyboardVisible = true
-            if audio.isPlaying {
-                wasPlayingBeforeKeyboard = true
-                audio.pause()
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            keyboardVisible = false
-            if wasPlayingBeforeKeyboard {
-                audio.resume()
-                wasPlayingBeforeKeyboard = false
-            }
-        }
+        .animation(.easeInOut(duration: 0.25), value: tabVisibility.hideMiniPlayer)
         .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }
