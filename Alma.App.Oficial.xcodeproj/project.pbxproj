@@ -123,8 +123,6 @@
 		EE014002EE014002EE014002 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* FeedViewModel.swift */; };
 		EE015001EE015001EE015001 /* FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* FeedCardView.swift */; };
 		EE015002EE015002EE015002 /* FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* FeedCardView.swift */; };
-		EE016001EE016001EE016001 /* MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* MeditationPlayerView.swift */; };
-		EE016002EE016002EE016002 /* MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* MeditationPlayerView.swift */; };
 		EE017001EE017001EE017001 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* PostDetailView.swift */; };
 		EE017002EE017002EE017002 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* PostDetailView.swift */; };
 		EE018001EE018001EE018001 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* FeedView.swift */; };
@@ -251,7 +249,6 @@
 		EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
 		EE014000EE014000EE014000 /* FeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedViewModel.swift; sourceTree = "<group>"; };
 		EE015000EE015000EE015000 /* FeedCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedCardView.swift; sourceTree = "<group>"; };
-		EE016000EE016000EE016000 /* MeditationPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/MeditationPlayerView.swift; sourceTree = "<group>"; };
 		EE017000EE017000EE017000 /* PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
 		EE018000EE018000EE018000 /* FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
 		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
@@ -376,7 +373,6 @@
 				EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */,
 				EE014000EE014000EE014000 /* FeedViewModel.swift */,
 				EE015000EE015000EE015000 /* FeedCardView.swift */,
-				EE016000EE016000EE016000 /* MeditationPlayerView.swift */,
 				EE017000EE017000EE017000 /* PostDetailView.swift */,
 				EE018000EE018000EE018000 /* FeedView.swift */,
 				9ECED0A42F588F21009412A7 /* Assets.xcassets */,
@@ -757,7 +753,6 @@
 				EE013001EE013001EE013001 /* FirestoreFeedRepository.swift in Sources */,
 				EE014001EE014001EE014001 /* FeedViewModel.swift in Sources */,
 				EE015001EE015001EE015001 /* FeedCardView.swift in Sources */,
-				EE016001EE016001EE016001 /* MeditationPlayerView.swift in Sources */,
 				EE017001EE017001EE017001 /* PostDetailView.swift in Sources */,
 				E2E5A2522F966F61003759A5 /* DeleteAccountView.swift in Sources */,
 				E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */,
@@ -816,7 +811,6 @@
 				EE013002EE013002EE013002 /* FirestoreFeedRepository.swift in Sources */,
 				EE014002EE014002EE014002 /* FeedViewModel.swift in Sources */,
 				EE015002EE015002EE015002 /* FeedCardView.swift in Sources */,
-				EE016002EE016002EE016002 /* MeditationPlayerView.swift in Sources */,
 				EE017002EE017002EE017002 /* PostDetailView.swift in Sources */,
 				EE018002EE018002EE018002 /* FeedView.swift in Sources */,
 				B77C73E51A5C2F88B7710001 /* SmartPlaylistEngine.swift in Sources */,

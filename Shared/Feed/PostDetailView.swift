@@ -60,13 +60,6 @@ struct PostDetailView: View {
                     .padding(.top, CalmTheme.s16)
                     .padding(.bottom, CalmTheme.s20)
 
-                    // ── Meditation player (if applicable) ─────────────
-                    if post.contentType == .meditation {
-                        MeditationPlayerView(post: post)
-                            .padding(.horizontal, CalmTheme.s16)
-                            .padding(.bottom, CalmTheme.s20)
-                    }
-
                     // ── Main content ──────────────────────────────────
                     MarkdownTextView(text: post.content)
                         .padding(.horizontal, CalmTheme.s16)

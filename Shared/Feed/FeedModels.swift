@@ -151,39 +151,6 @@ extension FeedPost {
             isFeatured: true
         ),
 
-        // ── POST 02 ─────────────────────────────────────────────────────────
-        FeedPost(
-            id: "post_002",
-            title: "Meditação para Ansiedade: Técnica da Âncora Corporal",
-            description: "Meditação guiada de 7 minutos com técnicas de grounding para reduzir sintomas de ansiedade imediatamente.",
-            content: """
-            Esta meditação combina mindfulness com técnicas somáticas para ancorar sua atenção no corpo e sair do ciclo de pensamentos ansiosos.
-
-            Baseada no protocolo MBSR (Mindfulness-Based Stress Reduction) de Jon Kabat-Zinn, a técnica da âncora corporal usa sensações físicas como ponto de retorno sempre que a mente divaga.
-
-            Encontre uma posição confortável, feche os olhos, e siga o áudio. Ao sentir ansiedade, traga sua atenção para a sola dos pés — a sensação de peso, temperatura e contato com o chão. Este simples gesto ativa o sistema nervoso parassimpático e reduz a resposta de luta-ou-fuga.
-
-            Pesquisas mostram que 8 semanas de prática MBSR reduzem sintomas de ansiedade em até 58% (Hofmann et al., 2010).
-            """,
-            contentType: .meditation,
-            categories: ["Ansiedade", "Meditação"],
-            author: "ALMA",
-            authorId: "alma_official",
-            authorImage: nil,
-            coverImage: nil,
-            scientificBasis: ["MBSR", "Somatic Experiencing", "Neurociência"],
-            sources: ["Jon Kabat-Zinn - Full Catastrophe Living", "Hofmann et al. (2010) - J Consult Clin Psychol"],
-            meditationDuration: 420,
-            meditationAudio: nil,
-            hashtags: ["#Ansiedade", "#Meditação", "#Mindfulness"],
-            likes: 512,
-            saves: 389,
-            shares: 143,
-            createdAt: Date().addingTimeInterval(-86400 * 1),
-            isPublished: true,
-            isFeatured: true
-        ),
-
         // ── POST 03 ─────────────────────────────────────────────────────────
         FeedPost(
             id: "post_003",
@@ -219,43 +186,6 @@ extension FeedPost {
             saves: 201,
             shares: 89,
             createdAt: Date().addingTimeInterval(-86400 * 3),
-            isPublished: true,
-            isFeatured: false
-        ),
-
-        // ── POST 04 ─────────────────────────────────────────────────────────
-        FeedPost(
-            id: "post_004",
-            title: "Sono Reparador: Meditação Antes de Dormir",
-            description: "15 minutos de relaxamento progressivo e visualização para induzir sono profundo e restaurador.",
-            content: """
-            O sono é o maior reparador do sistema nervoso. Esta meditação usa técnicas de relaxamento progressivo de Edmund Jacobson combinadas com visualização guiada para preparar corpo e mente para o descanso.
-
-            **Por que funciona:**
-            Durante o sono profundo (NREM fase 3), o cérebro consolida memórias, o sistema glinfático remove toxinas e o hormônio do crescimento é liberado. Matthew Walker, neurocientista de UC Berkeley, demonstrou que adultos que dormem menos de 7 horas têm risco 41% maior de ataque cardíaco.
-
-            **Protocolo desta meditação:**
-            • Contração e relaxamento muscular progressivo (pés → cabeça)
-            • Respiração 4-7-8 para ativação parassimpática
-            • Visualização de lugar seguro
-
-            Pratique como ritual noturno fixo — a consistência potencializa os resultados em até 3 semanas.
-            """,
-            contentType: .meditation,
-            categories: ["Sono", "Meditação"],
-            author: "ALMA",
-            authorId: "alma_official",
-            authorImage: nil,
-            coverImage: nil,
-            scientificBasis: ["Neurociência do Sono", "Técnica Jacobson", "Cronobiologia"],
-            sources: ["Matthew Walker - Why We Sleep (2017)", "NIH Sleep Research Institute"],
-            meditationDuration: 900,
-            meditationAudio: nil,
-            hashtags: ["#Sono", "#Insônia", "#BemEstar"],
-            likes: 445,
-            saves: 312,
-            shares: 78,
-            createdAt: Date().addingTimeInterval(-86400 * 4),
             isPublished: true,
             isFeatured: false
         ),
@@ -335,46 +265,6 @@ extension FeedPost {
             createdAt: Date().addingTimeInterval(-86400 * 6),
             isPublished: true,
             isFeatured: false
-        ),
-
-        // ── POST 07 ─────────────────────────────────────────────────────────
-        FeedPost(
-            id: "post_007",
-            title: "Respiração 4-7-8: O Calmante Natural do Sistema Nervoso",
-            description: "Meditação de 5 minutos com a técnica respiratória do Dr. Andrew Weil — comprovada para reduzir ansiedade aguda em minutos.",
-            content: """
-            A técnica 4-7-8 foi sistematizada pelo Dr. Andrew Weil baseando-se em práticas de pranayama do yoga. Ela funciona ao ativar o nervo vago e aumentar a atividade parassimpática.
-
-            **Como praticar:**
-            • Inspire pelo nariz contando 4 segundos
-            • Retenha o ar contando 7 segundos
-            • Expire completamente pela boca contando 8 segundos
-            • Repita 4 ciclos
-
-            **Por que funciona:**
-            A expiração longa (8 segundos) ativa o reflexo de mergulho — o mesmo mecanismo que diminui a frequência cardíaca de mergulhadores. O CO2 acumulado na retenção estimula o nervo vago, que acalma diretamente o sistema nervoso.
-
-            Pesquisa da Universidade de Arizona (2019) mostrou redução de 44% nos marcadores fisiológicos de ansiedade após 4 semanas de prática diária.
-
-            Esta meditação guiará você por 5 minutos com instruções de respiração sincronizadas.
-            """,
-            contentType: .meditation,
-            categories: ["Ansiedade", "Meditação"],
-            author: "ALMA",
-            authorId: "alma_official",
-            authorImage: nil,
-            coverImage: nil,
-            scientificBasis: ["Pranayama", "Sistema Nervoso Autônomo", "Nervo Vago"],
-            sources: ["Dr. Andrew Weil - 4-7-8 Breathing", "Zaccaro et al. (2018) - Frontiers in Human Neuroscience"],
-            meditationDuration: 300,
-            meditationAudio: nil,
-            hashtags: ["#Respiração", "#Ansiedade", "#TécnicaDeRelaxamento"],
-            likes: 703,
-            saves: 541,
-            shares: 198,
-            createdAt: Date().addingTimeInterval(-86400 * 7),
-            isPublished: true,
-            isFeatured: true
         ),
 
         // ── POST 08 ─────────────────────────────────────────────────────────
@@ -557,44 +447,6 @@ extension FeedPost {
             createdAt: Date().addingTimeInterval(-86400 * 11),
             isPublished: true,
             isFeatured: true
-        ),
-
-        // ── POST 12 ─────────────────────────────────────────────────────────
-        FeedPost(
-            id: "post_012",
-            title: "Meditação Metta: Cultivando Amor e Bondade",
-            description: "Meditação de 10 minutos da tradição Theravada. Estudos mostram que ela aumenta emoções positivas e reduz autocrítica em 4 semanas.",
-            content: """
-            Metta Bhavana (em pali: "cultivo da bondade amorosa") é uma das práticas meditativas mais antigas do mundo, originada na tradição budista Theravada há 2.500 anos.
-
-            **O que a ciência diz:**
-            Barbara Fredrickson (2008) conduziu um estudo com 202 participantes mostrando que 7 semanas de meditação metta aumentaram significativamente emoções positivas, mindfulness, propósito de vida, suporte social e reduziram sintomas de doença.
-
-            **Estrutura desta prática:**
-            A meditação começa direcionando bondade a si mesmo, depois a um ser amado, depois a pessoa neutra, depois a pessoa difícil, e finalmente a todos os seres.
-
-            As frases guia:
-            "Que eu seja feliz. Que eu seja saudável. Que eu esteja seguro. Que eu viva com leveza."
-
-            Esta sequência progressiva ativa o sistema de cuidado (ocitocina) e reduz a atividade da amígdala.
-            """,
-            contentType: .meditation,
-            categories: ["Meditação", "Autoestima", "Relacionamentos"],
-            author: "ALMA",
-            authorId: "alma_official",
-            authorImage: nil,
-            coverImage: nil,
-            scientificBasis: ["Budismo Theravada", "Psicologia Positiva", "Neurociência Afetiva"],
-            sources: ["Fredrickson et al. (2008) - Journal of Personality and Social Psychology", "Salzberg - Lovingkindness (1995)"],
-            meditationDuration: 600,
-            meditationAudio: nil,
-            hashtags: ["#Metta", "#BondadeAmorosa", "#Meditação", "#Compaixão"],
-            likes: 678,
-            saves: 512,
-            shares: 187,
-            createdAt: Date().addingTimeInterval(-86400 * 12),
-            isPublished: true,
-            isFeatured: false
         ),
 
         // ── POST 13 ─────────────────────────────────────────────────────────
@@ -918,49 +770,6 @@ extension FeedPost {
             saves: 1456,
             shares: 698,
             createdAt: Date().addingTimeInterval(-86400 * 19),
-            isPublished: true,
-            isFeatured: false
-        ),
-
-        // ── POST 20 ─────────────────────────────────────────────────────────
-        FeedPost(
-            id: "post_020",
-            title: "Body Scan: Meditação de Escaneamento Corporal",
-            description: "Meditação de 12 minutos baseada no protocolo MBSR. O body scan reduz dor crônica em 43% e melhora qualidade do sono em participantes de estudos controlados.",
-            content: """
-            O Body Scan (Escaneamento Corporal) é a prática central do protocolo MBSR. É frequentemente a primeira meditação ensinada porque não requer habilidade prévia — apenas disposição para observar.
-
-            **O que é:**
-            Uma jornada sistemática de atenção por todo o corpo, da cabeça aos pés ou vice-versa, observando sensações sem tentar mudá-las.
-
-            **O que não é:**
-            Relaxamento muscular progressivo (que pede tensão e soltura). Body scan é apenas observação — você não tenta mudar nada.
-
-            **Evidências clínicas:**
-            • Estudos na Clínica de Redução de Estresse de UMass mostraram 43% de redução em dor crônica
-            • Kabat-Zinn et al. (1992) publicaram resultados de 4-ano de follow-up mostrando manutenção dos ganhos
-            • Específico para insônia: estudo de 2015 (Ong et al.) mostrou body scan melhorando qualidade de sono em 63% dos participantes
-
-            **Postura:**
-            Deitado de costas, braços ao longo do corpo, olhos fechados. Esta prática não é sobre dormir — mas se adormecer, é sinal que o corpo precisava de descanso.
-
-            Siga o áudio e simplesmente observe.
-            """,
-            contentType: .meditation,
-            categories: ["Meditação", "Sono", "Saúde Mental"],
-            author: "ALMA",
-            authorId: "alma_official",
-            authorImage: nil,
-            coverImage: nil,
-            scientificBasis: ["MBSR", "Mindfulness", "Neurociência da Dor"],
-            sources: ["Kabat-Zinn et al. (1992) - General Hospital Psychiatry", "Ong et al. (2015) - Sleep Medicine - Body Scan for Insomnia"],
-            meditationDuration: 720,
-            meditationAudio: nil,
-            hashtags: ["#BodyScan", "#Mindfulness", "#Meditação", "#Sono"],
-            likes: 834,
-            saves: 712,
-            shares: 234,
-            createdAt: Date().addingTimeInterval(-86400 * 20),
             isPublished: true,
             isFeatured: false
         ),
