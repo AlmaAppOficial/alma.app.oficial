@@ -43,6 +43,7 @@ struct MainTabView: View {
     @ObservedObject private var audio = AudioManager.shared
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var keyboardVisible = false
+    @State private var wasPlayingBeforeKeyboard = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -90,9 +91,17 @@ struct MainTabView: View {
         .animation(.easeInOut(duration: 0.05), value: keyboardVisible)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             keyboardVisible = true
+            if audio.isPlaying {
+                wasPlayingBeforeKeyboard = true
+                audio.pause()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
             keyboardVisible = false
+            if wasPlayingBeforeKeyboard {
+                audio.resume()
+                wasPlayingBeforeKeyboard = false
+            }
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)
     }
