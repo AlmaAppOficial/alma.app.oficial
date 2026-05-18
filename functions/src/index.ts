@@ -1,9 +1,10 @@
 import * as admin from 'firebase-admin';
-import { onRequest } from 'firebase-functions/v2/https';
-import { onDocumentWritten } from 'firebase-functions/v2/firestore';
+import { onCall, onRequest, HttpsError } from 'firebase-functions/v2/https';
+import { onDocumentCreated, onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import OpenAI from 'openai';
 import * as crypto from 'crypto';
+import ogs from 'open-graph-scraper';
 
 admin.initializeApp();
 
@@ -725,5 +726,271 @@ export const whatsapp = onRequest(
     } catch (err) {
       console.error('[whatsapp] Erro inesperado:', sanitizeError(err));
     }
+  },
+);
+
+// ─── Feed admin (Build 77) ────────────────────────────────────────────────────
+//
+// Curated link feed: admins paste a URL, the function detects the source from
+// the hostname and either auto-fetches OpenGraph metadata (YouTube, Spotify,
+// Facebook, Twitter, generic) or asks the client to provide a manual title
+// (Instagram — OG blocked server-side since 2020).
+
+type FeedSource =
+  | 'instagram'
+  | 'youtube'
+  | 'spotify'
+  | 'facebook'
+  | 'twitter'
+  | 'generic';
+
+function detectFeedSource(rawUrl: string): FeedSource {
+  let host: string;
+  try {
+    host = new URL(rawUrl).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    return 'generic';
+  }
+
+  if (host === 'instagram.com' || host === 'instagr.am' || host.endsWith('.instagram.com')) {
+    return 'instagram';
+  }
+  if (host === 'youtube.com' || host === 'youtu.be' || host.endsWith('.youtube.com')) {
+    return 'youtube';
+  }
+  if (host === 'spotify.com' || host === 'open.spotify.com' || host === 'spoti.fi' || host.endsWith('.spotify.com')) {
+    return 'spotify';
+  }
+  if (host === 'facebook.com' || host === 'fb.com' || host === 'fb.me' || host === 'fb.watch' || host.endsWith('.facebook.com')) {
+    return 'facebook';
+  }
+  if (host === 'twitter.com' || host === 'x.com' || host === 't.co' || host.endsWith('.twitter.com') || host.endsWith('.x.com')) {
+    return 'twitter';
+  }
+  return 'generic';
+}
+
+async function isUserAdmin(uid: string): Promise<boolean> {
+  const snap = await admin.firestore().collection('users').doc(uid).get();
+  return snap.data()?.isAdmin === true;
+}
+
+// createFeedPost: admin-only HTTPS callable. Detects source from URL, fetches
+// OG metadata when possible, falls back to manual title for Instagram or when
+// OG fetch fails. Persists to feed_posts/{autoId} which triggers
+// notifyNewFeedPost to send FCM pushes.
+export const createFeedPost = onCall(
+  {
+    region: 'southamerica-east1',
+    timeoutSeconds: 30,
+    memory: '256MiB',
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Login obrigatório.');
+    }
+    const uid = request.auth.uid;
+
+    if (!(await isUserAdmin(uid))) {
+      throw new HttpsError('permission-denied', 'Apenas administradores podem publicar.');
+    }
+
+    const data = (request.data ?? {}) as {
+      url?: unknown;
+      manualTitle?: unknown;
+      manualDescription?: unknown;
+    };
+
+    const url = typeof data.url === 'string' ? data.url.trim() : '';
+    if (!/^https?:\/\/.+/i.test(url)) {
+      throw new HttpsError('invalid-argument', 'URL inválida.');
+    }
+
+    const manualTitle =
+      typeof data.manualTitle === 'string' ? data.manualTitle.trim() : '';
+    const manualDescription =
+      typeof data.manualDescription === 'string' ? data.manualDescription.trim() : '';
+
+    const source = detectFeedSource(url);
+
+    let title = '';
+    let description = '';
+    let thumbnail: string | null = null;
+
+    if (source === 'instagram') {
+      // Instagram blocks server-side OG fetch — require manual title
+      if (!manualTitle) {
+        return { mode: 'manual', source, reason: 'instagram_requires_manual' };
+      }
+      title = manualTitle;
+      description = manualDescription;
+    } else {
+      // Try OG fetch; fall back to manual if it fails or returns no title
+      let ogTitle = '';
+      let ogDescription = '';
+      let ogImage: string | null = null;
+      let ogOk = false;
+
+      try {
+        const { result, error } = await ogs({
+          url,
+          timeout: 8000,
+          fetchOptions: { redirect: 'follow' },
+        });
+        if (!error && result.success !== false) {
+          ogTitle =
+            (typeof result.ogTitle === 'string' && result.ogTitle) ||
+            (typeof result.twitterTitle === 'string' && result.twitterTitle) ||
+            '';
+          ogDescription =
+            (typeof result.ogDescription === 'string' && result.ogDescription) ||
+            (typeof result.twitterDescription === 'string' && result.twitterDescription) ||
+            '';
+          const ogImages = result.ogImage as Array<{ url?: string }> | undefined;
+          if (Array.isArray(ogImages) && ogImages.length > 0 && typeof ogImages[0]?.url === 'string') {
+            ogImage = ogImages[0].url ?? null;
+          }
+          if (ogTitle) ogOk = true;
+        }
+      } catch (err) {
+        console.warn('[feed] OG fetch failed:', (err as Error).message);
+      }
+
+      if (!ogOk) {
+        if (!manualTitle) {
+          return { mode: 'manual', source, reason: 'og_unavailable' };
+        }
+        title = manualTitle;
+        description = manualDescription;
+      } else {
+        title = ogTitle;
+        description = ogDescription.slice(0, 240);
+        thumbnail = ogImage;
+      }
+    }
+
+    const db = admin.firestore();
+    const docRef = await db.collection('feed_posts').add({
+      url,
+      source,
+      title,
+      description,
+      thumbnail,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdBy: uid,
+    });
+
+    const saved = await docRef.get();
+    const savedData = saved.data() ?? {};
+
+    return {
+      mode: 'preview',
+      postId: docRef.id,
+      post: {
+        id: docRef.id,
+        url,
+        source,
+        title,
+        description,
+        thumbnail,
+        createdBy: uid,
+        // serverTimestamp not yet resolved client-side — client should refresh
+        // from the snapshot listener for the canonical createdAt.
+        createdAt: (savedData.createdAt as admin.firestore.Timestamp | undefined)?.toMillis() ?? null,
+      },
+    };
+  },
+);
+
+// deleteFeedPost: admin-only HTTPS callable. Hard delete.
+export const deleteFeedPost = onCall(
+  {
+    region: 'southamerica-east1',
+    timeoutSeconds: 15,
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Login obrigatório.');
+    }
+    const uid = request.auth.uid;
+
+    if (!(await isUserAdmin(uid))) {
+      throw new HttpsError('permission-denied', 'Apenas administradores podem apagar.');
+    }
+
+    const data = (request.data ?? {}) as { postId?: unknown };
+    const postId = typeof data.postId === 'string' ? data.postId.trim() : '';
+    if (!postId) {
+      throw new HttpsError('invalid-argument', 'postId obrigatório.');
+    }
+
+    await admin.firestore().collection('feed_posts').doc(postId).delete();
+    return { success: true };
+  },
+);
+
+// notifyNewFeedPost: Firestore trigger on feed_posts/{id} onCreate.
+// Sends FCM multicast to users with feedNotificationsEnabled !== false (default
+// is opt-in: missing field counts as enabled) and a valid fcmToken.
+//
+// Build 78 follow-ups: badge increment, deep-link routing, action buttons.
+export const notifyNewFeedPost = onDocumentCreated(
+  {
+    document: 'feed_posts/{postId}',
+    region: 'southamerica-east1',
+  },
+  async (event) => {
+    const post = event.data?.data() as
+      | { title?: string; url?: string; source?: string }
+      | undefined;
+    const postId = event.params.postId;
+    if (!post?.title) return;
+
+    const db = admin.firestore();
+    const usersSnap = await db.collection('users').get();
+
+    const tokens: string[] = [];
+    for (const doc of usersSnap.docs) {
+      const data = doc.data();
+      const optedOut = data.feedNotificationsEnabled === false;
+      const token = typeof data.fcmToken === 'string' ? data.fcmToken : '';
+      if (!optedOut && token) tokens.push(token);
+    }
+
+    if (tokens.length === 0) {
+      console.info(`[feed-notify] no recipients for post ${postId}`);
+      return;
+    }
+
+    // sendEachForMulticast handles batching internally up to 500 tokens.
+    const chunkSize = 500;
+    let totalSuccess = 0;
+    let totalFailure = 0;
+
+    for (let i = 0; i < tokens.length; i += chunkSize) {
+      const chunk = tokens.slice(i, i + chunkSize);
+      try {
+        const response = await admin.messaging().sendEachForMulticast({
+          tokens: chunk,
+          notification: {
+            title: 'Nova publicação',
+            body: post.title.slice(0, 140),
+          },
+          data: {
+            postId,
+            action: 'openFeed',
+            source: post.source ?? '',
+          },
+        });
+        totalSuccess += response.successCount;
+        totalFailure += response.failureCount;
+      } catch (err) {
+        console.error('[feed-notify] multicast failed:', (err as Error).message);
+      }
+    }
+
+    console.info(
+      `[feed-notify] post=${postId} sent=${totalSuccess} failed=${totalFailure} (of ${tokens.length})`,
+    );
   },
 );
