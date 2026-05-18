@@ -13,10 +13,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // 🎯 Meta Ads: regista abertura do app (ViewContent) para ajudar o algoritmo
         MetaEventsManager.shared.trackAppOpen()
 
-        // Sign out anonymous users from old app version so they see the new login screen
-        if let user = Auth.auth().currentUser, user.isAnonymous {
-            try? Auth.auth().signOut()
-        }
+        // [Build 77 — 12/05/2026] Removido force-signOut Anonymous na inicializacao.
+        // Motivo: resetava UID Anonymous a cada abertura do app, perdendo historico/personalizacao
+        // e fazendo o chat parecer "expirado" toda vez. Manter Anonymous users entre sessoes.
+        // Migracao antiga (forcar login screen pra usuarios anonymous) ja nao e necessaria.
+        // if let user = Auth.auth().currentUser, user.isAnonymous {
+        //     try? Auth.auth().signOut()
+        // }
 
         return true
     }
