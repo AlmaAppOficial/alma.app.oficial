@@ -6,6 +6,7 @@ import UserNotifications
 struct ProfileView: View {
 
     @AppStorage("isDarkMode") private var isDarkMode = false
+    @AppStorage("feedNotificationsEnabled") private var feedNotificationsEnabled = true
     @State private var showLogoutAlert = false
     @State private var showDeleteAccountSheet = false
     @State private var showAboutSheet = false
@@ -42,6 +43,8 @@ struct ProfileView: View {
                 // ── Preferências ─────────────────────
                 settingsSection(title: "Preferências") {
                     notificationsRow
+                    Divider().padding(.leading, 52)
+                    feedNotificationsRow
                     Divider().padding(.leading, 52)
                     darkModeRow
                 }
@@ -273,6 +276,42 @@ struct ProfileView: View {
     private func checkNotificationStatus() async {
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         notifStatus = settings.authorizationStatus
+    }
+
+    // MARK: - Feed Notifications Row
+    //
+    // Build 77: feed_posts onCreate trigger sends FCM push to users with
+    // feedNotificationsEnabled !== false. The toggle here is the user-facing
+    // opt-out. The actual FCM client (APNs token + Messaging SDK) is deferred
+    // to Build 78 since it requires adding the aps-environment entitlement
+    // and the FirebaseMessaging SPM product.
+    private var feedNotificationsRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "sparkles")
+                .font(.body)
+                .foregroundColor(.purple)
+                .frame(width: 32, height: 32)
+                .background(Color.purple.opacity(0.12))
+                .cornerRadius(8)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Avisar sobre novas publicações")
+                    .font(.body)
+                    .foregroundColor(CalmTheme.textPrimary)
+                Text("Receba uma notificação quando aparecer algo novo no Feed")
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+                    .lineLimit(2)
+            }
+            Spacer()
+            Toggle("", isOn: $feedNotificationsEnabled)
+                .labelsHidden()
+                .tint(CalmTheme.primary)
+                .onChange(of: feedNotificationsEnabled) { newValue in
+                    Task { try? await FeedRepository.shared.setFeedNotificationsEnabled(newValue) }
+                }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     // MARK: - Dark Mode Row
