@@ -79,39 +79,51 @@ struct FeedView: View {
 
     // MARK: - Content list
 
+    // List (not LazyVStack/ScrollView) is required for .swipeActions to fire.
+    // The chrome below keeps the visual close to the previous LazyVStack:
+    //   .listStyle(.plain) drops the grouped-section frame,
+    //   .scrollContentBackground(.hidden) lets our background gradient show,
+    //   per-row .listRowSeparator/.listRowBackground/.listRowInsets erase the
+    //   default List chrome (separators, white background, inset margins).
     @ViewBuilder
     private var contentList: some View {
-        ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: 12) {
-                tagline
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
+        List {
+            tagline
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 
-                if let err = viewModel.errorMessage {
-                    errorBanner(err)
-                        .padding(.horizontal, 16)
-                }
-
-                if viewModel.posts.isEmpty && !viewModel.isLoading {
-                    emptyState
-                        .padding(.horizontal, 16)
-                        .padding(.top, 40)
-                } else {
-                    ForEach(viewModel.posts) { post in
-                        cardRow(for: post)
-                            .padding(.horizontal, 16)
-                    }
-                }
-
-                Text("Links abrem aplicativos externos")
-                    .font(.system(size: 11))
-                    .foregroundColor(CalmTheme.textSecondary.opacity(0.7))
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 20)
-                    .padding(.bottom, 100)
+            if let err = viewModel.errorMessage {
+                errorBanner(err)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
             }
-            .padding(.top, 8)
+
+            if viewModel.posts.isEmpty && !viewModel.isLoading {
+                emptyState
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 40, leading: 16, bottom: 0, trailing: 16))
+            } else {
+                ForEach(viewModel.posts) { post in
+                    cardRow(for: post)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                }
+            }
+
+            Text("Links abrem aplicativos externos")
+                .font(.system(size: 11))
+                .foregroundColor(CalmTheme.textSecondary.opacity(0.7))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 20, leading: 16, bottom: 100, trailing: 16))
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 
     // MARK: - Tagline
