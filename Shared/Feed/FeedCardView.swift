@@ -54,8 +54,9 @@ struct FeedCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rSmall))
             }
 
-            // Title
-            Text(post.title)
+            // Title (with hostname/URL fallback so a missing OG title never
+            // leaves the card showing only a badge).
+            Text(displayTitle)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(CalmTheme.textPrimary)
                 .lineLimit(3)
@@ -78,6 +79,13 @@ struct FeedCardView: View {
             RoundedRectangle(cornerRadius: CalmTheme.rMedium)
                 .strokeBorder(CalmTheme.textSecondary.opacity(0.1), lineWidth: 1)
         )
+    }
+
+    private var displayTitle: String {
+        let trimmed = post.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty { return trimmed }
+        if let host = URL(string: post.url)?.host { return host }
+        return post.url
     }
 
     private var thumbnailPlaceholder: some View {
