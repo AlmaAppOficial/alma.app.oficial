@@ -52,6 +52,7 @@
 		9ECED1042F589030009412A7 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0F02F58902F009412A7 /* InsightsView.swift */; };
 		9ECED1072F589311009412A7 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1062F589311009412A7 /* FirebaseAnalytics */; };
 		9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1082F589311009412A7 /* FirebaseAuth */; };
+		ALMA00FCM2026MAY15FFFF01 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */; };
 		AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001001AA001001AA001001 /* AlmaWatchApp.swift */; };
 		AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001002AA001002AA001002 /* AlmaWatchContentView.swift */; };
 		ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */; };
@@ -267,6 +268,7 @@
 				9ECED1072F589311009412A7 /* FirebaseAnalytics in Frameworks */,
 				9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */,
 				ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */,
+				ALMA00FCM2026MAY15FFFF01 /* FirebaseMessaging in Frameworks */,
 				FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */,
 				FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */,
 			);
@@ -501,6 +503,7 @@
 				9ECED1062F589311009412A7 /* FirebaseAnalytics */,
 				9ECED1082F589311009412A7 /* FirebaseAuth */,
 				ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */,
+				ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */,
 				FF0099FF0099FF0099FF0003 /* GoogleSignIn */,
 				FF0099FF0099FF0099FF0004 /* FacebookLogin */,
 			);
@@ -1329,6 +1332,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9ECED1052F589311009412A7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9ECED1052F589311009412A7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 		FF0099FF0099FF0099FF0003 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
