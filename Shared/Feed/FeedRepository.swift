@@ -1,198 +1,232 @@
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
 
-// MARK: - Repository Protocol
-// Abstracts data layer so Firestore can be plugged in without changing ViewModels.
-// To add real Firestore: create `FirestoreFeedRepository` implementing this protocol.
+// MARK: - FeedRepository (Build 77 — curated link feed)
+//
+// Thin wrapper around:
+//   - feed_posts/{id} Firestore reads (live listener)
+//   - createFeedPost / deleteFeedPost Cloud Functions (callable protocol via
+//     plain HTTPS, since the project does not link the FirebaseFunctions SDK)
+//
+// All writes go through Cloud Functions (admin check is server-side). Clients
+// have read-only access to feed_posts via firestore.rules.
 
-protocol FeedRepositoryProtocol {
-    func fetchPosts(category: String?) async throws -> [FeedPost]
-    func fetchMorePosts(after lastId: String, category: String?) async throws -> [FeedPost]
-    func toggleLike(postId: String, userId: String, currentlyLiked: Bool) async throws -> Bool
-    func toggleSave(postId: String, userId: String, currentlySaved: Bool) async throws -> Bool
-    func recordShare(postId: String, userId: String) async throws
-    func fetchInteraction(postId: String, userId: String) async throws -> UserInteraction?
-    func fetchAllInteractions(userId: String) async throws -> [UserInteraction]
-}
+@MainActor
+final class FeedRepository {
 
-// MARK: - Mock Repository (works without Firestore dependency)
+    static let shared = FeedRepository()
 
-final class MockFeedRepository: FeedRepositoryProtocol {
+    private let db = Firestore.firestore()
 
-    private var posts: [FeedPost] = FeedPost.samplePosts
-    private var interactions: [String: UserInteraction] = [:]  // key: "\(userId)_\(postId)"
+    private init() {}
 
-    func fetchPosts(category: String?) async throws -> [FeedPost] {
-        try await Task.sleep(nanoseconds: 600_000_000) // simulate network
-        if let category = category, category != "all" {
-            return posts.filter { $0.categories.contains(category) }
-        }
-        return posts
+    // MARK: - Cloud Function URLs
+
+    private static let region = "southamerica-east1"
+    private static let projectId = "alma-app-7dae6"
+    private static func callableURL(_ name: String) -> URL {
+        URL(string: "https://\(region)-\(projectId).cloudfunctions.net/\(name)")!
     }
 
-    func fetchMorePosts(after lastId: String, category: String?) async throws -> [FeedPost] {
-        try await Task.sleep(nanoseconds: 400_000_000)
-        return []  // No more pages in mock
+    // MARK: - Reads
+
+    func recentPostsQuery(limit: Int = 50) -> Query {
+        db.collection("feed_posts")
+            .order(by: "createdAt", descending: true)
+            .limit(to: limit)
     }
 
-    func toggleLike(postId: String, userId: String, currentlyLiked: Bool) async throws -> Bool {
-        let key = "\(userId)_\(postId)"
-        let newLiked = !currentlyLiked
-        if var interaction = interactions[key] {
-            interaction.liked = newLiked
-            interactions[key] = interaction
-        } else {
-            interactions[key] = UserInteraction(
-                userId: userId, postId: postId,
-                liked: newLiked, saved: false, shared: false,
-                lastInteractedAt: Date()
-            )
-        }
-        // Update post like count in-memory
-        if let idx = posts.firstIndex(where: { $0.id == postId }) {
-            posts[idx].likes += newLiked ? 1 : -1
-        }
-        return newLiked
+    static func decode(_ snapshot: QueryDocumentSnapshot) -> FeedPost? {
+        let data = snapshot.data()
+        guard
+            let url = data["url"] as? String,
+            let title = data["title"] as? String,
+            let sourceRaw = data["source"] as? String,
+            let createdBy = data["createdBy"] as? String
+        else { return nil }
+
+        let createdAt: Date = {
+            if let ts = data["createdAt"] as? Timestamp { return ts.dateValue() }
+            return Date()
+        }()
+
+        return FeedPost(
+            id: snapshot.documentID,
+            url: url,
+            source: FeedSource(rawValue: sourceRaw),
+            title: title,
+            description: (data["description"] as? String) ?? "",
+            thumbnail: data["thumbnail"] as? String,
+            createdAt: createdAt,
+            createdBy: createdBy
+        )
     }
 
-    func toggleSave(postId: String, userId: String, currentlySaved: Bool) async throws -> Bool {
-        let key = "\(userId)_\(postId)"
-        let newSaved = !currentlySaved
-        if var interaction = interactions[key] {
-            interaction.saved = newSaved
-            interactions[key] = interaction
-        } else {
-            interactions[key] = UserInteraction(
-                userId: userId, postId: postId,
-                liked: false, saved: newSaved, shared: false,
-                lastInteractedAt: Date()
-            )
-        }
-        if let idx = posts.firstIndex(where: { $0.id == postId }) {
-            posts[idx].saves += newSaved ? 1 : -1
-        }
-        return newSaved
-    }
+    // MARK: - Admin status
 
-    func recordShare(postId: String, userId: String) async throws {
-        let key = "\(userId)_\(postId)"
-        if var interaction = interactions[key] {
-            interaction.shared = true
-            interactions[key] = interaction
-        } else {
-            interactions[key] = UserInteraction(
-                userId: userId, postId: postId,
-                liked: false, saved: false, shared: true,
-                lastInteractedAt: Date()
-            )
-        }
-        if let idx = posts.firstIndex(where: { $0.id == postId }) {
-            posts[idx].shares += 1
-        }
-    }
-
-    func fetchInteraction(postId: String, userId: String) async throws -> UserInteraction? {
-        interactions["\(userId)_\(postId)"]
-    }
-
-    func fetchAllInteractions(userId: String) async throws -> [UserInteraction] {
-        interactions.values.filter { $0.userId == userId }
-    }
-}
-
-// MARK: - Smart Repository (Firestore + local fallback + auto-seed)
-
-/// Wraps FirestoreFeedRepository with automatic fallback to local sample posts.
-/// On first launch with empty Firestore, seeds 22 posts automatically.
-final class SmartFeedRepository: FeedRepositoryProtocol {
-
-    private let firestore = FirestoreFeedRepository()
-    private let mock = MockFeedRepository()
-    private var seededKey = "alma_feed_seeded_v1"
-
-    func fetchPosts(category: String?) async throws -> [FeedPost] {
+    func isAdmin(uid: String) async -> Bool {
         do {
-            let posts = try await firestore.fetchPosts(category: category)
-            if posts.isEmpty {
-                // Firestore empty — seed it asynchronously and return local posts now
-                Task {
-                    await seedIfNeeded()
-                }
-                return try await mock.fetchPosts(category: category)
+            let snap = try await db.collection("users").document(uid).getDocument()
+            return (snap.data()?["isAdmin"] as? Bool) == true
+        } catch {
+            return false
+        }
+    }
+
+    // MARK: - Callable invocation (manual)
+
+    /// Invokes a Firebase Callable function via plain HTTPS using the Callable
+    /// wire protocol: { data: ... } request, { result: ... } / { error: ... }
+    /// response, Bearer ID token in Authorization header.
+    private func callFunction(_ name: String, payload: [String: Any]) async throws -> [String: Any] {
+        guard let user = Auth.auth().currentUser else { throw FeedError.notAuthenticated }
+        let idToken = try await user.getIDToken()
+
+        var request = URLRequest(url: Self.callableURL(name))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["data": payload])
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let http = response as? HTTPURLResponse
+
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw FeedError.invalidResponse
+        }
+
+        if let errorDict = json["error"] as? [String: Any] {
+            let message = (errorDict["message"] as? String) ?? "Erro desconhecido."
+            let status = (errorDict["status"] as? String) ?? ""
+            if status == "PERMISSION_DENIED" || http?.statusCode == 403 {
+                throw FeedError.notAdmin
             }
-            return posts
-        } catch {
-            // Network error — return local posts as fallback
-            return try await mock.fetchPosts(category: category)
+            if status == "INVALID_ARGUMENT" || http?.statusCode == 400 {
+                throw FeedError.serverMessage(message)
+            }
+            throw FeedError.serverMessage(message)
+        }
+
+        guard let result = json["result"] as? [String: Any] else {
+            throw FeedError.invalidResponse
+        }
+        return result
+    }
+
+    // MARK: - Create
+
+    enum CreatePostResult {
+        case preview(FeedPost)
+        case needsManual(FeedSource, reason: String)
+    }
+
+    func createPost(
+        url: String,
+        manualTitle: String? = nil,
+        manualDescription: String? = nil
+    ) async throws -> CreatePostResult {
+        var payload: [String: Any] = ["url": url]
+        if let manualTitle, !manualTitle.isEmpty { payload["manualTitle"] = manualTitle }
+        if let manualDescription, !manualDescription.isEmpty { payload["manualDescription"] = manualDescription }
+
+        let result = try await callFunction("createFeedPost", payload: payload)
+        guard let mode = result["mode"] as? String else { throw FeedError.invalidResponse }
+
+        switch mode {
+        case "manual":
+            let sourceRaw = (result["source"] as? String) ?? "generic"
+            let reason = (result["reason"] as? String) ?? ""
+            return .needsManual(FeedSource(rawValue: sourceRaw), reason: reason)
+
+        case "preview":
+            guard
+                let postDict = result["post"] as? [String: Any],
+                let postId = (result["postId"] as? String) ?? (postDict["id"] as? String),
+                let postUrl = postDict["url"] as? String,
+                let title = postDict["title"] as? String,
+                let sourceRaw = postDict["source"] as? String,
+                let createdBy = postDict["createdBy"] as? String
+            else { throw FeedError.invalidResponse }
+
+            let createdAt: Date = {
+                if let ms = postDict["createdAt"] as? TimeInterval {
+                    return Date(timeIntervalSince1970: ms / 1000.0)
+                }
+                return Date()
+            }()
+
+            let post = FeedPost(
+                id: postId,
+                url: postUrl,
+                source: FeedSource(rawValue: sourceRaw),
+                title: title,
+                description: (postDict["description"] as? String) ?? "",
+                thumbnail: postDict["thumbnail"] as? String,
+                createdAt: createdAt,
+                createdBy: createdBy
+            )
+            return .preview(post)
+
+        default:
+            throw FeedError.invalidResponse
         }
     }
 
-    func fetchMorePosts(after lastId: String, category: String?) async throws -> [FeedPost] {
-        do {
-            return try await firestore.fetchMorePosts(after: lastId, category: category)
-        } catch {
-            return []
-        }
+    // MARK: - Delete
+
+    func deletePost(postId: String) async throws {
+        _ = try await callFunction("deleteFeedPost", payload: ["postId": postId])
     }
 
-    func toggleLike(postId: String, userId: String, currentlyLiked: Bool) async throws -> Bool {
-        do {
-            return try await firestore.toggleLike(postId: postId, userId: userId, currentlyLiked: currentlyLiked)
-        } catch {
-            return try await mock.toggleLike(postId: postId, userId: userId, currentlyLiked: currentlyLiked)
-        }
+    // MARK: - User preferences
+
+    func setFeedNotificationsEnabled(_ enabled: Bool) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        try await db.collection("users").document(uid).setData(
+            ["feedNotificationsEnabled": enabled],
+            merge: true
+        )
     }
 
-    func toggleSave(postId: String, userId: String, currentlySaved: Bool) async throws -> Bool {
-        do {
-            return try await firestore.toggleSave(postId: postId, userId: userId, currentlySaved: currentlySaved)
-        } catch {
-            return try await mock.toggleSave(postId: postId, userId: userId, currentlySaved: currentlySaved)
-        }
+    func setFCMToken(_ token: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        try await db.collection("users").document(uid).setData(
+            ["fcmToken": token],
+            merge: true
+        )
     }
+}
 
-    func recordShare(postId: String, userId: String) async throws {
-        do {
-            try await firestore.recordShare(postId: postId, userId: userId)
-        } catch {
-            try await mock.recordShare(postId: postId, userId: userId)
-        }
-    }
+// MARK: - Errors
 
-    func fetchInteraction(postId: String, userId: String) async throws -> UserInteraction? {
-        do {
-            return try await firestore.fetchInteraction(postId: postId, userId: userId)
-        } catch {
-            return try await mock.fetchInteraction(postId: postId, userId: userId)
-        }
-    }
+enum FeedError: LocalizedError {
+    case invalidResponse
+    case urlInvalid
+    case notAdmin
+    case notAuthenticated
+    case serverMessage(String)
 
-    func fetchAllInteractions(userId: String) async throws -> [UserInteraction] {
-        do {
-            return try await firestore.fetchAllInteractions(userId: userId)
-        } catch {
-            return try await mock.fetchAllInteractions(userId: userId)
-        }
-    }
-
-    // MARK: Auto-seed
-
-    private func seedIfNeeded() async {
-        let alreadySeeded = UserDefaults.standard.bool(forKey: seededKey)
-        guard !alreadySeeded else { return }
-        do {
-            try await firestore.seedSamplePosts()
-            UserDefaults.standard.set(true, forKey: seededKey)
-        } catch {
-            // Seed failed — will retry next launch
+    var errorDescription: String? {
+        switch self {
+        case .invalidResponse:       return "Resposta do servidor inválida."
+        case .urlInvalid:            return "URL inválida."
+        case .notAdmin:              return "Apenas administradores podem publicar."
+        case .notAuthenticated:      return "Faça login para continuar."
+        case .serverMessage(let m):  return m
         }
     }
 }
 
-// MARK: - Shared instance
+// MARK: - User.getIDToken async helper
 
-enum FeedRepositoryProvider {
-    /// SmartFeedRepository: tries Firestore, falls back to local posts if empty/offline,
-    /// and auto-seeds Firestore with 22 posts on first empty result.
-    static let shared: FeedRepositoryProtocol = SmartFeedRepository()
+private extension User {
+    func getIDToken() async throws -> String {
+        try await withCheckedThrowingContinuation { cont in
+            self.getIDToken { token, error in
+                if let token { cont.resume(returning: token) }
+                else { cont.resume(throwing: error ?? FeedError.notAuthenticated) }
+            }
+        }
+    }
 }
