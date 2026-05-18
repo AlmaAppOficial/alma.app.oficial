@@ -817,10 +817,33 @@ export const createFeedPost = onCall(
     let description = '';
     let thumbnail: string | null = null;
 
+    // og:title values that mean "you hit a login wall, not real content".
+    // open-graph-scraper sees these as valid strings, but they're useless
+    // to the reader — treat them as if OG fetch had failed.
+    const GENERIC_WALL_TITLES = new Set([
+      'facebook',
+      'instagram',
+      'twitter',
+      'x',
+      'log in or sign up to view',
+      'log in to facebook',
+      'log in',
+      'sign up',
+    ]);
+
     if (source === 'instagram') {
       // Instagram blocks server-side OG fetch — require manual title
       if (!manualTitle) {
         return { mode: 'manual', source, reason: 'instagram_requires_manual' };
+      }
+      title = manualTitle;
+      description = manualDescription;
+    } else if (source === 'facebook') {
+      // Facebook serves a generic login wall to anonymous fetchers; Reels and
+      // most public posts come back with og:title = "Facebook". Treat like
+      // Instagram and require manualTitle.
+      if (!manualTitle) {
+        return { mode: 'manual', source, reason: 'facebook_requires_manual' };
       }
       title = manualTitle;
       description = manualDescription;
@@ -850,7 +873,11 @@ export const createFeedPost = onCall(
           if (Array.isArray(ogImages) && ogImages.length > 0 && typeof ogImages[0]?.url === 'string') {
             ogImage = ogImages[0].url ?? null;
           }
-          if (ogTitle) ogOk = true;
+          // Reject generic wall titles — without a real title the post would
+          // render as "just a badge" in the card.
+          if (ogTitle && !GENERIC_WALL_TITLES.has(ogTitle.trim().toLowerCase())) {
+            ogOk = true;
+          }
         }
       } catch (err) {
         console.warn('[feed] OG fetch failed:', (err as Error).message);
