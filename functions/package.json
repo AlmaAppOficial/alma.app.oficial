@@ -10,7 +10,7 @@
     "lint": "eslint --ext .js,.ts ."
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -19,7 +19,7 @@
     "openai": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.0.0",
     "typescript": "^5.3.0"
   }
 }
