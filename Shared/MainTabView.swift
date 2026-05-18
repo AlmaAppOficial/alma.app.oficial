@@ -53,35 +53,48 @@ struct MainTabView: View {
     @ObservedObject private var tabVisibility = TabVisibilityState.shared
     @AppStorage("isDarkMode") private var isDarkMode = false
 
+    // Tab tag values — Feed = 1, used as the deep-link target for FCM push
+    // notifications carrying action=openFeed (see AppDelegate, Build 77).
+    private enum Tab: Int {
+        case home = 0, feed = 1, praticas = 2, insights = 3, profile = 4
+    }
+
+    @State private var selectedTab: Tab = .home
+
     var body: some View {
         ZStack(alignment: .bottom) {
-            TabView {
+            TabView(selection: $selectedTab) {
                 NavigationStack {
                     HomeView()
                         .environmentObject(hk)
                 }
                 .tabItem { Label("Início", systemImage: "house.fill") }
+                .tag(Tab.home)
 
                 NavigationStack {
                     FeedView()
                 }
                 .tabItem { Label("Feed", systemImage: "newspaper.fill") }
+                .tag(Tab.feed)
 
                 NavigationStack {
                     PraticasView()
                 }
                 .tabItem { Label("Práticas", systemImage: "sparkles") }
+                .tag(Tab.praticas)
 
                 NavigationStack {
                     InsightsView()
                         .environmentObject(hk)
                 }
                 .tabItem { Label("Insights", systemImage: "chart.bar.fill") }
+                .tag(Tab.insights)
 
                 NavigationStack {
                     ProfileView()
                 }
                 .tabItem { Label("Perfil", systemImage: "person.fill") }
+                .tag(Tab.profile)
             }
             .tint(CalmTheme.primary)
 
@@ -99,5 +112,8 @@ struct MainTabView: View {
         .animation(.easeInOut(duration: 0.25), value: audio.isPlaying)
         .animation(.easeInOut(duration: 0.25), value: tabVisibility.hideMiniPlayer)
         .preferredColorScheme(isDarkMode ? .dark : .light)
+        .onReceive(NotificationCenter.default.publisher(for: .openFeedTab)) { _ in
+            selectedTab = .feed
+        }
     }
 }
