@@ -860,13 +860,47 @@ export const createFeedPost = onCall(
         };
       }
 
+      // YouTube mobile (m.youtube.com) and short links (youtu.be) serve
+      // generic OG metadata ('- YouTube' / no thumbnail). Rewrite to the
+      // canonical desktop watch URL so OG fetch picks up the real title,
+      // description and thumbnail. Same trick for music.youtube.com.
+      let fetchURL = url;
+      if (source === 'youtube') {
+        try {
+          let normalized = new URL(url);
+
+          if (normalized.hostname === 'youtu.be') {
+            const videoId = normalized.pathname.replace(/^\//, '').split('/')[0];
+            if (videoId) {
+              const rewritten = new URL(`https://www.youtube.com/watch?v=${videoId}`);
+              normalized.searchParams.forEach((value, key) => {
+                if (key !== 'v') rewritten.searchParams.set(key, value);
+              });
+              normalized = rewritten;
+            }
+          }
+
+          if (normalized.hostname === 'm.youtube.com' || normalized.hostname === 'music.youtube.com') {
+            normalized.hostname = 'www.youtube.com';
+          }
+
+          fetchURL = normalized.toString();
+          if (fetchURL !== url) {
+            console.info('[feed] YouTube URL normalized:', url, '→', fetchURL);
+          }
+        } catch (e) {
+          console.warn('[feed] YouTube URL normalize failed:', (e as Error).message);
+          // Fall through with original URL.
+        }
+      }
+
       let ogTitle = '';
       let ogDescription = '';
       let ogImage: string | null = null;
 
       try {
         const { result, error } = await ogs({
-          url,
+          url: fetchURL,
           timeout: 8000,
           fetchOptions: { redirect: 'follow' },
         });
