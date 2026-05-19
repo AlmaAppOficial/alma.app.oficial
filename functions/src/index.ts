@@ -775,10 +775,43 @@ async function isUserAdmin(uid: string): Promise<boolean> {
   return snap.data()?.isAdmin === true;
 }
 
-// createFeedPost: admin-only HTTPS callable. Detects source from URL, fetches
-// OG metadata when possible, falls back to manual title for Instagram or when
-// OG fetch fails. Persists to feed_posts/{autoId} which triggers
-// notifyNewFeedPost to send FCM pushes.
+// og:title values that mean "you hit a login wall, not real content".
+// open-graph-scraper sees these as valid strings, but they're useless to
+// the reader — treat them as if OG fetch had returned no title.
+const GENERIC_WALL_TITLES = new Set([
+  'facebook',
+  'instagram',
+  'twitter',
+  'x',
+  'log in or sign up to view',
+  'log in to facebook',
+  'log in',
+  'sign up',
+]);
+
+// Description length bounds (mirrored on the client).
+const DESCRIPTION_MIN = 60;
+const DESCRIPTION_MAX = 200;
+
+// createFeedPost: admin-only HTTPS callable with two actions on a single
+// endpoint. The client always pre-fills, reviews and edits the post in a
+// universal form, then submits the final values for persistence.
+//
+//   action: 'fetch'
+//     in:  { action, url }
+//     out: { source, og: { title, description, thumbnail } }
+//     side effects: none (no write)
+//
+//   action: 'create'
+//     in:  { action, url, title, description, thumbnail? }
+//     out: { postId, post }
+//     validation: title non-empty; 60 <= description.length <= 200
+//     side effects: writes feed_posts/{autoId} → triggers notifyNewFeedPost.
+//
+// For sources that block OG (Instagram, Facebook), 'fetch' returns empty
+// OG fields; the client opens the form blank and the admin enters
+// everything manually. There is no longer any "Instagram special case" at
+// the API layer — every source uses the same fetch → review → create flow.
 export const createFeedPost = onCall(
   {
     region: 'southamerica-east1',
@@ -796,63 +829,40 @@ export const createFeedPost = onCall(
     }
 
     const data = (request.data ?? {}) as {
+      action?: unknown;
       url?: unknown;
-      manualTitle?: unknown;
-      manualDescription?: unknown;
+      title?: unknown;
+      description?: unknown;
+      thumbnail?: unknown;
     };
+
+    const action = typeof data.action === 'string' ? data.action : '';
+    if (action !== 'fetch' && action !== 'create') {
+      throw new HttpsError('invalid-argument', 'action deve ser "fetch" ou "create".');
+    }
 
     const url = typeof data.url === 'string' ? data.url.trim() : '';
     if (!/^https?:\/\/.+/i.test(url)) {
       throw new HttpsError('invalid-argument', 'URL inválida.');
     }
 
-    const manualTitle =
-      typeof data.manualTitle === 'string' ? data.manualTitle.trim() : '';
-    const manualDescription =
-      typeof data.manualDescription === 'string' ? data.manualDescription.trim() : '';
-
     const source = detectFeedSource(url);
 
-    let title = '';
-    let description = '';
-    let thumbnail: string | null = null;
-
-    // og:title values that mean "you hit a login wall, not real content".
-    // open-graph-scraper sees these as valid strings, but they're useless
-    // to the reader — treat them as if OG fetch had failed.
-    const GENERIC_WALL_TITLES = new Set([
-      'facebook',
-      'instagram',
-      'twitter',
-      'x',
-      'log in or sign up to view',
-      'log in to facebook',
-      'log in',
-      'sign up',
-    ]);
-
-    if (source === 'instagram') {
-      // Instagram blocks server-side OG fetch — require manual title
-      if (!manualTitle) {
-        return { mode: 'manual', source, reason: 'instagram_requires_manual' };
+    // ─── action: fetch ─────────────────────────────────────────────────────
+    if (action === 'fetch') {
+      // Sources whose login walls served back generic OG data (Instagram,
+      // Facebook). Skip OG fetch entirely and let the client fill the form
+      // manually.
+      if (source === 'instagram' || source === 'facebook') {
+        return {
+          source,
+          og: { title: '', description: '', thumbnail: null as string | null },
+        };
       }
-      title = manualTitle;
-      description = manualDescription;
-    } else if (source === 'facebook') {
-      // Facebook serves a generic login wall to anonymous fetchers; Reels and
-      // most public posts come back with og:title = "Facebook". Treat like
-      // Instagram and require manualTitle.
-      if (!manualTitle) {
-        return { mode: 'manual', source, reason: 'facebook_requires_manual' };
-      }
-      title = manualTitle;
-      description = manualDescription;
-    } else {
-      // Try OG fetch; fall back to manual if it fails or returns no title
+
       let ogTitle = '';
       let ogDescription = '';
       let ogImage: string | null = null;
-      let ogOk = false;
 
       try {
         const { result, error } = await ogs({
@@ -873,27 +883,48 @@ export const createFeedPost = onCall(
           if (Array.isArray(ogImages) && ogImages.length > 0 && typeof ogImages[0]?.url === 'string') {
             ogImage = ogImages[0].url ?? null;
           }
-          // Reject generic wall titles — without a real title the post would
-          // render as "just a badge" in the card.
-          if (ogTitle && !GENERIC_WALL_TITLES.has(ogTitle.trim().toLowerCase())) {
-            ogOk = true;
+          // Defense in depth: drop generic wall titles so the client form
+          // doesn't pre-fill with garbage.
+          if (ogTitle && GENERIC_WALL_TITLES.has(ogTitle.trim().toLowerCase())) {
+            ogTitle = '';
           }
         }
       } catch (err) {
         console.warn('[feed] OG fetch failed:', (err as Error).message);
       }
 
-      if (!ogOk) {
-        if (!manualTitle) {
-          return { mode: 'manual', source, reason: 'og_unavailable' };
-        }
-        title = manualTitle;
-        description = manualDescription;
-      } else {
-        title = ogTitle;
-        description = ogDescription.slice(0, 240);
-        thumbnail = ogImage;
-      }
+      return {
+        source,
+        og: {
+          title: ogTitle,
+          description: ogDescription.slice(0, DESCRIPTION_MAX),
+          thumbnail: ogImage,
+        },
+      };
+    }
+
+    // ─── action: create ────────────────────────────────────────────────────
+    const title = (typeof data.title === 'string' ? data.title : '').trim();
+    const description = (typeof data.description === 'string' ? data.description : '').trim();
+    const thumbnail =
+      typeof data.thumbnail === 'string' && data.thumbnail.length > 0
+        ? data.thumbnail
+        : null;
+
+    if (title.length === 0) {
+      throw new HttpsError('invalid-argument', 'Título obrigatório.');
+    }
+    if (description.length < DESCRIPTION_MIN) {
+      throw new HttpsError(
+        'invalid-argument',
+        `Descrição deve ter pelo menos ${DESCRIPTION_MIN} caracteres.`,
+      );
+    }
+    if (description.length > DESCRIPTION_MAX) {
+      throw new HttpsError(
+        'invalid-argument',
+        `Descrição deve ter no máximo ${DESCRIPTION_MAX} caracteres.`,
+      );
     }
 
     const db = admin.firestore();
@@ -911,7 +942,6 @@ export const createFeedPost = onCall(
     const savedData = saved.data() ?? {};
 
     return {
-      mode: 'preview',
       postId: docRef.id,
       post: {
         id: docRef.id,
@@ -921,8 +951,8 @@ export const createFeedPost = onCall(
         description,
         thumbnail,
         createdBy: uid,
-        // serverTimestamp not yet resolved client-side — client should refresh
-        // from the snapshot listener for the canonical createdAt.
+        // serverTimestamp not yet resolved client-side — client should
+        // refresh from the snapshot listener for the canonical createdAt.
         createdAt: (savedData.createdAt as admin.firestore.Timestamp | undefined)?.toMillis() ?? null,
       },
     };
