@@ -20,58 +20,52 @@ struct SourceBadge: View {
     }
 }
 
-// MARK: - FeedCardView (curated link card)
+// MARK: - FeedCardView (curated link card, Instagram-style layout)
 
 struct FeedCardView: View {
     let post: FeedPost
 
+    @State private var showShareSheet = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Source badge
-            SourceBadge(source: post.source)
+        VStack(alignment: .leading, spacing: 0) {
 
-            // Thumbnail (if available)
-            if let thumb = post.thumbnail, let url = URL(string: thumb) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        Rectangle()
-                            .fill(CalmTheme.surface)
-                            .overlay(ProgressView().tint(CalmTheme.primary))
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
-                        thumbnailPlaceholder
-                    @unknown default:
-                        thumbnailPlaceholder
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 180)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rSmall))
+            // Top: source badge
+            HStack {
+                SourceBadge(source: post.source)
+                Spacer()
             }
+            .padding(.horizontal, 14)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
 
-            // Title (with hostname/URL fallback so a missing OG title never
-            // leaves the card showing only a badge).
-            Text(displayTitle)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(CalmTheme.textPrimary)
-                .lineLimit(3)
-                .fixedSize(horizontal: false, vertical: true)
+            // Square thumbnail OR rich placeholder, full card width
+            thumbnailArea
 
-            // Description (if any)
-            if !post.description.isEmpty {
-                Text(post.description)
-                    .font(.system(size: 13))
-                    .foregroundColor(CalmTheme.textSecondary)
-                    .lineLimit(2)
+            // Title + description + share row
+            VStack(alignment: .leading, spacing: 8) {
+                Text(displayTitle)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(CalmTheme.textPrimary)
+                    .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
+
+                if !post.description.isEmpty {
+                    Text(post.description)
+                        .font(.system(size: 14))
+                        .foregroundColor(CalmTheme.textSecondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                HStack {
+                    Spacer()
+                    shareButton
+                }
+                .padding(.top, 4)
             }
+            .padding(14)
         }
-        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(CalmTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rMedium))
@@ -81,19 +75,81 @@ struct FeedCardView: View {
         )
     }
 
+    // MARK: - Thumbnail / Placeholder
+
+    @ViewBuilder
+    private var thumbnailArea: some View {
+        Group {
+            if let thumb = post.thumbnail, let url = URL(string: thumb) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        placeholder
+                            .overlay(ProgressView().tint(.white))
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure:
+                        placeholder
+                    @unknown default:
+                        placeholder
+                    }
+                }
+            } else {
+                placeholder
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .aspectRatio(1, contentMode: .fit)
+        .clipped()
+    }
+
+    @ViewBuilder
+    private var placeholder: some View {
+        LinearGradient(
+            colors: [
+                post.source.color.opacity(0.85),
+                post.source.color.opacity(0.55),
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .overlay(
+            Text(post.source.emoji)
+                .font(.system(size: 88))
+                .opacity(0.9)
+        )
+    }
+
+    // MARK: - Share button
+
+    @ViewBuilder
+    private var shareButton: some View {
+        if let url = URL(string: post.url) {
+            ShareLink(item: url) {
+                HStack(spacing: 6) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 14, weight: .medium))
+                    Text("Compartilhar")
+                        .font(.system(size: 12, weight: .medium))
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(CalmTheme.primary.opacity(0.1))
+                .foregroundColor(CalmTheme.primary)
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - Display title fallback
+
     private var displayTitle: String {
         let trimmed = post.title.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty { return trimmed }
         if let host = URL(string: post.url)?.host { return host }
         return post.url
-    }
-
-    private var thumbnailPlaceholder: some View {
-        Rectangle()
-            .fill(post.source.color.opacity(0.08))
-            .overlay(
-                Text(post.source.emoji)
-                    .font(.system(size: 36))
-            )
     }
 }
