@@ -114,63 +114,78 @@ final class FeedRepository {
         return result
     }
 
-    // MARK: - Create
+    // MARK: - Description length bounds (mirrored from backend)
 
-    enum CreatePostResult {
-        case preview(FeedPost)
-        case needsManual(FeedSource, reason: String)
+    static let descriptionMin = 60
+    static let descriptionMax = 200
+
+    // MARK: - Fetch (action=fetch) — pulls OG metadata without persisting
+
+    struct FetchResult {
+        let source: FeedSource
+        let title: String
+        let description: String
+        let thumbnail: String?
     }
+
+    func fetchOG(url: String) async throws -> FetchResult {
+        let payload: [String: Any] = ["action": "fetch", "url": url]
+        let result = try await callFunction("createFeedPost", payload: payload)
+
+        let sourceRaw = (result["source"] as? String) ?? "generic"
+        let og = (result["og"] as? [String: Any]) ?? [:]
+
+        return FetchResult(
+            source: FeedSource(rawValue: sourceRaw),
+            title: (og["title"] as? String) ?? "",
+            description: (og["description"] as? String) ?? "",
+            thumbnail: og["thumbnail"] as? String
+        )
+    }
+
+    // MARK: - Create (action=create) — persists final post
 
     func createPost(
         url: String,
-        manualTitle: String? = nil,
-        manualDescription: String? = nil
-    ) async throws -> CreatePostResult {
-        var payload: [String: Any] = ["url": url]
-        if let manualTitle, !manualTitle.isEmpty { payload["manualTitle"] = manualTitle }
-        if let manualDescription, !manualDescription.isEmpty { payload["manualDescription"] = manualDescription }
+        title: String,
+        description: String,
+        thumbnail: String? = nil
+    ) async throws -> FeedPost {
+        var payload: [String: Any] = [
+            "action": "create",
+            "url": url,
+            "title": title,
+            "description": description,
+        ]
+        if let thumbnail, !thumbnail.isEmpty { payload["thumbnail"] = thumbnail }
 
         let result = try await callFunction("createFeedPost", payload: payload)
-        guard let mode = result["mode"] as? String else { throw FeedError.invalidResponse }
+        guard
+            let postDict = result["post"] as? [String: Any],
+            let postId = (result["postId"] as? String) ?? (postDict["id"] as? String),
+            let postUrl = postDict["url"] as? String,
+            let postTitle = postDict["title"] as? String,
+            let sourceRaw = postDict["source"] as? String,
+            let createdBy = postDict["createdBy"] as? String
+        else { throw FeedError.invalidResponse }
 
-        switch mode {
-        case "manual":
-            let sourceRaw = (result["source"] as? String) ?? "generic"
-            let reason = (result["reason"] as? String) ?? ""
-            return .needsManual(FeedSource(rawValue: sourceRaw), reason: reason)
+        let createdAt: Date = {
+            if let ms = postDict["createdAt"] as? TimeInterval {
+                return Date(timeIntervalSince1970: ms / 1000.0)
+            }
+            return Date()
+        }()
 
-        case "preview":
-            guard
-                let postDict = result["post"] as? [String: Any],
-                let postId = (result["postId"] as? String) ?? (postDict["id"] as? String),
-                let postUrl = postDict["url"] as? String,
-                let title = postDict["title"] as? String,
-                let sourceRaw = postDict["source"] as? String,
-                let createdBy = postDict["createdBy"] as? String
-            else { throw FeedError.invalidResponse }
-
-            let createdAt: Date = {
-                if let ms = postDict["createdAt"] as? TimeInterval {
-                    return Date(timeIntervalSince1970: ms / 1000.0)
-                }
-                return Date()
-            }()
-
-            let post = FeedPost(
-                id: postId,
-                url: postUrl,
-                source: FeedSource(rawValue: sourceRaw),
-                title: title,
-                description: (postDict["description"] as? String) ?? "",
-                thumbnail: postDict["thumbnail"] as? String,
-                createdAt: createdAt,
-                createdBy: createdBy
-            )
-            return .preview(post)
-
-        default:
-            throw FeedError.invalidResponse
-        }
+        return FeedPost(
+            id: postId,
+            url: postUrl,
+            source: FeedSource(rawValue: sourceRaw),
+            title: postTitle,
+            description: (postDict["description"] as? String) ?? "",
+            thumbnail: postDict["thumbnail"] as? String,
+            createdAt: createdAt,
+            createdBy: createdBy
+        )
     }
 
     // MARK: - Delete

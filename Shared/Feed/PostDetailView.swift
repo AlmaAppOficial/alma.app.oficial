@@ -1,36 +1,42 @@
 import SwiftUI
 
-// MARK: - CreateFeedPostView (Build 77 — admin creation flow)
+// MARK: - CreateFeedPostView (Build 77 — universal admin creation flow)
 //
-// File path kept as PostDetailView.swift to avoid pbxproj edits. The contents
-// are the new Build 77 admin-only post creator.
+// File path kept as PostDetailView.swift to avoid pbxproj edits. Contents
+// are the Build 77 admin post creator with the universal fetch+create flow.
 //
-// Flow:
-//   1. Admin pastes a URL → tap "Buscar Preview"
-//   2. Cloud Function tries to fetch OpenGraph metadata.
-//      - If success (YouTube/Spotify/Facebook/Twitter/generic) → post is
-//        already saved server-side. We dismiss with success.
-//      - If Instagram, or OG fetch fails → server returns mode: "manual",
-//        we expand the form for the admin to type the title and description,
-//        then re-call with manualTitle/manualDescription.
+// Phases:
+//   .initial   — only URL field + "Buscar dados" button.
+//   .fetching  — spinner; backend action=fetch in flight.
+//   .editing   — full form: source badge + thumbnail preview + editable
+//                title/description (prefilled from OG when available) +
+//                live char counter + "Publicar" button.
+//   .publishing — spinner during action=create.
+//
+// All sources share the same flow. Instagram/Facebook simply come back
+// from fetch with empty OG fields, opening the form blank for full
+// manual entry. No source-specific UI branches.
 
 struct CreateFeedPostView: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    private enum Phase {
+        case initial, fetching, editing, publishing
+    }
+
     @State private var url: String = ""
-    @State private var manualTitle: String = ""
-    @State private var manualDescription: String = ""
-
-    @State private var detectedSource: FeedSource = .generic
-    @State private var showManualForm: Bool = false
-    @State private var manualReason: String = ""
-
-    @State private var isSubmitting: Bool = false
+    @State private var source: FeedSource = .generic
+    @State private var title: String = ""
+    @State private var description: String = ""
+    @State private var thumbnail: String? = nil
+    @State private var phase: Phase = .initial
     @State private var errorMessage: String? = nil
-    @State private var successMessage: String? = nil
+    @State private var infoMessage: String? = nil
 
     private let repository = FeedRepository.shared
+    private let descMin = FeedRepository.descriptionMin
+    private let descMax = FeedRepository.descriptionMax
 
     var body: some View {
         NavigationStack {
@@ -42,18 +48,18 @@ struct CreateFeedPostView: View {
 
                         urlField
 
-                        if showManualForm {
-                            manualFormSection
+                        if phase == .editing || phase == .publishing {
+                            editForm
                         }
 
+                        if let infoMessage {
+                            banner(text: infoMessage, color: CalmTheme.primary)
+                        }
                         if let errorMessage {
                             banner(text: errorMessage, color: .red)
                         }
-                        if let successMessage {
-                            banner(text: successMessage, color: .green)
-                        }
 
-                        submitButton
+                        actionButton
 
                         Spacer(minLength: 24)
                     }
@@ -87,138 +93,210 @@ struct CreateFeedPostView: View {
                 .padding(12)
                 .background(CalmTheme.surface)
                 .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rSmall))
+                .disabled(phase == .editing || phase == .publishing)
                 .onChange(of: url) { newValue in
-                    if showManualForm {
-                        showManualForm = false
-                        manualReason = ""
+                    // If the admin edits the URL after fetch, reset to initial
+                    // so the form re-runs against the new URL.
+                    if phase == .editing {
+                        resetToInitial(keepURL: true)
                     }
-                    detectedSource = detectSource(from: newValue)
+                    source = detectSource(from: newValue)
                 }
 
             if !url.isEmpty {
                 HStack(spacing: 8) {
-                    SourceBadge(source: detectedSource)
+                    SourceBadge(source: source)
                     Spacer()
                 }
             }
         }
     }
 
-    // MARK: - Manual form section
+    // MARK: - Edit form (shown after fetch)
 
     @ViewBuilder
-    private var manualFormSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            let intro: String = {
-                if detectedSource == .instagram {
-                    return "Instagram não permite buscar preview automaticamente. Preencha manualmente:"
+    private var editForm: some View {
+        VStack(alignment: .leading, spacing: 12) {
+
+            if let thumb = thumbnail, let imgURL = URL(string: thumb) {
+                HStack {
+                    AsyncImage(url: imgURL) { phase in
+                        switch phase {
+                        case .empty:
+                            Rectangle()
+                                .fill(CalmTheme.surface)
+                                .overlay(ProgressView().tint(CalmTheme.primary))
+                        case .success(let image):
+                            image.resizable().aspectRatio(contentMode: .fill)
+                        default:
+                            Rectangle().fill(source.color.opacity(0.1))
+                        }
+                    }
+                    .frame(width: 80, height: 80)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rSmall))
+
+                    Text("Preview da imagem")
+                        .font(.system(size: 12))
+                        .foregroundColor(CalmTheme.textSecondary)
+
+                    Spacer()
                 }
-                return "Não foi possível buscar preview. Preencha manualmente:"
-            }()
-            Text(intro)
-                .font(.system(size: 12))
-                .foregroundColor(CalmTheme.textSecondary)
+            }
 
             Text("Título")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(CalmTheme.textPrimary)
 
-            TextField("Título da publicação", text: $manualTitle, axis: .vertical)
+            TextField("Título da publicação", text: $title, axis: .vertical)
                 .lineLimit(1...3)
                 .padding(12)
                 .background(CalmTheme.surface)
                 .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rSmall))
 
-            Text("Descrição (opcional)")
+            Text("Descrição")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(CalmTheme.textPrimary)
                 .padding(.top, 4)
 
-            TextField("Curta descrição...", text: $manualDescription, axis: .vertical)
-                .lineLimit(2...4)
+            TextField("Descrição (entre \(descMin) e \(descMax) caracteres)", text: $description, axis: .vertical)
+                .lineLimit(3...8)
                 .padding(12)
                 .background(CalmTheme.surface)
                 .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rSmall))
+
+            descriptionCounter
         }
         .padding(.top, 4)
     }
 
-    // MARK: - Submit button
+    @ViewBuilder
+    private var descriptionCounter: some View {
+        let count = description.trimmingCharacters(in: .whitespacesAndNewlines).count
+        let valid = count >= descMin && count <= descMax
+        HStack(spacing: 4) {
+            Image(systemName: valid ? "checkmark.circle.fill" : "exclamationmark.circle")
+                .font(.system(size: 11))
+            Text("\(count) / \(descMin)–\(descMax) caracteres")
+                .font(.system(size: 11))
+            Spacer()
+        }
+        .foregroundColor(valid ? .green : .red)
+    }
+
+    // MARK: - Action button (label + behavior changes per phase)
 
     @ViewBuilder
-    private var submitButton: some View {
-        Button(action: submit) {
+    private var actionButton: some View {
+        Button(action: tap) {
             HStack {
-                if isSubmitting {
+                if phase == .fetching || phase == .publishing {
                     ProgressView()
                         .tint(.white)
                         .padding(.trailing, 8)
                 }
-                Text(submitButtonLabel)
+                Text(buttonLabel)
                     .font(.system(size: 15, weight: .semibold))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(canSubmit ? CalmTheme.primary : CalmTheme.primary.opacity(0.4))
+            .background(buttonEnabled ? CalmTheme.primary : CalmTheme.primary.opacity(0.4))
             .foregroundColor(.white)
             .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rSmall))
         }
-        .disabled(!canSubmit || isSubmitting)
+        .disabled(!buttonEnabled || phase == .fetching || phase == .publishing)
         .padding(.top, 4)
     }
 
-    private var submitButtonLabel: String {
-        if showManualForm { return "Publicar" }
-        return "Buscar preview e publicar"
-    }
-
-    private var canSubmit: Bool {
-        guard !url.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
-        if showManualForm {
-            return !manualTitle.trimmingCharacters(in: .whitespaces).isEmpty
+    private var buttonLabel: String {
+        switch phase {
+        case .initial:    return "Buscar dados"
+        case .fetching:   return "Buscando..."
+        case .editing:    return "Publicar"
+        case .publishing: return "Publicando..."
         }
-        return true
     }
 
-    // MARK: - Submit
+    private var buttonEnabled: Bool {
+        switch phase {
+        case .initial:
+            return !url.trimmingCharacters(in: .whitespaces).isEmpty
+        case .fetching, .publishing:
+            return false
+        case .editing:
+            let titleOK = !title.trimmingCharacters(in: .whitespaces).isEmpty
+            let descCount = description.trimmingCharacters(in: .whitespacesAndNewlines).count
+            return titleOK && descCount >= descMin && descCount <= descMax
+        }
+    }
 
-    private func submit() {
+    // MARK: - Actions
+
+    private func tap() {
+        switch phase {
+        case .initial:  fetch()
+        case .editing:  publish()
+        default:        break
+        }
+    }
+
+    private func fetch() {
         errorMessage = nil
-        successMessage = nil
-        isSubmitting = true
+        infoMessage = nil
+        phase = .fetching
 
         Task {
             do {
-                let trimmedURL = url.trimmingCharacters(in: .whitespaces)
-                let manualT = showManualForm
-                    ? manualTitle.trimmingCharacters(in: .whitespaces) : nil
-                let manualD = showManualForm
-                    ? manualDescription.trimmingCharacters(in: .whitespaces) : nil
-
-                let result = try await repository.createPost(
-                    url: trimmedURL,
-                    manualTitle: manualT,
-                    manualDescription: manualD
+                let result = try await repository.fetchOG(
+                    url: url.trimmingCharacters(in: .whitespaces)
                 )
-
-                switch result {
-                case .preview:
-                    successMessage = "Publicação criada."
-                    isSubmitting = false
-                    try? await Task.sleep(nanoseconds: 600_000_000)
-                    dismiss()
-
-                case .needsManual(let source, let reason):
-                    detectedSource = source
-                    manualReason = reason
-                    showManualForm = true
-                    isSubmitting = false
+                source = result.source
+                title = result.title
+                description = result.description
+                thumbnail = result.thumbnail
+                if title.isEmpty && description.isEmpty && thumbnail == nil {
+                    infoMessage = "Não foi possível buscar preview automático. Preencha manualmente abaixo."
                 }
+                phase = .editing
             } catch {
-                isSubmitting = false
                 errorMessage = error.localizedDescription
+                phase = .initial
             }
         }
+    }
+
+    private func publish() {
+        errorMessage = nil
+        infoMessage = nil
+        phase = .publishing
+
+        Task {
+            do {
+                _ = try await repository.createPost(
+                    url: url.trimmingCharacters(in: .whitespaces),
+                    title: title.trimmingCharacters(in: .whitespaces),
+                    description: description.trimmingCharacters(in: .whitespacesAndNewlines),
+                    thumbnail: thumbnail
+                )
+                infoMessage = "Publicação criada."
+                try? await Task.sleep(nanoseconds: 600_000_000)
+                dismiss()
+            } catch {
+                errorMessage = error.localizedDescription
+                phase = .editing
+            }
+        }
+    }
+
+    private func resetToInitial(keepURL: Bool) {
+        if !keepURL { url = "" }
+        source = .generic
+        title = ""
+        description = ""
+        thumbnail = nil
+        phase = .initial
+        errorMessage = nil
+        infoMessage = nil
     }
 
     // MARK: - Source detection (client-side preview only)
@@ -240,7 +318,7 @@ struct CreateFeedPostView: View {
     @ViewBuilder
     private func banner(text: String, color: Color) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: color == .red ? "exclamationmark.circle" : "checkmark.circle")
+            Image(systemName: color == .red ? "exclamationmark.circle" : "info.circle")
                 .foregroundColor(color)
             Text(text)
                 .font(.system(size: 13))
