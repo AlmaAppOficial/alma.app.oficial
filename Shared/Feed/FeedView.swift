@@ -110,7 +110,9 @@ struct FeedView: View {
                     cardRow(for: post)
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        // Wider vertical breathing room between Instagram-style
+                        // square cards (Build 77 polish).
+                        .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 14, trailing: 16))
                 }
             }
 
