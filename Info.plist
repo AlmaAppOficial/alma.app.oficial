@@ -140,5 +140,9 @@
 	<string>872133652529378</string>
 	<key>FacebookClientToken</key>
 	<string>f267fb95a01515037a3f046511eedf5f</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<false/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<false/>
 </dict>
 </plist>
