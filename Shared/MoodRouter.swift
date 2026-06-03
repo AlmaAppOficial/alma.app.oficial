@@ -129,9 +129,6 @@ actor MoodRouter {
             context: context
         )
 
-        // Track in analytics
-        await analyticsManager?.logEvent(.moodLogged(mood: mood.rawValue, intensity: 5))
-
         return recommendation
     }
 
@@ -158,8 +155,6 @@ actor MoodRouter {
             context: context
         )
 
-        await analyticsManager?.logEvent(.moodLogged(mood: mood.rawValue, intensity: intensity))
-
         return recommendation
     }
 
@@ -168,8 +163,6 @@ actor MoodRouter {
         let entry = MoodEntry(mood: mood, intensity: intensity, context: context, notes: notes)
         moodHistory.append(entry)
         saveMoodHistory()
-
-        await analyticsManager?.logEvent(.moodLogged(mood: mood.rawValue, intensity: intensity))
     }
 
     /// Get mood history
