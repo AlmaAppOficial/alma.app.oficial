@@ -168,7 +168,7 @@ struct InsightsView: View {
                 VStack(spacing: 10) {
                     InsightWellnessRow(label: "Sono (ontem)", value: String(format: "%.1fh", sleepHrs),
                                 progress: min(sleepHrs / 8.0, 1.0), color: .indigo)
-                    InsightWellnessRow(label: "Atividade", value: "\(hk.steps) passos",
+                    InsightWellnessRow(label: "Atividade", value: "\(hk.stepsFormatted) passos",
                                 progress: min(Double(hk.steps) / 10000.0, 1.0), color: .green)
                     InsightWellnessRow(label: "HRV (variabilidade)", value: "\(Int(hrvVal)) ms",
                                 progress: min(hrvVal / 80.0, 1.0), color: .purple)

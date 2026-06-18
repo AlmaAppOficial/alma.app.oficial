@@ -29,10 +29,11 @@ struct HomeView: View {
                 // ── Streak Display (Corrente de Paz) ──────────────────
                 streakSection
 
-                // ── Mood Check-in Button (small, optional) ──────────────
-                moodCheckInButton
+                // [Build 77 — 12/05/2026] moodCheckInButton removido (era botao redundante
+                // que tambem ia pra ChatView; mood check-in real esta em InsightsView).
+                // Hero "Fale com sua Alma" segue como unico acesso ao chat na home.
 
-                // ── Fale com sua Alma (moved down) ────────────────────
+                // ── Fale com sua Alma ────────────────────
                 heroButton
 
                 // ── Health Dashboard ───────────────────
@@ -209,38 +210,9 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Mood Check-in Button (small, optional)
-    private var moodCheckInButton: some View {
-        NavigationLink(destination: ChatView()) {
-            HStack(spacing: 12) {
-                Image(systemName: "smiley")
-                    .font(.headline)
-                    .foregroundColor(CalmTheme.primary)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Como você está?")
-                        .font(.subheadline.bold())
-                        .foregroundColor(CalmTheme.textPrimary)
-
-                    Text("Conte-nos seu estado de espírito")
-                        .font(.caption)
-                        .foregroundColor(CalmTheme.textSecondary)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.caption.bold())
-                    .foregroundColor(CalmTheme.textSecondary)
-            }
-            .padding(12)
-            .background(CalmTheme.surface)
-            .cornerRadius(CalmTheme.rSmall)
-        }
-        .buttonStyle(.plain)
-    }
-
     // MARK: - Hero Button
+    // [Build 77 — 12/05/2026] moodCheckInButton removido (linhas 212-241):
+    // botao redundante que tambem ia pra ChatView. Mood check-in real esta em InsightsView.
     private var heroButton: some View {
         NavigationLink(destination: ChatView()) {
             HStack(spacing: 16) {
@@ -302,7 +274,7 @@ struct HomeView: View {
                                  value: String(format: "%.1f", hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours),
                                  unit: "h", label: "Sono (ontem)")
                     HealthMetric(icon: "figure.walk", color: .green,
-                                 value: "\(hk.steps)", unit: "passos", label: "Passos")
+                                 value: hk.stepsFormatted, unit: "passos", label: "Passos")
                 }
 
                 // Wellness bars (InsightsView style)
@@ -370,17 +342,22 @@ struct HomeView: View {
         }
     }
 
-    private var recommendedTracks: [BinauralTrack] {
-        let tracks = SmartPlaylistEngine.generate(
-            stressLevel: hk.stressLevel,
-            sleepHours: hk.sleepHours,
-            heartRate: hk.heartRate
+    // [Build 77 — 12/05/2026] Atualizado pra retornar [RecommendedSound] (MP3 bundle real,
+    // nao mais BinauralTrack/sine wave). Converte StressLevel enum em Double 0-1 pro
+    // SmartPlaylistEngine. Generate ja tem fallback interno (mix variado se sem dados).
+    private var recommendedTracks: [RecommendedSound] {
+        let stressDouble: Double? = {
+            switch hk.stressLevel {
+            case .low:      return 0.2
+            case .moderate: return 0.5
+            case .high:     return 0.8
+            }
+        }()
+        return SmartPlaylistEngine.generate(
+            stressLevel: stressDouble,
+            sleepHours: hk.sleepHours > 0 ? hk.sleepHours : nil,
+            heartRate: hk.heartRate > 0 ? hk.heartRate : nil
         )
-        // Fallback: garante pelo menos 4 tracks padrão quando não há dados de saúde
-        if tracks.isEmpty {
-            return Array(SmartPlaylistEngine.library.prefix(4))
-        }
-        return tracks
     }
 
     // MARK: - Feminine Health Card (apenas mulheres)
@@ -591,8 +568,11 @@ struct WellnessRow: View {
 }
 
 // MARK: - SoundTile
+// [Build 77 — 12/05/2026] Migrado de BinauralTrack (frequencias <20 Hz inaudiveis)
+// pra RecommendedSound (MP3 real do bundle). Layout visual preservado:
+// gradient + play/pause overlay + titulo + subtitulo (antes era "X Hz").
 struct SoundTile: View {
-    let track: BinauralTrack
+    let track: RecommendedSound
     @State private var isPlaying = false
     @Environment(\.horizontalSizeClass) private var sizeClass
 
@@ -605,10 +585,11 @@ struct SoundTile: View {
                 AudioManager.shared.stop()
                 isPlaying = false
             } else {
-                AudioManager.shared.playBinaural(
-                    title: track.name,
-                    frequencyHz: track.frequencyHz,
-                    duration: 30 * 60
+                AudioManager.shared.playBundledSound(
+                    filename: track.bundleFilename,
+                    title: track.title,
+                    duration: Double(track.durationSeconds),
+                    loops: track.category == .sleep
                 )
                 isPlaying = true
             }
@@ -631,15 +612,16 @@ struct SoundTile: View {
                             .foregroundColor(.white)
                     }
 
-                Text(track.name)
+                Text(track.title)
                     .font(.caption.bold())
                     .foregroundColor(CalmTheme.textPrimary)
                     .lineLimit(2)
                     .frame(width: tileWidth, alignment: .leading)
 
-                Text("\(Int(track.frequencyHz)) Hz")
+                Text(track.subtitle)
                     .font(.system(size: 10))
                     .foregroundColor(CalmTheme.textSecondary)
+                    .lineLimit(1)
             }
             .frame(width: tileWidth)
         }
