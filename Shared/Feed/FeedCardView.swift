@@ -14,112 +14,161 @@ struct SourceBadge: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(source.color.opacity(0.15))
+        .background(source.color.opacity(0.18))
         .foregroundColor(source.color)
         .clipShape(Capsule())
     }
 }
 
-// MARK: - FeedCardView (curated link card, Instagram-style layout)
+// MARK: - FeedCardView (Build 81 — redesign: 16:9 thumbnail, gradient overlay, clean typography)
+//
+// Mudanças em relação ao Build 80:
+// - Proporção da thumbnail: 1:1 (square) → 16:9 (padrão YouTube/video)
+// - Gradiente escuro sobre thumbnail para separar visualmente texto da imagem
+// - Badge da fonte sobreposta no topo-esquerdo da thumbnail
+// - Título movido para DENTRO da thumbnail (overlay), sobre o gradiente
+// - Descrição limitada a 2 linhas, hidden se muito genérica (≤ 60 chars URL-like)
+// - Card com background mais escuro (#1A1A1A-ish = CalmTheme.surface)
 
 struct FeedCardView: View {
     let post: FeedPost
 
-    @State private var showShareSheet = false
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
 
-            // Top: source badge
-            HStack {
-                SourceBadge(source: post.source)
-                Spacer()
-            }
-            .padding(.horizontal, 14)
-            .padding(.top, 14)
-            .padding(.bottom, 10)
-
-            // Square thumbnail OR rich placeholder, full card width
+            // Thumbnail 16:9 com overlay de gradiente + badge + título
             thumbnailArea
 
-            // Title + description + share row
-            VStack(alignment: .leading, spacing: 8) {
-                Text(displayTitle)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(CalmTheme.textPrimary)
-                    .lineLimit(3)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                if !post.description.isEmpty {
-                    Text(post.description)
-                        .font(.system(size: 14))
-                        .foregroundColor(CalmTheme.textSecondary)
-                        .lineLimit(3)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                HStack {
-                    Spacer()
-                    shareButton
-                }
-                .padding(.top, 4)
-            }
-            .padding(14)
+            // Info footer: descrição (se útil) + share
+            footerArea
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(CalmTheme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: CalmTheme.rMedium))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
-            RoundedRectangle(cornerRadius: CalmTheme.rMedium)
-                .strokeBorder(CalmTheme.textSecondary.opacity(0.1), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(Color.white.opacity(0.06), lineWidth: 1)
         )
     }
 
-    // MARK: - Thumbnail / Placeholder
+    // MARK: - Thumbnail 16:9
 
     @ViewBuilder
     private var thumbnailArea: some View {
-        Group {
-            if let thumb = post.thumbnail, let url = URL(string: thumb) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        placeholder
-                            .overlay(ProgressView().tint(.white))
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
-                        placeholder
-                    @unknown default:
-                        placeholder
+        GeometryReader { geo in
+            ZStack(alignment: .bottomLeading) {
+                // Imagem de fundo
+                if let thumb = post.resolvedThumbnail, let url = URL(string: thumb) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: geo.size.width, height: geo.size.height)
+                                .clipped()
+                        case .empty:
+                            placeholderBg
+                                .overlay(ProgressView().tint(.white))
+                        default:
+                            placeholderBg
+                        }
                     }
+                } else {
+                    placeholderBg
                 }
-            } else {
-                placeholder
+
+                // Gradiente escuro de baixo para cima
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0.0),
+                        .init(color: Color.black.opacity(0.25), location: 0.45),
+                        .init(color: Color.black.opacity(0.82), location: 1.0),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                // Conteúdo sobreposto: badge (topo) + título (base)
+                VStack(alignment: .leading, spacing: 0) {
+                    // Badge no topo-esquerdo
+                    HStack {
+                        SourceBadge(source: post.source)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.top, 12)
+
+                    Spacer()
+
+                    // Título na base da thumbnail
+                    Text(displayTitle)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 12)
+                }
+                .frame(width: geo.size.width, height: geo.size.height)
             }
         }
-        .frame(maxWidth: .infinity)
-        .aspectRatio(1, contentMode: .fit)
-        .clipped()
+        .aspectRatio(16 / 9, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
+    // MARK: - Placeholder background
+
     @ViewBuilder
-    private var placeholder: some View {
+    private var placeholderBg: some View {
         LinearGradient(
             colors: [
-                post.source.color.opacity(0.85),
-                post.source.color.opacity(0.55),
+                post.source.color.opacity(0.7),
+                post.source.color.opacity(0.35),
+                Color.black.opacity(0.6),
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         .overlay(
             Text(post.source.emoji)
-                .font(.system(size: 88))
-                .opacity(0.9)
+                .font(.system(size: 64))
+                .opacity(0.6)
         )
+    }
+
+    // MARK: - Footer: descrição + compartilhar
+
+    @ViewBuilder
+    private var footerArea: some View {
+        let desc = usefulDescription
+        HStack(alignment: .top, spacing: 10) {
+            if let desc {
+                Text(desc)
+                    .font(.system(size: 13))
+                    .foregroundColor(CalmTheme.textSecondary)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                Spacer()
+            }
+
+            shareButton
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+    }
+
+    // Oculta descrições genéricas (channel taglines do YouTube, URLs longas, etc.)
+    private var usefulDescription: String? {
+        let d = post.description.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !d.isEmpty, d.count > 20 else { return nil }
+        // Descarta descrições que sejam basicamente a URL
+        guard !d.lowercased().hasPrefix("http") else { return nil }
+        // Descarta o boilerplate padrão do YouTube
+        let youtubeBoilerplate = "Assista vídeos e músicas que você ama"
+        guard !d.hasPrefix(youtubeBoilerplate) else { return nil }
+        return d
     }
 
     // MARK: - Share button
@@ -128,17 +177,12 @@ struct FeedCardView: View {
     private var shareButton: some View {
         if let url = URL(string: post.url) {
             ShareLink(item: url) {
-                HStack(spacing: 6) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 14, weight: .medium))
-                    Text("Compartilhar")
-                        .font(.system(size: 12, weight: .medium))
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(CalmTheme.primary.opacity(0.1))
-                .foregroundColor(CalmTheme.primary)
-                .clipShape(Capsule())
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(CalmTheme.primary)
+                    .padding(8)
+                    .background(CalmTheme.primary.opacity(0.12))
+                    .clipShape(Circle())
             }
             .buttonStyle(.plain)
         }
