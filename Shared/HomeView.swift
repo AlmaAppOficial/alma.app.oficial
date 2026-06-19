@@ -245,7 +245,10 @@ struct HomeView: View {
                     .font(.headline)
                     .foregroundColor(CalmTheme.textPrimary)
                 Spacer()
-                if authorized {
+                // Badge de stress só aparece quando há dado real de HRV ou FC
+                let hasStressData = hk.averageHRV > 0 || hk.hrv > 0
+                                 || hk.averageHeartRate > 0 || hk.heartRate > 0
+                if authorized && hasStressData {
                     HStack(spacing: 4) {
                         Image(systemName: hk.stressLevel.icon)
                             .font(.caption)
@@ -262,19 +265,29 @@ struct HomeView: View {
 
             if authorized {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 10) {
-                    // Mostra MEDIA do dia (mais robusto que ultimo valor instantaneo)
+                    // Mostra MEDIA do dia (mais robusto que ultimo valor instantaneo).
+                    // Exibe "—" quando não há dado (0 é enganoso).
+                    let hrVal    = hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate
+                    let hrvVal   = hk.averageHRV       > 0 ? hk.averageHRV       : hk.hrv
+                    let sleepVal = hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours
+
                     HealthMetric(icon: "heart.fill", color: .red,
-                                 value: "\(Int(hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate))",
-                                 unit: "bpm", label: "Freq. média")
+                                 value: hrVal  > 0 ? "\(Int(hrVal))"  : "—",
+                                 unit: hrVal  > 0 ? "bpm" : "",
+                                 label: "Freq. média")
                     HealthMetric(icon: "waveform.path", color: .purple,
-                                 value: "\(Int(hk.averageHRV > 0 ? hk.averageHRV : hk.hrv))",
-                                 unit: "ms", label: "HRV")
+                                 value: hrvVal > 0 ? "\(Int(hrvVal))" : "—",
+                                 unit: hrvVal > 0 ? "ms"  : "",
+                                 label: "HRV")
                     // Sono de ONTEM (janela 18h ontem -> 12h hoje, com fallback 48h)
                     HealthMetric(icon: "moon.fill", color: .indigo,
-                                 value: String(format: "%.1f", hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours),
-                                 unit: "h", label: "Sono (ontem)")
+                                 value: sleepVal > 0 ? String(format: "%.1f", sleepVal) : "—",
+                                 unit: sleepVal > 0 ? "h" : "",
+                                 label: "Sono (ontem)")
                     HealthMetric(icon: "figure.walk", color: .green,
-                                 value: hk.stepsFormatted, unit: "passos", label: "Passos")
+                                 value: hk.steps > 0 ? hk.stepsFormatted : "—",
+                                 unit: hk.steps > 0 ? "passos" : "",
+                                 label: "Passos")
                 }
 
                 // Wellness bars (InsightsView style)
