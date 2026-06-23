@@ -1,5 +1,6 @@
 {
   "name": "alma-functions",
+  "version": "1.1.0",
   "description": "Alma App — Firebase Cloud Functions",
   "private": true,
   "scripts": {
@@ -16,6 +17,7 @@
   "dependencies": {
     "firebase-admin": "^13.0.0",
     "firebase-functions": "^6.0.0",
+    "googleapis": "^144.0.0",
     "open-graph-scraper": "^6.11.0",
     "openai": "^4.0.0"
   },
