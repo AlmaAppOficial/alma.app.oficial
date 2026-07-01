@@ -316,10 +316,22 @@ struct FeminineHealthView: View {
     private var nextPeriodText: String {
         guard lastPeriodTimestamp > 0 else { return "—" }
         let last = Date(timeIntervalSince1970: lastPeriodTimestamp)
-        guard let next = Calendar.current.date(byAdding: .day, value: cycleLength, to: last) else { return "—" }
-        let days = Calendar.current.dateComponents([.day], from: Date(), to: next).day ?? 0
-        if days <= 0 { return "Esta semana" }
-        return "em \(days) dias"
+        let today = Date()
+        // Avanca ciclos ate encontrar o proximo periodo futuro
+        var next = last
+        var safetyCount = 0
+        while next <= today && safetyCount < 100 {
+            next = Calendar.current.date(byAdding: .day, value: cycleLength, to: next) ?? next
+            safetyCount += 1
+        }
+        let days = Calendar.current.dateComponents([.day], from: today, to: next).day ?? 0
+        if days == 0 { return "Hoje" }
+        if days == 1 { return "Amanhã" }
+        if days <= 7 { return "em \(days) dias" }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.dateFormat = "dd/MM"
+        return formatter.string(from: next)
     }
 
     private var pregnancyWeeks: Int {
@@ -356,7 +368,7 @@ struct FeminineHealthView: View {
         switch day {
         case 1...5:
             return CyclePhase(name: "Menstruação", color: .red, description: "Repouso e autocuidado")
-        case 6...12:
+        case let d where d >= 6 && d < ovulation - 1:
             return CyclePhase(name: "Fase Folicular", color: Color.blue, description: "Energia crescente, criatividade")
         case _ where day >= ovulation - 1 && day <= ovulation + 1:
             return CyclePhase(name: "Ovulação", color: .orange, description: "Pico de energia e vitalidade")
