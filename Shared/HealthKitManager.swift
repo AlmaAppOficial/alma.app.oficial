@@ -243,15 +243,29 @@ class HealthKitManager: ObservableObject {
         }
     }
 
-    /// Media de uma quantity ao longo do dia atual (ex: BPM medio).
-    /// Usa HKStatisticsQuery com .discreteAverage.
+    /// Media de uma quantity. Tenta hoje primeiro; se vier 0 (sem dados ainda),
+    /// amplia para os últimos 7 dias — essencial para HRV (gravado durante o sono,
+    /// tipicamente entre 0h-6h) e FC quando o relógio ainda não sincronizou hoje.
     nonisolated private func fetchAverageQuantity(_ id: HKQuantityTypeIdentifier, unit: HKUnit) async -> Double {
         guard let type = HKQuantityType.quantityType(forIdentifier: id) else { return 0 }
-        let start = Calendar.current.startOfDay(for: Date())
-        let pred = HKQuery.predicateForSamples(withStart: start, end: Date())
+        let today = await averageQuery(type, unit: unit,
+                                       from: Calendar.current.startOfDay(for: Date()),
+                                       to: Date())
+        if today > 0 { return today }
+        // Fallback: últimos 7 dias (HRV típico vem do sono de ontem à noite;
+        // FC pode não ter amostras de hoje cedo da manhã)
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        return await averageQuery(type, unit: unit, from: weekAgo, to: Date())
+    }
 
+    /// HKStatisticsQuery .discreteAverage numa janela arbitrária.
+    /// Separado de fetchAverageQuantity para permitir chamadas com ranges distintos.
+    nonisolated private func averageQuery(_ type: HKQuantityType, unit: HKUnit,
+                                          from start: Date, to end: Date) async -> Double {
+        let pred = HKQuery.predicateForSamples(withStart: start, end: end)
         return await withCheckedContinuation { continuation in
-            let q = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: pred, options: .discreteAverage) { _, stats, _ in
+            let q = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: pred,
+                                      options: .discreteAverage) { _, stats, _ in
                 let value = stats?.averageQuantity()?.doubleValue(for: unit) ?? 0
                 continuation.resume(returning: value)
             }
