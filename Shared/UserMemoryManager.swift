@@ -2,6 +2,7 @@ import SwiftUI
 import FirebaseAuth
 import CryptoKit
 import Foundation
+import Security
 
 // MARK: - MoodEntry (Codable replacement for tuple)
 struct MoodEntry: Codable, Identifiable {
@@ -47,7 +48,12 @@ class UserMemoryManager: ObservableObject {
     }
     var genderSet: Bool { !gender.isEmpty }
 
+    // Salt fixo LEGADO — mantido apenas para descriptografar dados antigos
+    // (derivação antiga: SHA256(UID + salt fixo)). Novos dados usam HKDF
+    // com salt aleatório de 32 bytes guardado no Keychain (ver deriveKey()).
     private let appSalt = "alma_app_official_2026"
+    private let hkdfInfo = "alma_user_memory_v2"
+    private let saltKeychainService = "com.almaapp.app.memory-key-salt"
     private var currentUserUID: String?
     private var userDataPrefix: String { currentUserUID ?? "guest" }
 
@@ -190,7 +196,28 @@ class UserMemoryManager: ObservableObject {
     }
 
     // MARK: - Encryption/Decryption (AES-GCM with derived key)
+
+    /// Derivação atual: HKDF<SHA256> com o UID como input key material e
+    /// salt aleatório de 32 bytes (SecRandomCopyBytes) persistido no Keychain
+    /// por usuário.
     private func deriveKey() -> SymmetricKey {
+        guard let userUID = currentUserUID,
+              let uidData = userUID.data(using: .utf8) else {
+            return SymmetricKey(size: .bits256)
+        }
+
+        let salt = keySalt(for: userUID)
+        return HKDF<SHA256>.deriveKey(
+            inputKeyMaterial: SymmetricKey(data: uidData),
+            salt: salt,
+            info: Data(hkdfInfo.utf8),
+            outputByteCount: 32
+        )
+    }
+
+    /// Derivação LEGADA (SHA256(UID + salt fixo)) — usada apenas como fallback
+    /// de leitura para dados criptografados antes da migração para HKDF.
+    private func legacyDeriveKey() -> SymmetricKey {
         guard let userUID = currentUserUID else {
             return SymmetricKey(size: .bits256)
         }
@@ -205,6 +232,45 @@ class UserMemoryManager: ObservableObject {
         return SymmetricKey(data: keyData)
     }
 
+    /// Lê (ou gera e persiste) o salt aleatório de 32 bytes do usuário no Keychain.
+    private func keySalt(for uid: String) -> Data {
+        let readQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: saltKeychainService,
+            kSecAttrAccount as String: uid,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var item: CFTypeRef?
+        if SecItemCopyMatching(readQuery as CFDictionary, &item) == errSecSuccess,
+           let data = item as? Data, !data.isEmpty {
+            return data
+        }
+
+        // Gera salt aleatório de 32 bytes
+        var bytes = [UInt8](repeating: 0, count: 32)
+        let result = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        guard result == errSecSuccess else {
+            // Fallback improvável: salt determinístico (equivale a não ter salt aleatório,
+            // mas mantém a chave estável entre execuções)
+            return Data(SHA256.hash(data: Data((uid + appSalt).utf8)))
+        }
+        let salt = Data(bytes)
+
+        let addQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: saltKeychainService,
+            kSecAttrAccount as String: uid,
+            kSecValueData as String: salt,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+        let status = SecItemAdd(addQuery as CFDictionary, nil)
+        if status != errSecSuccess {
+            print("⚠️ UserMemoryManager: falha ao salvar salt no Keychain: \(status)")
+        }
+        return salt
+    }
+
     private func encrypt(_ data: Data) throws -> Data {
         let key = deriveKey()
         let sealedBox = try AES.GCM.seal(data, using: key)
@@ -217,8 +283,28 @@ class UserMemoryManager: ObservableObject {
     }
 
     private func decrypt(_ encryptedData: Data) throws -> Data {
-        let key = deriveKey()
         let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
-        return try AES.GCM.open(sealedBox, using: key)
+
+        // 1) Tenta a chave nova (HKDF + salt aleatório)
+        do {
+            return try AES.GCM.open(sealedBox, using: deriveKey())
+        } catch {
+            // 2) Fallback: chave legada. Se funcionar, re-criptografa com a nova
+            //    para migrar sem perder dados de usuários existentes.
+            let plaintext = try AES.GCM.open(sealedBox, using: legacyDeriveKey())
+            reencryptWithCurrentKey(plaintext)
+            return plaintext
+        }
+    }
+
+    /// Re-persiste o blob criptografado com a chave nova após decrypt legado bem-sucedido.
+    private func reencryptWithCurrentKey(_ plaintext: Data) {
+        guard let userUID = currentUserUID else { return }
+        do {
+            let encrypted = try encrypt(plaintext)
+            UserDefaults.standard.set(encrypted, forKey: "alma_user_\(userUID)_data")
+        } catch {
+            print("Error re-encrypting user data: \(error.localizedDescription)")
+        }
     }
 }

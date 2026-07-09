@@ -60,7 +60,9 @@ struct ProfileView: View {
                     }
                     Divider().padding(.leading, 52)
                     settingsRow(icon: "star.fill", color: CalmTheme.accent, title: "Avaliar o app", showChevron: true) {
-                        if let url = URL(string: "itms-apps://itunes.apple.com/app/id") {
+                        // TODO: substitua pelo ID numérico do Alma na App Store (ex: 6736547123)
+                        let almaAppStoreID = "6761478534"  // App Store ID do Alma
+                        if let url = URL(string: "itms-apps://itunes.apple.com/app/id\(almaAppStoreID)") {
                             UIApplication.shared.open(url)
                         }
                     }
