@@ -93,6 +93,9 @@ struct ProfileView: View {
             Button("Cancelar", role: .cancel) {}
             Button("Sair", role: .destructive) {
                     let uid = Auth.auth().currentUser?.uid
+                    // Limpa memória + UID do singleton ANTES do signOut — sem
+                    // isto a próxima conta via os dados desta (vazamento).
+                    UserMemoryManager.shared.logout()
                     LocalDataCleanupService.clearUserData(uid: uid)
                     try? Auth.auth().signOut()
                 }

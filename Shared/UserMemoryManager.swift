@@ -57,9 +57,21 @@ class UserMemoryManager: ObservableObject {
     private var currentUserUID: String?
     private var userDataPrefix: String { currentUserUID ?? "guest" }
 
+    // Mantém o singleton em sincronia com a conta ativa. Sem este listener,
+    // os dados de A continuavam em memória (e currentUserUID = A) após o
+    // logout — o usuário B via o histórico/nascimento de A e o onboarding de
+    // B sobrescrevia o blob criptografado de A.
+    private var authListener: AuthStateDidChangeListenerHandle?
+
     // MARK: - Initialization
     private init() {
         loadForCurrentUser()
+        authListener = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            guard let self else { return }
+            if user?.uid != self.currentUserUID {
+                self.loadForCurrentUser()
+            }
+        }
     }
 
     // MARK: - User Data Struct (Codable)
@@ -78,6 +90,9 @@ class UserMemoryManager: ObservableObject {
             currentUserUID = user.uid
             loadUserData()
         } else {
+            // Zera o UID ANTES do reset: um save() tardio (ex.: closure
+            // pendente) não pode mais escrever no blob do usuário anterior.
+            currentUserUID = nil
             reset()
         }
     }
