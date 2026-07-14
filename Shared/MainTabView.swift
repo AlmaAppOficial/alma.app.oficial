@@ -51,6 +51,7 @@ struct MainTabView: View {
     @StateObject private var hk = HealthKitManager()
     @ObservedObject private var audio = AudioManager.shared
     @ObservedObject private var tabVisibility = TabVisibilityState.shared
+    @ObservedObject private var paywallManager = PaywallTriggerManager.shared
     @AppStorage("isDarkMode") private var isDarkMode = false
 
     // Tab tag values — Feed = 1, used as the deep-link target for FCM push
@@ -114,6 +115,11 @@ struct MainTabView: View {
         .preferredColorScheme(isDarkMode ? .dark : .light)
         .onReceive(NotificationCenter.default.publisher(for: .openFeedTab)) { _ in
             selectedTab = .feed
+        }
+        .sheet(isPresented: $paywallManager.shouldShowPaywall, onDismiss: {
+            Task { await PaywallTriggerManager.shared.dismissPaywall() }
+        }) {
+            PremiumWallView()
         }
     }
 }
