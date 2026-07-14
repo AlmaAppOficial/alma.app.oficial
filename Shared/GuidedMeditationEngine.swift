@@ -30,6 +30,13 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
     private var ttsCurrentTempURL: URL?
     private var currentPauseAfterSegment: TimeInterval = 0
 
+    // Session token — garante que asyncAfter de conclusão não dispara
+    // após stop() manual (evita contagem dupla de streak em sessão abortada)
+    private var sessionToken: UUID = UUID()
+    // Script da sessão atual — necessário no callback de conclusão para
+    // passar título e duração aos managers
+    private var currentScript: MeditationScript?
+
     override init() {
         self.meditationScripts = GuidedMeditationEngine.buildAllScripts()
         super.init()
@@ -48,6 +55,9 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             print("🧘 [Engine] ❌ no script found for day \(day.day)")
             return
         }
+
+        sessionToken = UUID()   // nova sessão — invalida qualquer asyncAfter pendente anterior
+        currentScript = script  // persiste para uso no callback de conclusão
 
         currentDayTitle = day.title
         isSpeaking = true
@@ -112,6 +122,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
 
     @MainActor
     func stop() {
+        sessionToken = UUID()  // invalida imediatamente qualquer asyncAfter de conclusão pendente
         // Cancel any in-flight TTS request
         ttsTask?.cancel()
         ttsTask = nil
@@ -139,10 +150,37 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
     @MainActor
     private func speakNextSegment() {
         guard currentSegmentIndex < pendingSegments.count else {
-            // All segments finished — fade out background after 4 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            // All segments finished — captura token e script ANTES do asyncAfter
+            // para verificar se a sessão ainda é válida quando o timer disparar
+            let token = self.sessionToken
+            let script = self.currentScript
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+                // Token guard: se stop() foi chamado no intervalo de 4s,
+                // sessionToken mudou → não conta streak nem paywall
+                guard let self = self, self.sessionToken == token else { return }
                 AudioManager.shared.stopMeditationBackground()
                 AudioManager.shared.isPlaying = false
+                // Registrar conclusão real da meditação
+                if let script = script {
+                    Task {
+                        // StreakManager é @MainActor — retorno Bool descartado de propósito
+                        // (false = já meditou hoje; streak não incrementa duas vezes)
+                        _ = await StreakManager.shared.recordMeditationCompletion(
+                            duration: script.durationMinutes * 60
+                        )
+                        // PaywallTriggerManager.recordMeditationCompletion é nonisolated
+                        await PaywallTriggerManager.shared.recordMeditationCompletion(
+                            meditationTitle: script.title,
+                            durationMinutes: script.durationMinutes
+                        )
+                        // UserMemoryManager modifica @Published → precisa de MainActor
+                        await MainActor.run {
+                            UserMemoryManager.shared.recordMeditationSession(
+                                minutes: script.durationMinutes
+                            )
+                        }
+                    }
+                }
             }
             isSpeaking = false
             return

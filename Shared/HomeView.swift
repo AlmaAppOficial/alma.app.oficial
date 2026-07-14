@@ -11,6 +11,8 @@ struct HomeView: View {
     @State private var navigateToPraticas = false
     @State private var showHomePaywall = false
 
+    @ObservedObject private var streakManager = StreakManager.shared
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
@@ -49,6 +51,9 @@ struct HomeView: View {
 
                 // ── Livre de Vícios ────────────────────────
                 addictionFreeCard
+
+                // ── Banner Corpo & Alma (cross-promotion) ───────────────
+                CorpoAlmaBannerView()
 
                 // ── Insight Card ───────────────────────────
                 insightCard
@@ -131,6 +136,27 @@ struct HomeView: View {
                     .foregroundColor(CalmTheme.textSecondary)
             }
             Spacer()
+            // Botão Corpo & Alma — acesso rápido ao app de saúde
+            Button {
+                let url = URL(string: "corpoealma://")!
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                } else if let storeURL = URL(string: "https://apps.apple.com/app/corpo-e-alma/id6744054437") {
+                    UIApplication.shared.open(storeURL)
+                }
+            } label: {
+                VStack(spacing: 2) {
+                    Image(systemName: "heart.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(CalmTheme.accent)
+                    Text("Corpo")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundColor(CalmTheme.textSecondary)
+                }
+                .frame(width: 40, height: 44)
+            }
+            .accessibilityLabel("Abrir app Corpo & Alma — Saúde")
+            .padding(.trailing, 8)
             AlmaLogo(size: 44)
         }
     }
@@ -148,7 +174,7 @@ struct HomeView: View {
                         .font(.title3)
                         .foregroundColor(.orange)
 
-                    Text("\(Int(0)) dias")
+                    Text("\(streakManager.currentStreak) dias")
                         .font(.headline.bold())
                         .foregroundColor(CalmTheme.textPrimary)
                 }
@@ -161,7 +187,7 @@ struct HomeView: View {
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
 
-                Text("0 min")
+                Text("\(UserMemoryManager.shared.meditationMinutes) min")
                     .font(.subheadline.bold())
                     .foregroundColor(CalmTheme.primary)
             }
@@ -174,11 +200,6 @@ struct HomeView: View {
     // MARK: - Quick Start Button
     private var quickStartButton: some View {
         ZStack {
-            NavigationLink(destination: PraticasView(), isActive: $navigateToPraticas) {
-                EmptyView()
-            }
-            .hidden()
-
             Button(action: { navigateToPraticas = true }) {
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 8) {
@@ -207,6 +228,9 @@ struct HomeView: View {
                 .shadow(color: CalmTheme.accent.opacity(0.3), radius: 12, x: 0, y: 6)
             }
             .padding(.horizontal, 4)
+        }
+        .navigationDestination(isPresented: $navigateToPraticas) {
+            PraticasView()
         }
     }
 
@@ -288,6 +312,18 @@ struct HomeView: View {
                                  value: hk.steps > 0 ? hk.stepsFormatted : "—",
                                  unit: hk.steps > 0 ? "passos" : "",
                                  label: "Passos")
+                }
+
+                // Dica quando o app Saúde não tem FC/HRV/sono (ex.: Garmin sem
+                // escrita habilitada no Apple Health) — dado ausente na FONTE,
+                // não é falha de leitura do Alma. [2026-07-14]
+                if (hk.averageHeartRate <= 0 && hk.heartRate <= 0)
+                    && (hk.averageHRV <= 0 && hk.hrv <= 0)
+                    && (hk.yesterdaySleepHours <= 0 && hk.sleepHours <= 0) {
+                    Text("O app Saúde ainda não tem dados de coração e sono. Usa Garmin ou outro relógio? Ative a escrita no Apple Health dentro do app do fabricante.")
+                        .font(.caption2)
+                        .foregroundColor(CalmTheme.textSecondary)
+                        .padding(.top, 2)
                 }
 
                 // Wellness bars (InsightsView style)

@@ -1,15 +1,20 @@
 import Foundation
 import Combine
-import CloudKit
 
 /// StreakManager - Gerencia a "Corrente de Paz" (streak de meditação)
 /// Responsabilidades:
 /// - Rastrear conclusões diárias de meditação
 /// - Calcular streak atual
 /// - Detectar e celebrar milestones
-/// - Sincronizar com iCloud (CloudKit)
+/// - Persistir localmente em UserDefaults (CloudKit removido 2026-07-14 — sem entitlement)
 /// - Publicar atualizações via Combine para UI reativa
-actor StreakManager: ObservableObject {
+///
+/// [2026-07-14] Era `actor` com estado `@MainActor @Published` — combinação que
+/// nunca compilou (o arquivo não pertencia a nenhum target até hoje). Convertido
+/// para `@MainActor final class`: mesmo comportamento (tudo já rodava na main
+/// via MainActor.run), sem a divisão de isolamento que quebrava o build.
+@MainActor
+final class StreakManager: ObservableObject {
 
     // MARK: - Published Properties (for UI observation)
     @MainActor @Published var currentStreak: Int = 0
@@ -22,7 +27,6 @@ actor StreakManager: ObservableObject {
 
     // MARK: - Private Properties
     private let userDefaults = UserDefaults.standard
-    private let cloudKitContainer: CKContainer
     private let calendar = Calendar.current
     private var cancellables = Set<AnyCancellable>()
 
@@ -43,9 +47,11 @@ actor StreakManager: ObservableObject {
     static let milestoneReachedNotification = NSNotification.Name("MilestoneReached")
     static let streakAtRiskNotification = NSNotification.Name("StreakAtRisk")
 
+    // MARK: - Shared Instance
+    static let shared = StreakManager()
+
     // MARK: - Initialization
-    init(container: CKContainer = CKContainer.default()) {
-        self.cloudKitContainer = container
+    init() {
         Task {
             await loadFromStorage()
         }
@@ -57,7 +63,7 @@ actor StreakManager: ObservableObject {
     /// Retorna true se streak foi incrementado, false se já tinha sido completado
     func recordMeditationCompletion(duration: Int = 0, mood: String = "") async -> Bool {
         let today = calendar.startOfDay(for: Date())
-        let lastDate = await getLastMeditationDate()
+        let lastDate = getLastMeditationDate()
 
         // Se já meditou hoje, não incrementa novamente
         if let lastDate = lastDate,
@@ -90,7 +96,7 @@ actor StreakManager: ObservableObject {
         }
 
         // Incrementa dias totais de meditação
-        let totalDays = await getTotalMeditationDays()
+        let totalDays = getTotalMeditationDays()
         await updateTotalMeditationDays(totalDays + 1)
 
         // Salva para persistência
@@ -128,7 +134,7 @@ actor StreakManager: ObservableObject {
         // Marca a data do último uso
         userDefaults.set(today, forKey: lastRecoveryDateKey)
 
-        let usagesCount = await getStreakRecoveriesUsed()
+        let usagesCount = getStreakRecoveriesUsed()
         await MainActor.run {
             self.streakRecoveriesUsed = usagesCount + 1
         }
@@ -141,7 +147,7 @@ actor StreakManager: ObservableObject {
 
     /// Retorna o número de dias até o próximo milestone
     func daysUntilNextMilestone() async -> Int? {
-        let current = await getCurrentStreak()
+        let current = getCurrentStreak()
         let nextMilestone = milestones.first { $0 > current }
 
         if let next = nextMilestone {
@@ -168,7 +174,7 @@ actor StreakManager: ObservableObject {
 
     /// Retorna status da corrente para notificações de risco
     func streakAtRiskStatus() async -> (isAtRisk: Bool, hoursRemaining: Int) {
-        let lastDate = await getLastMeditationDate()
+        let lastDate = getLastMeditationDate()
         let today = calendar.startOfDay(for: Date())
 
         guard let lastDate = lastDate else {
@@ -272,29 +278,12 @@ actor StreakManager: ObservableObject {
     // MARK: - CloudKit Sync
 
     private func syncToCloudKit() async {
-        let streak = await MainActor.run { self.currentStreak }
-        let longest = await MainActor.run { self.longestStreak }
-        let lastDate = await MainActor.run { self.lastMeditationDate }
-        let total = await MainActor.run { self.totalMeditationDays }
-
-        let record = CKRecord(recordType: "StreakData")
-        record["currentStreak"] = streak as NSNumber
-        record["longestStreak"] = longest as NSNumber
-        record["lastMeditationDate"] = lastDate as? NSDate
-        record["totalMeditationDays"] = total as NSNumber
-
-        Task {
-            do {
-                // Salvar em privateCloudDatabase: dados de streak são pessoais
-                // do usuário e devem ficar no escopo iCloud privado dele.
-                // (Era publicCloudDatabase antes — corrigido em 28/04/2026 para
-                //  conformidade com privacidade Apple Guideline 5.1.2.)
-                try await cloudKitContainer.privateCloudDatabase.save(record)
-            } catch {
-                print("CloudKit sync error: \(error)")
-                // Fallback to local storage is already done
-            }
-        }
+        // [2026-07-14] CloudKit REMOVIDO: o app não tem entitlement de iCloud
+        // (iOS.entitlements) e CKContainer.default() crashava o launch com
+        // NSException na primeira execução real desta classe. O streak persiste
+        // 100% local em UserDefaults (saveToStorage) — alinhado à doutrina de
+        // dados locais do projeto. Se um dia quisermos sync multi-device:
+        // adicionar capability iCloud/CloudKit no target + restaurar via git.
     }
 
     // MARK: - Streak Validation
@@ -392,9 +381,8 @@ extension StreakManager {
         let manager = StreakManager()
 
         Task {
-            for i in 0..<7 {
-                let date = Calendar.current.date(byAdding: .day, value: -i, to: Date())!
-                await manager.recordMeditationCompletion(duration: 300)
+            for _ in 0..<7 {
+                _ = await manager.recordMeditationCompletion(duration: 300)
             }
         }
 
