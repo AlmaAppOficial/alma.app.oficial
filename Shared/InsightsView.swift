@@ -3,6 +3,9 @@ import SwiftUI
 struct InsightsView: View {
 
     @EnvironmentObject var hk: HealthKitManager
+    // [Build 82 — 2026-07-16] Gate premium: Insights é funcionalidade Premium.
+    @EnvironmentObject var access: AccessManager
+    @EnvironmentObject var store:  StoreKitManager
 
     // Local mood tracking (no Firestore)
     @State private var todayMood: String = ""
@@ -20,6 +23,12 @@ struct InsightsView: View {
     ]
 
     var body: some View {
+        // [Build 82] Gate premium — paywall para quem não assina
+        if !access.isPremium {
+            PremiumWallView()
+                .environmentObject(access)
+                .environmentObject(store)
+        } else {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
 
@@ -51,6 +60,7 @@ struct InsightsView: View {
         }
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationBarHidden(true)
+        } // end else (premium gate)
     }
 
     // MARK: - Mood Check-in

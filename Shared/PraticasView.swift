@@ -219,6 +219,11 @@ struct VisualEffectBlur: UIViewRepresentable {
 struct PraticasView: View {
     @ObservedObject var audio = AudioManager.shared
     @State private var selectedMeditationDay: MeditationDay? = nil
+    // [Build 82 — 2026-07-15] Gate Premium: dias 1-3 grátis, demais exigem assinatura.
+    // Sons: 1º som grátis (Água Corrente), demais premium.
+    @EnvironmentObject var access: AccessManager
+    @EnvironmentObject var store: StoreKitManager
+    @State private var showPraticasPaywall = false
 
     // Day sounds: 4 gravacoes reais de musica classica bundladas no app.
     // Substituiu binaurais sintéticos por arquivos mp3 reais em /ClassicalMusic/.
@@ -325,6 +330,11 @@ struct PraticasView: View {
         // Modelo Spotify-like (14/05/2026): nenhum stop em lifecycle.
         // Meditação só para via botão X (stopAllIncludingMeditation) ou
         // término natural do segmento. Mini player persiste entre abas.
+        .sheet(isPresented: $showPraticasPaywall) {
+            PremiumWallView()
+                .environmentObject(access)
+                .environmentObject(store)
+        }
     }
 
     // MARK: - Page Header
@@ -384,13 +394,19 @@ struct PraticasView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(weekDays) { med in
-                                MeditationDayCard(med: med)
+                                MeditationDayCard(med: med,
+                                                  isLocked: med.day > 3 && !access.isPremium)
                                     .onTapGesture {
-                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                            selectedMeditationDay = med
-                                            // Para qualquer música/som antes de iniciar meditação
-                                            AudioManager.shared.stop()
-                                            GuidedMeditationEngine.shared.play(day: med)
+                                        // Dias 1-3 grátis; demais exigem Premium.
+                                        if med.day > 3 && !access.isPremium {
+                                            showPraticasPaywall = true
+                                        } else {
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                selectedMeditationDay = med
+                                                // Para qualquer música/som antes de iniciar meditação
+                                                AudioManager.shared.stop()
+                                                GuidedMeditationEngine.shared.play(day: med)
+                                            }
                                         }
                                     }
                             }
@@ -417,6 +433,12 @@ struct PraticasView: View {
 
     // MARK: - Sound Tap Handler
     private func handleSoundTap(_ item: SoundItem) {
+        // Sons grátis: "Água Corrente" (1º son de sleep). Restante é Premium.
+        let isFreeSound = item.audioTitle == "Água Corrente"
+        if !access.isPremium && !isFreeSound {
+            showPraticasPaywall = true
+            return
+        }
         if audio.currentTrackTitle == item.audioTitle && audio.isPlaying {
             audio.stop()
         } else {
@@ -447,6 +469,7 @@ struct PraticasView: View {
 // MARK: - MeditationDayCard
 struct MeditationDayCard: View {
     let med: MeditationDay
+    var isLocked: Bool = false  // [Build 82] dias 4-30 exigem Premium
     @ObservedObject var audio = AudioManager.shared
 
     var isCurrentlyPlaying: Bool {
@@ -464,7 +487,11 @@ struct MeditationDayCard: View {
                     .background(.white.opacity(0.2))
                     .cornerRadius(8)
                 Spacer()
-                if isCurrentlyPlaying {
+                if isLocked {
+                    Image(systemName: "lock.fill")
+                        .font(.title2)
+                        .foregroundColor(.white.opacity(0.8))
+                } else if isCurrentlyPlaying {
                     HStack(spacing: 2) {
                         ForEach(0..<3, id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 1)
@@ -511,7 +538,8 @@ struct MeditationDayCard: View {
             )
         )
         .cornerRadius(20)
-        .shadow(color: meditationColors(med.day).first!.opacity(0.35), radius: 12, x: 0, y: 6)
+        .shadow(color: (meditationColors(med.day).first ?? CalmTheme.primary).opacity(0.35), radius: 12, x: 0, y: 6)
+        .opacity(isLocked ? 0.55 : 1.0)
         .calmCard()
     }
 

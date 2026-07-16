@@ -11,7 +11,12 @@ struct ChatView: View {
     @State private var showAuthError = false
     @Environment(\.dismiss) private var dismiss
 
-    // Sessão de 5 minutos — única limitação vigente
+    // [Build 82 — 2026-07-15] Chat exige Premium. Gate primário está em HomeView/heroButton;
+    // este guard é segurança adicional para outros pontos de entrada.
+    @EnvironmentObject var access: AccessManager
+    @EnvironmentObject var store: StoreKitManager
+
+    // Sessão de 5 minutos — limitação para usuários premium
     private let sessionDuration: Double = 300  // 5 minutos
     @State private var sessionStarted = false
     @State private var timeRemaining: Double = 300
@@ -19,6 +24,12 @@ struct ChatView: View {
     @State private var timerExpired = false
 
     var body: some View {
+        // Gate premium — redireciona para paywall se não tiver assinatura
+        if !access.isPremium {
+            PremiumWallView()
+                .environmentObject(access)
+                .environmentObject(store)
+        } else {
         VStack(spacing: 0) {
             // Header
             chatHeader
@@ -76,6 +87,7 @@ struct ChatView: View {
             sessionTimer = nil
             TabVisibilityState.shared.hideMiniPlayer = false
         }
+        } // end else (premium gate)
     }
 
     // MARK: - Header

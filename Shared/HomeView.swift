@@ -10,6 +10,7 @@ struct HomeView: View {
     @State private var showInsightShare = false
     @State private var navigateToPraticas = false
     @State private var showHomePaywall = false
+    @State private var showChat = false
 
     @ObservedObject private var streakManager = StreakManager.shared
 
@@ -35,28 +36,31 @@ struct HomeView: View {
                 // que tambem ia pra ChatView; mood check-in real esta em InsightsView).
                 // Hero "Fale com sua Alma" segue como unico acesso ao chat na home.
 
-                // ── Fale com sua Alma ────────────────────
+                // ── Fale com sua Alma (Premium) ──────────────────
                 heroButton
 
-                // ── Health Dashboard ───────────────────
-                healthSection
-
-                // ── Sound Suggestions ──────────────────
+                // ── Sound Suggestions (acesso mínimo gratuito) ──
                 soundSection
 
-                // ── Saúde Feminina (apenas mulheres) ──────
-                if UserMemoryManager.shared.isFemale {
+                // ── Health Dashboard (Premium) ─────────────────
+                if access.isPremium {
+                    healthSection
+                }
+
+                // ── Saúde Feminina (Premium + apenas mulheres) ──
+                if access.isPremium && UserMemoryManager.shared.isFemale {
                     feminineHealthCard
                 }
 
-                // ── Livre de Vícios ────────────────────────
-                addictionFreeCard
+                // ── Livre de Vícios (Premium) ──────────────────
+                if access.isPremium {
+                    addictionFreeCard
+                }
 
-                // ── Banner Corpo & Alma (cross-promotion) ───────────────
-                CorpoAlmaBannerView()
-
-                // ── Insight Card ───────────────────────────
-                insightCard
+                // ── Insight Card (Premium) ─────────────────────
+                if access.isPremium {
+                    insightCard
+                }
 
                 Spacer(minLength: 32)
             }
@@ -237,20 +241,29 @@ struct HomeView: View {
     // MARK: - Hero Button
     // [Build 77 — 12/05/2026] moodCheckInButton removido (linhas 212-241):
     // botao redundante que tambem ia pra ChatView. Mood check-in real esta em InsightsView.
+    // [Build 82 — 2026-07-15] Chat bloqueado para usuários gratuitos — exige Premium.
     private var heroButton: some View {
-        NavigationLink(destination: ChatView()) {
+        Button(action: {
+            if access.isPremium {
+                showChat = true
+            } else {
+                showHomePaywall = true
+            }
+        }) {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Fale com sua Alma")
                         .font(.title3.bold())
                         .foregroundColor(.white)
-                    Text("Sua mentora de bem-estar esta pronta para te ouvir")
+                    Text(access.isPremium
+                         ? "Sua mentora de bem-estar esta pronta para te ouvir"
+                         : "Recurso Premium · Toque para desbloquear")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.85))
                         .lineLimit(2)
                 }
                 Spacer()
-                Image(systemName: "waveform")
+                Image(systemName: access.isPremium ? "waveform" : "lock.fill")
                     .font(.system(size: 32))
                     .foregroundColor(.white.opacity(0.8))
             }
@@ -259,6 +272,7 @@ struct HomeView: View {
             .cornerRadius(CalmTheme.rLarge)
             .shadow(color: CalmTheme.primary.opacity(0.35), radius: 12, x: 0, y: 6)
         }
+        .navigationDestination(isPresented: $showChat) { ChatView() }
     }
 
     // MARK: - Health Section
