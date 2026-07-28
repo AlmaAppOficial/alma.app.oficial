@@ -26,6 +26,17 @@ class StoreKitManager: ObservableObject {
     @Published var isPurchasing: Bool     = false
     @Published var purchaseError: String? = nil
 
+    /// [2026-07-28] O usuário ainda pode receber os 7 dias grátis?
+    ///
+    /// A oferta introdutória é consumida uma única vez por Apple ID / grupo de
+    /// assinatura. Sem checar isso, o app anunciava "7 dias grátis" para quem já
+    /// tinha usado o teste — promessa que a App Store não vai honrar. Quem sabe
+    /// a resposta é o StoreKit (`isEligibleForIntroOffer`), não o app.
+    ///
+    /// Começa `false` e só vira `true` quando o StoreKit confirma: na dúvida,
+    /// não prometemos nada.
+    @Published var isEligibleForIntroOffer: Bool = false
+
     // MARK: - Private
 
     private var transactionListener: Task<Void, Error>?
@@ -50,9 +61,21 @@ class StoreKitManager: ObservableObject {
                 if rhs.id == Self.monthlyID { return false }
                 return false
             }
+            await refreshIntroOfferEligibility()
         } catch {
             print("[StoreKit] Erro ao carregar produtos: \(error)")
         }
+    }
+
+    /// Pergunta ao StoreKit se o usuário ainda tem direito à oferta introdutória.
+    /// A elegibilidade é por **grupo de assinatura**, então basta consultar um
+    /// produto. Em qualquer falha, mantém `false` — nunca prometemos por engano.
+    func refreshIntroOfferEligibility() async {
+        guard let subscription = products.first?.subscription else {
+            isEligibleForIntroOffer = false
+            return
+        }
+        isEligibleForIntroOffer = await subscription.isEligibleForIntroOffer
     }
 
     // MARK: - Purchase

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -54,42 +54,11 @@
 		9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1082F589311009412A7 /* FirebaseAuth */; };
 		AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001001AA001001AA001001 /* AlmaWatchApp.swift */; };
 		AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001002AA001002AA001002 /* AlmaWatchContentView.swift */; };
-		AA009003AA009003AA009003 /* Alma Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E25ED1DA2F77018D0089226E /* Alma Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		ALMA00FCM2026MAY15FFFF01 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */; };
 		ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */; };
-		B77C73E51A5C2F88B7710001 /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
 		BB001001BB001001BB001001 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB100001BB100001BB100001 /* GoogleService-Info.plist */; };
-		BED02FA0BABE00CAFE000B02 /* meditation_02.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */; };
-		BED03FA0BABE00CAFE000B03 /* meditation_03.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */; };
-		BED04FA0BABE00CAFE000B04 /* meditation_04.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */; };
-		BED05FA0BABE00CAFE000B05 /* meditation_05.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED05FA0BABE00CAFE000A05 /* meditation_05.m4a */; };
-		BED06FA0BABE00CAFE000B06 /* meditation_06.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED06FA0BABE00CAFE000A06 /* meditation_06.m4a */; };
-		BED07FA0BABE00CAFE000B07 /* meditation_07.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED07FA0BABE00CAFE000A07 /* meditation_07.m4a */; };
-		BED08FA0BABE00CAFE000B08 /* meditation_08.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED08FA0BABE00CAFE000A08 /* meditation_08.m4a */; };
-		BED09FA0BABE00CAFE000B09 /* meditation_09.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED09FA0BABE00CAFE000A09 /* meditation_09.m4a */; };
-		BED10FA0BABE00CAFE000B10 /* meditation_10.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED10FA0BABE00CAFE000A10 /* meditation_10.m4a */; };
-		BED11FA0BABE00CAFE000B11 /* meditation_11.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED11FA0BABE00CAFE000A11 /* meditation_11.m4a */; };
-		BED12FA0BABE00CAFE000B12 /* meditation_12.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED12FA0BABE00CAFE000A12 /* meditation_12.m4a */; };
-		BED13FA0BABE00CAFE000B13 /* meditation_13.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED13FA0BABE00CAFE000A13 /* meditation_13.m4a */; };
-		BED14FA0BABE00CAFE000B14 /* meditation_14.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED14FA0BABE00CAFE000A14 /* meditation_14.m4a */; };
-		BED15FA0BABE00CAFE000B15 /* meditation_15.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED15FA0BABE00CAFE000A15 /* meditation_15.m4a */; };
-		BED16FA0BABE00CAFE000B16 /* meditation_16.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED16FA0BABE00CAFE000A16 /* meditation_16.m4a */; };
-		BED17FA0BABE00CAFE000B17 /* meditation_17.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED17FA0BABE00CAFE000A17 /* meditation_17.m4a */; };
-		BED18FA0BABE00CAFE000B18 /* meditation_18.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED18FA0BABE00CAFE000A18 /* meditation_18.m4a */; };
-		BED19FA0BABE00CAFE000B19 /* meditation_19.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED19FA0BABE00CAFE000A19 /* meditation_19.m4a */; };
-		BED20FA0BABE00CAFE000B20 /* meditation_20.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED20FA0BABE00CAFE000A20 /* meditation_20.m4a */; };
-		BED21FA0BABE00CAFE000B21 /* meditation_21.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED21FA0BABE00CAFE000A21 /* meditation_21.m4a */; };
-		BED22FA0BABE00CAFE000B22 /* meditation_22.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED22FA0BABE00CAFE000A22 /* meditation_22.m4a */; };
-		BED23FA0BABE00CAFE000B23 /* meditation_23.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED23FA0BABE00CAFE000A23 /* meditation_23.m4a */; };
-		BED24FA0BABE00CAFE000B24 /* meditation_24.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED24FA0BABE00CAFE000A24 /* meditation_24.m4a */; };
-		BED25FA0BABE00CAFE000B25 /* meditation_25.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED25FA0BABE00CAFE000A25 /* meditation_25.m4a */; };
-		BED26FA0BABE00CAFE000B26 /* meditation_26.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED26FA0BABE00CAFE000A26 /* meditation_26.m4a */; };
-		BED27FA0BABE00CAFE000B27 /* meditation_27.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED27FA0BABE00CAFE000A27 /* meditation_27.m4a */; };
-		BED28FA0BABE00CAFE000B28 /* meditation_28.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED28FA0BABE00CAFE000A28 /* meditation_28.m4a */; };
-		BED29FA0BABE00CAFE000B29 /* meditation_29.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */; };
-		BED30FA0BABE00CAFE000B30 /* meditation_30.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */; };
 		C63FF451FA7A99DD13A6089E /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
+		B77C73E51A5C2F88B7710001 /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
 		CC001001CC001001CC001001 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		CC001002CC001002CC001002 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		DA8DC37B7FC02DF5CB40AF71 /* pachelbel_canon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */; };
@@ -110,35 +79,27 @@
 		DD008001DD008001DD008001 /* FeminineHealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD008000DD008000DD008000 /* FeminineHealthView.swift */; };
 		DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD009000DD009000DD009000 /* AddictionFreeView.swift */; };
 		DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */; };
-		DD011001DD011001DD011001 /* FeminineHealthSecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */; };
-		DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */; };
-		DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
-		DDB10002DDB10002DDB10002 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
-		DDB20001DDB20001DDB20001 /* PaywallTriggerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */; };
-		E267314C2FE19BD20003BE9F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E267314B2FE19BD20003BE9F /* WidgetKit.framework */; };
-		E267314E2FE19BD20003BE9F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E267314D2FE19BD20003BE9F /* SwiftUI.framework */; };
-		E26731592FE19BD30003BE9F /* AlmaComplicationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		E26731602FE19F190003BE9F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E267315F2FE19F190003BE9F /* Assets.xcassets */; };
-		E26731622FE19F930003BE9F /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26731612FE19F8E0003BE9F /* Assets.swift */; };
 		E2E5A2522F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
 		E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
 		E2E5A2542F966F61003759A5 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */; };
 		E2E5A2552F966F61003759A5 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */; };
 		E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */ = {isa = PBXBuildFile; fileRef = E2F257192F991C9500BE42F1 /* meditation_01.m4a */; };
-		EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
-		EE011002EE011002EE011002 /* Feed/FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* Feed/FeedModels.swift */; };
-		EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* Feed/FeedRepository.swift */; };
-		EE012002EE012002EE012002 /* Feed/FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* Feed/FeedRepository.swift */; };
-		EE013001EE013001EE013001 /* Feed/FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */; };
-		EE013002EE013002EE013002 /* Feed/FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */; };
-		EE014001EE014001EE014001 /* Feed/FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */; };
-		EE014002EE014002EE014002 /* Feed/FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */; };
-		EE015001EE015001EE015001 /* Feed/FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* Feed/FeedCardView.swift */; };
-		EE015002EE015002EE015002 /* Feed/FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* Feed/FeedCardView.swift */; };
-		EE017001EE017001EE017001 /* Feed/PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* Feed/PostDetailView.swift */; };
-		EE017002EE017002EE017002 /* Feed/PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* Feed/PostDetailView.swift */; };
-		EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
-		EE018002EE018002EE018002 /* Feed/FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* Feed/FeedView.swift */; };
+		EE011001EE011001EE011001 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* FeedModels.swift */; };
+		EE011002EE011002EE011002 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE011000EE011000EE011000 /* FeedModels.swift */; };
+		EE012001EE012001EE012001 /* FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* FeedRepository.swift */; };
+		EE012002EE012002EE012002 /* FeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE012000EE012000EE012000 /* FeedRepository.swift */; };
+		EE013001EE013001EE013001 /* FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */; };
+		EE013002EE013002EE013002 /* FirestoreFeedRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */; };
+		EE014001EE014001EE014001 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* FeedViewModel.swift */; };
+		EE014002EE014002EE014002 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE014000EE014000EE014000 /* FeedViewModel.swift */; };
+		EE015001EE015001EE015001 /* FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* FeedCardView.swift */; };
+		EE015002EE015002EE015002 /* FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE015000EE015000EE015000 /* FeedCardView.swift */; };
+		EE016001EE016001EE016001 /* MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* MeditationPlayerView.swift */; };
+		EE016002EE016002EE016002 /* MeditationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE016000EE016000EE016000 /* MeditationPlayerView.swift */; };
+		EE017001EE017001EE017001 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* PostDetailView.swift */; };
+		EE017002EE017002EE017002 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE017000EE017000EE017000 /* PostDetailView.swift */; };
+		EE018001EE018001EE018001 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* FeedView.swift */; };
+		EE018002EE018002EE018002 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE018000EE018000EE018000 /* FeedView.swift */; };
 		F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
 		F1001002F1001002F1001002 /* InsightShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1001000F1001000F1001000 /* InsightShareCardView.swift */; };
 		F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1002000F1002000F1002000 /* InsightShareSheet.swift */; };
@@ -168,46 +129,7 @@
 			remoteGlobalIDString = 9ECED0AE2F588F21009412A7;
 			remoteInfo = "Alma.App.Oficial (macOS)";
 		};
-		AA009001AA009001AA009001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9ECED09D2F588F1C009412A7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AA005001AA005001AA005001;
-			remoteInfo = "Alma Watch App";
-		};
-		E26731572FE19BD30003BE9F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9ECED09D2F588F1C009412A7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E26731482FE19BD20003BE9F;
-			remoteInfo = AlmaComplicationExtension;
-		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		AA009004AA009004AA009004 /* Embed Watch Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
-			dstSubfolderSpec = 16;
-			files = (
-				AA009003AA009003AA009003 /* Alma Watch App.app in Embed Watch Content */,
-			);
-			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E267315E2FE19BD30003BE9F /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				E26731592FE19BD30003BE9F /* AlmaComplicationExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		357884C4D09FF75933EB433D /* OAuthRevocationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OAuthRevocationService.swift; sourceTree = "<group>"; };
@@ -246,35 +168,6 @@
 		9ECED0F02F58902F009412A7 /* InsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		AA001001AA001001AA001001 /* AlmaWatchApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchApp.swift; sourceTree = "<group>"; };
 		AA001002AA001002AA001002 /* AlmaWatchContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchContentView.swift; sourceTree = "<group>"; };
-		AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_02.m4a; sourceTree = "<group>"; };
-		AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_03.m4a; sourceTree = "<group>"; };
-		AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_04.m4a; sourceTree = "<group>"; };
-		AED05FA0BABE00CAFE000A05 /* meditation_05.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_05.m4a; sourceTree = "<group>"; };
-		AED06FA0BABE00CAFE000A06 /* meditation_06.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_06.m4a; sourceTree = "<group>"; };
-		AED07FA0BABE00CAFE000A07 /* meditation_07.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_07.m4a; sourceTree = "<group>"; };
-		AED08FA0BABE00CAFE000A08 /* meditation_08.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_08.m4a; sourceTree = "<group>"; };
-		AED09FA0BABE00CAFE000A09 /* meditation_09.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_09.m4a; sourceTree = "<group>"; };
-		AED10FA0BABE00CAFE000A10 /* meditation_10.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_10.m4a; sourceTree = "<group>"; };
-		AED11FA0BABE00CAFE000A11 /* meditation_11.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_11.m4a; sourceTree = "<group>"; };
-		AED12FA0BABE00CAFE000A12 /* meditation_12.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_12.m4a; sourceTree = "<group>"; };
-		AED13FA0BABE00CAFE000A13 /* meditation_13.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_13.m4a; sourceTree = "<group>"; };
-		AED14FA0BABE00CAFE000A14 /* meditation_14.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_14.m4a; sourceTree = "<group>"; };
-		AED15FA0BABE00CAFE000A15 /* meditation_15.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_15.m4a; sourceTree = "<group>"; };
-		AED16FA0BABE00CAFE000A16 /* meditation_16.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_16.m4a; sourceTree = "<group>"; };
-		AED17FA0BABE00CAFE000A17 /* meditation_17.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_17.m4a; sourceTree = "<group>"; };
-		AED18FA0BABE00CAFE000A18 /* meditation_18.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_18.m4a; sourceTree = "<group>"; };
-		AED19FA0BABE00CAFE000A19 /* meditation_19.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_19.m4a; sourceTree = "<group>"; };
-		AED20FA0BABE00CAFE000A20 /* meditation_20.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_20.m4a; sourceTree = "<group>"; };
-		AED21FA0BABE00CAFE000A21 /* meditation_21.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_21.m4a; sourceTree = "<group>"; };
-		AED22FA0BABE00CAFE000A22 /* meditation_22.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_22.m4a; sourceTree = "<group>"; };
-		AED23FA0BABE00CAFE000A23 /* meditation_23.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_23.m4a; sourceTree = "<group>"; };
-		AED24FA0BABE00CAFE000A24 /* meditation_24.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_24.m4a; sourceTree = "<group>"; };
-		AED25FA0BABE00CAFE000A25 /* meditation_25.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_25.m4a; sourceTree = "<group>"; };
-		AED26FA0BABE00CAFE000A26 /* meditation_26.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_26.m4a; sourceTree = "<group>"; };
-		AED27FA0BABE00CAFE000A27 /* meditation_27.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_27.m4a; sourceTree = "<group>"; };
-		AED28FA0BABE00CAFE000A28 /* meditation_28.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_28.m4a; sourceTree = "<group>"; };
-		AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_29.m4a; sourceTree = "<group>"; };
-		AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_30.m4a; sourceTree = "<group>"; };
 		B0931D3CA21F8310F5571932 /* bach_goldberg.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = bach_goldberg.mp3; sourceTree = "<group>"; };
 		BB100001BB100001BB100001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BB300001BB300001BB300001 /* iOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iOS-Info.plist"; sourceTree = "<group>"; };
@@ -291,26 +184,18 @@
 		DD008000DD008000DD008000 /* FeminineHealthView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthView.swift; sourceTree = "<group>"; };
 		DD009000DD009000DD009000 /* AddictionFreeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddictionFreeView.swift; sourceTree = "<group>"; };
 		DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuidedMeditationEngine.swift; sourceTree = "<group>"; };
-		DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthSecureStore.swift; sourceTree = "<group>"; };
-		DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoAlmaBannerView.swift; sourceTree = "<group>"; };
-		DDB10000DDB10000DDB10000 /* StreakManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
-		DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaywallTriggerManager.swift; sourceTree = "<group>"; };
 		E25ED1DA2F77018D0089226E /* Alma Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alma Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AlmaComplicationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		E267314B2FE19BD20003BE9F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		E267314D2FE19BD20003BE9F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		E267315F2FE19F190003BE9F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E26731612FE19F8E0003BE9F /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
 		E2E5A2502F966F61003759A5 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
 		E2E5A2512F966F61003759A5 /* DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountView.swift; sourceTree = "<group>"; };
 		E2F257192F991C9500BE42F1 /* meditation_01.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_01.m4a; sourceTree = "<group>"; };
-		EE011000EE011000EE011000 /* Feed/FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
-		EE012000EE012000EE012000 /* Feed/FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
-		EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
-		EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedViewModel.swift; sourceTree = "<group>"; };
-		EE015000EE015000EE015000 /* Feed/FeedCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedCardView.swift; sourceTree = "<group>"; };
-		EE017000EE017000EE017000 /* Feed/PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
-		EE018000EE018000EE018000 /* Feed/FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
+		EE011000EE011000EE011000 /* FeedModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedModels.swift; sourceTree = "<group>"; };
+		EE012000EE012000EE012000 /* FeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedRepository.swift; sourceTree = "<group>"; };
+		EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FirestoreFeedRepository.swift; sourceTree = "<group>"; };
+		EE014000EE014000EE014000 /* FeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedViewModel.swift; sourceTree = "<group>"; };
+		EE015000EE015000EE015000 /* FeedCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedCardView.swift; sourceTree = "<group>"; };
+		EE016000EE016000EE016000 /* MeditationPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/MeditationPlayerView.swift; sourceTree = "<group>"; };
+		EE017000EE017000EE017000 /* PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
+		EE018000EE018000EE018000 /* FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
 		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
 		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
 		F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_fireplace.mp3; sourceTree = "<group>"; };
@@ -318,20 +203,6 @@
 		FF001001FF001001FF001001 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
 		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E267315A2FE19BD30003BE9F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E26731482FE19BD20003BE9F /* AlmaComplicationExtension */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		E267314F2FE19BD20003BE9F /* AlmaComplication */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E267315A2FE19BD30003BE9F /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = AlmaComplication; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		9ECED0A62F588F21009412A7 /* Frameworks */ = {
@@ -341,7 +212,6 @@
 				9ECED1072F589311009412A7 /* FirebaseAnalytics in Frameworks */,
 				9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */,
 				ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */,
-				ALMA00FCM2026MAY15FFFF01 /* FirebaseMessaging in Frameworks */,
 				FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */,
 				FF0099FF0099FF0099FF0006 /* FacebookLogin in Frameworks */,
 			);
@@ -375,15 +245,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E26731462FE19BD20003BE9F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E267314E2FE19BD20003BE9F /* SwiftUI.framework in Frameworks */,
-				E267314C2FE19BD20003BE9F /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -395,6 +256,7 @@
 				57807D2FD00320D19F3B9A25 /* mozart_k467.mp3 */,
 				48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */,
 			);
+			name = ClassicalMusic;
 			path = ClassicalMusic;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -408,9 +270,8 @@
 				AA003001AA003001AA003001 /* AlmaWatch */,
 				9ECED0B92F588F21009412A7 /* Tests iOS */,
 				9ECED0C52F588F21009412A7 /* Tests macOS */,
-				E267314F2FE19BD20003BE9F /* AlmaComplication */,
-				E267314A2FE19BD20003BE9F /* Frameworks */,
 				9ECED0AA2F588F21009412A7 /* Products */,
+				C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */,
 				7E80B9A204E436E459FE32F0 /* ClassicalMusic */,
 				CD4C54928E382CD20E7F22DE /* SleepSounds */,
 			);
@@ -447,29 +308,25 @@
 				DD002000DD002000DD002000 /* AudioManager.swift */,
 				DD003000DD003000DD003000 /* GuidanceEngine.swift */,
 				DD004000DD004000DD004000 /* UserMemoryManager.swift */,
-				DDB10000DDB10000DDB10000 /* StreakManager.swift */,
-				DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */,
 				DD005000DD005000DD005000 /* AlmaLogoView.swift */,
 				DD006000DD006000DD006000 /* AccessManager.swift */,
 				DD007000DD007000DD007000 /* MetaEventsManager.swift */,
 				DD008000DD008000DD008000 /* FeminineHealthView.swift */,
-				DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */,
 				DD009000DD009000DD009000 /* AddictionFreeView.swift */,
 				DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */,
-				DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */,
-				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
-				EE012000EE012000EE012000 /* Feed/FeedRepository.swift */,
-				EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */,
-				EE014000EE014000EE014000 /* Feed/FeedViewModel.swift */,
-				EE015000EE015000EE015000 /* Feed/FeedCardView.swift */,
-				EE017000EE017000EE017000 /* Feed/PostDetailView.swift */,
-				EE018000EE018000EE018000 /* Feed/FeedView.swift */,
+				EE011000EE011000EE011000 /* FeedModels.swift */,
+				EE012000EE012000EE012000 /* FeedRepository.swift */,
+				EE013000EE013000EE013000 /* FirestoreFeedRepository.swift */,
+				EE014000EE014000EE014000 /* FeedViewModel.swift */,
+				EE015000EE015000EE015000 /* FeedCardView.swift */,
+				EE016000EE016000EE016000 /* MeditationPlayerView.swift */,
+				EE017000EE017000EE017000 /* PostDetailView.swift */,
+				EE018000EE018000EE018000 /* FeedView.swift */,
 				9ECED0A42F588F21009412A7 /* Assets.xcassets */,
 				956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */,
 				357884C4D09FF75933EB433D /* OAuthRevocationService.swift */,
 				6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */,
 				CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */,
-				C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -482,7 +339,6 @@
 				9ECED0B62F588F21009412A7 /* Tests iOS.xctest */,
 				9ECED0C22F588F21009412A7 /* Tests macOS.xctest */,
 				E25ED1DA2F77018D0089226E /* Alma Watch App.app */,
-				E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -516,8 +372,6 @@
 		AA003001AA003001AA003001 /* AlmaWatch */ = {
 			isa = PBXGroup;
 			children = (
-				E26731612FE19F8E0003BE9F /* Assets.swift */,
-				E267315F2FE19F190003BE9F /* Assets.xcassets */,
 				AA001001AA001001AA001001 /* AlmaWatchApp.swift */,
 				AA001002AA001002AA001002 /* AlmaWatchContentView.swift */,
 			);
@@ -532,51 +386,14 @@
 				747D23548A27853E9A52C7D7 /* sleep_pink_noise.mp3 */,
 				41FFC8A153FE4E23B4B7C375 /* sleep_water.mp3 */,
 			);
+			name = SleepSounds;
 			path = SleepSounds;
 			sourceTree = SOURCE_ROOT;
-		};
-		E267314A2FE19BD20003BE9F /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				E267314B2FE19BD20003BE9F /* WidgetKit.framework */,
-				E267314D2FE19BD20003BE9F /* SwiftUI.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
 		};
 		E2F2571A2F991C9500BE42F1 /* Meditations */ = {
 			isa = PBXGroup;
 			children = (
 				E2F257192F991C9500BE42F1 /* meditation_01.m4a */,
-				AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */,
-				AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */,
-				AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */,
-				AED05FA0BABE00CAFE000A05 /* meditation_05.m4a */,
-				AED06FA0BABE00CAFE000A06 /* meditation_06.m4a */,
-				AED07FA0BABE00CAFE000A07 /* meditation_07.m4a */,
-				AED08FA0BABE00CAFE000A08 /* meditation_08.m4a */,
-				AED09FA0BABE00CAFE000A09 /* meditation_09.m4a */,
-				AED10FA0BABE00CAFE000A10 /* meditation_10.m4a */,
-				AED11FA0BABE00CAFE000A11 /* meditation_11.m4a */,
-				AED12FA0BABE00CAFE000A12 /* meditation_12.m4a */,
-				AED13FA0BABE00CAFE000A13 /* meditation_13.m4a */,
-				AED14FA0BABE00CAFE000A14 /* meditation_14.m4a */,
-				AED15FA0BABE00CAFE000A15 /* meditation_15.m4a */,
-				AED16FA0BABE00CAFE000A16 /* meditation_16.m4a */,
-				AED17FA0BABE00CAFE000A17 /* meditation_17.m4a */,
-				AED18FA0BABE00CAFE000A18 /* meditation_18.m4a */,
-				AED19FA0BABE00CAFE000A19 /* meditation_19.m4a */,
-				AED20FA0BABE00CAFE000A20 /* meditation_20.m4a */,
-				AED21FA0BABE00CAFE000A21 /* meditation_21.m4a */,
-				AED22FA0BABE00CAFE000A22 /* meditation_22.m4a */,
-				AED23FA0BABE00CAFE000A23 /* meditation_23.m4a */,
-				AED24FA0BABE00CAFE000A24 /* meditation_24.m4a */,
-				AED25FA0BABE00CAFE000A25 /* meditation_25.m4a */,
-				AED26FA0BABE00CAFE000A26 /* meditation_26.m4a */,
-				AED27FA0BABE00CAFE000A27 /* meditation_27.m4a */,
-				AED28FA0BABE00CAFE000A28 /* meditation_28.m4a */,
-				AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */,
-				AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */,
 			);
 			path = Meditations;
 			sourceTree = "<group>";
@@ -591,19 +408,16 @@
 				9ECED0A52F588F21009412A7 /* Sources */,
 				9ECED0A62F588F21009412A7 /* Frameworks */,
 				9ECED0A72F588F21009412A7 /* Resources */,
-				AA009004AA009004AA009004 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				AA009002AA009002AA009002 /* PBXTargetDependency */,
 			);
 			name = "Alma.App.Oficial (iOS)";
 			packageProductDependencies = (
 				9ECED1062F589311009412A7 /* FirebaseAnalytics */,
 				9ECED1082F589311009412A7 /* FirebaseAuth */,
 				ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */,
-				ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */,
 				FF0099FF0099FF0099FF0003 /* GoogleSignIn */,
 				FF0099FF0099FF0099FF0004 /* FacebookLogin */,
 			);
@@ -671,39 +485,15 @@
 				AA004001AA004001AA004001 /* Sources */,
 				AA004002AA004002AA004002 /* Frameworks */,
 				AA004003AA004003AA004003 /* Resources */,
-				E267315E2FE19BD30003BE9F /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				E26731582FE19BD30003BE9F /* PBXTargetDependency */,
 			);
 			name = "Alma Watch App";
 			productName = "Alma Watch App";
 			productReference = E25ED1DA2F77018D0089226E /* Alma Watch App.app */;
 			productType = "com.apple.product-type.application";
-		};
-		E26731482FE19BD20003BE9F /* AlmaComplicationExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E267315B2FE19BD30003BE9F /* Build configuration list for PBXNativeTarget "AlmaComplicationExtension" */;
-			buildPhases = (
-				E26731452FE19BD20003BE9F /* Sources */,
-				E26731462FE19BD20003BE9F /* Frameworks */,
-				E26731472FE19BD20003BE9F /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				E267314F2FE19BD20003BE9F /* AlmaComplication */,
-			);
-			name = AlmaComplicationExtension;
-			packageProductDependencies = (
-			);
-			productName = AlmaComplicationExtension;
-			productReference = E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -712,7 +502,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2640;
+				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					9ECED0A82F588F21009412A7 = {
@@ -731,9 +521,6 @@
 					};
 					AA005001AA005001AA005001 = {
 						CreatedOnToolsVersion = 13.2.1;
-					};
-					E26731482FE19BD20003BE9F = {
-						CreatedOnToolsVersion = 26.4;
 					};
 				};
 			};
@@ -760,7 +547,6 @@
 				AA005001AA005001AA005001 /* Alma Watch App */,
 				9ECED0B52F588F21009412A7 /* Tests iOS */,
 				9ECED0C12F588F21009412A7 /* Tests macOS */,
-				E26731482FE19BD20003BE9F /* AlmaComplicationExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -774,35 +560,6 @@
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
 				E2F2571B2F991C9500BE42F1 /* meditation_01.m4a in Resources */,
-				BED02FA0BABE00CAFE000B02 /* meditation_02.m4a in Resources */,
-				BED03FA0BABE00CAFE000B03 /* meditation_03.m4a in Resources */,
-				BED04FA0BABE00CAFE000B04 /* meditation_04.m4a in Resources */,
-				BED05FA0BABE00CAFE000B05 /* meditation_05.m4a in Resources */,
-				BED06FA0BABE00CAFE000B06 /* meditation_06.m4a in Resources */,
-				BED07FA0BABE00CAFE000B07 /* meditation_07.m4a in Resources */,
-				BED08FA0BABE00CAFE000B08 /* meditation_08.m4a in Resources */,
-				BED09FA0BABE00CAFE000B09 /* meditation_09.m4a in Resources */,
-				BED10FA0BABE00CAFE000B10 /* meditation_10.m4a in Resources */,
-				BED11FA0BABE00CAFE000B11 /* meditation_11.m4a in Resources */,
-				BED12FA0BABE00CAFE000B12 /* meditation_12.m4a in Resources */,
-				BED13FA0BABE00CAFE000B13 /* meditation_13.m4a in Resources */,
-				BED14FA0BABE00CAFE000B14 /* meditation_14.m4a in Resources */,
-				BED15FA0BABE00CAFE000B15 /* meditation_15.m4a in Resources */,
-				BED16FA0BABE00CAFE000B16 /* meditation_16.m4a in Resources */,
-				BED17FA0BABE00CAFE000B17 /* meditation_17.m4a in Resources */,
-				BED18FA0BABE00CAFE000B18 /* meditation_18.m4a in Resources */,
-				BED19FA0BABE00CAFE000B19 /* meditation_19.m4a in Resources */,
-				BED20FA0BABE00CAFE000B20 /* meditation_20.m4a in Resources */,
-				BED21FA0BABE00CAFE000B21 /* meditation_21.m4a in Resources */,
-				BED22FA0BABE00CAFE000B22 /* meditation_22.m4a in Resources */,
-				BED23FA0BABE00CAFE000B23 /* meditation_23.m4a in Resources */,
-				BED24FA0BABE00CAFE000B24 /* meditation_24.m4a in Resources */,
-				BED25FA0BABE00CAFE000B25 /* meditation_25.m4a in Resources */,
-				BED26FA0BABE00CAFE000B26 /* meditation_26.m4a in Resources */,
-				BED27FA0BABE00CAFE000B27 /* meditation_27.m4a in Resources */,
-				BED28FA0BABE00CAFE000B28 /* meditation_28.m4a in Resources */,
-				BED29FA0BABE00CAFE000B29 /* meditation_29.m4a in Resources */,
-				BED30FA0BABE00CAFE000B30 /* meditation_30.m4a in Resources */,
 				7650A7659DAE7293791FAC46 /* bach_goldberg.mp3 in Resources */,
 				2C6E7DC9AF0F80B508FFCD73 /* beethoven_pastoral.mp3 in Resources */,
 				8828C327CEFC0B9B076D3F6D /* mozart_k467.mp3 in Resources */,
@@ -840,14 +597,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E26731602FE19F190003BE9F /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E26731472FE19BD20003BE9F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -881,27 +630,24 @@
 				DD002001DD002001DD002001 /* AudioManager.swift in Sources */,
 				DD003001DD003001DD003001 /* GuidanceEngine.swift in Sources */,
 				DD004001DD004001DD004001 /* UserMemoryManager.swift in Sources */,
-				DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */,
-				DDB20001DDB20001DDB20001 /* PaywallTriggerManager.swift in Sources */,
 				DD005001DD005001DD005001 /* AlmaLogoView.swift in Sources */,
 				DD006001DD006001DD006001 /* AccessManager.swift in Sources */,
 				DD007001DD007001DD007001 /* MetaEventsManager.swift in Sources */,
 				DD008001DD008001DD008001 /* FeminineHealthView.swift in Sources */,
-				DD011001DD011001DD011001 /* FeminineHealthSecureStore.swift in Sources */,
 				DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */,
 				DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */,
-				DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */,
-				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,
-				EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */,
-				EE013001EE013001EE013001 /* Feed/FirestoreFeedRepository.swift in Sources */,
-				EE014001EE014001EE014001 /* Feed/FeedViewModel.swift in Sources */,
-				EE015001EE015001EE015001 /* Feed/FeedCardView.swift in Sources */,
-				EE017001EE017001EE017001 /* Feed/PostDetailView.swift in Sources */,
+				EE011001EE011001EE011001 /* FeedModels.swift in Sources */,
+				EE012001EE012001EE012001 /* FeedRepository.swift in Sources */,
+				EE013001EE013001EE013001 /* FirestoreFeedRepository.swift in Sources */,
+				EE014001EE014001EE014001 /* FeedViewModel.swift in Sources */,
+				EE015001EE015001EE015001 /* FeedCardView.swift in Sources */,
+				EE016001EE016001EE016001 /* MeditationPlayerView.swift in Sources */,
+				EE017001EE017001EE017001 /* PostDetailView.swift in Sources */,
 				E2E5A2522F966F61003759A5 /* DeleteAccountView.swift in Sources */,
 				E2E5A2532F966F61003759A5 /* AccountDeletionService.swift in Sources */,
 				F1001001F1001001F1001001 /* InsightShareCardView.swift in Sources */,
 				F1002001F1002001F1002001 /* InsightShareSheet.swift in Sources */,
-				EE018001EE018001EE018001 /* Feed/FeedView.swift in Sources */,
+				EE018001EE018001EE018001 /* FeedView.swift in Sources */,
 				51AAFE1E9BDF372601C72D4C /* AppleAuthCodeKeychainStore.swift in Sources */,
 				FB4F3FB4EF8265C8B340D982 /* OAuthRevocationService.swift in Sources */,
 				76891EB20C9D18D6E4692BAF /* LocalDataCleanupService.swift in Sources */,
@@ -946,17 +692,17 @@
 				DD002002DD002002DD002002 /* AudioManager.swift in Sources */,
 				DD003002DD003002DD003002 /* GuidanceEngine.swift in Sources */,
 				DD004002DD004002DD004002 /* UserMemoryManager.swift in Sources */,
-				DDB10002DDB10002DDB10002 /* StreakManager.swift in Sources */,
 				DD005002DD005002DD005002 /* AlmaLogoView.swift in Sources */,
 				DD006002DD006002DD006002 /* AccessManager.swift in Sources */,
 				DD007002DD007002DD007002 /* MetaEventsManager.swift in Sources */,
-				EE011002EE011002EE011002 /* Feed/FeedModels.swift in Sources */,
-				EE012002EE012002EE012002 /* Feed/FeedRepository.swift in Sources */,
-				EE013002EE013002EE013002 /* Feed/FirestoreFeedRepository.swift in Sources */,
-				EE014002EE014002EE014002 /* Feed/FeedViewModel.swift in Sources */,
-				EE015002EE015002EE015002 /* Feed/FeedCardView.swift in Sources */,
-				EE017002EE017002EE017002 /* Feed/PostDetailView.swift in Sources */,
-				EE018002EE018002EE018002 /* Feed/FeedView.swift in Sources */,
+				EE011002EE011002EE011002 /* FeedModels.swift in Sources */,
+				EE012002EE012002EE012002 /* FeedRepository.swift in Sources */,
+				EE013002EE013002EE013002 /* FirestoreFeedRepository.swift in Sources */,
+				EE014002EE014002EE014002 /* FeedViewModel.swift in Sources */,
+				EE015002EE015002EE015002 /* FeedCardView.swift in Sources */,
+				EE016002EE016002EE016002 /* MeditationPlayerView.swift in Sources */,
+				EE017002EE017002EE017002 /* PostDetailView.swift in Sources */,
+				EE018002EE018002EE018002 /* FeedView.swift in Sources */,
 				B77C73E51A5C2F88B7710001 /* SmartPlaylistEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -976,14 +722,6 @@
 			files = (
 				AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */,
 				AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */,
-				E26731622FE19F930003BE9F /* Assets.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E26731452FE19BD20003BE9F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -999,16 +737,6 @@
 			isa = PBXTargetDependency;
 			target = 9ECED0AE2F588F21009412A7 /* Alma.App.Oficial (macOS) */;
 			targetProxy = 9ECED0C32F588F21009412A7 /* PBXContainerItemProxy */;
-		};
-		AA009002AA009002AA009002 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AA005001AA005001AA005001 /* Alma Watch App */;
-			targetProxy = AA009001AA009001AA009001 /* PBXContainerItemProxy */;
-		};
-		E26731582FE19BD30003BE9F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E26731482FE19BD20003BE9F /* AlmaComplicationExtension */;
-			targetProxy = E26731572FE19BD30003BE9F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1072,7 +800,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -1129,7 +856,6 @@
 				MTL_FAST_MATH = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
@@ -1141,7 +867,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1158,7 +884,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app;
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = iphoneos;
@@ -1175,7 +901,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1192,7 +918,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app;
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = iphoneos;
@@ -1211,7 +937,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 81;
+				CURRENT_PROJECT_VERSION = 76;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1223,7 +949,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial";
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = macosx;
@@ -1240,7 +966,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 81;
+				CURRENT_PROJECT_VERSION = 76;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1252,7 +978,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial";
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = macosx;
@@ -1265,11 +991,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 77;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1284,11 +1010,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 77;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1304,12 +1030,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 77;
+				CURRENT_PROJECT_VERSION = 76;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1323,12 +1049,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 77;
+				CURRENT_PROJECT_VERSION = 76;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1342,25 +1068,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 81;
-				DEVELOPMENT_TEAM = J9U729KYR7;
+				CURRENT_PROJECT_VERSION = 76;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Alma;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKApplication = YES;
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.almaapp.app;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "AlmaOficial.Alma-App-Oficial";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1372,103 +1095,26 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 81;
-				DEVELOPMENT_TEAM = J9U729KYR7;
+				CURRENT_PROJECT_VERSION = 76;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Alma;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKApplication = YES;
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.almaapp.app;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "AlmaOficial.Alma-App-Oficial";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 8.0;
-			};
-			name = Release;
-		};
-		E267315C2FE19BD30003BE9F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 81;
-				DEVELOPMENT_TEAM = J9U729KYR7;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AlmaComplication/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = AlmaComplication;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp.AlmaComplication;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 26.4;
-			};
-			name = Debug;
-		};
-		E267315D2FE19BD30003BE9F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 81;
-				DEVELOPMENT_TEAM = J9U729KYR7;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AlmaComplication/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = AlmaComplication;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp.AlmaComplication;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 26.4;
 			};
 			name = Release;
 		};
@@ -1529,15 +1175,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E267315B2FE19BD30003BE9F /* Build configuration list for PBXNativeTarget "AlmaComplicationExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E267315C2FE19BD30003BE9F /* Debug */,
-				E267315D2FE19BD30003BE9F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -1546,7 +1183,7 @@
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 11.0.0;
+				minimumVersion = 10.0.0;
 			};
 		};
 		FF0099FF0099FF0099FF0001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
@@ -1562,7 +1199,7 @@
 			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 18.0.0;
+				minimumVersion = 17.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1577,11 +1214,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9ECED1052F589311009412A7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
-		};
-		ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9ECED1052F589311009412A7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseMessaging;
 		};
 		ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;

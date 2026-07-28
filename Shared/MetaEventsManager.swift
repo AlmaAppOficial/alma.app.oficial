@@ -25,6 +25,12 @@ import CryptoKit
 // Para reativar, mudar isCAPIEnabled para true.
 // Toda chamada externa (trackStartTrial, trackAppOpen, etc.)
 // continua existindo, mas vira no-op silencioso quando desligado.
+//
+// MARK: - Consentimento (LGPD) — espelha o Android (util/MetaTracking)
+// Mesmo com isCAPIEnabled = true, NENHUM evento é enviado enquanto o utilizador
+// não consentir explicitamente (setConsent(true)). O diálogo de consentimento
+// (RootView) chama setConsent. Sem "sim", tudo aqui é no-op silencioso. Nunca
+// enviamos humor, ciclo ou dados de saúde — apenas eventos de negócio anónimos.
 
 // MARK: - MetaEventsManager
 final class MetaEventsManager {
@@ -36,6 +42,29 @@ final class MetaEventsManager {
 
     // Endpoint da Cloud Function — mesmo base URL do chat
     private let baseURL = "https://southamerica-east1-alma-app-7dae6.cloudfunctions.net"
+
+    // MARK: - Consentimento
+
+    private let consentKey = "meta_consent_granted"
+    private let askedKey   = "meta_consent_asked"
+
+    /// `true` se o utilizador autorizou a medição de campanhas.
+    var hasConsent: Bool {
+        UserDefaults.standard.bool(forKey: consentKey)
+    }
+
+    /// `true` se o utilizador já respondeu ao pedido (sim OU não) — usado para
+    /// mostrar o diálogo de consentimento uma única vez.
+    var hasAskedConsent: Bool {
+        UserDefaults.standard.bool(forKey: askedKey)
+    }
+
+    /// Persiste a decisão de consentimento. Sem consentimento, sendEvent é no-op.
+    func setConsent(_ granted: Bool) {
+        let d = UserDefaults.standard
+        d.set(granted, forKey: consentKey)
+        d.set(true, forKey: askedKey)
+    }
 
     // MARK: - Eventos públicos
 
@@ -59,6 +88,7 @@ final class MetaEventsManager {
 
     private func sendEvent(name: String, value: Double?, currency: String?) {
         guard isCAPIEnabled else { return }
+        guard hasConsent else { return }   // LGPD: nada sai sem consentimento explícito
         guard let user = Auth.auth().currentUser else { return }
 
         // Hash SHA256 do email para privacidade (padrão Meta CAPI)

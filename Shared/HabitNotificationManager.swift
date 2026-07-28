@@ -316,11 +316,38 @@ actor HabitNotificationManager {
     }
 
     private func getRandomMorningNotification() -> String {
-        return morningMotivations.randomElement() ?? "Seu momento Alma chegou ☀️"
+        return pickNonRepeating(
+            from: morningMotivations,
+            historyKey: "alma_notif_recent_morning",
+            fallback: "Seu momento Alma chegou ☀️"
+        )
     }
 
     private func getRandomEveningNotification() -> String {
-        return eveningReminders.randomElement() ?? "Hora de descansar 🌙"
+        return pickNonRepeating(
+            from: eveningReminders,
+            historyKey: "alma_notif_recent_evening",
+            fallback: "Hora de descansar 🌙"
+        )
+    }
+
+    /// Sorteia uma mensagem evitando repetir as últimas 3 usadas.
+    /// Histórico persistido em UserDefaults (não é dado sensível).
+    private func pickNonRepeating(from messages: [String], historyKey: String, fallback: String) -> String {
+        let defaults = UserDefaults.standard
+        let recent = defaults.stringArray(forKey: historyKey) ?? []
+
+        let candidates = messages.filter { !recent.contains($0) }
+        let chosen = (candidates.isEmpty ? messages : candidates).randomElement() ?? fallback
+
+        var updated = recent.filter { $0 != chosen }
+        updated.append(chosen)
+        if updated.count > 3 {
+            updated.removeFirst(updated.count - 3)
+        }
+        defaults.set(updated, forKey: historyKey)
+
+        return chosen
     }
 
     private func getContextualNotification(for hour: Int) -> String {
@@ -422,7 +449,10 @@ extension HabitNotificationManager: UNUserNotificationCenterDelegate {
         let snoozeDate = Date(timeIntervalSinceNow: 3600) // 1 hora depois
         var components = Calendar.current.dateComponents([.hour, .minute], from: snoozeDate)
 
-        var content = original.content.mutableCopy() as! UNMutableNotificationContent
+        guard let content = original.content.mutableCopy() as? UNMutableNotificationContent else {
+            print("Error: unable to copy notification content for snooze")
+            return
+        }
         content.body = "💭 \(content.body)" // Adiciona emoji para diferençar
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)

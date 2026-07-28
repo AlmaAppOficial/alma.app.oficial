@@ -134,6 +134,7 @@ enum LocalDataCleanupService {
 
     private static func clearKeychain() {
         AppleAuthCodeKeychainStore.delete()
+        FeminineHealthSecureStore.deleteAll()
         print("✅ LocalDataCleanupService: Keychain limpo")
     }
 

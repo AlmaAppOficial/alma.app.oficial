@@ -52,6 +52,24 @@ final class PaywallTriggerManager: ObservableObject {
         }
     }
 
+    // MARK: - Premium Guard [2026-07-28]
+    // Bug do audit de 25/jul: nenhum trigger checava premium — assinante
+    // pagante via paywall após a 1ª meditação. Fonte da verdade: os flags do
+    // App Group publicados pelo AccessManager (Alma) e pelo C&A (Models.swift).
+    // Cobre StoreKit, claims, trial E a assinatura única entre os dois apps
+    // ("quem assina um ganha o outro"). Mesmo contrato/validade de 30 dias
+    // definidos no AccessManager.corpoAlmaPremiumActive().
+    private var hasPremiumAccess: Bool {
+        guard let d = UserDefaults(suiteName: "group.com.almaapp.shared") else { return false }
+        if d.bool(forKey: "alma_isPremium") { return true }
+        if let updated = d.object(forKey: "corpoealma_isPremium_updatedAt") as? Date,
+           Date().timeIntervalSince(updated) < 60 * 60 * 24 * 30,
+           d.bool(forKey: "corpoealma_isPremium") {
+            return true
+        }
+        return false
+    }
+
     // MARK: - Primary API: Record Meditation Completion
 
     /// Call this immediately after user completes meditation
@@ -94,6 +112,9 @@ final class PaywallTriggerManager: ObservableObject {
             self.postMeditationCelebration = celebration
         }
 
+        // [2026-07-28] Assinante (Alma ou C&A) vê a celebração, nunca o paywall.
+        if hasPremiumAccess { return }
+
         // Main trigger: AFTER FIRST COMPLETED MEDITATION
         // User is at peak positive emotion = best conversion moment
         if completionCount == 1 {
@@ -134,6 +155,9 @@ final class PaywallTriggerManager: ObservableObject {
     // MARK: - Paywall Eligibility Check
 
     private func checkPaywallEligibility() async {
+        // [2026-07-28] Assinante (Alma ou C&A) nunca recebe paywall no launch.
+        if hasPremiumAccess { return }
+
         let completionCount = getMeditationCount()
 
         // Only show paywall after first completion (or at milestones)

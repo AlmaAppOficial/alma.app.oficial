@@ -79,7 +79,7 @@ struct ProfileView: View {
                     }
                 }
 
-                Text("Alma v1.0.0 · Feito com ♡ no Brasil")
+                Text("Alma v\(AppInfo.version) · Feito com ♡ no Brasil")
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                     .padding(.bottom, 32)
@@ -424,7 +424,7 @@ struct AboutView: View {
                         Text("Alma")
                             .font(.largeTitle.bold())
                             .foregroundColor(CalmTheme.textPrimary)
-                        Text("Versão 1.0.0")
+                        Text("Versão \(AppInfo.version)")
                             .font(.caption)
                             .foregroundColor(CalmTheme.textSecondary)
                     }
@@ -544,3 +544,13 @@ struct PrivacyView: View {
     }
 }
 
+
+// MARK: - App Version (dinâmico — corrige rodapé hardcoded "v1.0.0", 2026-07-14)
+enum AppInfo {
+    /// Ex.: "1.0.4 (81)" — lê do Info.plist do bundle; nunca mais desatualiza em release.
+    static var version: String {
+        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+        return "\(v) (\(b))"
+    }
+}

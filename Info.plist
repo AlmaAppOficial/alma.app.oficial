@@ -55,11 +55,15 @@
 		<string>_https._tcp</string>
 	</array>
 
+	<!-- HealthKit -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>O Alma lê seus dados de saúde (passos, sono, frequência cardíaca) para personalizar seus insights de bem-estar.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>O Alma registra suas sessões de meditação e atenção plena no app Saúde, para manter seu histórico de bem-estar completo.</string>
+
 	<!-- Permissions for CICLO 2 (commented for now) -->
 	<!-- Will be uncommented in CICLO 2: Biometric Onboarding -->
 	<!--
-	<key>NSHealthShareUsageDescription</key>
-	<string>Alma precisa acessar seus dados de saúde para oferecer recomendações personalizadas.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Alma usa sua localização para sugerir meditações e práticas contextualizadas.</string>
 	<key>NSNotificationCenterUsageDescription</key>
@@ -124,6 +128,17 @@
 				<string>fb872133652529378</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>com.almaapp.oficial</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- Deep-link para abrir o Alma a partir do app Corpo & Alma -->
+				<string>alma</string>
+			</array>
+		</dict>
 	</array>
 	<!-- Permite iOS abrir apps do Google e Facebook durante autenticação -->
 	<key>LSApplicationQueriesSchemes</key>
@@ -134,6 +149,8 @@
 		<string>fb-messenger-share-api</string>
 		<string>fbauth2</string>
 		<string>fbshareextension</string>
+		<!-- Verifica se o app Corpo & Alma está instalado para deep-link direto -->
+		<string>corpoealma</string>
 	</array>
 	<!-- Facebook App ID -->
 	<key>FacebookAppID</key>

@@ -6,10 +6,12 @@ import SwiftUI
 
 struct FeminineHealthView: View {
 
-    @AppStorage("alma_cycle_lastPeriod") private var lastPeriodTimestamp: Double = 0
-    @AppStorage("alma_cycle_length") private var cycleLength: Int = 28
-    @AppStorage("alma_pregnancy_mode") private var pregnancyMode: Bool = false
-    @AppStorage("alma_pregnancy_dueDate") private var dueDateTimestamp: Double = 0
+    // Dados sensíveis de saúde — persistidos no Keychain via FeminineHealthSecureStore
+    // (migração transparente do UserDefaults legado na primeira leitura)
+    @State private var lastPeriodTimestamp: Double = 0
+    @State private var cycleLength: Int = 28
+    @State private var pregnancyMode: Bool = false
+    @State private var dueDateTimestamp: Double = 0
 
     @State private var showCyclePicker = false
     @State private var showPregnancyPicker = false
@@ -47,6 +49,21 @@ struct FeminineHealthView: View {
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationTitle("Saúde Feminina")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { loadSecureData() }
+        .onChange(of: pregnancyMode) { newValue in
+            FeminineHealthSecureStore.pregnancyMode = newValue
+        }
+        .onChange(of: cycleLength) { newValue in
+            FeminineHealthSecureStore.cycleLength = newValue
+        }
+    }
+
+    // MARK: - Secure Store
+    private func loadSecureData() {
+        lastPeriodTimestamp = FeminineHealthSecureStore.lastPeriodTimestamp
+        cycleLength = FeminineHealthSecureStore.cycleLength
+        pregnancyMode = FeminineHealthSecureStore.pregnancyMode
+        dueDateTimestamp = FeminineHealthSecureStore.dueDateTimestamp
     }
 
     // MARK: - Header
@@ -142,6 +159,7 @@ struct FeminineHealthView: View {
         .sheet(isPresented: $showCyclePicker) {
             DatePickerSheet(title: "Início da menstruação", date: $tempDate) {
                 lastPeriodTimestamp = tempDate.timeIntervalSince1970
+                FeminineHealthSecureStore.lastPeriodTimestamp = lastPeriodTimestamp
             }
         }
     }
@@ -258,7 +276,7 @@ struct FeminineHealthView: View {
             Button {
                 tempDate = dueDateTimestamp > 0
                     ? Date(timeIntervalSince1970: dueDateTimestamp)
-                    : Calendar.current.date(byAdding: .day, value: 280, to: Date())!
+                    : (Calendar.current.date(byAdding: .day, value: 280, to: Date()) ?? Date())
                 showPregnancyPicker = true
             } label: {
                 Label("Definir data prevista do parto", systemImage: "calendar.badge.plus")
@@ -273,6 +291,7 @@ struct FeminineHealthView: View {
         .sheet(isPresented: $showPregnancyPicker) {
             DatePickerSheet(title: "Data Prevista do Parto", date: $tempDate) {
                 dueDateTimestamp = tempDate.timeIntervalSince1970
+                FeminineHealthSecureStore.dueDateTimestamp = dueDateTimestamp
             }
         }
     }
@@ -428,11 +447,19 @@ struct CycleLengthPickerSheet: View {
         NavigationView {
             VStack {
                 Picker("Duração do ciclo", selection: $cycleLength) {
-                    ForEach(21...40, id: \.self) { days in
+                    ForEach(14...90, id: \.self) { days in
                         Text("\(days) dias").tag(days)
                     }
                 }
                 .pickerStyle(.wheel)
+
+                if cycleLength < 21 || cycleLength > 40 {
+                    Text("Ciclo atípico — considere conversar com seu médico.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
             }
             .navigationTitle("Duração do Ciclo")
             .navigationBarTitleDisplayMode(.inline)

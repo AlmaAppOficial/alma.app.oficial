@@ -108,13 +108,10 @@
 		DD007001DD007001DD007001 /* MetaEventsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD007000DD007000DD007000 /* MetaEventsManager.swift */; };
 		DD007002DD007002DD007002 /* MetaEventsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD007000DD007000DD007000 /* MetaEventsManager.swift */; };
 		DD008001DD008001DD008001 /* FeminineHealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD008000DD008000DD008000 /* FeminineHealthView.swift */; };
+		DD011001DD011001DD011001 /* FeminineHealthSecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */; };
 		DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD009000DD009000DD009000 /* AddictionFreeView.swift */; };
 		DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */; };
-		DD011001DD011001DD011001 /* FeminineHealthSecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */; };
 		DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */; };
-		DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
-		DDB10002DDB10002DDB10002 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
-		DDB20001DDB20001DDB20001 /* PaywallTriggerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */; };
 		E267314C2FE19BD20003BE9F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E267314B2FE19BD20003BE9F /* WidgetKit.framework */; };
 		E267314E2FE19BD20003BE9F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E267314D2FE19BD20003BE9F /* SwiftUI.framework */; };
 		E26731592FE19BD30003BE9F /* AlmaComplicationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -289,12 +286,10 @@
 		DD006000DD006000DD006000 /* AccessManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessManager.swift; sourceTree = "<group>"; };
 		DD007000DD007000DD007000 /* MetaEventsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetaEventsManager.swift; sourceTree = "<group>"; };
 		DD008000DD008000DD008000 /* FeminineHealthView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthView.swift; sourceTree = "<group>"; };
+		DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthSecureStore.swift; sourceTree = "<group>"; };
 		DD009000DD009000DD009000 /* AddictionFreeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddictionFreeView.swift; sourceTree = "<group>"; };
 		DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuidedMeditationEngine.swift; sourceTree = "<group>"; };
-		DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthSecureStore.swift; sourceTree = "<group>"; };
 		DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoAlmaBannerView.swift; sourceTree = "<group>"; };
-		DDB10000DDB10000DDB10000 /* StreakManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
-		DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaywallTriggerManager.swift; sourceTree = "<group>"; };
 		E25ED1DA2F77018D0089226E /* Alma Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alma Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AlmaComplicationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E267314B2FE19BD20003BE9F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -447,8 +442,6 @@
 				DD002000DD002000DD002000 /* AudioManager.swift */,
 				DD003000DD003000DD003000 /* GuidanceEngine.swift */,
 				DD004000DD004000DD004000 /* UserMemoryManager.swift */,
-				DDB10000DDB10000DDB10000 /* StreakManager.swift */,
-				DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */,
 				DD005000DD005000DD005000 /* AlmaLogoView.swift */,
 				DD006000DD006000DD006000 /* AccessManager.swift */,
 				DD007000DD007000DD007000 /* MetaEventsManager.swift */,
@@ -881,8 +874,6 @@
 				DD002001DD002001DD002001 /* AudioManager.swift in Sources */,
 				DD003001DD003001DD003001 /* GuidanceEngine.swift in Sources */,
 				DD004001DD004001DD004001 /* UserMemoryManager.swift in Sources */,
-				DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */,
-				DDB20001DDB20001DDB20001 /* PaywallTriggerManager.swift in Sources */,
 				DD005001DD005001DD005001 /* AlmaLogoView.swift in Sources */,
 				DD006001DD006001DD006001 /* AccessManager.swift in Sources */,
 				DD007001DD007001DD007001 /* MetaEventsManager.swift in Sources */,
@@ -946,7 +937,6 @@
 				DD002002DD002002DD002002 /* AudioManager.swift in Sources */,
 				DD003002DD003002DD003002 /* GuidanceEngine.swift in Sources */,
 				DD004002DD004002DD004002 /* UserMemoryManager.swift in Sources */,
-				DDB10002DDB10002DDB10002 /* StreakManager.swift in Sources */,
 				DD005002DD005002DD005002 /* AlmaLogoView.swift in Sources */,
 				DD006002DD006002DD006002 /* AccessManager.swift in Sources */,
 				DD007002DD007002DD007002 /* MetaEventsManager.swift in Sources */,
@@ -1141,7 +1131,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 81;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1175,7 +1165,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 81;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;

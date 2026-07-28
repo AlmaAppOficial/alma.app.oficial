@@ -18,6 +18,9 @@ struct AddictionFreeView: View {
     @State private var tempDate = Date()
     @State private var showCravingAlert = false
     @State private var lastCravingResisted = false
+    // Tipo em edição quando o sheet é aberto pelo "Editar vício" (nil = primeiro setup).
+    // Permite preservar a jornada se o usuário só ajustar quantidade/preço.
+    @State private var editingFromType: String? = nil
 
     private let green = Color(red: 0.20, green: 0.70, blue: 0.50)
 
@@ -37,10 +40,13 @@ struct AddictionFreeView: View {
                 } else {
                     // Setup inicial
                     setupSection
-                }
 
-                // Tipos de vício
-                addictionTypesSection
+                    // Tipos de vício — só durante o setup. Após escolher, some;
+                    // a edição passa a ser pelo botão "Editar vício" no card de streak.
+                    // (Antes ficava sempre visível e trocar o tipo aqui mudava o
+                    //  vício no meio da jornada sem confirmação.) [2026-07-14]
+                    addictionTypesSection
+                }
 
                 Spacer(minLength: 32)
             }
@@ -56,9 +62,14 @@ struct AddictionFreeView: View {
                 cigarettesPerDay: $cigarettesPerDay,
                 pricePerPack: $pricePerPack,
                 onConfirm: {
-                    startTimestamp = Date().timeIntervalSince1970
+                    // Edição sem troca de tipo preserva a jornada (streak intacto);
+                    // primeiro setup ou troca de tipo inicia jornada nova.
+                    if editingFromType == nil || editingFromType != addictionType {
+                        startTimestamp = Date().timeIntervalSince1970
+                        scheduleMotivationalNotifications()
+                    }
                     isActive = true
-                    scheduleMotivationalNotifications()
+                    editingFromType = nil
                 }
             )
         }
@@ -124,12 +135,23 @@ struct AddictionFreeView: View {
                 .cornerRadius(20)
             }
 
-            Button {
-                showStartPicker = true
-            } label: {
-                Text("Ajustar data de início")
-                    .font(.caption)
-                    .foregroundColor(CalmTheme.textSecondary)
+            HStack(spacing: 24) {
+                Button {
+                    editingFromType = addictionType
+                    showSetupSheet = true
+                } label: {
+                    Label("Editar vício", systemImage: "pencil")
+                        .font(.caption.bold())
+                        .foregroundColor(green)
+                }
+
+                Button {
+                    showStartPicker = true
+                } label: {
+                    Text("Ajustar data de início")
+                        .font(.caption)
+                        .foregroundColor(CalmTheme.textSecondary)
+                }
             }
         }
         .padding(20)

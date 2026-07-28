@@ -124,7 +124,16 @@ struct HomeView: View {
                 return "\(d) dias restantes · Toque para continuar Premium"
             }
         } else {
-            return "7 dias grátis · Acesso completo"
+            // [2026-07-28] Só prometemos o teste a quem o StoreKit confirma ser
+            // elegível. Antes, este era o texto padrão para TODO usuário fora do
+            // trial, sem nunca consultar a App Store — então quem já tinha
+            // assinado e cancelado (oferta introdutória consumida) via
+            // "7 dias grátis" que a Apple não honraria na compra.
+            // Em falha de rede a flag fica false e o texto some: preferimos
+            // deixar de anunciar um teste real a anunciar um inexistente.
+            return store.isEligibleForIntroOffer
+                ? "7 dias grátis · Acesso completo"
+                : "Acesso completo · Toque para assinar"
         }
     }
 

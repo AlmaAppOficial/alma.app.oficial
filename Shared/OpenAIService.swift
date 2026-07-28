@@ -69,7 +69,14 @@ class OpenAIService {
         request.timeoutInterval = 30
 
         let body: [String: Any] = ["message": message]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            #if DEBUG
+            print("OpenAIService: falha ao serializar body do chat: \(error)")
+            #endif
+            throw AlmaError.networkError(error.localizedDescription)
+        }
 
         let (data, response): (Data, URLResponse)
         do {
@@ -83,8 +90,21 @@ class OpenAIService {
             if http.statusCode >= 400 { throw AlmaError.serverError(http.statusCode) }
         }
 
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        let jsonObject: Any
+        do {
+            jsonObject = try JSONSerialization.jsonObject(with: data)
+        } catch {
+            #if DEBUG
+            print("OpenAIService: falha ao decodificar resposta do chat: \(error)")
+            #endif
+            throw AlmaError.parseFailed
+        }
+
+        guard let json = jsonObject as? [String: Any],
               let reply = json["reply"] as? String else {
+            #if DEBUG
+            print("OpenAIService: resposta do chat sem campo 'reply' esperado")
+            #endif
             throw AlmaError.parseFailed
         }
 
@@ -128,7 +148,14 @@ class OpenAIService {
             "voice": voice,
             "speed": speed
         ]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            #if DEBUG
+            print("OpenAIService: falha ao serializar body do TTS: \(error)")
+            #endif
+            throw AlmaError.networkError(error.localizedDescription)
+        }
 
         let (data, response): (Data, URLResponse)
         do {

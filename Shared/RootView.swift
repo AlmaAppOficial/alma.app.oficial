@@ -8,6 +8,8 @@ struct RootView: View {
     @State private var logged = false
     @State private var isLoading = true
     @State private var currentUser: User? = nil
+    @State private var showMetaConsent = false
+    @State private var authStateDidChangeHandle: AuthStateDidChangeListenerHandle? = nil
     @AppStorage("onboardingComplete") private var onboardingComplete = false
 
     var body: some View {
@@ -38,19 +40,40 @@ struct RootView: View {
                         }
                     }
                 }
+                // Consentimento Meta (LGPD) — pedido uma única vez, espelha o Android.
+                // Sem "Permitir", o MetaEventsManager nunca envia eventos.
+                .onAppear {
+                    if !MetaEventsManager.shared.hasAskedConsent {
+                        showMetaConsent = true
+                    }
+                }
+                .alert("Ajude o Alma a crescer", isPresented: $showMetaConsent) {
+                    Button("Permitir") { MetaEventsManager.shared.setConsent(true) }
+                    Button("Agora não", role: .cancel) { MetaEventsManager.shared.setConsent(false) }
+                } message: {
+                    Text("Com a sua permissão, o Alma mede de forma anônima quais anúncios trazem novas pessoas para cuidar da mente. Nunca compartilhamos seu humor, ciclo ou dados de saúde.")
+                }
             }
         }
         .onAppear {
-            Auth.auth().addStateDidChangeListener { _, user in
-                logged = user != nil
-                currentUser = user
-                if user == nil {
-                    isLoading = false
+            if authStateDidChangeHandle == nil {
+                authStateDidChangeHandle = Auth.auth().addStateDidChangeListener { _, user in
+                    logged = user != nil
+                    currentUser = user
+                    if user == nil {
+                        isLoading = false
+                    }
                 }
             }
         }
         .onChange(of: access.isChecking) { checking in
             if !checking { isLoading = false }
+        }
+        .onDisappear {
+            if let handle = authStateDidChangeHandle {
+                Auth.auth().removeStateDidChangeListener(handle)
+                authStateDidChangeHandle = nil
+            }
         }
     }
 

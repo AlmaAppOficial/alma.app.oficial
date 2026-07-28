@@ -87,12 +87,12 @@ struct CorpoAlmaBannerView: View {
                         .foregroundColor(teal)
                         .kerning(1.2)
 
-                    Text("30% OFF")
+                    Text("ASSINATURA ÚNICA")
                         .font(.system(size: 9, weight: .black))
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.red.opacity(0.85))
+                        .background(teal.opacity(0.9))
                         .cornerRadius(4)
                 }
 
@@ -155,14 +155,14 @@ struct CorpoAlmaBannerView: View {
             }
 
             HStack(spacing: 10) {
-                Image(systemName: "tag.fill")
+                Image(systemName: "checkmark.seal.fill")
                     .font(.caption.bold())
-                    .foregroundColor(.red)
+                    .foregroundColor(teal)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("30% de desconto exclusivo")
+                    Text("Um plano, dois apps")
                         .font(.caption.bold())
                         .foregroundColor(CalmTheme.textPrimary)
-                    Text("Para usuários do Alma")
+                    Text("Seu Premium do Alma desbloqueia o Corpo & Alma")
                         .font(.system(size: 10))
                         .foregroundColor(CalmTheme.textSecondary)
                 }
@@ -170,7 +170,7 @@ struct CorpoAlmaBannerView: View {
             }
             .padding(12)
             .frame(maxWidth: .infinity)
-            .background(Color.red.opacity(0.07))
+            .background(teal.opacity(0.07))
             .cornerRadius(10)
             .padding(.horizontal, 14)
 

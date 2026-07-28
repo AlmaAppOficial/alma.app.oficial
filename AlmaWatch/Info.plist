@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Leitura de saúde nativa no Watch (HR + passos). Dados ficam no dispositivo. -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>O Alma lê sua frequência cardíaca e passos para mostrar seu bem-estar no relógio. Os dados ficam no seu dispositivo.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>O Alma salva sessões de meditação e mindfulness no Apple Health para registrar seu histórico de bem-estar.</string>
+	<!-- WKApplication / WKCompanionAppBundleIdentifier vêm das build settings do target. -->
+</dict>
+</plist>

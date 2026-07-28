@@ -6,6 +6,7 @@ import FirebaseFirestore
 import FirebaseMessaging
 import GoogleSignIn
 import UserNotifications
+import WatchConnectivity
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -42,6 +43,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                     application.registerForRemoteNotifications()
                 }
             }
+        }
+
+        // Apple Watch — ativa a sessão para receber o handoff ("tocar meditação X")
+        // disparado pelo app do relógio. Tolerante: se não houver Watch, é no-op.
+        if WCSession.isSupported() {
+            WCSession.default.delegate = self
+            WCSession.default.activate()
         }
 
         return true
@@ -109,10 +117,46 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
 }
 
+// MARK: - Apple Watch handoff (WatchConnectivity)
+
+extension AppDelegate: WCSessionDelegate {
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
+
+    // iOS exige estes dois (watchOS não). Reativa para continuar ouvindo o relógio.
+    func sessionDidBecomeInactive(_ session: WCSession) {}
+    func sessionDidDeactivate(_ session: WCSession) {
+        WCSession.default.activate()
+    }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        handleWatchMessage(message)
+    }
+
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        handleWatchMessage(userInfo)
+    }
+
+    /// Recebe o pedido do relógio e avisa o app para tocar a meditação do dia.
+    /// O áudio mora no iPhone; o Watch só dispara. Quem ouve `.playMeditationFromWatch`
+    /// abre/inicia a prática (a tela de Práticas pode observar isto).
+    private func handleWatchMessage(_ payload: [String: Any]) {
+        guard (payload["action"] as? String) == "playMeditation",
+              let day = payload["day"] as? Int else { return }
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: .playMeditationFromWatch,
+                object: nil,
+                userInfo: ["day": day]
+            )
+        }
+    }
+}
+
 // MARK: - Cross-view notification names
 
 extension Notification.Name {
     static let openFeedTab = Notification.Name("openFeedTab")
+    static let playMeditationFromWatch = Notification.Name("playMeditationFromWatch")
 }
 
 @main

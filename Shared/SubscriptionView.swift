@@ -121,7 +121,7 @@ struct PremiumWallView: View {
                     Text("·")
                         .foregroundColor(.white.opacity(0.4))
                     Link("Política de Privacidade",
-                         destination: URL(string: "https://almaappoficial.github.io/alma.app.oficial/privacy-policy.html")!)
+                         destination: URL(string: "https://almaappoficial.com/privacy-policy")!)
                 }
                 .font(.caption2)
                 .foregroundColor(.white.opacity(0.6))
@@ -136,16 +136,28 @@ struct PremiumWallView: View {
 
     // MARK: - Subviews
 
+    // [2026-07-28] Guideline 3.1.2(c) — hierarquia invertida.
+    // Estava: "7 dias grátis" em 20pt bold branco (dominante) e o preço em
+    // subheadline a 65% de opacidade (subordinado) — exatamente o que a Apple
+    // rejeitou no Corpo & Alma em 28/07. Agora o VALOR COBRADO é o elemento de
+    // preço mais claro e conspícuo, e o trial é nota subordinada.
     @ViewBuilder
     private var priceHeader: some View {
         if let product = store.monthlyProduct {
             VStack(spacing: 4) {
-                Text("7 dias grátis")
-                    .font(.system(size: 20, weight: .bold))
+                Text("\(product.displayPrice)/mês")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
-                Text("depois \(product.displayPrice)/mês · Cancele quando quiser")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.65))
+                // [2026-07-28] O trial só é mencionado a quem o StoreKit
+                // confirma ser elegível — a oferta introdutória é consumida uma
+                // vez por Apple ID e não pode ser anunciada a quem já a usou.
+                Text(store.isEligibleForIntroOffer
+                     ? "7 dias grátis antes da primeira cobrança. Cancele quando quiser."
+                     : "Cancele quando quiser.")
+                    .font(.footnote)
+                    .foregroundColor(.white.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
             }
         } else {
             Text("Acesso completo a todas as funcionalidades.")
@@ -158,9 +170,11 @@ struct PremiumWallView: View {
 
     @ViewBuilder
     private var subscribeButton: some View {
+        // [2026-07-28] 3.1.2(c): CTA sem promoção do trial — o preço dominante
+        // está no priceHeader; o trial é nota subordinada.
         let label: String = {
             if store.monthlyProduct != nil {
-                return "Iniciar 7 dias grátis"
+                return "Assinar agora"
             }
             return "Assinar Alma Plus"
         }()

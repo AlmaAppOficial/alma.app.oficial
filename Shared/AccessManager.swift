@@ -16,6 +16,9 @@ import StoreKit
 @MainActor
 class AccessManager: ObservableObject {
 
+    private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
+    private var storeKitObserver: NSObjectProtocol?
+
     @Published var isPremium: Bool = false
     @Published var isChecking: Bool = true
     @Published var isInTrial: Bool = false
@@ -23,19 +26,22 @@ class AccessManager: ObservableObject {
 
     init() {
         // Ouvir mudanças de autenticação Firebase
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+        authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             Task { @MainActor in
                 if let user = user {
                     await self?.checkAccess(user: user)
                 } else {
                     self?.isPremium = false
                     self?.isChecking = false
+                    // Logout: derruba o flag compartilhado para o Corpo & Alma
+                    // não continuar desbloqueado por uma sessão antiga do Alma.
+                    self?.publishToSharedBridge()
                 }
             }
         }
 
         // Ouvir compras StoreKit concluídas (vindas de qualquer parte da app)
-        NotificationCenter.default.addObserver(
+        storeKitObserver = NotificationCenter.default.addObserver(
             forName: .storeKitPurchaseCompleted,
             object: nil,
             queue: .main
@@ -74,6 +80,15 @@ class AccessManager: ObservableObject {
                 trialDays = 0
             }
         }
+
+        // 4. Ponte App Group — assinatura única: compra feita no Corpo & Alma
+        //    desbloqueia o Alma (flag gravado pelo C&A; validade 30 dias). [2026-07-14]
+        if !isPremium && Self.corpoAlmaPremiumActive() {
+            isPremium = true
+        }
+
+        // Publica o estado atual para o Corpo & Alma (lado Alma da ponte).
+        publishToSharedBridge()
 
         isChecking = false
 
@@ -150,5 +165,39 @@ class AccessManager: ObservableObject {
             return
         }
         await checkAccess(user: user)
+    }
+
+    // MARK: - Ponte App Group — assinatura única Alma ↔ Corpo & Alma (2026-07-14)
+    // Contrato definido pelo AlmaBridge do Corpo & Alma (Models.swift):
+    //   Alma escreve:  alma_active, alma_isPremium, alma_isPremium_updatedAt
+    //   C&A escreve:   corpoealma_isPremium, corpoealma_isPremium_updatedAt
+    // Validade dos flags: 30 dias (mesma janela usada pelo C&A).
+
+    private static let sharedBridgeSuite = UserDefaults(suiteName: "group.com.almaapp.shared")
+    private static let bridgeFreshness: TimeInterval = 60 * 60 * 24 * 30
+
+    /// O usuário tem premium comprado no Corpo & Alma? (flag gravado pelo C&A)
+    private static func corpoAlmaPremiumActive() -> Bool {
+        guard let d = sharedBridgeSuite,
+              let updated = d.object(forKey: "corpoealma_isPremium_updatedAt") as? Date,
+              Date().timeIntervalSince(updated) < bridgeFreshness else { return false }
+        return d.bool(forKey: "corpoealma_isPremium")
+    }
+
+    /// Publica o estado premium do Alma para o Corpo & Alma ler.
+    private func publishToSharedBridge() {
+        guard let d = Self.sharedBridgeSuite else { return }
+        d.set(true, forKey: "alma_active")
+        d.set(isPremium, forKey: "alma_isPremium")
+        d.set(Date(), forKey: "alma_isPremium_updatedAt")
+    }
+
+    deinit {
+        if let handle = authStateListenerHandle {
+            Auth.auth().removeStateDidChangeListener(handle)
+        }
+        if let observer = storeKitObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 }
