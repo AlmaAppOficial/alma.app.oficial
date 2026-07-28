@@ -43,7 +43,7 @@ ASSINATURA
 
 A Alma oferece um nível gratuito com acesso a recursos básicos. Os assinantes Premium desbloqueiam a biblioteca completa, conversas ilimitadas com a IA, acompanhamento avançado e conteúdo exclusivo.
 
-- Alma Premium Mensal: assinatura mensal renovada automaticamente
+- Alma Premium Mensal: assinatura mensal renovada automaticamente, com 7 dias de teste grátis para novos assinantes
 
 O pagamento é cobrado na conta do iTunes ao confirmar a compra. A assinatura é renovada automaticamente, a menos que seja cancelada pelo menos 24 horas antes do fim do período atual. A renovação é cobrada nas 24 horas anteriores ao fim do período. Você pode gerenciar e cancelar sua assinatura a qualquer momento em Ajustes > [seu nome] > Assinaturas no iPhone.
 

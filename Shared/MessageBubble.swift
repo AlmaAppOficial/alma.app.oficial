@@ -1,16 +1,45 @@
 import SwiftUI
 
 // MARK: - ChatMessage
-struct ChatMessage: Identifiable {
-    let id = UUID()
+// [Build 84 — 2026-07-28] Codable para persistência local do histórico
+// (ChatHistoryStore). `isTransient` marca avisos de erro/sistema exibidos
+// no chat que NÃO devem ser gravados no histórico.
+struct ChatMessage: Identifiable, Codable, Equatable {
+    let id: UUID
     let text: String
     let isUser: Bool
     let timestamp: Date
+    var isTransient: Bool
 
-    init(_ text: String, isUser: Bool) {
+    init(_ text: String, isUser: Bool, isTransient: Bool = false) {
+        self.id = UUID()
         self.text = text
         self.isUser = isUser
         self.timestamp = Date()
+        self.isTransient = isTransient
+    }
+
+    /// Reconstrói uma mensagem vinda do histórico (local ou Firestore).
+    init(id: UUID = UUID(), text: String, isUser: Bool, timestamp: Date) {
+        self.id = id
+        self.text = text
+        self.isUser = isUser
+        self.timestamp = timestamp
+        self.isTransient = false
+    }
+
+    // Decodifica com tolerância a campos ausentes (histórico de versões antigas).
+    private enum CodingKeys: String, CodingKey {
+        case id, text, isUser, timestamp, isTransient
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = (try? c.decode(UUID.self, forKey: .id)) ?? UUID()
+        self.text = try c.decode(String.self, forKey: .text)
+        self.isUser = try c.decode(Bool.self, forKey: .isUser)
+        self.timestamp = (try? c.decode(Date.self, forKey: .timestamp)) ?? Date()
+        self.isTransient = (try? c.decode(Bool.self, forKey: .isTransient)) ?? false
     }
 }
 

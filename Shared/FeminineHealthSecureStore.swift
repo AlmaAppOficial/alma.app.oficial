@@ -20,6 +20,11 @@ enum FeminineHealthSecureStore {
     private static let pregnancyModeKey = "alma_pregnancy_mode"
     private static let dueDateKey = "alma_pregnancy_dueDate"
 
+    // [Build 84 — 2026-07-28] Novas chaves (sem legado em UserDefaults)
+    private static let periodLengthKey = "alma_cycle_periodLength"
+    private static let periodHistoryKey = "alma_cycle_periodHistory"
+    private static let symptomsKey = "alma_cycle_symptoms"
+
     // MARK: - Typed accessors
 
     /// Timestamp (timeIntervalSince1970) do início da última menstruação. 0 = não definido.
@@ -44,6 +49,66 @@ enum FeminineHealthSecureStore {
     static var dueDateTimestamp: Double {
         get { readDouble(dueDateKey) ?? 0 }
         set { write(String(newValue), forKey: dueDateKey) }
+    }
+
+    // MARK: - [Build 84] Duração da menstruação, histórico de ciclos e sintomas
+
+    /// Duração da menstruação em dias. Padrão: 5 (valor que era fixo no código).
+    static var periodLength: Int {
+        get { readInt(periodLengthKey) ?? 5 }
+        set { write(String(newValue), forKey: periodLengthKey) }
+    }
+
+    /// Histórico de inícios de menstruação (timestamps, ordem crescente).
+    /// Na primeira leitura, semeia com `lastPeriodTimestamp` legado se existir.
+    static var periodHistory: [Double] {
+        get {
+            if let raw = read(periodHistoryKey),
+               let data = raw.data(using: .utf8),
+               let list = try? JSONDecoder().decode([Double].self, from: data) {
+                return list
+            }
+            // Migração: um único registro legado vira o primeiro item do histórico
+            let legacy = lastPeriodTimestamp
+            if legacy > 0 {
+                let seeded = [legacy]
+                periodHistory = seeded
+                return seeded
+            }
+            return []
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue),
+               let raw = String(data: data, encoding: .utf8) {
+                write(raw, forKey: periodHistoryKey)
+            }
+        }
+    }
+
+    /// Sintomas registrados por dia: ["yyyy-MM-dd": ["colica", "inchaco", …]].
+    /// Mantém no máximo 90 dias (os mais recentes).
+    static var symptomsByDay: [String: [String]] {
+        get {
+            guard let raw = read(symptomsKey),
+                  let data = raw.data(using: .utf8),
+                  let dict = try? JSONDecoder().decode([String: [String]].self, from: data) else {
+                return [:]
+            }
+            return dict
+        }
+        set {
+            var capped = newValue
+            if capped.count > 90 {
+                let sortedKeys = capped.keys.sorted()          // "yyyy-MM-dd" ordena lexicograficamente
+                for key in sortedKeys.prefix(capped.count - 90) {
+                    capped.removeValue(forKey: key)
+                }
+            }
+            if let data = try? JSONEncoder().encode(capped),
+               let raw = String(data: data, encoding: .utf8) {
+                write(raw, forKey: symptomsKey)
+            }
+        }
     }
 
     // MARK: - Cleanup (logout / deleção de conta)

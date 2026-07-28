@@ -1,11 +1,24 @@
 import Foundation
 import FirebaseAuth
 
+// MARK: - Limites do chat
+// [Build 84 — 2026-07-28] Espelha o limite da Cloud Function `chat`
+// (functions/src/index.ts, MAX_MESSAGE_CHARS). Se mudar lá, mudar aqui.
+enum ChatLimits {
+    /// Máximo de caracteres por mensagem aceito pelo servidor.
+    static let maxMessageLength = 4000
+    /// A partir de quantos caracteres o contador aparece no input.
+    static let counterVisibleFrom = 3400
+}
+
 // MARK: - AlmaError
 enum AlmaError: LocalizedError {
     case noUser
     case tokenFailed
     case serverError(Int)
+    /// [Build 84] Erro HTTP com mensagem amigável vinda do corpo JSON do
+    /// servidor (`{"error": "..."}`) — ex.: validação de mensagem muito longa.
+    case serverRejected(Int, String)
     case rateLimited
     case parseFailed
     case networkError(String)
@@ -15,6 +28,7 @@ enum AlmaError: LocalizedError {
         case .noUser:            return "Nenhum usuário autenticado."
         case .tokenFailed:       return "Falha ao obter token de autenticacao."
         case .serverError(let c): return "Erro do servidor (\(c))."
+        case .serverRejected(_, let m): return m
         case .rateLimited:       return "Limite de mensagens atingido. Tente novamente amanhã."
         case .parseFailed:       return "Resposta inesperada do servidor."
         case .networkError(let m): return "Erro de rede: \(m)"
@@ -87,7 +101,19 @@ class OpenAIService {
 
         if let http = response as? HTTPURLResponse {
             if http.statusCode == 429 { throw AlmaError.rateLimited }
-            if http.statusCode >= 400 { throw AlmaError.serverError(http.statusCode) }
+            if http.statusCode >= 400 {
+                // [Build 84] A Cloud Function devolve {"error": "<texto em PT-BR>"}.
+                // Propaga esse texto para a UI mostrar algo útil em vez de
+                // "Algo deu errado (erro 400)". 401 continua como serverError
+                // para preservar o fluxo de retry de token no ChatView.
+                if http.statusCode != 401,
+                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let serverText = json["error"] as? String,
+                   !serverText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    throw AlmaError.serverRejected(http.statusCode, serverText)
+                }
+                throw AlmaError.serverError(http.statusCode)
+            }
         }
 
         let jsonObject: Any

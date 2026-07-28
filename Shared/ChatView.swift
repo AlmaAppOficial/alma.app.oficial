@@ -6,9 +6,12 @@ struct ChatView: View {
     @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
     @State private var isTyping = false
-    @State private var showLimitAlert = false
     @State private var authError: String? = nil
     @State private var showAuthError = false
+    // [Build 84] Persistência do histórico (ChatHistoryStore)
+    @State private var historyLoaded = false
+    // [Build 84] Alerta amigável para mensagens acima do limite do servidor
+    @State private var showLengthAlert = false
     @Environment(\.dismiss) private var dismiss
 
     // [Build 82 — 2026-07-15] Chat exige Premium. Gate primário está em HomeView/heroButton;
@@ -16,12 +19,11 @@ struct ChatView: View {
     @EnvironmentObject var access: AccessManager
     @EnvironmentObject var store: StoreKitManager
 
-    // Sessão de 5 minutos — limitação para usuários premium
-    private let sessionDuration: Double = 300  // 5 minutos
-    @State private var sessionStarted = false
-    @State private var timeRemaining: Double = 300
-    @State private var sessionTimer: Timer? = nil
-    @State private var timerExpired = false
+    // [Build 84 — 2026-07-28] Removido o cronômetro de sessão de 5 minutos.
+    // Era um resquício de controle de custo da primeira versão do chat (anterior
+    // ao gate premium do Build 82). Comportamento atual: assinante = sem limite
+    // de tempo; não-assinante = PremiumWallView (gate acima). O rate-limit de
+    // mensagens continua no servidor (Cloud Function, 20 msg/hora).
 
     var body: some View {
         // Gate premium — redireciona para paywall se não tiver assinatura
@@ -43,9 +45,13 @@ struct ChatView: View {
                         if messages.isEmpty {
                             welcomeView
                         }
-                        ForEach(messages) { msg in
-                            MessageBubble(message: msg)
-                                .id(msg.id)
+                        // [Build 84] Mensagens agrupadas por dia (histórico persistido)
+                        ForEach(messageGroups, id: \.dayKey) { group in
+                            daySeparator(group.label)
+                            ForEach(group.items) { msg in
+                                MessageBubble(message: msg)
+                                    .id(msg.id)
+                            }
                         }
                         if isTyping {
                             typingIndicator
@@ -69,22 +75,21 @@ struct ChatView: View {
         }
         .background(CalmTheme.background)
         .navigationBarHidden(true)
-        .alert("Sessão encerrada", isPresented: $showLimitAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("A sua sessão de 5 minutos terminou. Feche e abra o chat para iniciar uma nova sessão.")
-        }
         .alert("Autenticação necessária", isPresented: $showAuthError) {
             Button("OK", role: .cancel) {}
         } message: {
             Text(authError ?? "Por favor faz login para conversar com a Alma.")
         }
+        .alert("Mensagem muito longa", isPresented: $showLengthAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Sua mensagem tem \(inputText.trimmingCharacters(in: .whitespaces).count.formatted()) caracteres — o máximo é \(ChatLimits.maxMessageLength.formatted()). Divida o texto em partes menores e envie uma de cada vez. 💜")
+        }
         .onAppear {
             TabVisibilityState.shared.hideMiniPlayer = true
+            loadHistoryIfNeeded()
         }
         .onDisappear {
-            sessionTimer?.invalidate()
-            sessionTimer = nil
             TabVisibilityState.shared.hideMiniPlayer = false
         }
         } // end else (premium gate)
@@ -117,57 +122,107 @@ struct ChatView: View {
             }
 
             Spacer()
-
-            // Session countdown timer
-            sessionTimerBadge
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(CalmTheme.surface)
     }
 
-    // MARK: - Timer Badge
-    private var sessionTimerBadge: some View {
-        HStack(spacing: 5) {
-            Image(systemName: timerExpired ? "clock.badge.xmark" : (sessionStarted ? "clock.fill" : "clock"))
-                .font(.caption)
-                .foregroundColor(timerColor)
-            Text(timerExpired ? "Sessão encerrada" : formatTimer(timeRemaining))
-                .font(.caption.bold())
-                .foregroundColor(timerColor)
-                .monospacedDigit()
+    // MARK: - Histórico persistido [Build 84]
+
+    /// Carrega o histórico local; se vazio, hidrata do Firestore
+    /// (users/{uid}/messages — já era gravado pela Cloud Function).
+    private func loadHistoryIfNeeded() {
+        guard !historyLoaded else { return }
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        historyLoaded = true
+
+        let local = ChatHistoryStore.shared.loadLocal(uid: uid)
+        if !local.isEmpty {
+            messages = local + messages.filter { $0.isTransient }
+            return
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(timerColor.opacity(0.1))
-        .cornerRadius(12)
-        .animation(.easeInOut(duration: 0.3), value: timerExpired)
-    }
 
-    private var timerColor: Color {
-        if timerExpired { return .red }
-        if timeRemaining <= 60 { return .orange }
-        return CalmTheme.primary
-    }
-
-    private func formatTimer(_ seconds: Double) -> String {
-        let total = Int(seconds)
-        return String(format: "%d:%02d", total / 60, total % 60)
-    }
-
-    private func startSessionTimer() {
-        guard !sessionStarted else { return }
-        sessionStarted = true
-        timeRemaining = sessionDuration
-        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            if timeRemaining > 0 {
-                timeRemaining -= 1
-            } else {
-                sessionTimer?.invalidate()
-                sessionTimer = nil
-                timerExpired = true
+        Task {
+            let remote = await ChatHistoryStore.shared.fetchRemoteHistory(uid: uid)
+            guard !remote.isEmpty else { return }
+            await MainActor.run {
+                // Mantém mensagens enviadas enquanto a hidratação estava em curso
+                let pending = messages
+                messages = remote + pending
+                ChatHistoryStore.shared.replaceAll(messages, uid: uid)
             }
         }
+    }
+
+    private func persist(_ message: ChatMessage) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        ChatHistoryStore.shared.append(message, uid: uid)
+    }
+
+    // MARK: - Agrupamento por dia [Build 84]
+
+    private struct MessageGroup {
+        let dayKey: String
+        let label: String
+        let items: [ChatMessage]
+    }
+
+    private var messageGroups: [MessageGroup] {
+        let calendar = Calendar.current
+        var groups: [MessageGroup] = []
+        var currentDay: Date? = nil
+        var currentItems: [ChatMessage] = []
+
+        func flush() {
+            guard let day = currentDay, !currentItems.isEmpty else { return }
+            groups.append(MessageGroup(
+                dayKey: dayKeyString(day),
+                label: dayLabel(day, calendar: calendar),
+                items: currentItems
+            ))
+        }
+
+        for msg in messages {
+            let day = calendar.startOfDay(for: msg.timestamp)
+            if currentDay != day {
+                flush()
+                currentDay = day
+                currentItems = [msg]
+            } else {
+                currentItems.append(msg)
+            }
+        }
+        flush()
+        return groups
+    }
+
+    private func dayKeyString(_ day: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: day)
+    }
+
+    private func dayLabel(_ day: Date, calendar: Calendar) -> String {
+        if calendar.isDateInToday(day) { return "Hoje" }
+        if calendar.isDateInYesterday(day) { return "Ontem" }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "pt_BR")
+        let sameYear = calendar.component(.year, from: day) == calendar.component(.year, from: Date())
+        f.dateFormat = sameYear ? "d 'de' MMMM" : "d 'de' MMMM 'de' yyyy"
+        return f.string(from: day)
+    }
+
+    private func daySeparator(_ label: String) -> some View {
+        Text(label)
+            .font(.caption2.bold())
+            .foregroundColor(CalmTheme.textSecondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+            .background(CalmTheme.primary.opacity(0.06))
+            .cornerRadius(10)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
     }
 
     // MARK: - Welcome
@@ -220,28 +275,45 @@ struct ChatView: View {
 
     // MARK: - Input Bar
     private var inputBar: some View {
-        HStack(spacing: 12) {
-            TextField("Fale com a Alma...", text: $inputText)
-                .foregroundColor(.black)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(CalmTheme.surface)
-                .cornerRadius(24)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(CalmTheme.primary.opacity(0.2), lineWidth: 1)
-                )
-
-            Button(action: sendMessage) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 36))
-                    .foregroundColor(
-                        inputText.trimmingCharacters(in: .whitespaces).isEmpty
-                            ? CalmTheme.textSecondary.opacity(0.3)
-                            : CalmTheme.primary
-                    )
+        VStack(spacing: 4) {
+            // [Build 84] Contador discreto quando o texto se aproxima do limite
+            if inputText.count > ChatLimits.counterVisibleFrom {
+                HStack {
+                    Spacer()
+                    Text("\(inputText.count.formatted()) / \(ChatLimits.maxMessageLength.formatted())")
+                        .font(.caption2)
+                        .foregroundColor(
+                            inputText.count > ChatLimits.maxMessageLength
+                                ? .red
+                                : CalmTheme.textSecondary
+                        )
+                        .padding(.trailing, 4)
+                }
             }
-            .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isTyping)
+
+            HStack(spacing: 12) {
+                TextField("Fale com a Alma...", text: $inputText)
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(CalmTheme.surface)
+                    .cornerRadius(24)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(CalmTheme.primary.opacity(0.2), lineWidth: 1)
+                    )
+
+                Button(action: sendMessage) {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.system(size: 36))
+                        .foregroundColor(
+                            inputText.trimmingCharacters(in: .whitespaces).isEmpty
+                                ? CalmTheme.textSecondary.opacity(0.3)
+                                : CalmTheme.primary
+                        )
+                }
+                .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isTyping)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -253,13 +325,12 @@ struct ChatView: View {
         let trimmed = inputText.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
-        if timerExpired {
-            showLimitAlert = true
+        // [Build 84] Validação amigável de tamanho ANTES de ir à rede.
+        // Espelha o limite da Cloud Function — nunca mais "erro 400" cru.
+        if trimmed.count > ChatLimits.maxMessageLength {
+            showLengthAlert = true
             return
         }
-
-        // Inicia o timer de sessão de 5 min na primeira mensagem
-        startSessionTimer()
 
         let userMsg = ChatMessage(trimmed, isUser: true)
         messages.append(userMsg)
@@ -274,12 +345,15 @@ struct ChatView: View {
                 } catch {
                     await MainActor.run {
                         isTyping = false
-                        let errMsg = ChatMessage("Não foi possível conectar. Verifique sua internet e tente novamente.", isUser: false)
+                        let errMsg = ChatMessage("Não foi possível conectar. Verifique sua internet e tente novamente.", isUser: false, isTransient: true)
                         messages.append(errMsg)
                     }
                     return
                 }
             }
+
+            // [Build 84] Persiste a mensagem do usuário (uid garantido após auth acima)
+            persist(userMsg)
 
             do {
                 let reply = try await OpenAIService.shared.sendMessage(trimmed)
@@ -288,6 +362,7 @@ struct ChatView: View {
                     isTyping = false
                     messages.append(almaMsg)
                 }
+                persist(almaMsg)
             } catch AlmaError.serverError(let code) where code == 401 {
                 // Token expirado — forca refresh e tenta de novo (1 retry)
                 await MainActor.run { isTyping = true }
@@ -296,23 +371,25 @@ struct ChatView: View {
                         _ = try await user.getIDToken()
                     }
                     let retry = try await OpenAIService.shared.sendMessage(trimmed)
+                    let retryMsg = ChatMessage(retry, isUser: false)
                     await MainActor.run {
                         isTyping = false
-                        messages.append(ChatMessage(retry, isUser: false))
+                        messages.append(retryMsg)
                     }
+                    persist(retryMsg)
                 } catch let retryError {
                     // [Build 77 — 12/05/2026] Mensagens especificas no segundo erro,
                     // em vez do generico "Sessao expirada" que enganava o usuario.
                     await MainActor.run {
                         isTyping = false
-                        messages.append(ChatMessage(errorMessage(for: retryError), isUser: false))
+                        messages.append(ChatMessage(errorMessage(for: retryError), isUser: false, isTransient: true))
                     }
                 }
             } catch let firstError {
                 // [Build 77 — 12/05/2026] Mensagens especificas por tipo de erro.
                 await MainActor.run {
                     isTyping = false
-                    messages.append(ChatMessage(errorMessage(for: firstError), isUser: false))
+                    messages.append(ChatMessage(errorMessage(for: firstError), isUser: false, isTransient: true))
                 }
             }
         }
@@ -328,8 +405,14 @@ struct ChatView: View {
                 return "Faca login para conversar com a Alma."
             case .tokenFailed:
                 return "Nao consegui validar sua sessao. Feche e abra o app novamente."
+            // [Build 84] O servidor mandou uma explicação em PT-BR (ex.: mensagem
+            // muito longa) — mostra ela em vez de "erro 400" cru.
+            case .serverRejected(_, let serverText):
+                return serverText
             case .serverError(let code):
                 switch code {
+                case 400:
+                    return "Nao consegui processar essa mensagem. Tente reescrever ou dividir em partes menores."
                 case 401, 403:
                     return "Sua sessao expirou. Feche e abra o app novamente."
                 case 429:

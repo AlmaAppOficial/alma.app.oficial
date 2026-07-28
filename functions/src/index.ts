@@ -26,6 +26,16 @@ const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
 const RATE_LIMIT = 20;
 const WINDOW_MS = 3_600_000; // 1 hour in ms
 
+/**
+ * [Build 84 — 2026-07-28] Máximo de caracteres por mensagem do chat.
+ * Antes era 1000 — curto demais: colar um resumo/desabafo longo devolvia 400
+ * ("Mensagem muito longa") que o app exibia como "erro 400" cru.
+ * 4000 chars ≈ 1.0–1.3k tokens em PT-BR; com histórico (6 msgs), system prompt
+ * e max_tokens=400 de resposta, continua folgado para o gpt-4o-mini (128k ctx).
+ * Espelhado no cliente iOS em ChatLimits.maxMessageLength (OpenAIService.swift).
+ */
+const MAX_MESSAGE_CHARS = 4000;
+
 const ALLOWED_ORIGINS = [
   'https://alma-app-7dae6.web.app',
   'https://alma-app-7dae6.firebaseapp.com',
@@ -130,8 +140,13 @@ export const chat = onRequest(
       return;
     }
 
-    if (message.length > 1000) {
-      res.status(400).json({ error: 'Mensagem muito longa (máximo 1000 caracteres).' });
+    if (message.length > MAX_MESSAGE_CHARS) {
+      res.status(400).json({
+        error:
+          `Sua mensagem é muito longa (${message.length.toLocaleString('pt-BR')} caracteres; ` +
+          `o máximo é ${MAX_MESSAGE_CHARS.toLocaleString('pt-BR')}). ` +
+          'Divida o texto em partes menores e envie uma de cada vez.',
+      });
       return;
     }
 

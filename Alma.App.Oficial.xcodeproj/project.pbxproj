@@ -112,6 +112,8 @@
 		DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */; };
 		DD011001DD011001DD011001 /* FeminineHealthSecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */; };
 		DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */; };
+		DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD013000DD013000DD013000 /* CycleCalculator.swift */; };
+		DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD014000DD014000DD014000 /* ChatHistoryStore.swift */; };
 		DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
 		DDB10002DDB10002DDB10002 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
 		DDB20001DDB20001DDB20001 /* PaywallTriggerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */; };
@@ -293,6 +295,8 @@
 		DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuidedMeditationEngine.swift; sourceTree = "<group>"; };
 		DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthSecureStore.swift; sourceTree = "<group>"; };
 		DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoAlmaBannerView.swift; sourceTree = "<group>"; };
+		DD013000DD013000DD013000 /* CycleCalculator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CycleCalculator.swift; sourceTree = "<group>"; };
+		DD014000DD014000DD014000 /* ChatHistoryStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatHistoryStore.swift; sourceTree = "<group>"; };
 		DDB10000DDB10000DDB10000 /* StreakManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
 		DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaywallTriggerManager.swift; sourceTree = "<group>"; };
 		E25ED1DA2F77018D0089226E /* Alma Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alma Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -457,6 +461,8 @@
 				DD009000DD009000DD009000 /* AddictionFreeView.swift */,
 				DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */,
 				DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */,
+				DD013000DD013000DD013000 /* CycleCalculator.swift */,
+				DD014000DD014000DD014000 /* ChatHistoryStore.swift */,
 				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
 				EE012000EE012000EE012000 /* Feed/FeedRepository.swift */,
 				EE013000EE013000EE013000 /* Feed/FirestoreFeedRepository.swift */,
@@ -891,6 +897,8 @@
 				DD009001DD009001DD009001 /* AddictionFreeView.swift in Sources */,
 				DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */,
 				DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */,
+				DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */,
+				DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */,
 				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,
 				EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */,
 				EE013001EE013001EE013001 /* Feed/FirestoreFeedRepository.swift in Sources */,

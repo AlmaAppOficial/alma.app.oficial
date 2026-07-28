@@ -135,6 +135,10 @@ enum LocalDataCleanupService {
     private static func clearKeychain() {
         AppleAuthCodeKeychainStore.delete()
         FeminineHealthSecureStore.deleteAll()
+        // [Build 84] Histórico local do chat da Alma (arquivo em Application
+        // Support, por uid) — apagado no logout e na deleção de conta, no mesmo
+        // ponto único que os demais dados sensíveis.
+        ChatHistoryStore.deleteAll()
         print("✅ LocalDataCleanupService: Keychain limpo")
     }
 
