@@ -1,5 +1,132 @@
 import SwiftUI
 import FirebaseAuth
+import Speech
+import AVFoundation
+
+// MARK: - VoiceInputController [Build 84 — 2026-07-29]
+// Ditado por voz no chat: STT nativo da Apple (SFSpeechRecognizer) em pt-BR,
+// on-device quando o aparelho suportar (privacidade). O texto reconhecido
+// PREENCHE o campo de entrada — o envio continua manual, e não há resposta
+// falada neste build (TTS de resposta fica para o próximo).
+@MainActor
+final class VoiceInputController: ObservableObject {
+
+    @Published var isRecording = false
+    @Published var transcript = ""
+    @Published var permissionDenied = false
+    @Published var errorText: String? = nil
+
+    private let audioEngine = AVAudioEngine()
+    private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "pt-BR"))
+    private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var task: SFSpeechRecognitionTask?
+
+    func toggle() {
+        if isRecording {
+            stop()
+        } else {
+            Task { await start() }
+        }
+    }
+
+    private func requestPermissions() async -> Bool {
+        let speech = await withCheckedContinuation { (cont: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
+            SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
+        }
+        guard speech == .authorized else { return false }
+
+        if #available(iOS 17.0, *) {
+            return await AVAudioApplication.requestRecordPermission()
+        } else {
+            return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+                AVAudioSession.sharedInstance().requestRecordPermission { cont.resume(returning: $0) }
+            }
+        }
+    }
+
+    func start() async {
+        errorText = nil
+
+        guard await requestPermissions() else {
+            permissionDenied = true
+            return
+        }
+        guard let recognizer, recognizer.isAvailable else {
+            errorText = "O reconhecimento de voz não está disponível agora. Tente novamente em instantes."
+            return
+        }
+
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+
+            let request = SFSpeechAudioBufferRecognitionRequest()
+            request.shouldReportPartialResults = true
+            // Privacidade: processa no aparelho quando o iOS oferecer pt-BR local
+            if recognizer.supportsOnDeviceRecognition {
+                request.requiresOnDeviceRecognition = true
+            }
+            self.request = request
+
+            let input = audioEngine.inputNode
+            let format = input.outputFormat(forBus: 0)
+            // [Build 84] Sem entrada de áudio válida (ex.: simulador sem
+            // microfone, fone desconectado no meio) installTap lança exceção
+            // Objective-C que derruba o app — falha com mensagem em vez disso.
+            guard format.sampleRate > 0, format.channelCount > 0 else {
+                errorText = "Não encontrei um microfone disponível neste aparelho."
+                teardown()
+                return
+            }
+            input.removeTap(onBus: 0)
+            input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
+                self?.request?.append(buffer)
+            }
+            audioEngine.prepare()
+            try audioEngine.start()
+
+            transcript = ""
+            isRecording = true
+
+            task = recognizer.recognitionTask(with: request) { [weak self] result, error in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    if let result {
+                        self.transcript = result.bestTranscription.formattedString
+                        if result.isFinal {
+                            self.teardown()
+                        }
+                    }
+                    if error != nil {
+                        self.teardown()
+                    }
+                }
+            }
+        } catch {
+            errorText = "Não consegui acessar o microfone. Tente novamente."
+            teardown()
+        }
+    }
+
+    /// Encerra a captura; o resultado final ainda chega pelo recognitionTask.
+    func stop() {
+        request?.endAudio()
+        if audioEngine.isRunning { audioEngine.stop() }
+        audioEngine.inputNode.removeTap(onBus: 0)
+        isRecording = false
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    private func teardown() {
+        if audioEngine.isRunning { audioEngine.stop() }
+        audioEngine.inputNode.removeTap(onBus: 0)
+        request = nil
+        task = nil
+        isRecording = false
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+}
 
 struct ChatView: View {
 
@@ -12,6 +139,8 @@ struct ChatView: View {
     @State private var historyLoaded = false
     // [Build 84] Alerta amigável para mensagens acima do limite do servidor
     @State private var showLengthAlert = false
+    // [Build 84] Ditado por voz (STT pt-BR — só entrada; sem resposta falada)
+    @StateObject private var voice = VoiceInputController()
     @Environment(\.dismiss) private var dismiss
 
     // [Build 82 — 2026-07-15] Chat exige Premium. Gate primário está em HomeView/heroButton;
@@ -25,18 +154,27 @@ struct ChatView: View {
     // de tempo; não-assinante = PremiumWallView (gate acima). O rate-limit de
     // mensagens continua no servidor (Cloud Function, 20 msg/hora).
 
+    // [Build 84 — 2026-07-29] FREEMIUM: o bloqueio total do chat (Build 82)
+    // deu lugar a uso limitado grátis — FreemiumLimits.chatMessagesPerDay
+    // mensagens/dia. Ao esgotar, CTA → paywall (sheet). Assinante: sem limite.
+    @State private var showPaywall = false
+    @State private var freeUsedToday = FreemiumLimits.chatMessagesUsedToday()
+
+    private var freeRemaining: Int {
+        max(0, FreemiumLimits.chatMessagesPerDay - freeUsedToday)
+    }
+
     var body: some View {
-        // Gate premium — redireciona para paywall se não tiver assinatura
-        if !access.isPremium {
-            PremiumWallView()
-                .environmentObject(access)
-                .environmentObject(store)
-        } else {
         VStack(spacing: 0) {
             // Header
             chatHeader
 
             Divider().opacity(0.3)
+
+            // Pill de cota grátis (só não-assinante)
+            if !access.isPremium {
+                freemiumPill
+            }
 
             // Messages
             ScrollViewReader { proxy in
@@ -85,14 +223,72 @@ struct ChatView: View {
         } message: {
             Text("Sua mensagem tem \(inputText.trimmingCharacters(in: .whitespaces).count.formatted()) caracteres — o máximo é \(ChatLimits.maxMessageLength.formatted()). Divida o texto em partes menores e envie uma de cada vez. 💜")
         }
+        .sheet(isPresented: $showPaywall) {
+            PremiumWallView()
+                .environmentObject(access)
+                .environmentObject(store)
+        }
         .onAppear {
             TabVisibilityState.shared.hideMiniPlayer = true
             loadHistoryIfNeeded()
         }
         .onDisappear {
             TabVisibilityState.shared.hideMiniPlayer = false
+            if voice.isRecording { voice.stop() }
         }
-        } // end else (premium gate)
+        // [Build 84] Texto ditado alimenta o campo em tempo real
+        .onChange(of: voice.transcript) { newValue in
+            if !newValue.isEmpty { inputText = newValue }
+        }
+        .alert("Permissão necessária", isPresented: $voice.permissionDenied) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Para falar com a Alma, permita o acesso ao microfone e ao reconhecimento de fala em Ajustes › Alma.")
+        }
+        // [Build 84] Falhas do ditado (mic indisponível, motor de fala offline)
+        // precisam ser visíveis — antes ficavam só na propriedade, em silêncio.
+        .alert("Não consegui ouvir", isPresented: Binding(
+            get: { voice.errorText != nil },
+            set: { if !$0 { voice.errorText = nil } }
+        )) {
+            Button("OK", role: .cancel) { voice.errorText = nil }
+        } message: {
+            Text(voice.errorText ?? "")
+        }
+    }
+
+    // MARK: - Freemium Pill [Build 84]
+    private var freemiumPill: some View {
+        Button(action: { showPaywall = true }) {
+            HStack(spacing: 6) {
+                Image(systemName: freeRemaining > 0 ? "message.badge.circle.fill" : "sparkles")
+                    .font(.caption)
+                Text(freemiumPillText)
+                    .font(.caption.bold())
+                Spacer()
+                Text(freeRemaining > 0 ? "Assinar" : "Ver planos")
+                    .font(.caption2.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(CalmTheme.primary.opacity(0.15))
+                    .cornerRadius(8)
+            }
+            .foregroundColor(freeRemaining > 0 ? CalmTheme.textSecondary : CalmTheme.primary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(CalmTheme.primary.opacity(0.05))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var freemiumPillText: String {
+        if freeRemaining <= 0 {
+            return "Suas mensagens grátis de hoje acabaram"
+        }
+        if freeRemaining == 1 {
+            return "1 mensagem grátis restante hoje"
+        }
+        return "\(freeRemaining) mensagens grátis hoje"
     }
 
     // MARK: - Header
@@ -292,7 +488,7 @@ struct ChatView: View {
             }
 
             HStack(spacing: 12) {
-                TextField("Fale com a Alma...", text: $inputText)
+                TextField(voice.isRecording ? "Ouvindo…" : "Fale com a Alma...", text: $inputText)
                     .foregroundColor(.black)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
@@ -300,8 +496,22 @@ struct ChatView: View {
                     .cornerRadius(24)
                     .overlay(
                         RoundedRectangle(cornerRadius: 24)
-                            .stroke(CalmTheme.primary.opacity(0.2), lineWidth: 1)
+                            .stroke(
+                                voice.isRecording
+                                    ? Color.red.opacity(0.55)
+                                    : CalmTheme.primary.opacity(0.2),
+                                lineWidth: voice.isRecording ? 1.5 : 1
+                            )
                     )
+
+                // [Build 84] Botão de ditado por voz (pt-BR)
+                Button(action: { voice.toggle() }) {
+                    Image(systemName: voice.isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                        .font(.system(size: 36))
+                        .foregroundColor(voice.isRecording ? .red : CalmTheme.primary)
+                }
+                .disabled(isTyping)
+                .accessibilityLabel(voice.isRecording ? "Parar ditado" : "Falar com a Alma")
 
                 Button(action: sendMessage) {
                     Image(systemName: "arrow.up.circle.fill")
@@ -312,7 +522,7 @@ struct ChatView: View {
                                 : CalmTheme.primary
                         )
                 }
-                .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isTyping)
+                .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isTyping || voice.isRecording)
             }
         }
         .padding(.horizontal, 16)
@@ -325,11 +535,24 @@ struct ChatView: View {
         let trimmed = inputText.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
+        // [Build 84] FREEMIUM: não-assinante tem N mensagens/dia; ao esgotar,
+        // paywall em vez de envio.
+        if !access.isPremium && freeRemaining <= 0 {
+            showPaywall = true
+            return
+        }
+
         // [Build 84] Validação amigável de tamanho ANTES de ir à rede.
         // Espelha o limite da Cloud Function — nunca mais "erro 400" cru.
         if trimmed.count > ChatLimits.maxMessageLength {
             showLengthAlert = true
             return
+        }
+
+        // Consome cota grátis no despacho (não-assinante)
+        if !access.isPremium {
+            FreemiumLimits.recordChatMessageSent()
+            freeUsedToday = FreemiumLimits.chatMessagesUsedToday()
         }
 
         let userMsg = ChatMessage(trimmed, isUser: true)
