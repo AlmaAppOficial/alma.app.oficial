@@ -46,6 +46,57 @@ enum StressLevel {
     }
 }
 
+// MARK: - MindfulSessionWriter [Build 84 — 2026-07-29]
+// Grava sessões de meditação concluídas como Mindful Minutes no app Saúde.
+// Separado do HealthKitManager (que é @MainActor e vive como @StateObject nas
+// views) para poder ser chamado do GuidedMeditationEngine sem depender de
+// instância. Falha em silêncio: escrever no Health nunca pode quebrar a
+// experiência de meditação.
+enum MindfulSessionWriter {
+
+    private static let store = HKHealthStore()
+
+    /// Grava uma sessão de atenção plena que TERMINOU AGORA com a duração dada.
+    /// Pede autorização de escrita se ainda não foi decidida; respeita recusa.
+    static func saveSessionEndingNow(durationSeconds: Int) async {
+        guard HKHealthStore.isHealthDataAvailable(),
+              durationSeconds > 0,
+              let mindfulType = HKCategoryType.categoryType(forIdentifier: .mindfulSession) else { return }
+
+        // Garante que a permissão foi ao menos perguntada (no-op se já decidida)
+        if store.authorizationStatus(for: mindfulType) == .notDetermined {
+            try? await store.requestAuthorization(toShare: [mindfulType], read: [])
+        }
+
+        guard store.authorizationStatus(for: mindfulType) == .sharingAuthorized else {
+            #if DEBUG
+            print("MindfulSessionWriter: escrita não autorizada — sessão não gravada")
+            #endif
+            return
+        }
+
+        let end = Date()
+        let start = end.addingTimeInterval(-Double(durationSeconds))
+        let sample = HKCategorySample(
+            type: mindfulType,
+            value: HKCategoryValue.notApplicable.rawValue,
+            start: start,
+            end: end
+        )
+
+        do {
+            try await store.save(sample)
+            #if DEBUG
+            print("MindfulSessionWriter: ✅ \(durationSeconds / 60) min gravados no Saúde")
+            #endif
+        } catch {
+            #if DEBUG
+            print("MindfulSessionWriter: falha ao gravar no Saúde: \(error)")
+            #endif
+        }
+    }
+}
+
 // MARK: - HealthKitManager
 @MainActor
 class HealthKitManager: ObservableObject {
@@ -79,8 +130,16 @@ class HealthKitManager: ObservableObject {
             HKCategoryType.categoryType(forIdentifier: .sleepAnalysis)!
         ]
 
+        // [Build 84 — 2026-07-29] Escrita de Mindful Minutes: sessões de
+        // meditação concluídas viram HKCategorySample(.mindfulSession) no app
+        // Saúde. Pedida na mesma folha de permissão das leituras.
+        var shareTypes: Set<HKSampleType> = []
+        if let mindful = HKCategoryType.categoryType(forIdentifier: .mindfulSession) {
+            shareTypes.insert(mindful)
+        }
+
         do {
-            try await self.store.requestAuthorization(toShare: [], read: types)
+            try await self.store.requestAuthorization(toShare: shareTypes, read: types)
             return true
         } catch {
             return false

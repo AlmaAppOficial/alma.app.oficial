@@ -179,6 +179,12 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                                 minutes: script.durationMinutes
                             )
                         }
+                        // [Build 84 — 2026-07-29] Mindful Minutes no app Saúde.
+                        // Toda conclusão real vira sessão (sem o gate de "1x/dia"
+                        // do streak — cada meditação conta no Health).
+                        await MindfulSessionWriter.saveSessionEndingNow(
+                            durationSeconds: script.durationMinutes * 60
+                        )
                     }
                 }
             }
