@@ -13,6 +13,41 @@ import SwiftUI
 import FirebaseAuth
 import StoreKit
 
+// MARK: - FreemiumLimits [Build 84 — 2026-07-29]
+// Modelo FREEMIUM (decisão do Assis, 2026-07-29): não existe mais trial de
+// 7 dias. Não-assinante usa o app com limites e é convidado ao paywall.
+//
+// Limite do chat: N mensagens por dia. DEFAULT: 5/dia — dá pra ter uma
+// conversa real (sentir valor) e ainda cria motivo diário de conversão.
+// Parametrizável aqui num único lugar (futuro: Remote Config).
+//
+// O contador usa o prefixo "alma_msg_count_" que o LocalDataCleanupService
+// JÁ varre no logout/deleção — nenhuma limpeza extra necessária.
+enum FreemiumLimits {
+
+    /// Mensagens de chat grátis por dia para não-assinantes.
+    static let chatMessagesPerDay = 5
+
+    private static var todayKey: String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return "alma_msg_count_\(f.string(from: Date()))"
+    }
+
+    static func chatMessagesUsedToday() -> Int {
+        UserDefaults.standard.integer(forKey: todayKey)
+    }
+
+    static func chatMessagesRemainingToday() -> Int {
+        max(0, chatMessagesPerDay - chatMessagesUsedToday())
+    }
+
+    static func recordChatMessageSent() {
+        let defaults = UserDefaults.standard
+        defaults.set(defaults.integer(forKey: todayKey) + 1, forKey: todayKey)
+    }
+}
+
 @MainActor
 class AccessManager: ObservableObject {
 
@@ -21,8 +56,6 @@ class AccessManager: ObservableObject {
 
     @Published var isPremium: Bool = false
     @Published var isChecking: Bool = true
-    @Published var isInTrial: Bool = false
-    @Published var trialDays: Int = 0
 
     init() {
         // Ouvir mudanças de autenticação Firebase
@@ -54,7 +87,10 @@ class AccessManager: ObservableObject {
 
     // MARK: - Verificação de Acesso
 
-    /// Verifica acesso via StoreKit (IAP), Firebase Custom Claims ou trial gratuito de 7 dias
+    /// Verifica acesso via StoreKit (IAP) ou Firebase Custom Claims.
+    /// [Build 84 — 2026-07-29] Modelo freemium: o trial automático de 7 dias
+    /// foi REMOVIDO. Não-assinante usa o app com limites (FreemiumLimits) e
+    /// converte no paywall.
     func checkAccess(user: User) async {
         isChecking = true
         let previousValue = isPremium
@@ -62,23 +98,9 @@ class AccessManager: ObservableObject {
         // 1. Verificar StoreKit — Apple IAP tem prioridade
         if await checkStoreKitEntitlement() {
             isPremium = true
-            isInTrial = false
-            trialDays = 0
         } else {
             // 2. Fallback: Firebase Custom Claims (subscritores web / Stripe)
             await checkFirebaseClaims(user: user)
-
-            // 3. Trial gratuito de 7 dias após criação da conta
-            if isInFreeTrial(user: user) {
-                isInTrial = true
-                trialDays = trialDaysRemaining(user: user)
-                if !isPremium {
-                    isPremium = true
-                }
-            } else {
-                isInTrial = false
-                trialDays = 0
-            }
         }
 
         // 4. Ponte App Group — assinatura única: compra feita no Corpo & Alma
@@ -98,38 +120,9 @@ class AccessManager: ObservableObject {
         }
     }
 
-    /// Trial gratuito de 7 dias após criação da conta
-    private let betaTrialDays = 7
-
-    /// Contas usadas pela Apple App Review — nunca entram em trial automático,
-    /// para que o reviewer veja o paywall e consiga testar a compra IAP em sandbox.
-    /// Sem isso, a conta cai em trial premium e Apple reporta "IAPs não encontrados no binário".
-    private static let appleReviewEmails: Set<String> = [
-        "contact@almaappoficial.com"
-    ]
-
-    /// Verifica se o utilizador está dentro do período de trial de 7 dias
-    private func isInFreeTrial(user: User) -> Bool {
-        if let email = user.email?.lowercased(),
-           Self.appleReviewEmails.contains(email) {
-            return false
-        }
-        guard let creationDate = user.metadata.creationDate else { return true }
-        let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
-        return days < betaTrialDays
-    }
-
-    /// Number of days remaining in the free trial (for banner display)
-    func trialDaysRemaining(user: User) -> Int {
-        guard let creationDate = user.metadata.creationDate else { return betaTrialDays }
-        let days = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day ?? 0
-        return max(0, betaTrialDays - days)
-    }
-
-    /// Returns true if the user's access comes from the free trial window (not a paid subscription)
-    func isTrialActive(for user: User) -> Bool {
-        isInFreeTrial(user: user)
-    }
+    // [Build 84 — 2026-07-29] Trial automático de 7 dias removido (modelo
+    // freemium). As contas de review da Apple deixam de precisar de exceção:
+    // sem trial, todo não-assinante vê o paywall naturalmente.
 
     /// Verifica se existe uma compra activa no StoreKit 2
     private func checkStoreKitEntitlement() async -> Bool {

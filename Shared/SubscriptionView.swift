@@ -148,12 +148,10 @@ struct PremiumWallView: View {
                 Text("\(product.displayPrice)/mês")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
-                // [2026-07-28] O trial só é mencionado a quem o StoreKit
-                // confirma ser elegível — a oferta introdutória é consumida uma
-                // vez por Apple ID e não pode ser anunciada a quem já a usou.
-                Text(store.isEligibleForIntroOffer
-                     ? "7 dias grátis antes da primeira cobrança. Cancele quando quiser."
-                     : "Cancele quando quiser.")
+                // [Build 84 — 2026-07-29] Freemium: nenhuma promessa de trial
+                // em copy do app. Se a oferta introdutória do ASC estiver ativa,
+                // a folha de pagamento da Apple a exibe por conta própria.
+                Text("Cancele quando quiser.")
                     .font(.footnote)
                     .foregroundColor(.white.opacity(0.85))
                     .multilineTextAlignment(.center)

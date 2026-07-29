@@ -185,8 +185,8 @@ actor DynamicPricingManager {
                 subtitle: "Acesso completo ao Alma",
                 price: 24.99,
                 period: "/mês",
-                cta: "Iniciar 7 dias grátis",
-                description: "7 dias de acesso total, depois R$ 24,99/mês. Cancele quando quiser.",
+                cta: "Assinar agora",
+                description: "Acesso total por R$ 24,99/mês. Cancele quando quiser.",
                 includedFeatures: [
                     "500+ meditações guiadas",
                     "Sons ambientes relaxantes",
@@ -292,11 +292,11 @@ actor DynamicPricingManager {
         return PricingOffer(
             variant: .control,
             title: "Comece sua jornada",
-            subtitle: "7 dias grátis para explorar",
+            subtitle: "Acesso completo ao Alma",
             price: 24.99,
             period: "/mês",
-            cta: "Iniciar 7 dias grátis",
-            description: "Acesso completo por 7 dias, depois R$ 24,99/mês. Cancele quando quiser.",
+            cta: "Assinar agora",
+            description: "Acesso completo por R$ 24,99/mês. Cancele quando quiser.",
             includedFeatures: [
                 "500+ meditações guiadas",
                 "Sons ambientes relaxantes",

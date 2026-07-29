@@ -127,7 +127,7 @@ struct PaywallView: View {
 
                         // Risk Reversal
                         VStack(spacing: 10) {
-                            riskReversalItem(icon: "checkmark.circle.fill", text: "7 dias grátis")
+                            riskReversalItem(icon: "checkmark.circle.fill", text: "Acesso imediato a tudo")
                             riskReversalItem(icon: "checkmark.circle.fill", text: "Cancele quando quiser")
                             riskReversalItem(icon: "checkmark.circle.fill", text: "Sem surpresas")
                         }
@@ -318,11 +318,11 @@ struct PaywallView_Previews: PreviewProvider {
         let standardOffer = PricingOffer(
             variant: .control,
             title: "Comece sua jornada",
-            subtitle: "7 dias grátis para explorar",
+            subtitle: "Acesso completo ao Alma",
             price: 24.99,
             period: "/mês",
-            cta: "Iniciar 7 dias grátis",
-            description: "Acesso completo por 7 dias, depois R$ 24,99/mês. Cancele quando quiser.",
+            cta: "Assinar agora",
+            description: "Acesso completo por R$ 24,99/mês. Cancele quando quiser.",
             includedFeatures: [
                 "500+ meditações guiadas",
                 "Sons ambientes relaxantes",

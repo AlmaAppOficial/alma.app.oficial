@@ -21,8 +21,8 @@ struct HomeView: View {
                 // ── Header ─────────────────────────────
                 headerSection
 
-                // ── Premium banner (always tappable; copy adapts to state) ─
-                if access.isInTrial || !access.isPremium {
+                // ── Premium banner — [Build 84] freemium: só p/ não-assinante ─
+                if !access.isPremium {
                     premiumBanner
                 }
 
@@ -85,11 +85,11 @@ struct HomeView: View {
     private var premiumBanner: some View {
         Button(action: { showHomePaywall = true }) {
             HStack(spacing: 12) {
-                Image(systemName: access.isInTrial ? "gift.fill" : "sparkles")
+                Image(systemName: "sparkles")
                     .font(.title3)
                     .foregroundColor(.white)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(access.isInTrial ? "Aproveite seu Premium" : "Conheça Alma Premium")
+                    Text("Conheça Alma Premium")
                         .font(.subheadline.bold())
                         .foregroundColor(.white)
                     Text(bannerSubtitle)
@@ -114,27 +114,10 @@ struct HomeView: View {
     }
 
     private var bannerSubtitle: String {
-        if access.isInTrial {
-            let d = access.trialDays
-            if d <= 0 {
-                return "Continue Premium · Toque para assinar"
-            } else if d == 1 {
-                return "Último dia · Toque para continuar Premium"
-            } else {
-                return "\(d) dias restantes · Toque para continuar Premium"
-            }
-        } else {
-            // [2026-07-28] Só prometemos o teste a quem o StoreKit confirma ser
-            // elegível. Antes, este era o texto padrão para TODO usuário fora do
-            // trial, sem nunca consultar a App Store — então quem já tinha
-            // assinado e cancelado (oferta introdutória consumida) via
-            // "7 dias grátis" que a Apple não honraria na compra.
-            // Em falha de rede a flag fica false e o texto some: preferimos
-            // deixar de anunciar um teste real a anunciar um inexistente.
-            return store.isEligibleForIntroOffer
-                ? "7 dias grátis · Acesso completo"
-                : "Acesso completo · Toque para assinar"
-        }
+        // [Build 84 — 2026-07-29] Modelo freemium: nenhuma promessa de trial
+        // em copy do app (decisão do Assis). A oferta introdutória do ASC, se
+        // ativa, aparece na folha de pagamento da própria Apple.
+        "Acesso completo · Toque para assinar"
     }
 
     // MARK: - Header
@@ -251,13 +234,11 @@ struct HomeView: View {
     // [Build 77 — 12/05/2026] moodCheckInButton removido (linhas 212-241):
     // botao redundante que tambem ia pra ChatView. Mood check-in real esta em InsightsView.
     // [Build 82 — 2026-07-15] Chat bloqueado para usuários gratuitos — exige Premium.
+    // [Build 84 — 2026-07-29] FREEMIUM: chat abre para todos; não-assinante
+    // tem N mensagens/dia (FreemiumLimits) e converte dentro do chat.
     private var heroButton: some View {
         Button(action: {
-            if access.isPremium {
-                showChat = true
-            } else {
-                showHomePaywall = true
-            }
+            showChat = true
         }) {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -266,13 +247,13 @@ struct HomeView: View {
                         .foregroundColor(.white)
                     Text(access.isPremium
                          ? "Sua mentora de bem-estar esta pronta para te ouvir"
-                         : "Recurso Premium · Toque para desbloquear")
+                         : "\(FreemiumLimits.chatMessagesPerDay) mensagens grátis por dia · Toque para conversar")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.85))
                         .lineLimit(2)
                 }
                 Spacer()
-                Image(systemName: access.isPremium ? "waveform" : "lock.fill")
+                Image(systemName: "waveform")
                     .font(.system(size: 32))
                     .foregroundColor(.white.opacity(0.8))
             }

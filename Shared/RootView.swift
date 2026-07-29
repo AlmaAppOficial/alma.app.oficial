@@ -31,14 +31,8 @@ struct RootView: View {
                         .environmentObject(access)
                         .environmentObject(store)
 
-                    // Trial banner — shown only during free trial, dismissible per session
-                    if let user = currentUser, access.isTrialActive(for: user) {
-                        VStack(spacing: 0) {
-                            trialBanner(daysRemaining: access.trialDaysRemaining(user: user))
-                                .animation(.easeInOut(duration: 0.3), value: trialBannerDismissed)
-                            Spacer()
-                        }
-                    }
+                    // [Build 84 — 2026-07-29] Banner de trial removido — modelo
+                    // freemium não tem trial de 7 dias.
                 }
                 // Consentimento Meta (LGPD) — pedido uma única vez, espelha o Android.
                 // Sem "Permitir", o MetaEventsManager nunca envia eventos.
@@ -77,36 +71,7 @@ struct RootView: View {
         }
     }
 
-    // MARK: - Trial Banner
-
-    @State private var trialBannerDismissed = false
-
-    @ViewBuilder
-    private func trialBanner(daysRemaining: Int) -> some View {
-        if !trialBannerDismissed {
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                    .foregroundColor(.yellow)
-                Text(daysRemaining == 1
-                     ? "Último dia do seu período gratuito"
-                     : "\(daysRemaining) dias gratuitos restantes")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.white)
-                Spacer()
-                Button {
-                    withAnimation { trialBannerDismissed = true }
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption2)
-                        .foregroundColor(.white.opacity(0.7))
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(Color.purple.opacity(0.85))
-            .transition(.move(edge: .top).combined(with: .opacity))
-        }
-    }
+    // [Build 84 — 2026-07-29] trialBanner removido — modelo freemium sem trial.
 
     // MARK: - Splash
 

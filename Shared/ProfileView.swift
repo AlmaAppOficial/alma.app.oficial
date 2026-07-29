@@ -124,7 +124,7 @@ struct ProfileView: View {
     private var premiumRow: some View {
         Button(action: { showPaywall = true }) {
             HStack(spacing: 12) {
-                Image(systemName: access.isInTrial ? "gift.fill" : "star.circle.fill")
+                Image(systemName: "star.circle.fill")
                     .font(.body)
                     .foregroundColor(.yellow)
                     .frame(width: 32, height: 32)
@@ -148,19 +148,12 @@ struct ProfileView: View {
         }
     }
 
+    // [Build 84 — 2026-07-29] Freemium: linhas de trial removidas.
     private var premiumRowTitle: String {
-        if access.isInTrial { return "Trial Premium ativo" }
-        if access.isPremium { return "Alma Premium" }
-        return "Alma Premium"
+        "Alma Premium"
     }
 
     private var premiumRowSubtitle: String {
-        if access.isInTrial {
-            let d = access.trialDays
-            if d <= 0 { return "Continue Premium — assine agora" }
-            if d == 1 { return "Último dia · Toque para continuar" }
-            return "\(d) dias restantes · Toque para continuar"
-        }
         if access.isPremium { return "Você é Premium" }
         return "Conheça os benefícios"
     }
