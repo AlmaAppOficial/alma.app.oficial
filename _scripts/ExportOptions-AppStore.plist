@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- [2026-07-30] Export do build 84 para TestFlight (App Store Connect).
+	     Assinatura automática: o xcodebuild autentica com a AuthKey do ASC
+	     (-authenticationKeyPath/-authenticationKeyID/-authenticationKeyIssuerID)
+	     e resolve certificado + perfil de distribuição. -->
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>teamID</key>
+	<string>J9U729KYR7</string>
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<key>uploadSymbols</key>
+	<true/>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+	<key>destination</key>
+	<string>export</string>
+</dict>
+</plist>
