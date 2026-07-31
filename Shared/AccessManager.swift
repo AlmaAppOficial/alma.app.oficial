@@ -13,20 +13,26 @@ import SwiftUI
 import FirebaseAuth
 import StoreKit
 
-// MARK: - FreemiumLimits [Build 84 — 2026-07-29]
-// Modelo FREEMIUM (decisão do Assis, 2026-07-29): não existe mais trial de
-// 7 dias. Não-assinante usa o app com limites e é convidado ao paywall.
+// MARK: - FreemiumLimits [Build 84 — 2026-07-29; revisto em 2026-07-31]
+// Modelo FREEMIUM: não existe mais trial de 7 dias. O app continua com
+// bastante coisa grátis (meditações iniciais, sons, práticas, humor/check-in),
+// mas o CHAT com a Alma é 100% premium.
 //
-// Limite do chat: N mensagens por dia. DEFAULT: 5/dia — dá pra ter uma
-// conversa real (sentir valor) e ainda cria motivo diário de conversão.
-// Parametrizável aqui num único lugar (futuro: Remote Config).
+// [2026-07-31 — decisão do Assis] chatMessagesPerDay = 0: nenhuma mensagem
+// grátis. O usuário grátis vê a tela do chat e, ao enviar, encontra um convite
+// ao Premium (não um erro nem um bloqueio seco).
+// Continua parametrizável: subir para N libera N mensagens/dia sem tocar em
+// mais nada — a UI se adapta sozinha (pill de cota some quando é 0).
 //
 // O contador usa o prefixo "alma_msg_count_" que o LocalDataCleanupService
 // JÁ varre no logout/deleção — nenhuma limpeza extra necessária.
 enum FreemiumLimits {
 
-    /// Mensagens de chat grátis por dia para não-assinantes.
-    static let chatMessagesPerDay = 5
+    /// Mensagens de chat grátis por dia para não-assinantes. 0 = chat premium puro.
+    static let chatMessagesPerDay = 0
+
+    /// Há alguma cota grátis configurada? (false = chat 100% premium)
+    static var chatHasFreeQuota: Bool { chatMessagesPerDay > 0 }
 
     private static var todayKey: String {
         let f = DateFormatter()

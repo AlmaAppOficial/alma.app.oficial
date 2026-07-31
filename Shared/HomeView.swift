@@ -247,7 +247,9 @@ struct HomeView: View {
                         .foregroundColor(.white)
                     Text(access.isPremium
                          ? "Sua mentora de bem-estar esta pronta para te ouvir"
-                         : "\(FreemiumLimits.chatMessagesPerDay) mensagens grátis por dia · Toque para conversar")
+                         : (FreemiumLimits.chatHasFreeQuota
+                            ? "\(FreemiumLimits.chatMessagesPerDay) mensagens grátis por dia · Toque para conversar"
+                            : "Recurso Premium · Toque para conhecer"))
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.85))
                         .lineLimit(2)

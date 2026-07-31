@@ -181,7 +181,12 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(spacing: 4) {
                         if messages.isEmpty {
-                            welcomeView
+                            // Grátis sem cota → convite ao Premium; assinante → boas-vindas
+                            if !access.isPremium && freeRemaining <= 0 {
+                                premiumInviteCard
+                            } else {
+                                welcomeView
+                            }
                         }
                         // [Build 84] Mensagens agrupadas por dia (histórico persistido)
                         ForEach(messageGroups, id: \.dayKey) { group in
@@ -257,31 +262,38 @@ struct ChatView: View {
         }
     }
 
-    // MARK: - Freemium Pill [Build 84]
+    // MARK: - Convite ao Premium [Build 84; revisto 2026-07-31]
+    // Com cota 0 (decisão do Assis), o não-assinante vê um convite caloroso —
+    // nunca um erro. Se um dia a cota voltar a ser > 0, a mesma faixa mostra o
+    // saldo do dia automaticamente.
     private var freemiumPill: some View {
         Button(action: { showPaywall = true }) {
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 Image(systemName: freeRemaining > 0 ? "message.badge.circle.fill" : "sparkles")
                     .font(.caption)
                 Text(freemiumPillText)
                     .font(.caption.bold())
-                Spacer()
-                Text(freeRemaining > 0 ? "Assinar" : "Ver planos")
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: 8)
+                Text(freeRemaining > 0 ? "Assinar" : "Conhecer")
                     .font(.caption2.bold())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(CalmTheme.primary.opacity(0.15))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(CalmTheme.primary.opacity(0.18))
                     .cornerRadius(8)
             }
             .foregroundColor(freeRemaining > 0 ? CalmTheme.textSecondary : CalmTheme.primary)
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(CalmTheme.primary.opacity(0.05))
+            .padding(.vertical, 10)
+            .background(CalmTheme.primary.opacity(0.06))
         }
         .buttonStyle(.plain)
     }
 
     private var freemiumPillText: String {
+        if !FreemiumLimits.chatHasFreeQuota {
+            return "Conversar com a Alma faz parte do Premium"
+        }
         if freeRemaining <= 0 {
             return "Suas mensagens grátis de hoje acabaram"
         }
@@ -289,6 +301,44 @@ struct ChatView: View {
             return "1 mensagem grátis restante hoje"
         }
         return "\(freeRemaining) mensagens grátis hoje"
+    }
+
+    // Convite mostrado no corpo do chat quando o usuário grátis abre a tela e
+    // ainda não há histórico — explica o valor em vez de mostrar um muro.
+    private var premiumInviteCard: some View {
+        VStack(spacing: 14) {
+            Spacer().frame(height: 24)
+            AlmaLogo(size: 64)
+
+            Text("A Alma escuta você no Premium")
+                .font(.title3.bold())
+                .foregroundColor(CalmTheme.textPrimary)
+                .multilineTextAlignment(.center)
+
+            Text("Conversas ilimitadas com a sua mentora de bem-estar, memória da sua jornada e acolhimento sempre que precisar.")
+                .font(.subheadline)
+                .foregroundColor(CalmTheme.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 28)
+
+            Button(action: { showPaywall = true }) {
+                Text("Conhecer o Premium")
+                    .font(.subheadline.bold())
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 12)
+                    .background(CalmTheme.heroGradient)
+                    .cornerRadius(24)
+            }
+
+            Text("As meditações iniciais, os sons e o check-in de humor continuam livres para você.")
+                .font(.caption2)
+                .foregroundColor(CalmTheme.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+                .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Header
@@ -469,9 +519,56 @@ struct ChatView: View {
         .padding(.horizontal, 16)
     }
 
+    // MARK: - Faixa de transcrição ao vivo [Build 85 — 2026-07-31]
+    // Enquanto o ditado está ativo, mostra o texto reconhecido rolando sozinho
+    // para o fim — o Assis relatou não conseguir acompanhar a frase inteira.
+    // O campo de entrada cresce até 5 linhas; esta faixa garante que o trecho
+    // MAIS RECENTE esteja sempre visível, mesmo em falas longas.
+    private var liveTranscriptStrip: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
+                Text(inputText.isEmpty ? "Pode falar…" : inputText)
+                    .font(.subheadline)
+                    .foregroundColor(inputText.isEmpty ? CalmTheme.textSecondary : CalmTheme.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .id("transcriptTail")
+            }
+            .frame(maxHeight: 96)
+            .background(CalmTheme.primary.opacity(0.06))
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.red.opacity(0.35), lineWidth: 1)
+            )
+            .overlay(alignment: .topTrailing) {
+                HStack(spacing: 5) {
+                    Circle().fill(Color.red).frame(width: 7, height: 7)
+                    Text("ouvindo")
+                        .font(.caption2.bold())
+                        .foregroundColor(.red)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+            }
+            .onChange(of: inputText) { _ in
+                withAnimation(.easeOut(duration: 0.15)) {
+                    proxy.scrollTo("transcriptTail", anchor: .bottom)
+                }
+            }
+            .padding(.horizontal, 4)
+            .transition(.opacity.combined(with: .move(edge: .bottom)))
+        }
+    }
+
     // MARK: - Input Bar
     private var inputBar: some View {
         VStack(spacing: 4) {
+            if voice.isRecording {
+                liveTranscriptStrip
+            }
+
             // [Build 84] Contador discreto quando o texto se aproxima do limite
             if inputText.count > ChatLimits.counterVisibleFrom {
                 HStack {
@@ -487,9 +584,21 @@ struct ChatView: View {
                 }
             }
 
-            HStack(spacing: 12) {
-                TextField(voice.isRecording ? "Ouvindo…" : "Fale com a Alma...", text: $inputText)
-                    .foregroundColor(.black)
+            HStack(alignment: .bottom, spacing: 12) {
+                // [Build 85 — 2026-07-31] Dois bugs reportados pelo Assis no iPhone:
+                //  1) o texto saía PRETO fixo — ilegível no tema escuro. Agora usa
+                //     CalmTheme.textPrimary, que já se adapta ao colorScheme.
+                //  2) durante o ditado só dava para ver o fim da frase: o campo era
+                //     de uma linha. Agora cresce até 5 linhas (axis: .vertical) e a
+                //     ScrollView interna acompanha o texto sendo transcrito.
+                TextField(
+                    voice.isRecording ? "Ouvindo…" : "Fale com a Alma...",
+                    text: $inputText,
+                    axis: .vertical
+                )
+                    .lineLimit(1...5)
+                    .foregroundColor(CalmTheme.textPrimary)
+                    .tint(CalmTheme.primary)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                     .background(CalmTheme.surface)
@@ -503,6 +612,7 @@ struct ChatView: View {
                                 lineWidth: voice.isRecording ? 1.5 : 1
                             )
                     )
+                    .animation(.easeOut(duration: 0.15), value: inputText)
 
                 // [Build 84] Botão de ditado por voz (pt-BR)
                 Button(action: { voice.toggle() }) {
@@ -528,6 +638,7 @@ struct ChatView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(CalmTheme.background)
+        .animation(.easeInOut(duration: 0.2), value: voice.isRecording)
     }
 
     // MARK: - Send
