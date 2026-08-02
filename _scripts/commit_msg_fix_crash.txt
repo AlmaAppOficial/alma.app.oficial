@@ -1,0 +1,46 @@
+fix(fusao): crash ao abrir o Corpo — @EnvironmentObject nao injetado
+
+O Assis validou no simulador e o app MORRIA ao tocar em "Corpo".
+
+CAUSA RAIZ (crash log, nao palpite)
+~/Library/Logs/DiagnosticReports/Alma.App.Oficial-2026-08-02-184736.000.ips
+EXC_BREAKPOINT / SIGTRAP, thread 0 (main):
+
+  libswiftCore              _assertionFailure(_:_:file:line:flags:)
+  SwiftUICore               EnvironmentObject.error()
+  SwiftUICore               EnvironmentObject.wrappedValue.getter
+  Alma.App.Oficial.debug    CorpoHomeView.model.getter          <---
+  Alma.App.Oficial.debug    closure #1 in CorpoHomeView.greeting.getter
+
+O modulo Corpo declara tres @EnvironmentObject — AppModel, HealthManager e
+StoreManager — que no app Corpo & Alma eram injetados pelo ponto de entrada dele
+(CorpoEAlmaApp.swift), arquivo que o port removeu de proposito. Sem eles no
+ambiente, o SwiftUI chama fatalError no primeiro acesso. O build ficava VERDE
+porque isso e erro de runtime, nao de compilacao — motivo pelo qual eu me
+recusei a subir sem validar a UI.
+
+FIX
+CorpoModuleView passa a criar os tres como @StateObject e injeta-los em
+RootTabView. Como @StateObject, sobrevivem a troca de aba e morrem junto com o
+modulo.
+
+COMO PASSEI A VALIDAR SEM AUTOMACAO DE TOQUE
+O computer-use ficou indisponivel, e "build verde" nao prova ausencia de crash.
+Duas flags de depuracao lidas de UserDefaults:
+  -abrirCorpo 1   abre o modulo direto na inicializacao
+  -corpoAba N     escolhe a aba inicial (0..4)
+Com isso, _scripts/validar_abas_corpo.sh sobe o app uma vez por aba, confirma que
+o processo continua vivo e captura a tela — tudo por linha de comando.
+
+RESULTADO: 5/5 abas VIVAS, zero crash.
+  aba 0 inicio   -> VIVO      aba 3 treino   -> VIVO
+  aba 1 saude    -> VIVO      aba 4 insights -> VIVO
+  aba 2 dieta    -> VIVO
+
+As telas confirmam que o trabalho novo do Assis esta ativo dentro do Alma:
+  - Inicio/Dieta: "de 2 408 kcal" — meta calculada pelo NutritionEngine
+    (Mifflin-St Jeor), nao mais o 2200 fixo; macros derivados (141/310/67 g)
+  - Treino: "Mapa muscular — 1 095 exercicios"
+  - Botao "< Alma" visivel em todas as abas
+
+Evidencias: evidencias_fusao/05..09_corpo_aba_*.png

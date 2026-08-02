@@ -18,6 +18,19 @@ struct CorpoModuleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var access: AccessManager
 
+    // [Fusão 2026-08-02] CRASH CORRIGIDO: o módulo Corpo declara três
+    // @EnvironmentObject (AppModel, HealthManager, StoreManager) que, no app
+    // Corpo & Alma, eram injetados pelo ponto de entrada dele (CorpoEAlmaApp) —
+    // arquivo que o port removeu de propósito. Sem eles, tocar em "Corpo"
+    // derrubava o app na hora: SwiftUI chama fatalError quando um
+    // @EnvironmentObject não está no ambiente.
+    //   Stack do crash: EnvironmentObject.error() -> CorpoHomeView.model.getter
+    // Como @StateObject, vivem enquanto o módulo estiver aberto e mantêm o
+    // estado ao trocar de aba.
+    @StateObject private var corpoModel = AppModel()
+    @StateObject private var corpoHealth = HealthManager()
+    @StateObject private var corpoStore = StoreManager()
+
     /// [Fusão 2026-08-02] Módulo portado: as 5 abas reais do Corpo & Alma
     /// (Início, Saúde, Dieta, Treino, Insights) rodam dentro do Alma.
     static let isModuleReady = true
@@ -29,6 +42,9 @@ struct CorpoModuleView: View {
 
                 if Self.isModuleReady {
                     RootTabView()
+                        .environmentObject(corpoModel)
+                        .environmentObject(corpoHealth)
+                        .environmentObject(corpoStore)
                 } else {
                     transitionContent
                 }

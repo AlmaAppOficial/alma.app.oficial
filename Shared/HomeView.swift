@@ -12,7 +12,10 @@ struct HomeView: View {
     @State private var showHomePaywall = false
     @State private var showChat = false
     /// [Fusão 2026-08-02] Módulo "Corpo" — tela interna, nunca URL externa.
-    @State private var showCorpoModule = false
+    /// Abre sozinho quando o app roda com `-abrirCorpo 1`, o que permite validar
+    /// o módulo por linha de comando (`xcrun simctl launch … -abrirCorpo 1`)
+    /// sem depender de automação de toque.
+    @State private var showCorpoModule = UserDefaults.standard.bool(forKey: "abrirCorpo")
 
     @ObservedObject private var streakManager = StreakManager.shared
 
