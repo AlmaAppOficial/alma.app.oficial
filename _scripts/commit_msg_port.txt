@@ -1,0 +1,48 @@
+feat(fusao): modulo Corpo portado para dentro do Alma — 5 abas, build verde
+
+O botao "Corpo" da Inicio agora abre as 5 abas reais do Corpo & Alma DENTRO do
+Alma (Inicio, Saude, Dieta, Treino, Insights), com o botao "Alma" de volta.
+Fim do placeholder e fim de qualquer URL externa.
+
+O QUE ENTROU (35 arquivos em Shared/Corpo/)
+Base montada com as duas frentes do C&A, que estavam separadas — merge limpo,
+zero conflitos, nenhum arquivo tocado pelas duas:
+  - fix/apis-calorias-scans: NutritionEngine (Mifflin-St Jeor), Open Food Facts,
+    scans honestos, suplementos, "aplicar plano", e o fix de persistencia do
+    diario alimentar (aed7e14) — o modulo ja nasce sem aquele bug;
+  - feat/biblioteca-exercicios: catalogo de 1.095 exercicios (exercises_v2.json,
+    1,2 MB), mapa muscular, busca unificada e builder de treino.
+
+CONTA UNICA
+Removidos do modulo: AuthManager, LoginView, Onboarding e o ponto de entrada
+proprios do C&A. Dentro do Alma existe UMA conta, e quem cuida dela e o Perfil do
+Alma — login, logout e exclusao. A secao "Conta" do Ajustes do Corpo virou um
+aviso apontando para la; manter dois caminhos de delecao no mesmo app seria
+confuso e perigoso.
+
+COLISOES RESOLVIDAS
+  tipos:     PaywallView/HomeView/InsightsView -> Corpo*; HealthMetric ->
+             CorpoHealthMetric
+  arquivos:  o Xcode gera .stringsdata pelo NOME do arquivo — dois HomeView.swift
+             em pastas diferentes colidem. Renomeados com prefixo Corpo.
+  cores:     o Alma declara Color.init?(hex:) FAILABLE; o Corpo tinha uma nao
+             failable. Coexistir = "invalid redeclaration"; usar a do Alma =
+             "must be unwrapped" em ~60 lugares. O modulo ganhou Color.corpoHex().
+
+iOS 16 PRESERVADO
+O C&A exigia iOS 17. Em vez de subir o deployment target do Alma (o que cortaria
+usuarios que hoje conseguem instalar), adaptei as 9 chamadas de API nova:
+8 onChange(of:initial:) e 6 navigationDestination(item:) -> variantes iOS 16.
+
+ARMADILHA DE PBXPROJ (registro para nao repetir)
+O primeiro registro usou UIDs com prefixo "CC" e colidiu com os do PraticasView
+do Alma (CC001000CC001000CC001000). O Xcode passou a ignorar o arquivo original e
+o build quebrou com "cannot find type 'MeditationDay'" — erro que nao apontava
+para a causa. UID de pbxproj tem de ser unico; os do modulo usam prefixo FA9/FA8.
+
+PENDENTE ANTES DE SUBIR
+Validacao visual das 5 abas no simulador (criterio do Assis). O computer-use
+parou de responder nesta sessao; sem tocar na UI nao da para provar "sem crash
+em cada aba". Build verde nao basta.
+
+Build: xcodebuild simulador BUILD SUCCEEDED.

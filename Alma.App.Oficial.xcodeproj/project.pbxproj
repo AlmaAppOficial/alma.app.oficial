@@ -116,6 +116,42 @@
 		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
+		FA900001FA900001FA90001 /* AIBodyScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900000FA900000FA90000 /* AIBodyScan.swift */; };
+		FA900101FA900101FA90011 /* AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900100FA900100FA90010 /* AddFoodView.swift */; };
+		FA900201FA900201FA90021 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900200FA900200FA90020 /* BarcodeScannerView.swift */; };
+		FA900301FA900301FA90031 /* BodyScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900300FA900300FA90030 /* BodyScanView.swift */; };
+		FA900401FA900401FA90041 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400FA900400FA90040 /* CameraPickerView.swift */; };
+		FA900501FA900501FA90051 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900500FA900500FA90050 /* Components.swift */; };
+		FA900601FA900601FA90061 /* CorpoHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900600FA900600FA90060 /* CorpoHomeView.swift */; };
+		FA900701FA900701FA90071 /* CorpoInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900700FA900700FA90070 /* CorpoInsightsView.swift */; };
+		FA900801FA900801FA90081 /* CorpoPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900800FA900800FA90080 /* CorpoPaywallView.swift */; };
+		FA900901FA900901FA90091 /* CorpoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900900FA900900FA90090 /* CorpoTheme.swift */; };
+		FA901001FA901001FA90101 /* DietaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901000FA901000FA90100 /* DietaView.swift */; };
+		FA901101FA901101FA90111 /* EditAssessmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901100FA901100FA90110 /* EditAssessmentView.swift */; };
+		FA901201FA901201FA90121 /* ExerciseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901200FA901200FA90120 /* ExerciseDetailView.swift */; };
+		FA901301FA901301FA90131 /* ExerciseLibraryV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901300FA901300FA90130 /* ExerciseLibraryV2.swift */; };
+		FA901401FA901401FA90141 /* ExerciseListV2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901400FA901400FA90140 /* ExerciseListV2View.swift */; };
+		FA901501FA901501FA90151 /* FoodScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901500FA901500FA90150 /* FoodScanView.swift */; };
+		FA901601FA901601FA90161 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901600FA901600FA90160 /* GeminiService.swift */; };
+		FA901701FA901701FA90171 /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901700FA901700FA90170 /* HealthManager.swift */; };
+		FA901801FA901801FA90181 /* InsightDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901800FA901800FA90180 /* InsightDetailView.swift */; };
+		FA901901FA901901FA90191 /* MealDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901900FA901900FA90190 /* MealDetailView.swift */; };
+		FA902001FA902001FA90201 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902000FA902000FA90200 /* Models.swift */; };
+		FA902101FA902101FA90211 /* MuscleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902100FA902100FA90210 /* MuscleMapView.swift */; };
+		FA902201FA902201FA90221 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902200FA902200FA90220 /* NotificationManager.swift */; };
+		FA902301FA902301FA90231 /* NutritionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902300FA902300FA90230 /* NutritionEngine.swift */; };
+		FA902401FA902401FA90241 /* OpenFoodFacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902400FA902400FA90240 /* OpenFoodFacts.swift */; };
+		FA902501FA902501FA90251 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902500FA902500FA90250 /* RootTabView.swift */; };
+		FA902601FA902601FA90261 /* SaudeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902600FA902600FA90260 /* SaudeView.swift */; };
+		FA902701FA902701FA90271 /* ScanResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902700FA902700FA90270 /* ScanResultView.swift */; };
+		FA902801FA902801FA90281 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902800FA902800FA90280 /* SettingsView.swift */; };
+		FA902901FA902901FA90291 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902900FA902900FA90290 /* StoreManager.swift */; };
+		FA903001FA903001FA90301 /* SupplementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903000FA903000FA90300 /* SupplementsView.swift */; };
+		FA903101FA903101FA90311 /* TreinoBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903100FA903100FA90310 /* TreinoBuilderView.swift */; };
+		FA903201FA903201FA90321 /* TreinoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903200FA903200FA90320 /* TreinoView.swift */; };
+		FA903301FA903301FA90331 /* WorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903300FA903300FA90330 /* WorkoutDetailView.swift */; };
+		FA903401FA903401FA90341 /* WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903400FA903400FA90340 /* WorkoutSessionView.swift */; };
+		FA800001FA800001FA80001 /* exercises_v2.json in Resources */ = {isa = PBXBuildFile; fileRef = FA800000FA800000FA80000 /* exercises_v2.json */; };
 		DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD016000DD016000DD016000 /* HealthContextConsent.swift */; };
 		DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD014000DD014000DD014000 /* ChatHistoryStore.swift */; };
 		DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
@@ -303,6 +339,42 @@
 		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
+		FA900000FA900000FA90000 /* AIBodyScan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AIBodyScan.swift"; sourceTree = "<group>"; };
+		FA900100FA900100FA90010 /* AddFoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AddFoodView.swift"; sourceTree = "<group>"; };
+		FA900200FA900200FA90020 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BarcodeScannerView.swift"; sourceTree = "<group>"; };
+		FA900300FA900300FA90030 /* BodyScanView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BodyScanView.swift"; sourceTree = "<group>"; };
+		FA900400FA900400FA90040 /* CameraPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CameraPickerView.swift"; sourceTree = "<group>"; };
+		FA900500FA900500FA90050 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Components.swift"; sourceTree = "<group>"; };
+		FA900600FA900600FA90060 /* CorpoHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoHomeView.swift"; sourceTree = "<group>"; };
+		FA900700FA900700FA90070 /* CorpoInsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsView.swift"; sourceTree = "<group>"; };
+		FA900800FA900800FA90080 /* CorpoPaywallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoPaywallView.swift"; sourceTree = "<group>"; };
+		FA900900FA900900FA90090 /* CorpoTheme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoTheme.swift"; sourceTree = "<group>"; };
+		FA901000FA901000FA90100 /* DietaView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/DietaView.swift"; sourceTree = "<group>"; };
+		FA901100FA901100FA90110 /* EditAssessmentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/EditAssessmentView.swift"; sourceTree = "<group>"; };
+		FA901200FA901200FA90120 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ExerciseDetailView.swift"; sourceTree = "<group>"; };
+		FA901300FA901300FA90130 /* ExerciseLibraryV2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ExerciseLibraryV2.swift"; sourceTree = "<group>"; };
+		FA901400FA901400FA90140 /* ExerciseListV2View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ExerciseListV2View.swift"; sourceTree = "<group>"; };
+		FA901500FA901500FA90150 /* FoodScanView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/FoodScanView.swift"; sourceTree = "<group>"; };
+		FA901600FA901600FA90160 /* GeminiService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/GeminiService.swift"; sourceTree = "<group>"; };
+		FA901700FA901700FA90170 /* HealthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/HealthManager.swift"; sourceTree = "<group>"; };
+		FA901800FA901800FA90180 /* InsightDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/InsightDetailView.swift"; sourceTree = "<group>"; };
+		FA901900FA901900FA90190 /* MealDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/MealDetailView.swift"; sourceTree = "<group>"; };
+		FA902000FA902000FA90200 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Models.swift"; sourceTree = "<group>"; };
+		FA902100FA902100FA90210 /* MuscleMapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/MuscleMapView.swift"; sourceTree = "<group>"; };
+		FA902200FA902200FA90220 /* NotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/NotificationManager.swift"; sourceTree = "<group>"; };
+		FA902300FA902300FA90230 /* NutritionEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/NutritionEngine.swift"; sourceTree = "<group>"; };
+		FA902400FA902400FA90240 /* OpenFoodFacts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/OpenFoodFacts.swift"; sourceTree = "<group>"; };
+		FA902500FA902500FA90250 /* RootTabView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/RootTabView.swift"; sourceTree = "<group>"; };
+		FA902600FA902600FA90260 /* SaudeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/SaudeView.swift"; sourceTree = "<group>"; };
+		FA902700FA902700FA90270 /* ScanResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ScanResultView.swift"; sourceTree = "<group>"; };
+		FA902800FA902800FA90280 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/SettingsView.swift"; sourceTree = "<group>"; };
+		FA902900FA902900FA90290 /* StoreManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/StoreManager.swift"; sourceTree = "<group>"; };
+		FA903000FA903000FA90300 /* SupplementsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/SupplementsView.swift"; sourceTree = "<group>"; };
+		FA903100FA903100FA90310 /* TreinoBuilderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TreinoBuilderView.swift"; sourceTree = "<group>"; };
+		FA903200FA903200FA90320 /* TreinoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TreinoView.swift"; sourceTree = "<group>"; };
+		FA903300FA903300FA90330 /* WorkoutDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/WorkoutDetailView.swift"; sourceTree = "<group>"; };
+		FA903400FA903400FA90340 /* WorkoutSessionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/WorkoutSessionView.swift"; sourceTree = "<group>"; };
+		FA800000FA800000FA80000 /* exercises_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Corpo/exercises_v2.json"; sourceTree = "<group>"; };
 		DD016000DD016000DD016000 /* HealthContextConsent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextConsent.swift; sourceTree = "<group>"; };
 		DD014000DD014000DD014000 /* ChatHistoryStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatHistoryStore.swift; sourceTree = "<group>"; };
 		DDB10000DDB10000DDB10000 /* StreakManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
@@ -473,6 +545,42 @@
 				DD015000DD015000DD015000 /* HealthContextBuilder.swift */,
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
+				FA900000FA900000FA90000 /* AIBodyScan.swift */,
+				FA900100FA900100FA90010 /* AddFoodView.swift */,
+				FA900200FA900200FA90020 /* BarcodeScannerView.swift */,
+				FA900300FA900300FA90030 /* BodyScanView.swift */,
+				FA900400FA900400FA90040 /* CameraPickerView.swift */,
+				FA900500FA900500FA90050 /* Components.swift */,
+				FA900600FA900600FA90060 /* CorpoHomeView.swift */,
+				FA900700FA900700FA90070 /* CorpoInsightsView.swift */,
+				FA900800FA900800FA90080 /* CorpoPaywallView.swift */,
+				FA900900FA900900FA90090 /* CorpoTheme.swift */,
+				FA901000FA901000FA90100 /* DietaView.swift */,
+				FA901100FA901100FA90110 /* EditAssessmentView.swift */,
+				FA901200FA901200FA90120 /* ExerciseDetailView.swift */,
+				FA901300FA901300FA90130 /* ExerciseLibraryV2.swift */,
+				FA901400FA901400FA90140 /* ExerciseListV2View.swift */,
+				FA901500FA901500FA90150 /* FoodScanView.swift */,
+				FA901600FA901600FA90160 /* GeminiService.swift */,
+				FA901700FA901700FA90170 /* HealthManager.swift */,
+				FA901800FA901800FA90180 /* InsightDetailView.swift */,
+				FA901900FA901900FA90190 /* MealDetailView.swift */,
+				FA902000FA902000FA90200 /* Models.swift */,
+				FA902100FA902100FA90210 /* MuscleMapView.swift */,
+				FA902200FA902200FA90220 /* NotificationManager.swift */,
+				FA902300FA902300FA90230 /* NutritionEngine.swift */,
+				FA902400FA902400FA90240 /* OpenFoodFacts.swift */,
+				FA902500FA902500FA90250 /* RootTabView.swift */,
+				FA902600FA902600FA90260 /* SaudeView.swift */,
+				FA902700FA902700FA90270 /* ScanResultView.swift */,
+				FA902800FA902800FA90280 /* SettingsView.swift */,
+				FA902900FA902900FA90290 /* StoreManager.swift */,
+				FA903000FA903000FA90300 /* SupplementsView.swift */,
+				FA903100FA903100FA90310 /* TreinoBuilderView.swift */,
+				FA903200FA903200FA90320 /* TreinoView.swift */,
+				FA903300FA903300FA90330 /* WorkoutDetailView.swift */,
+				FA903400FA903400FA90340 /* WorkoutSessionView.swift */,
+				FA800000FA800000FA80000 /* exercises_v2.json */,
 				DD016000DD016000DD016000 /* HealthContextConsent.swift */,
 				DD014000DD014000DD014000 /* ChatHistoryStore.swift */,
 				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
@@ -788,6 +896,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA800001FA800001FA80001 /* exercises_v2.json in Resources */,
 				9ECED0CE2F588F21009412A7 /* Assets.xcassets in Resources */,
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
@@ -913,6 +1022,41 @@
 				DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */,
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
+				FA900001FA900001FA90001 /* AIBodyScan.swift in Sources */,
+				FA900101FA900101FA90011 /* AddFoodView.swift in Sources */,
+				FA900201FA900201FA90021 /* BarcodeScannerView.swift in Sources */,
+				FA900301FA900301FA90031 /* BodyScanView.swift in Sources */,
+				FA900401FA900401FA90041 /* CameraPickerView.swift in Sources */,
+				FA900501FA900501FA90051 /* Components.swift in Sources */,
+				FA900601FA900601FA90061 /* CorpoHomeView.swift in Sources */,
+				FA900701FA900701FA90071 /* CorpoInsightsView.swift in Sources */,
+				FA900801FA900801FA90081 /* CorpoPaywallView.swift in Sources */,
+				FA900901FA900901FA90091 /* CorpoTheme.swift in Sources */,
+				FA901001FA901001FA90101 /* DietaView.swift in Sources */,
+				FA901101FA901101FA90111 /* EditAssessmentView.swift in Sources */,
+				FA901201FA901201FA90121 /* ExerciseDetailView.swift in Sources */,
+				FA901301FA901301FA90131 /* ExerciseLibraryV2.swift in Sources */,
+				FA901401FA901401FA90141 /* ExerciseListV2View.swift in Sources */,
+				FA901501FA901501FA90151 /* FoodScanView.swift in Sources */,
+				FA901601FA901601FA90161 /* GeminiService.swift in Sources */,
+				FA901701FA901701FA90171 /* HealthManager.swift in Sources */,
+				FA901801FA901801FA90181 /* InsightDetailView.swift in Sources */,
+				FA901901FA901901FA90191 /* MealDetailView.swift in Sources */,
+				FA902001FA902001FA90201 /* Models.swift in Sources */,
+				FA902101FA902101FA90211 /* MuscleMapView.swift in Sources */,
+				FA902201FA902201FA90221 /* NotificationManager.swift in Sources */,
+				FA902301FA902301FA90231 /* NutritionEngine.swift in Sources */,
+				FA902401FA902401FA90241 /* OpenFoodFacts.swift in Sources */,
+				FA902501FA902501FA90251 /* RootTabView.swift in Sources */,
+				FA902601FA902601FA90261 /* SaudeView.swift in Sources */,
+				FA902701FA902701FA90271 /* ScanResultView.swift in Sources */,
+				FA902801FA902801FA90281 /* SettingsView.swift in Sources */,
+				FA902901FA902901FA90291 /* StoreManager.swift in Sources */,
+				FA903001FA903001FA90301 /* SupplementsView.swift in Sources */,
+				FA903101FA903101FA90311 /* TreinoBuilderView.swift in Sources */,
+				FA903201FA903201FA90321 /* TreinoView.swift in Sources */,
+				FA903301FA903301FA90331 /* WorkoutDetailView.swift in Sources */,
+				FA903401FA903401FA90341 /* WorkoutSessionView.swift in Sources */,
 				DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */,
 				DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */,
 				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,

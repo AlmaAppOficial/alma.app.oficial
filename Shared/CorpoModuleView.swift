@@ -18,9 +18,9 @@ struct CorpoModuleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var access: AccessManager
 
-    /// Vira `true` quando o CorpoKit entrar. Enquanto for `false`, mostra a
-    /// tela de transição — nunca um link externo.
-    static let isModuleReady = false
+    /// [Fusão 2026-08-02] Módulo portado: as 5 abas reais do Corpo & Alma
+    /// (Início, Saúde, Dieta, Treino, Insights) rodam dentro do Alma.
+    static let isModuleReady = true
 
     var body: some View {
         NavigationStack {
@@ -28,8 +28,7 @@ struct CorpoModuleView: View {
                 CalmTheme.backgroundGradient.ignoresSafeArea()
 
                 if Self.isModuleReady {
-                    // TODO [CorpoKit]: substituir por CorpoRootView()
-                    EmptyView()
+                    RootTabView()
                 } else {
                     transitionContent
                 }
