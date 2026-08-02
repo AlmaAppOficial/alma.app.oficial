@@ -12,6 +12,14 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<!-- [2026-08-02] Nome exibido na tela de início. Sem esta chave o iOS caía
+	     no PRODUCT_NAME e mostrava "Alma.App.Oficial" embaixo do ícone — e
+	     também como fonte dos dados no app Saúde. O watch app já usava
+	     INFOPLIST_KEY_CFBundleDisplayName = Alma; aqui a chave PRECISA vir no
+	     plist, porque o target iOS usa GENERATE_INFOPLIST_FILE = NO (que faz o
+	     Xcode ignorar os INFOPLIST_KEY_*). Não muda bundle ID nem assinatura. -->
+	<key>CFBundleDisplayName</key>
+	<string>Alma</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>

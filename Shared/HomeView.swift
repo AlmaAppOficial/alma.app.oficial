@@ -11,6 +11,8 @@ struct HomeView: View {
     @State private var navigateToPraticas = false
     @State private var showHomePaywall = false
     @State private var showChat = false
+    /// [Fusão 2026-08-02] Módulo "Corpo" — tela interna, nunca URL externa.
+    @State private var showCorpoModule = false
 
     @ObservedObject private var streakManager = StreakManager.shared
 
@@ -74,6 +76,10 @@ struct HomeView: View {
             authorized = await hk.requestAuthorization()
             if authorized { await hk.loadAll() }
         }
+        .fullScreenCover(isPresented: $showCorpoModule) {
+            CorpoModuleView()
+                .environmentObject(access)
+        }
         .sheet(isPresented: $showHomePaywall) {
             PremiumWallView()
                 .environmentObject(access)
@@ -132,14 +138,13 @@ struct HomeView: View {
                     .foregroundColor(CalmTheme.textSecondary)
             }
             Spacer()
-            // Botão Corpo & Alma — acesso rápido ao app de saúde
+            // Botão "Corpo" — módulo interno (fusão).
+            // [2026-08-02] Antes abria `corpoealma://` e, sem o app instalado,
+            // o iOS jogava no Safari com "endereço não é válido". Com o
+            // Corpo & Alma sendo descontinuado, nunca mais URL externa: abre
+            // uma tela DENTRO do Alma.
             Button {
-                let url = URL(string: "corpoealma://")!
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
-                } else if let storeURL = URL(string: "https://apps.apple.com/app/corpo-e-alma/id6744054437") {
-                    UIApplication.shared.open(storeURL)
-                }
+                showCorpoModule = true
             } label: {
                 VStack(spacing: 2) {
                     Image(systemName: "heart.circle.fill")
@@ -151,7 +156,7 @@ struct HomeView: View {
                 }
                 .frame(width: 40, height: 44)
             }
-            .accessibilityLabel("Abrir app Corpo & Alma — Saúde")
+            .accessibilityLabel("Abrir Corpo — treino e alimentação")
             .padding(.trailing, 8)
             AlmaLogo(size: 44)
         }

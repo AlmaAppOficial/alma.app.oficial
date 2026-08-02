@@ -115,6 +115,7 @@
 		DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD013000DD013000DD013000 /* CycleCalculator.swift */; };
 		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
+		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
 		DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD016000DD016000DD016000 /* HealthContextConsent.swift */; };
 		DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD014000DD014000DD014000 /* ChatHistoryStore.swift */; };
 		DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
@@ -301,6 +302,7 @@
 		DD013000DD013000DD013000 /* CycleCalculator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CycleCalculator.swift; sourceTree = "<group>"; };
 		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
+		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
 		DD016000DD016000DD016000 /* HealthContextConsent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextConsent.swift; sourceTree = "<group>"; };
 		DD014000DD014000DD014000 /* ChatHistoryStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatHistoryStore.swift; sourceTree = "<group>"; };
 		DDB10000DDB10000DDB10000 /* StreakManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
@@ -470,6 +472,7 @@
 				DD013000DD013000DD013000 /* CycleCalculator.swift */,
 				DD015000DD015000DD015000 /* HealthContextBuilder.swift */,
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
+				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
 				DD016000DD016000DD016000 /* HealthContextConsent.swift */,
 				DD014000DD014000DD014000 /* ChatHistoryStore.swift */,
 				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
@@ -909,6 +912,7 @@
 				DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */,
 				DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */,
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
+				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
 				DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */,
 				DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */,
 				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,

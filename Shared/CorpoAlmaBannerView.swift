@@ -25,17 +25,13 @@ struct CorpoAlmaBannerView: View {
     /// TODO: quando o app for publicado, substituir a URL da App Store pelo
     /// link definitivo com o ID do app. Ex:
     ///   https://apps.apple.com/app/id1234567890
-    private func openCorpoAlmaApp() {
-        let schemeURL = URL(string: "corpoealma://")!
-        if UIApplication.shared.canOpenURL(schemeURL) {
-            UIApplication.shared.open(schemeURL)
-            return
-        }
-        // Fallback: App Store (placeholder — atualizar com ID real quando publicado)
-        if let storeURL = URL(string: "https://apps.apple.com/app/corpo-alma/") {
-            UIApplication.shared.open(storeURL)
-        }
-    }
+    // [Fusão 2026-08-02] Abertura externa REMOVIDA. Este banner apontava para
+    // `corpoealma://` com fallback numa URL de App Store SEM ID
+    // ("…/app/corpo-alma/") — que o Safari rejeita com "endereço não é válido".
+    // Com o Corpo & Alma sendo descontinuado, o destino é sempre interno.
+    // (Componente hoje não usado em nenhuma tela; mantido consistente para o
+    // caso de voltar ao ar durante a fusão.)
+    @State private var showCorpoModule = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -60,6 +56,9 @@ struct CorpoAlmaBannerView: View {
         )
         .shadow(color: teal.opacity(0.10), radius: 10, x: 0, y: 4)
         .animation(.easeInOut(duration: 0.28), value: isExpanded)
+        .fullScreenCover(isPresented: $showCorpoModule) {
+            CorpoModuleView()
+        }
     }
 
     // MARK: - Header row
@@ -174,12 +173,14 @@ struct CorpoAlmaBannerView: View {
             .cornerRadius(10)
             .padding(.horizontal, 14)
 
-            // CTA: abre o app (se instalado) ou a App Store
-            Button(action: openCorpoAlmaApp) {
+            // CTA: abre o módulo Corpo DENTRO do Alma (nunca sai do app)
+            Button {
+                showCorpoModule = true
+            } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "arrow.down.app.fill")
+                    Image(systemName: "heart.circle.fill")
                         .font(.subheadline)
-                    Text("Baixar / Abrir app")
+                    Text("Abrir Corpo")
                         .font(.subheadline.bold())
                 }
                 .frame(maxWidth: .infinity)
