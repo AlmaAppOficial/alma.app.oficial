@@ -141,6 +141,8 @@ struct ChatView: View {
     @State private var showLengthAlert = false
     // [Build 84] Ditado por voz (STT pt-BR — só entrada; sem resposta falada)
     @StateObject private var voice = VoiceInputController()
+    // [Build 85 / 2.0] Leitura do HealthKit para o contexto de saúde da IA
+    @StateObject private var healthManager = HealthKitManager()
     @Environment(\.dismiss) private var dismiss
 
     // [Build 82 — 2026-07-15] Chat exige Premium. Gate primário está em HomeView/heroButton;
@@ -689,8 +691,13 @@ struct ChatView: View {
             // [Build 84] Persiste a mensagem do usuário (uid garantido após auth acima)
             persist(userMsg)
 
+            // [Build 85 / 2.0] Contexto de saúde do dia, montado NO APARELHO.
+            // `nil` quando não há consentimento ou dado real — nesse caso nada
+            // de saúde sai do iPhone e a Alma responde como antes.
+            let healthContext = await HealthContextBuilder(health: healthManager).build()
+
             do {
-                let reply = try await OpenAIService.shared.sendMessage(trimmed)
+                let reply = try await OpenAIService.shared.sendMessage(trimmed, healthContext: healthContext)
                 let almaMsg = ChatMessage(reply, isUser: false)
                 await MainActor.run {
                     isTyping = false
@@ -704,7 +711,7 @@ struct ChatView: View {
                     if let user = Auth.auth().currentUser {
                         _ = try await user.getIDToken()
                     }
-                    let retry = try await OpenAIService.shared.sendMessage(trimmed)
+                    let retry = try await OpenAIService.shared.sendMessage(trimmed, healthContext: healthContext)
                     let retryMsg = ChatMessage(retry, isUser: false)
                     await MainActor.run {
                         isTyping = false

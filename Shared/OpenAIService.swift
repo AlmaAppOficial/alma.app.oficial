@@ -59,7 +59,10 @@ class OpenAIService {
 
     /// Envia uma mensagem para a Cloud Function Alma e devolve a resposta.
     /// Sem fallback directo: se a Cloud Function falhar, o erro e propagado.
-    func sendMessage(_ message: String) async throws -> String {
+    /// - Parameter healthContext: resumo do dia montado NO APARELHO
+    ///   (HealthContextBuilder). Vai no prompt daquela chamada e o servidor NÃO
+    ///   o grava no histórico. `nil` quando o usuário não deu consentimento.
+    func sendMessage(_ message: String, healthContext: String? = nil) async throws -> String {
         guard let user = Auth.auth().currentUser else {
             throw AlmaError.noUser
         }
@@ -71,18 +74,23 @@ class OpenAIService {
             throw AlmaError.tokenFailed
         }
 
-        return try await callCloudFunction(message: message, token: token)
+        return try await callCloudFunction(message: message, token: token, healthContext: healthContext)
     }
 
     // MARK: - Cloud Function
-    private func callCloudFunction(message: String, token: String) async throws -> String {
+    private func callCloudFunction(message: String, token: String, healthContext: String? = nil) async throws -> String {
         var request = URLRequest(url: cloudFunctionURL)
         request.httpMethod = "POST"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 30
 
-        let body: [String: Any] = ["message": message]
+        var body: [String: Any] = ["message": message]
+        // [Build 85 / 2.0] Contexto de saúde: só vai quando existe consentimento
+        // e dado real. Efêmero — o servidor injeta no prompt e não persiste.
+        if let healthContext, !healthContext.isEmpty {
+            body["healthContext"] = healthContext
+        }
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {

@@ -123,12 +123,28 @@ class HealthKitManager: ObservableObject {
     nonisolated func requestAuthorization() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else { return false }
 
-        let types: Set<HKObjectType> = [
+        var types: Set<HKObjectType> = [
             HKQuantityType.quantityType(forIdentifier: .heartRate)!,
             HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
             HKQuantityType.quantityType(forIdentifier: .stepCount)!,
             HKCategoryType.categoryType(forIdentifier: .sleepAnalysis)!
         ]
+
+        // [Build 85 / 2.0 — 2026-07-31] Tipos novos para o contexto de saúde da
+        // Alma. Quem já autorizou vê a folha do iOS só para estes — sem repetir
+        // o que já foi concedido.
+        if let exercise = HKQuantityType.quantityType(forIdentifier: .appleExerciseTime) {
+            types.insert(exercise)
+        }
+        if let activeEnergy = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
+            types.insert(activeEnergy)
+        }
+        // Mindful minutes: o Alma já ESCREVE (build 84); agora também lê, para
+        // saber se a pessoa já parou para respirar hoje — inclusive sessões
+        // feitas em outros apps.
+        if let mindful = HKCategoryType.categoryType(forIdentifier: .mindfulSession) {
+            types.insert(mindful)
+        }
 
         // [Build 84 — 2026-07-29] Escrita de Mindful Minutes: sessões de
         // meditação concluídas viram HKCategorySample(.mindfulSession) no app
@@ -249,6 +265,54 @@ class HealthKitManager: ObservableObject {
             }
             self.store.execute(q)
         }
+    }
+
+    // MARK: - Leituras para o contexto de saúde da IA [Build 85 / 2.0]
+
+    /// Minutos de exercício de hoje (anel verde da Apple). `nil` quando não há
+    /// dado ou autorização — a UI e o contexto distinguem "zero" de "sem dado".
+    nonisolated func exerciseMinutesToday() async -> Int? {
+        guard HKHealthStore.isHealthDataAvailable(),
+              HKQuantityType.quantityType(forIdentifier: .appleExerciseTime) != nil else { return nil }
+        let minutes = await fetchTodaySum(.appleExerciseTime, unit: .minute())
+        return minutes > 0 ? Int(minutes.rounded()) : nil
+    }
+
+    /// Minutos de atenção plena de hoje, somando TODAS as fontes do Saúde
+    /// (Alma, Corpo & Alma, Apple Watch, outros apps).
+    nonisolated func mindfulMinutesToday() async -> Int? {
+        guard HKHealthStore.isHealthDataAvailable(),
+              let type = HKCategoryType.categoryType(forIdentifier: .mindfulSession) else { return nil }
+
+        let start = Calendar.current.startOfDay(for: Date())
+        let pred = HKQuery.predicateForSamples(withStart: start, end: Date())
+
+        return await withCheckedContinuation { continuation in
+            let q = HKSampleQuery(sampleType: type, predicate: pred, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+                guard let samples = samples as? [HKCategorySample], !samples.isEmpty else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let seconds = samples.reduce(0.0) { $0 + $1.endDate.timeIntervalSince($1.startDate) }
+                let minutes = Int((seconds / 60).rounded())
+                continuation.resume(returning: minutes > 0 ? minutes : nil)
+            }
+            self.store.execute(q)
+        }
+    }
+
+    /// Passos de hoje (`nil` quando não há dado/autorização).
+    nonisolated func stepsToday() async -> Int? {
+        guard HKHealthStore.isHealthDataAvailable() else { return nil }
+        let steps = await fetchTodaySum(.stepCount, unit: .count())
+        return steps > 0 ? Int(steps) : nil
+    }
+
+    /// Horas de sono da noite passada (`nil` quando não há dado/autorização).
+    nonisolated func lastNightSleepHours() async -> Double? {
+        guard HKHealthStore.isHealthDataAvailable() else { return nil }
+        let hours = await fetchYesterdaySleepHours()
+        return hours > 0 ? hours : nil
     }
 
     nonisolated private func fetchTodaySum(_ id: HKQuantityTypeIdentifier, unit: HKUnit) async -> Double {

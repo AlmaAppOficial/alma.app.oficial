@@ -36,6 +36,46 @@ const WINDOW_MS = 3_600_000; // 1 hour in ms
  */
 const MAX_MESSAGE_CHARS = 4000;
 
+/**
+ * [Build 85 / 2.0 — 2026-07-31] Teto do contexto de saúde enviado pelo app.
+ * O resumo é montado NO APARELHO (HealthContextBuilder) e chega pronto: 3 a 6
+ * linhas do tipo "Movimento: 3.240 passos · 12 min de exercício".
+ *
+ * Regras invioláveis deste campo:
+ *   • é EFÊMERO — entra no prompt desta chamada e NÃO é gravado em
+ *     users/{uid}/messages nem no resumo de memória;
+ *   • nunca vira evento de analytics/Meta (termos do HealthKit proíbem usar
+ *     dado de saúde para publicidade);
+ *   • só chega quando o usuário deu consentimento por categoria no app.
+ */
+const MAX_HEALTH_CONTEXT_CHARS = 600;
+
+/**
+ * Instrução anti-diagnóstico. A Alma OBSERVA e CONVIDA; nunca diagnostica,
+ * prescreve ou interpreta valores clínicos. Só entra quando há contexto.
+ */
+const HEALTH_CONTEXT_GUARDRAILS = `
+--- CONTEXTO DE SAÚDE DO DIA ---
+
+Os dados abaixo vêm do aparelho do usuário, com autorização explícita dele.
+Use-os como PANO DE FUNDO da conversa, jamais como assunto principal.
+
+Como usar:
+- Deixe o contexto colorir sua percepção, não dominar sua fala. Cite no máximo
+  UM elemento por conversa, e só quando fizer sentido com o que a pessoa trouxe.
+- Prefira o convite ao relatório: "percebi que a noite foi curta — como você
+  está se sentindo?" em vez de "você dormiu 6h20".
+- Se a pessoa não tocar no assunto e nada indicar necessidade, não mencione.
+
+NUNCA:
+- Não faça diagnóstico, não sugira tratamento, não interprete valores como
+  indicadores clínicos ("sua frequência está alta demais", "isso indica X").
+- Não alarme a pessoa com os números dela.
+- Não repita os dados de volta como uma lista.
+- Se ela pedir avaliação médica, acolha e sugira com carinho procurar um
+  profissional de saúde — você não substitui atendimento.
+`;
+
 const ALLOWED_ORIGINS = [
   'https://alma-app-7dae6.web.app',
   'https://alma-app-7dae6.firebaseapp.com',
@@ -132,8 +172,16 @@ export const chat = onRequest(
       return;
     }
 
-    const body = req.body as { message?: unknown };
+    const body = req.body as { message?: unknown; healthContext?: unknown };
     const message = body.message;
+
+    // [Build 85 / 2.0] Contexto de saúde opcional, montado no aparelho.
+    // Truncado por segurança; ausente ou inválido → simplesmente ignorado
+    // (compatível com versões antigas do app, que não enviam nada).
+    const healthContext =
+      typeof body.healthContext === 'string' && body.healthContext.trim().length > 0
+        ? body.healthContext.trim().slice(0, MAX_HEALTH_CONTEXT_CHARS)
+        : '';
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       res.status(400).json({ error: 'Campo "message" é obrigatório.' });
@@ -304,7 +352,7 @@ Quando souber o nome do usuário:
 - Use o nome no máximo 1 vez durante a conversa — sempre com intenção afetiva, nunca mecanicamente.
 - Se perceber que é o início do dia pela saudação do usuário: "Bom dia, [Nome]. O que o dia trouxe até agora?"
 
-${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jornada]\n${conversationSummary}\n` : ''}`;
+${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jornada]\n${conversationSummary}\n` : ''}${healthContext ? HEALTH_CONTEXT_GUARDRAILS + '\n' + healthContext + '\n' : ''}`;
 
     try {
       const completion = await openai.chat.completions.create({
@@ -329,6 +377,8 @@ ${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jorn
       const newCount = messageCount + 1;
       const batch = db.batch();
 
+      // ATENÇÃO: grava-se APENAS a mensagem do usuário. O healthContext é
+      // deliberadamente omitido — dado de saúde não entra no nosso banco.
       const msgRef = db.collection('users').doc(uid)
         .collection('messages').doc();
       batch.set(msgRef, {

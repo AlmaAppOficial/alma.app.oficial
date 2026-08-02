@@ -113,6 +113,8 @@
 		DD011001DD011001DD011001 /* FeminineHealthSecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */; };
 		DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */; };
 		DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD013000DD013000DD013000 /* CycleCalculator.swift */; };
+		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
+		DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD016000DD016000DD016000 /* HealthContextConsent.swift */; };
 		DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD014000DD014000DD014000 /* ChatHistoryStore.swift */; };
 		DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
 		DDB10002DDB10002DDB10002 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
@@ -296,6 +298,8 @@
 		DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthSecureStore.swift; sourceTree = "<group>"; };
 		DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoAlmaBannerView.swift; sourceTree = "<group>"; };
 		DD013000DD013000DD013000 /* CycleCalculator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CycleCalculator.swift; sourceTree = "<group>"; };
+		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
+		DD016000DD016000DD016000 /* HealthContextConsent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextConsent.swift; sourceTree = "<group>"; };
 		DD014000DD014000DD014000 /* ChatHistoryStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatHistoryStore.swift; sourceTree = "<group>"; };
 		DDB10000DDB10000DDB10000 /* StreakManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
 		DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaywallTriggerManager.swift; sourceTree = "<group>"; };
@@ -462,6 +466,8 @@
 				DD010000DD010000DD010000 /* GuidedMeditationEngine.swift */,
 				DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */,
 				DD013000DD013000DD013000 /* CycleCalculator.swift */,
+				DD015000DD015000DD015000 /* HealthContextBuilder.swift */,
+				DD016000DD016000DD016000 /* HealthContextConsent.swift */,
 				DD014000DD014000DD014000 /* ChatHistoryStore.swift */,
 				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
 				EE012000EE012000EE012000 /* Feed/FeedRepository.swift */,
@@ -898,6 +904,8 @@
 				DD010001DD010001DD010001 /* GuidedMeditationEngine.swift in Sources */,
 				DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */,
 				DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */,
+				DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */,
+				DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */,
 				DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */,
 				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,
 				EE012001EE012001EE012001 /* Feed/FeedRepository.swift in Sources */,
@@ -1149,7 +1157,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1166,7 +1174,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app;
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = iphoneos;
@@ -1183,7 +1191,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1200,7 +1208,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app;
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = iphoneos;
@@ -1219,7 +1227,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1231,7 +1239,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial";
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = macosx;
@@ -1248,7 +1256,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1260,7 +1268,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial";
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = macosx;
@@ -1273,11 +1281,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1292,11 +1300,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1312,12 +1320,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1331,12 +1339,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1352,7 +1360,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1364,7 +1372,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1382,7 +1390,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1394,7 +1402,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1413,7 +1421,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1427,7 +1435,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp.AlmaComplication;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1450,7 +1458,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1464,7 +1472,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp.AlmaComplication;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;

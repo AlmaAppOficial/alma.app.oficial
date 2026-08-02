@@ -14,6 +14,9 @@ struct ProfileView: View {
     @State private var showPaywall = false
     @State private var notifStatus: UNAuthorizationStatus = .notDetermined
     @State private var showNotifDeniedAlert = false
+    /// [Build 85 / 2.0] Espelho em memória do consentimento por categoria,
+    /// para o Toggle atualizar na hora (a fonte da verdade é o UserDefaults).
+    @State private var healthConsent: [String: Bool] = [:]
 
     @EnvironmentObject var access: AccessManager
     @EnvironmentObject var store: StoreKitManager
@@ -47,6 +50,13 @@ struct ProfileView: View {
                     feedNotificationsRow
                     Divider().padding(.leading, 52)
                     darkModeRow
+                }
+
+                // ── O que a Alma considera ───────────
+                // [Build 85 / 2.0] Consentimento por categoria (LGPD Art. 11 —
+                // dado sensível exige consentimento específico por finalidade).
+                settingsSection(title: "O que a Alma considera") {
+                    healthContextSection
                 }
 
                 // ── Informação ───────────────────────
@@ -174,6 +184,62 @@ struct ProfileView: View {
             Spacer()
         }
         .padding(.top, 24)
+    }
+
+    // MARK: - Contexto de saúde para a IA [Build 85 / 2.0]
+    // Tudo DESLIGADO por padrão. Sem nenhum toggle ligado, a Alma se comporta
+    // exatamente como nas versões anteriores — nada de saúde é enviado.
+    @ViewBuilder
+    private var healthContextSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("A Alma pode considerar seus dados para te acolher melhor. Os dados brutos nunca saem do seu iPhone — só um resumo curto do dia acompanha a conversa.")
+                .font(.caption)
+                .foregroundColor(CalmTheme.textSecondary)
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+
+            ForEach(HealthConsentCategory.allCases.filter { $0.isAvailableNow }) { category in
+                healthConsentRow(category)
+                if category != HealthConsentCategory.allCases.filter({ $0.isAvailableNow }).last {
+                    Divider().padding(.leading, 16)
+                }
+            }
+
+            Text("Nada disso é usado para publicidade nem para análise de uso, e a Alma não faz diagnóstico — se algo preocupar você, procure um profissional de saúde.")
+                .font(.caption2)
+                .foregroundColor(CalmTheme.textSecondary)
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
+                .padding(.bottom, 12)
+        }
+    }
+
+    private func healthConsentRow(_ category: HealthConsentCategory) -> some View {
+        Toggle(isOn: Binding(
+            get: { healthConsent[category.rawValue] ?? HealthContextConsent.isGranted(category) },
+            set: { newValue in
+                HealthContextConsent.set(newValue, for: category)
+                healthConsent[category.rawValue] = newValue
+                if newValue {
+                    // Garante a autorização do HealthKit ao ligar movimento/sono
+                    Task { _ = await HealthKitManager().requestAuthorization() }
+                }
+            }
+        )) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(category.title)
+                    .font(.body)
+                    .foregroundColor(CalmTheme.textPrimary)
+                Text(category.explanation)
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .tint(CalmTheme.primary)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
     }
 
     // MARK: - User Section
