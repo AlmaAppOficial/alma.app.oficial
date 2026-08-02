@@ -70,6 +70,16 @@
 	<string>O Alma lê seus dados de saúde (passos, sono, frequência cardíaca) para personalizar seus insights de bem-estar.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>O Alma registra suas sessões de meditação no app Saúde como minutos de atenção plena, para manter seu histórico de bem-estar completo.</string>
+	<!-- [Fusão 2026-08-02] Câmera e galeria vieram com o módulo Corpo (scan de
+	     alimentos, avaliação corporal e leitura de código de barras). A Apple
+	     recusou o build 87 no processamento com ITMS-90683 por falta da chave de
+	     câmera. O picker usa .camera e faz fallback para .photoLibrary — as duas
+	     chaves são obrigatórias. (Como sempre neste target: a chave vai no plist,
+	     porque GENERATE_INFOPLIST_FILE = NO faz o Xcode ignorar INFOPLIST_KEY_*.) -->
+	<key>NSCameraUsageDescription</key>
+	<string>O Alma usa a câmera para você fotografar refeições, ler o código de barras dos alimentos e acompanhar sua evolução corporal. As fotos ficam no seu aparelho e só são analisadas quando você pede.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O Alma acessa suas fotos para você escolher uma imagem da refeição ou da sua evolução corporal, em vez de tirar na hora. Nenhuma foto é enviada sem você pedir.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>O Alma usa o microfone para você falar com a Alma no chat, transformando sua voz em texto.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

@@ -6,7 +6,7 @@ set -u
 export API_PRIVATE_KEYS_DIR="/Volumes/felipe 1 tb/Alma_Credentials"
 KEY_ID="G345G9MJ9B"
 ISSUER="a052dbae-b7ee-4e05-a3f1-4d618d17fcf4"
-IPA="/tmp/alma87_ipa/Alma.App.Oficial.ipa"
+IPA="/tmp/alma88_ipa/Alma.App.Oficial.ipa"
 
 case "${1:-}" in
   validate)

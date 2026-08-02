@@ -7,20 +7,20 @@ KEY="/Volumes/felipe 1 tb/Alma_Credentials/AuthKey_G345G9MJ9B.p8"
 KEY_ID="G345G9MJ9B"
 ISSUER="a052dbae-b7ee-4e05-a3f1-4d618d17fcf4"
 
-rm -rf /tmp/alma87.xcarchive /tmp/alma87_ipa
+rm -rf /tmp/alma88.xcarchive /tmp/alma88_ipa
 
 xcodebuild -project Alma.App.Oficial.xcodeproj \
   -scheme "Alma.App.Oficial (iOS)" \
   -configuration Release \
   -destination "generic/platform=iOS" \
-  -archivePath /tmp/alma87.xcarchive \
+  -archivePath /tmp/alma88.xcarchive \
   -allowProvisioningUpdates \
   archive > /tmp/alma_archive2.log 2>&1
 echo "ARCHIVE_EXIT:$?"
 
 xcodebuild -exportArchive \
-  -archivePath /tmp/alma87.xcarchive \
-  -exportPath /tmp/alma87_ipa \
+  -archivePath /tmp/alma88.xcarchive \
+  -exportPath /tmp/alma88_ipa \
   -exportOptionsPlist _scripts/ExportOptions-AppStore.plist \
   -allowProvisioningUpdates \
   -authenticationKeyPath "$KEY" \
