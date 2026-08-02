@@ -33,6 +33,12 @@ enum LocalDataCleanupService {
         // Etapa 1 — lista explícita
         removeAllKnownKeys()
 
+        // [Fusão 2026-08-02] Deleção de conta apaga TUDO, inclusive o carimbo do
+        // acesso herdado do Corpo & Alma. No logout comum ele é PRESERVADO —
+        // tirar acesso de quem pagou seria erro grave.
+        LegacyEntitlementStore.deleteLocal()
+        HealthContextConsent.revokeAll()
+
         // Etapa 2 — varredura por prefixo alma_ (pega keys dinâmicas)
         let allKeys = defaults.dictionaryRepresentation().keys
         let almaPrefixedKeys = allKeys.filter { $0.hasPrefix("alma_") }

@@ -109,9 +109,23 @@ class AccessManager: ObservableObject {
             await checkFirebaseClaims(user: user)
         }
 
-        // 4. Ponte App Group — assinatura única: compra feita no Corpo & Alma
-        //    desbloqueia o Alma (flag gravado pelo C&A; validade 30 dias). [2026-07-14]
-        if !isPremium && Self.corpoAlmaPremiumActive() {
+        // 3. Entitlement HERDADO do Corpo & Alma — permanente, sem prazo.
+        //    [Fusão 2026-08-02] Quem assinou o C&A mantém acesso mesmo depois de
+        //    o app ser descontinuado e desinstalado. Ver LegacyEntitlementStore.
+        if !isPremium {
+            if LegacyEntitlementStore.isGranted {
+                isPremium = true
+            } else if await LegacyEntitlementStore.restoreFromAccount() {
+                // Aparelho novo / reinstalação: o carimbo veio da conta.
+                isPremium = true
+            }
+        }
+
+        // 4. Ponte App Group — enquanto o C&A ainda existe no aparelho.
+        //    Ao ver a ponte ativa, CARIMBA o entitlement permanente (janela
+        //    crítica: depois da descontinuação não há mais como capturar).
+        if Self.corpoAlmaPremiumActive() {
+            LegacyEntitlementStore.grant(reason: "ponte App Group com o Corpo & Alma")
             isPremium = true
         }
 
