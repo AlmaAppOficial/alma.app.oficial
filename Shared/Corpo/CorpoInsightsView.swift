@@ -38,6 +38,7 @@ struct CorpoInsightsView: View {
             }
             .background(Theme.background.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
+            .almaBackButton()
         }
     }
 

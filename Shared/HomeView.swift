@@ -149,10 +149,15 @@ struct HomeView: View {
             Button {
                 showCorpoModule = true
             } label: {
+                // [2026-08-02] Logo real do Corpo (extraída do ícone do app
+                // Corpo & Alma) em vez de símbolo genérico. Simétrico ao botão
+                // da Alma dentro do Corpo.
                 VStack(spacing: 2) {
-                    Image(systemName: "heart.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(CalmTheme.accent)
+                    Image("CorpoLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 28, height: 28)
+                        .clipShape(RoundedRectangle(cornerRadius: 7))
                     Text("Corpo")
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundColor(CalmTheme.textSecondary)

@@ -57,6 +57,7 @@ struct TreinoView: View {
             }
             .background(Theme.background.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
+            .almaBackButton()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

@@ -36,39 +36,32 @@ struct CorpoModuleView: View {
     static let isModuleReady = true
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                CalmTheme.backgroundGradient.ignoresSafeArea()
+        // [2026-08-02] SEM NavigationStack aqui. Cada aba do RootTabView tem a
+        // sua, e o wrapper externo criava aninhamento — o SwiftUI então
+        // engolia a toolbar das views internas, e foi ISSO que fez o botão de
+        // editar medidas (ícone de sliders na aba Saúde) sumir da tela.
+        // O caminho de volta agora vive dentro de cada aba, via
+        // .almaBackButton(), no topo DIREITO — simétrico ao botão "Corpo" da
+        // Início do Alma.
+        ZStack {
+            CalmTheme.backgroundGradient.ignoresSafeArea()
 
-                if Self.isModuleReady {
-                    RootTabView()
-                        .environmentObject(corpoModel)
-                        .environmentObject(corpoHealth)
-                        .environmentObject(corpoStore)
-                } else {
+            if Self.isModuleReady {
+                RootTabView()
+                    .environmentObject(corpoModel)
+                    .environmentObject(corpoHealth)
+                    .environmentObject(corpoStore)
+                    .environment(\.voltarParaAlma, { dismiss() })
+            } else {
+                NavigationStack {
                     transitionContent
-                }
-            }
-            .navigationTitle("Corpo")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                // Caminho de volta explícito e sempre visível, simétrico ao
-                // botão "Corpo" da Início. Dentro do Corpo, um toque volta
-                // para a Alma — regra a manter quando o CorpoKit entrar.
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        HStack(spacing: 5) {
-                            Image(systemName: "chevron.left")
-                                .font(.subheadline.bold())
-                            AlmaLogo(size: 22)
-                            Text("Alma")
-                                .font(.subheadline.weight(.semibold))
+                        .navigationTitle("Corpo")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                BotaoVoltarParaAlma { dismiss() }
+                            }
                         }
-                        .foregroundColor(CalmTheme.primary)
-                    }
-                    .accessibilityLabel("Voltar para a Alma")
                 }
             }
         }

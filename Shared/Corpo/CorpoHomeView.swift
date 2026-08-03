@@ -40,6 +40,7 @@ struct CorpoHomeView: View {
             }
             .background(Theme.background.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
+            .almaBackButton()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -49,20 +50,10 @@ struct CorpoHomeView: View {
                     }
                     .accessibilityLabel("Alternar modo claro/escuro")
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    // Botão Alma — abre o app de meditação
-                    Button {
-                        if let url = URL(string: "alma://"), UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.open(url)
-                        } else if let storeURL = URL(string: "https://apps.apple.com/app/alma/id6504892787") {
-                            UIApplication.shared.open(storeURL)
-                        }
-                    } label: {
-                        Image(systemName: "moon.stars.fill")
-                            .foregroundStyle(Theme.violet)
-                    }
-                    .accessibilityLabel("Abrir app Alma — Meditação")
-                }
+                // [2026-08-02] Botão que abria `alma://` REMOVIDO — mesma classe
+                // do bug do Safari: dentro do app fundido não há app externo
+                // para abrir. O caminho de volta é o .almaBackButton() acima,
+                // com a logo real da Alma.
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
                         Image(systemName: "person.crop.circle")
@@ -88,42 +79,11 @@ struct CorpoHomeView: View {
     // Banner de assinatura / teste grátis
     @ViewBuilder
     private var premiumBanner: some View {
-        if model.isPremium {
-            Button { AlmaBridge.openAlmaApp() } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "heart.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(Theme.primary)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Sua assinatura também desbloqueia o Alma 💜")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Theme.ink)
-                        Text("Abrir o Alma")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(Theme.primary)
-                    }
-                    Spacer()
-                    Image(systemName: "arrow.up.forward.app.fill")
-                        .font(.title3)
-                        .foregroundStyle(Theme.primary)
-                }
-            }
-            .buttonStyle(.plain)
-            .cardStyle(padding: 14)
-        } else if AlmaBridge.shared.almaHasPremium {
+        // [2026-08-02] Fusão: o banner "sua assinatura também desbloqueia o
+        // Alma" e o de trial saíram. Não há mais dois apps para cruzar
+        // assinatura, e o modelo não tem trial — assinante não vê banner algum.
+        if model.isPremium || AlmaBridge.shared.almaHasPremium {
             EmptyView()
-        } else if model.isTrialActive {
-            HStack(spacing: 12) {
-                Image(systemName: "sparkles").foregroundStyle(Theme.gold)
-                Text("Teste Premium ativo — faltam \(model.trialDaysRemaining) dias")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Theme.ink)
-                Spacer()
-                Button("Ver plano") { showPaywall = true }
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(Theme.primary)
-            }
-            .cardStyle(padding: 14)
         } else {
             Button { showPaywall = true } label: {
                 HStack(spacing: 14) {

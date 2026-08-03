@@ -1,0 +1,8 @@
+{
+  "images" : [
+    { "filename" : "CorpoLogo.png",    "idiom" : "universal", "scale" : "1x" },
+    { "filename" : "CorpoLogo@2x.png", "idiom" : "universal", "scale" : "2x" },
+    { "filename" : "CorpoLogo@3x.png", "idiom" : "universal", "scale" : "3x" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}
