@@ -29,8 +29,19 @@ final class StoreManager: ObservableObject {
     /// preferimos não anunciar um teste real a anunciar um inexistente.
     @Published var isEligibleForIntroOffer: Bool = false
 
-    static let annualID  = "com.almaapp.corpoealma.premium.annual"
-    static let monthlyID = "com.almaapp.corpoealma.premium.monthly"
+    // [2026-08-03 — BUG B10 da revisão independente]
+    //
+    // Aqui estavam `com.almaapp.corpoealma.premium.annual/monthly` — produtos do
+    // app Corpo & Alma, que foi DESCONTINUADO, pedidos de dentro do binário do
+    // Alma. Como esses IDs não existem no App Store Connect deste app, o
+    // StoreKit devolvia lista vazia: o paywall do Corpo ficava eternamente em
+    // "Tentar novamente" exibindo preços chumbados no código, e "Restaurar
+    // compras" nunca reconhecia a assinatura de quem tinha pago.
+    //
+    // Agora o módulo Corpo consulta os MESMOS produtos do Alma. Assinatura
+    // única, como o Assis decidiu em julho: um produto, um preço, um lugar.
+    static let annualID  = StoreKitManager.annualID
+    static let monthlyID = StoreKitManager.monthlyID
     private let productIDs = [StoreManager.annualID, StoreManager.monthlyID]
 
     /// O usuário tem assinatura ativa no Alma? (lido via App Group)
