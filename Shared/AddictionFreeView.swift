@@ -363,6 +363,9 @@ struct AddictionFreeView: View {
 
     // MARK: - Notifications
     private func scheduleMotivationalNotifications() {
+        #if DEBUG
+        if DebugContextDump.suprimirPermissoes { return }
+        #endif
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             guard granted else { return }
 

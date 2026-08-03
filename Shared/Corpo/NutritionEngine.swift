@@ -112,9 +112,15 @@ struct GoalEditorView: View {
             Text(model.customKcalGoal == nil ? "Meta sugerida (em uso)" : "Meta sugerida")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Theme.inkSoft)
-            Text("\(model.suggestedKcalGoal) kcal")
+            // [2026-08-03 — A10] `suggestedKcalGoal` virou `Int?` na faxina de
+            // honestidade e esta interpolação não acompanhou: a tela exibia
+            // "Optional(2231) kcal" em fonte 40 bold. Sem perfil completo não há
+            // meta — e é isso que o texto passa a dizer.
+            Text(model.suggestedKcalGoal.map { "\($0) kcal" } ?? "informe suas medidas")
                 .font(.system(size: 40, weight: .bold))
                 .foregroundStyle(Theme.primary)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
             Text("Calculada pelo seu peso, altura, idade, sexo, atividade e objetivo (\(model.goal.rawValue.lowercased())).")
                 .font(.caption)
                 .foregroundStyle(Theme.inkSoft)

@@ -17,6 +17,8 @@ struct CorpoModuleView: View {
 
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var access: AccessManager
+    /// StoreKit do Alma — o módulo Corpo vende o mesmo produto que o resto do app.
+    @EnvironmentObject var storeAlma: StoreKitManager
 
     // [Fusão 2026-08-02] CRASH CORRIGIDO: o módulo Corpo declara três
     // @EnvironmentObject (AppModel, HealthManager, StoreManager) que, no app
@@ -51,6 +53,13 @@ struct CorpoModuleView: View {
                     .environmentObject(corpoModel)
                     .environmentObject(corpoHealth)
                     .environmentObject(corpoStore)
+                    // [2026-08-03 — B10] O StoreKit do ALMA desce junto: o
+                    // paywall do Corpo passou a vender o produto único do app
+                    // (`com.almaapp.app.premium_*`) em vez dos IDs do Corpo &
+                    // Alma, que está descontinuado e cujos produtos não existem
+                    // mais — a tela ficava presa em "Tentar novamente".
+                    .environmentObject(storeAlma)
+                    .environmentObject(access)
                     .environment(\.voltarParaAlma, { dismiss() })
             } else {
                 NavigationStack {

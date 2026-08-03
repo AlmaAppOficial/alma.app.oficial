@@ -121,6 +121,10 @@ class HealthKitManager: ObservableObject {
     private var stepObserver: HKObserverQuery?
 
     nonisolated func requestAuthorization() async -> Bool {
+        #if DEBUG
+        // Captura de telas de validação: sem o diálogo do sistema por cima.
+        if DebugContextDump.suprimirPermissoes { return false }
+        #endif
         guard HKHealthStore.isHealthDataAvailable() else { return false }
 
         var types: Set<HKObjectType> = [

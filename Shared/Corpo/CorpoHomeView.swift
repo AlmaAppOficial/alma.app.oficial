@@ -60,7 +60,7 @@ struct CorpoHomeView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showPaywall) { CorpoPaywallView() }
+            .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
             .sheet(isPresented: $showSettings) { SettingsView() }
             // Sincroniza dados do HealthKit com o model ao surgir e quando os valores mudam
             .onAppear { syncHealthToModel() }
@@ -270,9 +270,12 @@ struct CorpoHomeView: View {
             }
             .frame(height: 10)
             HStack(spacing: 10) {
+                // [2026-08-03 — BUG B11] Registrar água exigia assinatura: o
+                // usuário grátis via "0 / 2500 ml" para sempre. Isso contradizia
+                // a régua que eu mesmo escrevi no CorpoAcesso no MESMO commit —
+                // e deixava a Alma cega, porque sem registro não há contexto.
                 Button {
-                    if model.hasPremiumAccess { model.addWater(250) }
-                    else { showPaywall = true }
+                    model.addWater(250)
                 } label: {
                     Label("250 ml", systemImage: "plus")
                         .font(.subheadline.weight(.semibold))
@@ -282,8 +285,7 @@ struct CorpoHomeView: View {
                 .tint(Theme.azure)
 
                 Button {
-                    if model.hasPremiumAccess { model.addWater(500) }
-                    else { showPaywall = true }
+                    model.addWater(500)
                 } label: {
                     Label("500 ml", systemImage: "plus")
                         .font(.subheadline.weight(.semibold))

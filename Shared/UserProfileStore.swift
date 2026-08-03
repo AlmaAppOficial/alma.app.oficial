@@ -120,15 +120,37 @@ final class UserProfileStore: ObservableObject {
     /// AppModel — e a Home chamava sem parâmetro. Resultado: o card dizia
     /// "faltam 3" mesmo com peso e altura em branco, e a barra de progresso
     /// mentia. Agora, sem model, ele monta um a partir do que está persistido.
-    func pendencias(corpo: AppModel? = nil) -> [PendenciaPerfil] {
-        let dadosDoCorpo = corpo ?? AppModel()
-
+    func pendencias(corpo: AppModel) -> [PendenciaPerfil] {
         var lista: [PendenciaPerfil] = []
+
         if primeiroNome == nil { lista.append(.nome) }
-        if dataNascimento == nil { lista.append(.nascimento) }
-        if !dadosDoCorpo.hasBodyProfile { lista.append(.medidas) }
-        if !HealthContextConsent.hasAnyConsent { lista.append(.contexto) }
+
+        // [A6b] Usuário antigo tem a data no UserMemoryManager e nunca populou
+        // a chave nova do App Group. Sem olhar as duas fontes, o card cobraria
+        // eternamente uma informação que o app já tem.
+        if dataNascimento == nil && UserMemoryManager.shared.birthDate == nil {
+            lista.append(.nascimento)
+        }
+
+        // [A6a] `hasBodyProfile` exige idade > 0, mas a data de nascimento é
+        // opcional no onboarding — quem informava peso e altura sem a data
+        // ficava com o card para sempre. Aqui a cobrança é só do que a própria
+        // pendência promete: peso e altura.
+        if !(corpo.weightKg > 0 && corpo.heightCm > 0) { lista.append(.medidas) }
+
+        // [A6c] Não consentir é uma escolha legítima. Só cobramos de quem ainda
+        // não decidiu — quem já viu a tela e disse não, não é cobrado de novo.
+        if !HealthContextConsent.hasAnyConsent && !decidiuSobreContexto {
+            lista.append(.contexto)
+        }
         return lista
+    }
+
+    /// Marcado quando a pessoa passa pela tela de consentimento, tendo ligado
+    /// algo ou não. Distingue "ainda não viu" de "viu e não quis".
+    var decidiuSobreContexto: Bool {
+        get { store.bool(forKey: "perfil_decidiuContexto") }
+        set { store.set(newValue, forKey: "perfil_decidiuContexto") }
     }
 }
 

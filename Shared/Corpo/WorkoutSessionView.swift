@@ -18,6 +18,14 @@ struct WorkoutSessionView: View {
     @State private var restSeconds  = 0
     @State private var restTimer: Timer? = nil
 
+    /// [2026-08-03] Quando a sessão realmente começou. O resumo mostrava
+    /// `workout.durationMin` — a duração PLANEJADA no template — como se fosse
+    /// o que a pessoa fez: "45 minutos" para quem pulou tudo em 4 (revisão
+    /// independente, A17).
+    @State private var inicio = Date()
+    /// Quantos exercícios foram efetivamente concluídos (não pulados).
+    @State private var concluidos = 0
+
     enum Phase { case exercising, resting, done }
 
     private var currentExercise: Exercise? {
@@ -109,7 +117,9 @@ struct WorkoutSessionView: View {
                     .tint(workout.tint)
                     .controlSize(.large)
 
-                    Button { advanceExercise() } label: {
+                    // Pular NÃO conta como exercício feito — senão o resumo
+                    // diria "8 de 8" para quem pulou os oito.
+                    Button { advanceExercise(concluiu: false) } label: {
                         Text(currentIndex + 1 < workout.exercises.count ? "Pular exercício" : "Finalizar treino")
                             .font(.subheadline)
                             .foregroundStyle(Theme.inkSoft)
@@ -188,10 +198,14 @@ struct WorkoutSessionView: View {
                     .font(.subheadline)
                     .foregroundStyle(Theme.inkSoft)
             }
+            // [2026-08-03] Só número medido. As calorias saíram: o template
+            // trazia um valor fixo (e o treino personalizado inventava
+            // "exercícios × 45"), exibido como se fosse gasto real. Estimar
+            // caloria de treino exigiria peso, intensidade e frequência
+            // cardíaca — nada disso é medido aqui, então o app não afirma.
             HStack(spacing: 16) {
-                summaryBox("\(workout.exercises.count)", "exercícios", "list.bullet",      workout.tint)
-                summaryBox("\(workout.durationMin)",    "minutos",    "clock.fill",        Theme.azure)
-                summaryBox("\(workout.kcal)",           "kcal",       "flame.fill",        Theme.coral)
+                summaryBox("\(concluidos) de \(workout.exercises.count)", "exercícios", "list.bullet", workout.tint)
+                summaryBox(duracaoRealTexto, "de treino", "clock.fill", Theme.azure)
             }
             .padding(.horizontal, 20)
             Spacer()
@@ -231,15 +245,37 @@ struct WorkoutSessionView: View {
         }
     }
 
-    private func advanceExercise() {
+    private func advanceExercise(concluiu: Bool = true) {
         stopTimer()
+        if concluiu { concluidos += 1 }
         let next = currentIndex + 1
         if next >= workout.exercises.count {
+            registrarTreinoConcluido()
             phase = .done
         } else {
             currentIndex = next
             phase = .exercising
         }
+    }
+
+    /// [2026-08-03 — BUG B3 da revisão independente]
+    /// Este registro NÃO EXISTIA. `workoutDays` só era escrito pelo seed de
+    /// DEBUG: em produção, ninguém nunca gravou um treino. Consequências em
+    /// cadeia: a aba Insights ficava eternamente em "registre por mais N dias"
+    /// (o contador jamais andava) e a linha "Treino:" que a Alma deveria
+    /// receber era inatingível — o app prometia enxergar seus treinos e não
+    /// tinha como saber de nenhum.
+    ///
+    /// Ontem eu "corrigi a persistência" desta coleção: consertei a LEITURA de
+    /// algo que ninguém ESCREVIA.
+    private func registrarTreinoConcluido() {
+        model.workoutDays.insert(CorpoInsightsEngine.chaveDia(Date()))
+    }
+
+    /// Duração medida do relógio, não a do template.
+    private var duracaoRealTexto: String {
+        let minutos = max(1, Int(Date().timeIntervalSince(inicio) / 60))
+        return minutos == 1 ? "1 min" : "\(minutos) min"
     }
 
     private func startRest() {

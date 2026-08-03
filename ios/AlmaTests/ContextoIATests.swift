@@ -50,6 +50,8 @@ struct ContextoIATests {
         testPerfil()
         print("\n── Humor (sinal traduzido) ──")
         testHumor()
+        print("\n── Humor: pipeline real do check-in ──")
+        testHumorPipelineReal()
 
         print("\n\(total - falhas)/\(total) passaram.")
         if falhas > 0 {
@@ -201,5 +203,60 @@ struct ContextoIATests {
 
         let temEmoji = saidas.contains { $0.unicodeScalars.contains { $0.properties.isEmoji } }
         check(!temEmoji, "o sinal de humor não carrega emoji nenhum")
+    }
+
+    // MARK: - Humor: o teste que faltava
+    //
+    // [2026-08-03] Os 29 testes anteriores passavam com o humor completamente
+    // quebrado no app. Eles exercitavam `sinalDeHumor(dificeis:leves:total:)`
+    // com contagens INJETADAS — nunca os rótulos que o check-in grava de fato.
+    //
+    // O bug B2 vivia exatamente nesse vão: a tela gravava "Triste" e o
+    // classificador procurava "😢". Interseção vazia, resultado sempre
+    // "semana estável". Cobertura verde, funcionalidade morta.
+    //
+    // Estes testes entram pelos RÓTULOS REAIS, os mesmos que a InsightsView usa.
+
+    static func testHumorPipelineReal() {
+        // Os rótulos que o app realmente grava, conforme o enum Mood.
+        let rotulosReais = ["Ótimo", "Bem", "Normal", "Cansado", "Ansioso", "Triste"]
+        check(rotulosReais.allSatisfy { Mood(rawValue: $0) != nil },
+              "todo rótulo do check-in é reconhecido pelo classificador")
+
+        // O caso que motivou tudo: sete dias de tristeza.
+        igual(CorpoContextFormat.classificarHumor(rotulos: Array(repeating: "Triste", count: 7)),
+              "semana emocionalmente pesada",
+              "sete dias de 'Triste' NÃO podem virar 'semana estável'")
+
+        igual(CorpoContextFormat.classificarHumor(rotulos: ["Ótimo", "Bem", "Ótimo", "Bem"]),
+              "semana leve, bom momento",
+              "semana boa é reconhecida")
+
+        igual(CorpoContextFormat.classificarHumor(rotulos: ["Triste", "Ótimo", "Cansado", "Bem"]),
+              "semana oscilante",
+              "altos e baixos")
+
+        igual(CorpoContextFormat.classificarHumor(rotulos: ["Normal", "Normal", "Normal"]),
+              "semana estável",
+              "'estável' só quando os registros são realmente neutros")
+
+        // Silêncio em vez de afirmação sem base.
+        igual(CorpoContextFormat.classificarHumor(rotulos: ["Triste", "Triste"]),
+              nil,
+              "dois registros não bastam para afirmar nada")
+
+        igual(CorpoContextFormat.classificarHumor(rotulos: []),
+              nil,
+              "sem check-in, a Alma não recebe linha de humor")
+
+        igual(CorpoContextFormat.classificarHumor(rotulos: ["😢", "😔", "😰"]),
+              nil,
+              "rótulo desconhecido (emoji legado) não vira 'estável' silencioso")
+
+        // Trava de regressão: se alguém acrescentar um humor na tela sem
+        // declarar a valência, este teste cai.
+        check(Mood.allCases.count == 6, "o check-in tem 6 humores; mudou? declare a valência do novo")
+        check(Mood.allCases.filter { $0.valencia == .dificil }.count == 3,
+              "Cansado, Ansioso e Triste contam como semana difícil")
     }
 }

@@ -119,7 +119,7 @@ struct GuidanceEngine {
             2: [
                 "A harmonia é sua natureza. Procure-a hoje.",
                 "Escute com o coração aberto.",
-                "Cooperação traz resultados inesperados.",
+                "Cooperação traga resultados inesperados.",
                 "Você é uma ponte entre pessoas. Seja gentil.",
                 "Sensibilidade é força, não fraqueza.",
                 "A paciência hoje colhe amanhã.",
@@ -132,8 +132,8 @@ struct GuidanceEngine {
                 "Sua criatividade é um fogo sagrado.",
                 "Comunique sua verdade com alegria.",
                 "A expressão é libertação.",
-                "Você inspira quando é autêntico.",
-                "Hoje, fale o que o seu coração sente.",
+                "Você inspire quando é autêntico.",
+                "Hoje, fale o que o seu coração sinta.",
                 "Criatividade flui quando você está presente.",
                 "Sua voz importa. Deixe-a ecoar.",
                 "Alegria é contagiosa; compartilhe-a.",
@@ -161,17 +161,17 @@ struct GuidanceEngine {
                 "Aventura espera por você.",
                 "Adaptabilidade é sua força.",
                 "Hoje, explore um novo caminho.",
-                "Variedade traz crescimento.",
+                "Variedade traga crescimento.",
                 "Sua energia é contagiosa.",
             ],
             6: [
                 "Harmonia em casa é encontrada em você.",
                 "Seu cuidado transforma o mundo.",
-                "Responsabilidade é amor em acção.",
+                "Responsabilidade é amor em ação.",
                 "Você cura apenas estando presente.",
                 "Beleza está em pequenos gestos.",
                 "Família é prioridade sagrada.",
-                "Seu equilíbrio inspira outros.",
+                "Seu equilíbrio inspire outros.",
                 "Hoje, cuide de quem ama.",
                 "Você é um guardião de paz.",
                 "Compaixão é seu idioma nativo.",
@@ -179,7 +179,7 @@ struct GuidanceEngine {
             7: [
                 "Profundidade é seu presente.",
                 "Busque a verdade dentro de você.",
-                "Meditação traz clareza.",
+                "Meditação traga clareza.",
                 "Você é um buscador de sabedoria.",
                 "Silêncio fala mais alto que ruído.",
                 "Introspecção é poder.",
@@ -194,7 +194,7 @@ struct GuidanceEngine {
                 "Abundância é seu direito de nascença.",
                 "Você manifesta o que pensa.",
                 "Ambição com integridade triunfa.",
-                "Riqueza flui através de acções certas.",
+                "Riqueza flui através de ações certas.",
                 "Autoridade vem de dentro.",
                 "Hoje, reclame o seu poder.",
                 "Você é um maestro de possibilidades.",
@@ -258,7 +258,7 @@ struct GuidanceEngine {
         let energies = [
             "Dia de Transformação Interior",
             "Dia de Renovação e Esperança",
-            "Dia de Acção Consciente",
+            "Dia de Ação Consciente",
             "Dia de Introspecção Profunda",
             "Dia de Libertação",
             "Dia de Harmonia e Cura",
@@ -371,7 +371,7 @@ struct GuidanceEngine {
         ("Ser grande é unir tudo, ligando-o numa visão única.", "Sabedoria tradicional"),
 
         // Filósofos clássicos (domínio público)
-        ("Conhece-te a ti mesmo.", "Sócrates"),
+        ("Conhece a você mesmo.", "Sócrates"),
         ("Tudo flui, nada permanece.", "Heráclito"),
         ("O único modo verdadeiro de conhecer uma pessoa é amar-lhe sem esperança.", "Dostoiévski"),
 
@@ -408,7 +408,7 @@ struct GuidanceEngine {
         ("A melhor vingança é não se igualar a quem te ofende.", "Marco Aurélio"),
         ("Ame as pessoas com quem o destino te reuniu, e faça-o com todo o coração.", "Marco Aurélio"),
         ("Considera que o tempo presente é o único que temos; e é curto.", "Marco Aurélio"),
-        ("Não vivas como se tivesses mil anos pela frente. Enquanto podes, sê bom.", "Marco Aurélio"),
+        ("Não vivas como se tivesses mil anos pela frente. Enquanto pode, sê bom.", "Marco Aurélio"),
         ("O obstáculo no caminho torna-se o caminho.", "Marco Aurélio"),
 
         // Sêneca — adicionais (Epístolas / De Brevitate Vitae)
@@ -422,7 +422,7 @@ struct GuidanceEngine {
         ("Não são as coisas que perturbam o ser humano, mas o julgamento que ele faz delas.", "Epicteto"),
         ("É impossível aprender aquilo que se pensa já saber.", "Epicteto"),
         ("Primeiro diga a si mesmo o que você quer ser; depois faça o que tem de fazer.", "Epicteto"),
-        ("Se alguém te ferir, lembra que é o seu próprio julgamento que te feriu.", "Epicteto"),
+        ("Se alguém te ferir, lembre que é o seu próprio julgamento que te feriu.", "Epicteto"),
 
         // Aristóteles (Ética a Nicômaco / Metafísica)
         ("A felicidade depende de nós mesmos.", "Aristóteles"),
@@ -446,14 +446,14 @@ struct GuidanceEngine {
         ("A vida é curta; a arte é longa.", "Hipócrates"),
 
         // Emily Dickinson
-        ("A esperança é a coisa com penas que pousa na alma, e canta a melodia sem palavras, e nunca, nunca para.", "Emily Dickinson"),
+        ("A esperança é a coisa com penas que pouse na alma, e canta a melodia sem palavras, e nunca, nunca para.", "Emily Dickinson"),
         ("Eu habito na possibilidade.", "Emily Dickinson"),
 
         // Walt Whitman — adicional
         ("Eu sou o poeta do corpo, e sou o poeta da alma.", "Walt Whitman"),
 
         // Rabindranath Tagore
-        ("Deixa tua vida dançar levemente nas bordas do tempo, como o orvalho na ponta de uma folha.", "Tagore"),
+        ("Deixe sua vida dançar levemente nas bordas do tempo, como o orvalho na ponta de uma folha.", "Tagore"),
         ("Não oro pela proteção dos perigos, mas pela coragem de enfrentá-los.", "Tagore"),
 
         // Khalil Gibran (The Prophet)
@@ -470,7 +470,7 @@ struct GuidanceEngine {
         // Montaigne (Ensaios)
         ("Aquele que teme padecer, já padece do que teme.", "Montaigne"),
         ("A vida em si não é nem bem nem mal: é a arena tanto do bem quanto do mal, conforme a tornamos.", "Montaigne"),
-        ("Cada homem traz em si a forma inteira da condição humana.", "Montaigne"),
+        ("Cada homem traga em si a forma inteira da condição humana.", "Montaigne"),
 
         // Dostoiévski — adicionais
         ("A beleza salvará o mundo.", "Dostoiévski"),

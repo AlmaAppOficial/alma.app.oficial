@@ -234,7 +234,11 @@ struct BodyScanView: View {
             Color.black.opacity(0.45).ignoresSafeArea()
             VStack(spacing: 16) {
                 ProgressView().scaleEffect(1.4).tint(.white)
-                Text("Analisando seu corpo com IA…")
+                // [2026-08-03 — B8] Era "Analisando seu corpo com IA…" sobre um
+                // cálculo local por medidas. Sem IA no build, o texto mente.
+                Text(GeminiConfig.isAvailable
+                     ? "Analisando suas fotos…"
+                     : "Calculando a partir das suas medidas…")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.white)
             }

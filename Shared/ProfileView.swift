@@ -308,7 +308,7 @@ struct ProfileView: View {
         switch notifStatus {
         case .authorized: return "Ativadas"
         case .denied: return "Bloqueadas — toca para configurar"
-        default: return "Toca para ativar"
+        default: return "Toque para ativar"
         }
     }
 
@@ -332,6 +332,11 @@ struct ProfileView: View {
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
                 Task { @MainActor in
                     notifStatus = granted ? .authorized : .denied
+                }
+                // [2026-08-03 — A1] Pedir permissão e não agendar nada era o
+                // estado anterior: o app de meditação nunca lembrava de meditar.
+                if granted {
+                    Task { await LembretesDaAlma.ligar() }
                 }
             }
         }

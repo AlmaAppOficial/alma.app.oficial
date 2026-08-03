@@ -15,11 +15,23 @@ struct HomeView: View {
     /// Abre sozinho quando o app roda com `-abrirCorpo 1`, o que permite validar
     /// o módulo por linha de comando (`xcrun simctl launch … -abrirCorpo 1`)
     /// sem depender de automação de toque.
+    /// [2026-08-03 — A13] A flag só existe em DEBUG. Compilada em Release, era
+    /// um caminho de teste embarcado no app da loja.
+    #if DEBUG
     @State private var showCorpoModule = UserDefaults.standard.bool(forKey: "abrirCorpo")
+    #else
+    @State private var showCorpoModule = false
+    #endif
 
     @ObservedObject private var streakManager = StreakManager.shared
     @ObservedObject private var perfil = UserProfileStore.shared
     @State private var showOnboarding = false
+    /// [2026-08-03 — B4/MÉDIO] Um AppModel só, criado uma vez. Antes a Home
+    /// chamava `pendencias()` sem argumento e o método construía um `AppModel()`
+    /// novo — duas vezes por render. Cada construção decodifica ~6 blobs JSON e,
+    /// pior, carimba `lastWaterDate`: era um dos gatilhos da água de ontem
+    /// ressuscitando como água de hoje.
+    @StateObject private var corpoModel = AppModel()
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -31,7 +43,7 @@ struct HomeView: View {
                 // ── Complete seu perfil ────────────────
                 // [2026-08-02] Só aparece quando falta algo de verdade, e some
                 // sozinho quando o perfil fica completo.
-                if !perfil.pendencias().isEmpty {
+                if !perfil.pendencias(corpo: corpoModel).isEmpty {
                     completeSeuPerfilCard
                 }
 
@@ -88,6 +100,7 @@ struct HomeView: View {
             authorized = await hk.requestAuthorization()
             if authorized { await hk.loadAll() }
             #if DEBUG
+            await MainActor.run { TestePersistencia.executar() }
             await MainActor.run { DebugContextDump.semearPerfil() }
             await DebugContextDump.executar(health: hk)
             #endif
@@ -95,6 +108,7 @@ struct HomeView: View {
         .fullScreenCover(isPresented: $showCorpoModule) {
             CorpoModuleView()
                 .environmentObject(access)
+                .environmentObject(store)
         }
         // [2026-08-02] O card "Complete seu perfil" reabre o MESMO onboarding
         // da primeira abertura (OnboardingBiometricsView), agora com nome,
@@ -155,7 +169,7 @@ struct HomeView: View {
     // as medidas de quem estava do outro lado — e mesmo assim calculava metas e
     // conversava. Este card cobra o que falta, sempre dizendo PARA QUÊ.
     private var completeSeuPerfilCard: some View {
-        let pendencias = perfil.pendencias()
+        let pendencias = perfil.pendencias(corpo: corpoModel)
 
         return Button {
             showOnboarding = true

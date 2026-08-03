@@ -149,11 +149,22 @@ class UserMemoryManager: ObservableObject {
         save()
     }
 
+    /// [2026-08-03 — A4 da revisão independente]
+    /// Campo vazio deixou de sobrescrever valor existente. O onboarding pode ser
+    /// reaberto pelo card "Complete seu perfil" com os `@State` em branco, e
+    /// esta função gravava tudo incondicionalmente: quem voltasse só para
+    /// informar o peso apagava cidade, país e horário de nascimento que já tinha
+    /// preenchido. `birthDate` já tinha essa guarda; os outros três não.
     func setIdentity(gender: String, birthDate: Date?, birthTimeSlot: String, birthCity: String, birthCountry: String) {
-        self.gender = gender
-        self.birthTimeSlot = birthTimeSlot
-        self.birthCity = birthCity
-        self.birthCountry = birthCountry
+        func preencher(_ novo: String, _ atual: inout String) {
+            let limpo = novo.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !limpo.isEmpty else { return }   // vazio não apaga o que existe
+            atual = limpo
+        }
+        preencher(gender, &self.gender)
+        preencher(birthTimeSlot, &self.birthTimeSlot)
+        preencher(birthCity, &self.birthCity)
+        preencher(birthCountry, &self.birthCountry)
         if let date = birthDate {
             self.birthDate = date
         }

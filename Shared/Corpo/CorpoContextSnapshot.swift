@@ -24,6 +24,11 @@ struct CorpoContextSnapshot {
     let linhaSuplementos: String?
     let linhaPerfil: String?
 
+    /// [2026-08-03 — B4] O default `AppModel()` continua, mas agora é seguro: o
+    /// init parou de carimbar `lastWaterDate` sem zerar o valor no disco, que
+    /// era o que fazia instâncias descartáveis ressuscitarem a água de ontem.
+    /// Ainda assim, prefira injetar o model do ambiente — construir um AppModel
+    /// decodifica ~6 blobs JSON, e isto roda a cada mensagem de chat.
     @MainActor
     static func atual(model: AppModel = AppModel()) -> CorpoContextSnapshot {
         CorpoContextSnapshot(

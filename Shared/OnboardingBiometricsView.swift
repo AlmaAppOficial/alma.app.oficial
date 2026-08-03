@@ -3,6 +3,9 @@ import SwiftUI
 struct OnboardingBiometricsView: View {
 
     @AppStorage("onboardingComplete") private var onboardingComplete = false
+    /// [2026-08-03 — A5] Faltava: apresentado como sheet pelo card "Complete
+    /// seu perfil", o botão "Começar" não fechava nada — só saía por swipe.
+    @Environment(\.dismiss) private var dismiss
     @State private var currentStep = 0
 
     // [2026-08-02] Onboarding ÚNICO, cobrindo Alma e Corpo.
@@ -92,6 +95,35 @@ struct OnboardingBiometricsView: View {
             }
         }
         .animation(.easeInOut(duration: 0.35), value: currentStep)
+        // [2026-08-03 — A4] Pré-carrega o que já existe. Reaberto pelo card
+        // "Complete seu perfil", este fluxo abria com tudo em branco e regravava
+        // por cima — quem voltava só para pôr o peso perdia cidade e horário.
+        .onAppear(perform: precarregar)
+    }
+
+    private func precarregar() {
+        let memoria = UserMemoryManager.shared
+        if nomeDigitado.isEmpty { nomeDigitado = UserProfileStore.shared.nome ?? corpo.userName }
+        if selectedGender.isEmpty { selectedGender = memoria.gender }
+        if selectedBirthTimeSlot.isEmpty { selectedBirthTimeSlot = memoria.birthTimeSlot }
+        if birthCity.isEmpty { birthCity = memoria.birthCity }
+        if birthCountry.isEmpty { birthCountry = memoria.birthCountry }
+
+        // Data de nascimento: o perfil novo (App Group) é a referência, mas
+        // usuário antigo só tem a data no UserMemoryManager. [A6b]
+        if let doPerfil = UserProfileStore.shared.dataNascimento {
+            birthDate = doPerfil
+            hasBirthDate = true
+        } else if let daMemoria = memoria.birthDate {
+            birthDate = daMemoria
+            hasBirthDate = true
+            // Migra para o perfil único, senão o card cobra para sempre uma
+            // data que o app já tem.
+            UserProfileStore.shared.dataNascimento = daMemoria
+        }
+
+        if corpo.weightKg > 0, pesoTexto.isEmpty { pesoTexto = String(format: "%.1f", corpo.weightKg) }
+        if corpo.heightCm > 0, alturaTexto.isEmpty { alturaTexto = String(format: "%.0f", corpo.heightCm) }
     }
 
     // MARK: - Steps
@@ -425,6 +457,11 @@ struct OnboardingBiometricsView: View {
                 }
             }
         }
+        // [A6c] Passou pela tela de consentimento: a decisão foi tomada, ligando
+        // algo ou não. O card para de cobrar quem exerceu o direito de recusar.
+        if currentStep == 3 {
+            UserProfileStore.shared.decidiuSobreContexto = true
+        }
         if currentStep == 2 {
             if let peso = Double(pesoTexto.replacingOccurrences(of: ",", with: ".")), peso > 0 {
                 corpo.weightKg = peso
@@ -438,6 +475,7 @@ struct OnboardingBiometricsView: View {
         } else {
             UserProfileStore.shared.onboardingConcluido = true
             onboardingComplete = true
+            dismiss()   // [A5] fecha quando veio como sheet; inofensivo no RootView
         }
     }
 }

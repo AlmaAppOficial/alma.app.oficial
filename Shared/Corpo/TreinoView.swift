@@ -44,8 +44,7 @@ struct TreinoView: View {
                     VStack(spacing: 12) {
                         ForEach(model.workouts) { workout in
                             Button {
-                                if model.hasPremiumAccess { selectedWorkout = workout }
-                                else { showPaywall = true }
+                                selectedWorkout = workout
                             } label: {
                                 workoutRow(workout)
                             }
@@ -62,12 +61,11 @@ struct TreinoView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if model.hasPremiumAccess { showBuilder = true }
-                        else { showPaywall = true }
                     } label: { Image(systemName: "plus") }
                 }
             }
             .sheet(isPresented: $showBuilder) { TreinoBuilderView() }
-            .sheet(isPresented: $showPaywall) { CorpoPaywallView() }
+            .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
             .fullScreenCover(isPresented: $showSession) {
                 if let w = model.workouts.first {
                     NavigationStack {
@@ -122,7 +120,6 @@ struct TreinoView: View {
     private var muscleMapEntryCard: some View {
         Button {
             if model.hasPremiumAccess { showMuscleMap = true }
-            else { showPaywall = true }
         } label: {
             MuscleMapCard()
         }
@@ -133,7 +130,6 @@ struct TreinoView: View {
     private var buildOwnCard: some View {
         Button {
             if model.hasPremiumAccess { showBuilder = true }
-            else { showPaywall = true }
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: "slider.horizontal.2.square")
@@ -151,7 +147,7 @@ struct TreinoView: View {
                         .foregroundStyle(Theme.inkSoft)
                 }
                 Spacer()
-                Image(systemName: model.hasPremiumAccess ? "chevron.right" : "lock.fill")
+                Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -179,21 +175,19 @@ struct TreinoView: View {
             }
             Spacer()
             Button {
-                if model.hasPremiumAccess { model.removeCustomWorkout(cw) }
-                else { showPaywall = true }
+                model.removeCustomWorkout(cw)
             } label: {
                 Image(systemName: "trash").font(.caption).foregroundStyle(Theme.coral)
             }
             .buttonStyle(.plain)
-            Image(systemName: model.hasPremiumAccess ? "chevron.right" : "lock.fill")
+            Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(Theme.inkSoft)
         }
         .cardStyle(padding: 14)
         .contentShape(Rectangle())
         .onTapGesture {
-            if model.hasPremiumAccess { selectedCustomWorkout = cw }
-            else { showPaywall = true }
+            selectedCustomWorkout = cw
         }
     }
 
@@ -226,8 +220,7 @@ struct TreinoView: View {
 
             ForEach(model.todayExercises) { ex in
                 Button {
-                    if model.hasPremiumAccess { selectedExercise = ex }
-                    else { showPaywall = true }
+                    selectedExercise = ex
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: ex.symbol)
@@ -240,7 +233,7 @@ struct TreinoView: View {
                         Text("\(ex.sets)× \(ex.reps)")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Theme.inkSoft)
-                        Image(systemName: model.hasPremiumAccess ? "chevron.right" : "lock.fill")
+                        Image(systemName: "chevron.right")
                             .font(.caption2)
                             .foregroundStyle(Theme.inkSoft)
                     }
@@ -249,12 +242,11 @@ struct TreinoView: View {
             }
 
             Button {
-                if model.hasPremiumAccess { showSession = true }
-                else { showPaywall = true }
+                showSession = true
             } label: {
                 Label(
-                    model.hasPremiumAccess ? "Iniciar treino" : "Premium — Iniciar treino",
-                    systemImage: model.hasPremiumAccess ? "play.fill" : "lock.fill"
+                    "Iniciar treino",
+                    systemImage: "play.fill"
                 )
                 .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity)
@@ -291,7 +283,7 @@ struct TreinoView: View {
                     .font(.caption2)
                     .foregroundStyle(Theme.inkSoft)
             }
-            Image(systemName: model.hasPremiumAccess ? "chevron.right" : "lock.fill")
+            Image(systemName: "chevron.right")
                 .font(.caption2)
                 .foregroundStyle(Theme.inkSoft)
         }

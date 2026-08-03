@@ -45,6 +45,9 @@ final class HealthManager: ObservableObject {
     // MARK: - Autorização
 
     func requestAuthorization() {
+        #if DEBUG
+        if DebugContextDump.suprimirPermissoes { return }
+        #endif
         #if canImport(HealthKit)
         guard isAvailable else { return }
 

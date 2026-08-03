@@ -17,7 +17,15 @@ struct SaudeView: View {
 
     // Peso e IMC preferem o Apple Saúde quando disponível.
     private var currentWeight: Double { health.bodyMass ?? model.weightKg }
-    private var currentIMC: Double { currentWeight / pow(model.heightCm / 100, 2) }
+
+    /// [2026-08-03 — BUG B5] Opcional de propósito: sem peso/altura não existe
+    /// IMC, e a tela precisa ser obrigada a lidar com isso. Antes, 0/0 = NaN
+    /// era exibido como "nan" e classificado como "Obesidade".
+    private var currentIMC: Double? {
+        guard currentWeight > 0, model.heightCm > 0 else { return nil }
+        let valor = currentWeight / pow(model.heightCm / 100, 2)
+        return valor.isFinite ? valor : nil
+    }
 
     var body: some View {
         NavigationStack {
@@ -36,11 +44,16 @@ struct SaudeView: View {
                     imcCard
 
                     SectionTitle(text: "Composição corporal")
+                    // [2026-08-03] Cada célula mostra "—" quando não há dado, em
+                    // vez de "0.0 kg" e "0 cm" apresentados como medidas.
+                    // A FC de repouso saiu do fallback `model.restingHR`, que
+                    // era a constante 62 bpm (BUG B6): o app exibia como medida
+                    // um número que nunca foi medido em ninguém.
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
-                        bodyStat("Peso", String(format: "%.1f", currentWeight), "kg", "scalemass.fill", Theme.primary, fromHealth: health.bodyMass != nil)
-                        bodyStat("Altura", String(format: "%.0f", model.heightCm), "cm", "ruler.fill", Theme.azure, fromHealth: false)
-                        bodyStat("Gordura", String(format: "%.1f", model.bodyFat), "%", "drop.triangle.fill", Theme.coral, fromHealth: false)
-                        bodyStat("FC repouso", health.restingHeartRate.map { "\(Int($0))" } ?? "\(model.restingHR)", "bpm", "heart.fill", Theme.violet, fromHealth: health.restingHeartRate != nil)
+                        bodyStat("Peso", medida(currentWeight, casas: 1), "kg", "scalemass.fill", Theme.primary, fromHealth: health.bodyMass != nil)
+                        bodyStat("Altura", medida(model.heightCm, casas: 0), "cm", "ruler.fill", Theme.azure, fromHealth: false)
+                        bodyStat("Gordura", medida(model.bodyFat, casas: 1), "%", "drop.triangle.fill", Theme.coral, fromHealth: false)
+                        bodyStat("FC repouso", health.restingHeartRate.map { "\(Int($0))" } ?? "—", "bpm", "heart.fill", Theme.violet, fromHealth: health.restingHeartRate != nil)
                     }
 
                     SectionTitle(text: "Apple Saúde · ao vivo")
@@ -59,7 +72,7 @@ struct SaudeView: View {
                 }
             }
             .sheet(isPresented: $editing) { EditAssessmentView() }
-            .sheet(isPresented: $showPaywall) { CorpoPaywallView() }
+            .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
             .navigationDestination(isPresented: $goToScan) { BodyScanView() }
 
             // Chama requestAuthorization em cada aparição:
@@ -147,32 +160,63 @@ struct SaudeView: View {
     }
 
     // Card de IMC
+    @ViewBuilder
     private var imcCard: some View {
-        HStack(spacing: 20) {
-            ZStack {
-                ProgressRing(progress: min(currentIMC / 40, 1), tint: Theme.primary, lineWidth: 12)
-                    .frame(width: 104, height: 104)
-                VStack(spacing: 0) {
-                    Text(String(format: "%.1f", currentIMC))
-                        .font(.title.bold())
-                        .foregroundStyle(Theme.ink)
-                    Text("IMC")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Theme.inkSoft)
+        if let imc = currentIMC {
+            HStack(spacing: 20) {
+                ZStack {
+                    ProgressRing(progress: min(imc / 40, 1), tint: Theme.primary, lineWidth: 12)
+                        .frame(width: 104, height: 104)
+                    VStack(spacing: 0) {
+                        Text(String(format: "%.1f", imc).replacingOccurrences(of: ".", with: ","))
+                            .font(.title.bold())
+                            .foregroundStyle(Theme.ink)
+                        Text("IMC")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Theme.inkSoft)
+                    }
                 }
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(imcClass(imc))
+                        .font(.title3.bold())
+                        .foregroundStyle(Theme.primary)
+                    Text("Índice de Massa Corporal calculado a partir do seu peso e altura.")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.inkSoft)
+                    Pill(text: model.goal.rawValue, tint: model.goal.tint)
+                }
+                Spacer(minLength: 0)
             }
-            VStack(alignment: .leading, spacing: 8) {
-                Text(imcClass(currentIMC))
-                    .font(.title3.bold())
-                    .foregroundStyle(Theme.primary)
-                Text("Índice de Massa Corporal calculado a partir do seu peso e altura.")
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.inkSoft)
-                Pill(text: model.goal.rawValue, tint: model.goal.tint)
+            .cardStyle()
+        } else {
+            // Sem medidas o app convida, não diagnostica.
+            Button { editing = true } label: {
+                HStack(spacing: 16) {
+                    Image(systemName: "ruler.fill")
+                        .font(.title2)
+                        .foregroundStyle(Theme.primary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Complete suas medidas")
+                            .font(.headline)
+                            .foregroundStyle(Theme.ink)
+                        Text("Com peso e altura o app calcula seu IMC e suas metas. Sem eles, seria chute.")
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.inkSoft)
+                            .multilineTextAlignment(.leading)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right").foregroundStyle(Theme.inkSoft)
+                }
+                .cardStyle()
             }
-            Spacer(minLength: 0)
+            .buttonStyle(.plain)
         }
-        .cardStyle()
+    }
+
+    /// Zero não é medida: é ausência de medida. Vírgula como separador, PT-BR.
+    private func medida(_ valor: Double, casas: Int) -> String {
+        guard valor > 0 else { return "—" }
+        return String(format: "%.\(casas)f", valor).replacingOccurrences(of: ".", with: ",")
     }
 
     private func imcClass(_ bmi: Double) -> String {

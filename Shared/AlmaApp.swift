@@ -32,6 +32,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
 
+        #if DEBUG
+        // Captura de telas de validação (-semPermissoes 1): sem o alerta do
+        // sistema por cima do conteúdo que se quer conferir.
+        if DebugContextDump.suprimirPermissoes { return true }
+        #endif
         UNUserNotificationCenter.current().requestAuthorization(
             options: [.alert, .badge, .sound]
         ) { granted, error in

@@ -22,8 +22,9 @@ import Foundation
 import UserNotifications
 
 enum DonoDoLembrete: String, CaseIterable {
-    case corpo   // água, refeições, treino, suplementos
-    case alma    // meditação, sequência, marcos
+    case corpo    // água, refeições, treino, suplementos
+    case alma     // meditação, sequência, marcos
+    case vicio    // marcos do contador de tempo sem vício
 
     /// Prefixos dos identificadores que pertencem a este dono. É o que permite
     /// limpar sem atropelar o outro lado.
@@ -31,6 +32,12 @@ enum DonoDoLembrete: String, CaseIterable {
         switch self {
         case .corpo: return ["water-", "meal-", "workout", "supplement-"]
         case .alma:  return ["daily_", "personalized_", "streak_", "milestone_"]
+        // [2026-08-03 — A3] `addiction_*` era órfão: agendado por
+        // AddictionFreeView e sem NENHUM ponto de cancelamento no app inteiro.
+        // Sobrevivia a resetar o contador, ao logout e à exclusão de conta — o
+        // próximo dono do aparelho recebia "1 MÊS SEM VÍCIO!" de um vício que
+        // não é dele.
+        case .vicio: return ["addiction_"]
         }
     }
 }
@@ -50,6 +57,14 @@ enum GradeDeLembretes {
             .filter { id in dono.prefixos.contains { id.hasPrefix($0) } }
         guard !alvos.isEmpty else { return }
         centro.removePendingNotificationRequests(withIdentifiers: alvos)
+    }
+
+    /// Limpeza total — exclusão de conta e logout. Nenhum lembrete de um
+    /// usuário pode sobreviver para o próximo.
+    static func limparTudo() async {
+        for dono in DonoDoLembrete.allCases {
+            await limpar(dono)
+        }
     }
 
     /// Conta quantos lembretes por dia cada dono tem agendados — usado na tela

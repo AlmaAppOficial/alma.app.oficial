@@ -28,6 +28,22 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
+		<!-- [2026-08-03 — A7] Esquema `alma://` registrado. Ele existia apenas
+		     no Info.plist da RAIZ, que é órfão (resíduo do Capacitor, com outro
+		     bundle id) e não é o plist que o target embarca. Resultado: todo
+		     deep link `alma://` estava morto, e "Abrir o Alma" caía no fallback
+		     da App Store — mandando a pessoa para a página do app que ela já
+		     estava usando. -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.almaapp.app.deeplink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>alma</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -51,8 +67,13 @@
 	<string>872133652529378</string>
 	<key>FacebookClientToken</key>
 	<string>f267fb95a01515037a3f046511eedf5f</string>
-	<key>GOOGLE_TTS_KEY</key>
-	<string>AIzaSyANnb17HactnTK_iIs1cK9hx-GF1N3Q0uM</string>
+	<!-- [2026-08-03 — A14] GOOGLE_TTS_KEY removida. Estava embarcada no bundle,
+	     sem nenhum consumidor no código: qualquer pessoa que descompactasse o
+	     IPA lia uma chave rotulada TTS. Num projeto que JÁ rotacionou chaves de
+	     TTS por exposição, era o mesmo erro esperando repetir.
+	     Ação pendente do Assis: revogar/restringir esta chave no console do
+	     Google Cloud — remover do bundle não invalida a chave já publicada nos
+	     builds anteriores. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>

@@ -30,13 +30,39 @@ struct EditAssessmentView: View {
                     measureRow("Gordura corporal", value: $model.bodyFat, range: 5...50, unit: "%")
                 }
 
+                // [2026-08-03 — BUG B3] Estes dois campos existiam no modelo,
+                // viajavam para a IA e NENHUMA tela do app perguntava por eles.
+                // A proteção que eu mesmo escrevi no snapshot — "não sugerir
+                // amendoim a quem tem alergia" — não protegia ninguém, porque
+                // não havia como declarar a alergia.
+                Section {
+                    TextField("Ex.: alergia a amendoim, sem lactose", text: $model.dietaryRestrictions, axis: .vertical)
+                        .lineLimit(1...3)
+                    TextField("Ex.: hérnia de disco, joelho operado", text: $model.healthConditions, axis: .vertical)
+                        .lineLimit(1...3)
+                } header: {
+                    Text("Restrições e limitações")
+                } footer: {
+                    Text("A Alma usa isso para não sugerir o que te faz mal. Fica no seu aparelho e vai junto do resumo só se você autorizar em Perfil.")
+                }
+
                 Section {
                     HStack {
                         Text("IMC atual")
                         Spacer()
-                        Text(String(format: "%.1f · %@", model.imc, model.imcClassificacao))
-                            .foregroundStyle(Theme.primary)
-                            .fontWeight(.semibold)
+                        // [2026-08-03 — BUG B5] Com peso e altura zerados (o
+                        // padrão honesto que passou a valer ontem), 0/0 dava
+                        // NaN: a tela exibia "nan · Obesidade" para quem tinha
+                        // acabado de instalar o app. Sem medidas, não há IMC —
+                        // e o app diz isso em vez de diagnosticar obesidade.
+                        if model.hasBodyProfile {
+                            Text(String(format: "%.1f · %@", model.imc, model.imcClassificacao))
+                                .foregroundStyle(Theme.primary)
+                                .fontWeight(.semibold)
+                        } else {
+                            Text("informe peso e altura")
+                                .foregroundStyle(Theme.inkSoft)
+                        }
                     }
                 }
             }

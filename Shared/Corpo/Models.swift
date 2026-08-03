@@ -197,11 +197,34 @@ final class AppModel: ObservableObject {
     } }
 
     // Avaliação corporal (persistida)
-    @Published var weightKg: Double { didSet { store.set(weightKg, forKey: "weightKg") } }
+    @Published var weightKg: Double {
+        didSet {
+            store.set(weightKg, forKey: "weightKg")
+            // [2026-08-03 — BUG B3] `weightLog` não tinha nenhum produtor: não
+            // existia um único `WeightEntry(` no app fora da declaração. O
+            // gráfico de evolução e a linha "(-2,5 kg desde o primeiro
+            // registro)" que a Alma recebe eram código inalcançável.
+            registrarPesagem(oldValue: oldValue)
+        }
+    }
+
+    /// Guarda uma pesagem por dia — a última do dia vence. Sem isso, quem
+    /// corrige um dígito errado cria dois pontos no gráfico.
+    private func registrarPesagem(oldValue: Double) {
+        guard weightKg > 0, weightKg != oldValue else { return }
+        let hoje = Calendar.current.startOfDay(for: Date())
+        weightLog.removeAll { Calendar.current.isDate($0.date, inSameDayAs: hoje) }
+        weightLog.append(WeightEntry(date: Date(), kg: weightKg))
+        weightLog.sort { $0.date < $1.date }
+    }
     @Published var heightCm: Double { didSet { store.set(heightCm, forKey: "heightCm") } }
     @Published var ageYears: Int { didSet { store.set(ageYears, forKey: "ageYears") } }
     @Published var bodyFat: Double { didSet { store.set(bodyFat, forKey: "bodyFat") } }
-    @Published var restingHR: Int = 62
+    // [2026-08-03 — BUG B6] Havia aqui `@Published var restingHR: Int = 62`:
+    // uma frequência cardíaca de repouso inventada, sem escritor e sem
+    // persistência, exibida na tela de Saúde como se fosse medição da pessoa.
+    // Sobreviveu à faxina de honestidade de ontem no MESMO arquivo.
+    // A FC agora vem só do HealthKit; sem dado, a tela mostra "—".
 
     // Assinatura — premium + teste grátis de 7 dias (igual ao Alma)
     @Published var isPremium: Bool { didSet {
@@ -298,12 +321,25 @@ final class AppModel: ObservableObject {
         heightCm     = store.object(forKey: "heightCm") as? Double ?? 0
         ageYears     = store.object(forKey: "ageYears") as? Int ?? 0
         bodyFat      = store.object(forKey: "bodyFat") as? Double ?? 0
-        // Reset diário da água: zera se for um novo dia
+        // Reset diário da água: zera se for um novo dia.
+        //
+        // [2026-08-03 — BUG B4 da revisão independente]
+        // Aqui havia `waterMl = 0` e só. Atribuição dentro do init NÃO dispara
+        // o didSet, então o zero nunca ia para o disco — mas `lastWaterDate`
+        // JÁ era carimbado como hoje. Qualquer AppModel construído em seguida
+        // no mesmo dia via `isDateInToday == true` e ressuscitava os 1,5 L de
+        // ontem. E instâncias descartáveis são construídas o tempo todo: duas
+        // por render da Home e uma por mensagem de chat.
+        //
+        // Resultado: a pessoa acordava com a meta de água já "cumprida" e a
+        // Alma recebia "Água: 1,5 L hoje (60% da meta)" com zero ml bebidos.
+        // Zerar o disco explicitamente é o que faltava.
         let lastWaterDate = store.object(forKey: "lastWaterDate") as? Date ?? .distantPast
         if Calendar.current.isDateInToday(lastWaterDate) {
             waterMl = store.object(forKey: "waterMl") as? Int ?? 0
         } else {
             waterMl = 0
+            store.set(0, forKey: "waterMl")      // ← o zero precisa chegar ao disco
             store.set(Date(), forKey: "lastWaterDate")
         }
         isPremium    = store.bool(forKey: "isPremium")
@@ -347,14 +383,33 @@ final class AppModel: ObservableObject {
         meals = Self.loadMealsForToday(from: store)
     }
 
-    var imc: Double { weightKg / pow(heightCm / 100, 2) }
+    // [2026-08-03 — BUG B5 da revisão independente]
+    //
+    // `imc` era `weightKg / pow(heightCm/100, 2)`. Com os defaults honestos que
+    // passaram a valer ontem (peso = 0, altura = 0), isso é 0/0 = NaN. E NaN
+    // não casa com nenhum `case` de um switch por faixa: caía no `default:` e o
+    // app anunciava **"Obesidade"** para quem tinha acabado de instalar.
+    //
+    // Foi regressão direta do meu próprio fix de honestidade: troquei os
+    // valores fictícios pelo zero e não segui o zero até as telas que o
+    // consomem. `imcSeguro` é opcional justamente para que o compilador não
+    // deixe mais ninguém exibir IMC sem antes decidir o que fazer sem medidas.
+    var imcSeguro: Double? {
+        guard hasBodyProfile, heightCm > 0 else { return nil }
+        let valor = weightKg / pow(heightCm / 100, 2)
+        return valor.isFinite ? valor : nil
+    }
+
+    /// Mantido para as telas que já chamavam `imc`; agora nunca devolve NaN.
+    var imc: Double { imcSeguro ?? 0 }
 
     var imcClassificacao: String {
-        switch imc {
-        case ..<18.5: return "Abaixo do peso"
+        guard let valor = imcSeguro else { return "sem medidas" }
+        switch valor {
+        case ..<18.5:   return "Abaixo do peso"
         case 18.5..<25: return "Peso saudável"
-        case 25..<30: return "Sobrepeso"
-        default: return "Obesidade"
+        case 25..<30:   return "Sobrepeso"
+        default:        return "Obesidade"
         }
     }
 
@@ -422,7 +477,20 @@ final class AppModel: ObservableObject {
     // estado em memória existia). Agora grava em UserDefaults a cada mudança,
     // com reset diário — mesmo padrão já usado pela água (lastWaterDate).
     @Published var meals: [Meal] = AppModel.emptyMealTemplates() {
-        didSet { persistMeals() }
+        didSet {
+            persistMeals()
+            // [2026-08-03 — BUG B3] `kcalByDay` não tinha NENHUM escritor. O
+            // comentário na declaração dizia "gravado ao registrar refeições" e
+            // era falso: a média de calorias dos Insights nunca saía do zero e
+            // a aba ficava presa em "registre por mais N dias".
+            registrarCaloriasDoDia()
+        }
+    }
+
+    /// Fecha o total do dia toda vez que as refeições mudam. Idempotente: se a
+    /// pessoa desmarcar uma refeição, o valor do dia diminui junto.
+    private func registrarCaloriasDoDia() {
+        kcalByDay[CorpoInsightsEngine.chaveDia(Date())] = kcalConsumed
     }
 
     /// Templates vazios do dia (uma linha por refeição, sem alimentos).
@@ -784,6 +852,12 @@ final class AppModel: ObservableObject {
 
     /// Exclui permanentemente os dados locais do usuário (exigência App Store / Google Play).
     /// Não cancela a assinatura — isso é feito em Ajustes > Apple ID > Assinaturas.
+    ///
+    /// [2026-08-03] Esta função tinha ZERO chamadores desde a fusão: o fluxo de
+    /// exclusão do Alma (`LocalDataCleanupService`) não a conhecia. A limpeza
+    /// das chaves do Corpo agora vive lá, num lugar só, porque o serviço roda
+    /// mesmo quando nenhuma tela do Corpo foi aberta (e portanto nenhum
+    /// AppModel existe). Esta permanece para o botão dentro do próprio módulo.
     func deleteAllData() {
         let keys = ["hasOnboarded", "userName", "goal", "weightKg", "heightCm", "ageYears",
                     "bodyFat", "waterMl", "isPremium", "trialStartedAt",
@@ -811,7 +885,9 @@ final class AppModel: ObservableObject {
         heightCm = 0
         ageYears = 0
         bodyFat = 0
-        waterMl = 1450
+        // [2026-08-03 — B9] Era `waterMl = 1450`: a função que existe para
+        // APAGAR os dados do usuário reintroduzia 1,45 L de água fictícia.
+        waterMl = 0
         isPremium = false
         trialStartedAt = nil
         notifyWater = false

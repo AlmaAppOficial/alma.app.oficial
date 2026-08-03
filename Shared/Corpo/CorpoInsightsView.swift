@@ -20,6 +20,18 @@ struct CorpoInsightsView: View {
     private var seriePeso: [DayPoint] { CorpoInsightsEngine.seriePeso(weightLog: model.weightLog) }
 
     var body: some View {
+        // [2026-08-03 — B11] Esta aba não tinha NENHUMA checagem de assinatura,
+        // embora a régua do projeto coloque histórico e análises no plano pago.
+        // O registro é livre (é o diário da pessoa); a leitura da evolução ao
+        // longo do tempo é o que se paga.
+        if !CorpoAcesso.podeVerAnalisesAvancadas(model) {
+            PaywallDoCorpo()
+        } else {
+            conteudo
+        }
+    }
+
+    private var conteudo: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {

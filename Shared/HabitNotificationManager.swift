@@ -11,6 +11,24 @@ import UIKit
 /// - Solicitar permissão com contexto apropriado
 actor HabitNotificationManager {
 
+    /// [2026-08-03 — A1 da revisão independente]
+    /// Este actor nunca foi instanciado em lugar nenhum do app: sem `.shared`,
+    /// sem injeção, sem chamador. Ou seja, o app de meditação **não tinha
+    /// lembrete de meditar** — as categorias "meditação", "otimizada", "streak"
+    /// e "marcos" existiam só como código.
+    ///
+    /// Isso também desmontou uma premissa que eu tinha escrito no dossiê de
+    /// ontem: "mexer no interruptor de água calava a meditação". Era impossível
+    /// — não havia lembrete de meditação para calar. O bug de limpeza cruzada
+    /// era real, mas a consequência que eu descrevi não existia.
+    /// ⚠️ ESTE ARQUIVO NÃO ESTÁ NO project.pbxproj — nunca foi compilado.
+    /// O agendamento real de lembretes de meditação vive em
+    /// `LembretesDaAlma.swift`, escrito enxuto justamente para não registrar
+    /// ~500 linhas nunca compiladas às vésperas de uma auditoria.
+    /// Mantido no disco como referência do que existia planejado (horário
+    /// personalizado por histórico, sequência em risco, marcos) — se algum dia
+    /// for reativado, as correções de limpeza cruzada já estão aplicadas aqui.
+
     // MARK: - Constants
 
     private let morningHour = 8 // 08:00
@@ -196,26 +214,44 @@ actor HabitNotificationManager {
         }
     }
 
-    /// Remove notificações se usuário já meditou hoje
+    /// Remove os lembretes de MEDITAÇÃO de hoje quando a pessoa já meditou.
+    ///
+    /// [2026-08-03 — A2 da revisão independente]
+    /// Aqui morava a mesma falha que foi corrigida em outros dois pontos: esta
+    /// função varria TODOS os pendentes e removia qualquer um que disparasse
+    /// hoje — sem olhar de quem era. Meditar de manhã apagava o lembrete de
+    /// água, o de almoço, o de treino e o de suplemento.
+    ///
+    /// Pior: os lembretes são `repeats: true`. Remover um trigger repetitivo
+    /// não o adia para amanhã, mata ele para sempre. Um dia de meditação
+    /// desligava o resto do app em silêncio, sem erro e sem volta.
+    ///
+    /// Estava latente (esta classe nunca foi instanciada — ver A1), mas quem
+    /// religasse a classe reintroduziria o bug achando que ele tinha sido
+    /// corrigido. Agora o filtro de dono é explícito.
     func suppressNotificationsIfMeditatedToday(_ completed: Bool) async {
-        if completed {
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: Date())
+        guard completed else { return }
 
-            // Remove notificações futuras do dia de hoje
-            let allPending = await UNUserNotificationCenter.current().pendingNotificationRequests()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let prefixosDaAlma = DonoDoLembrete.alma.prefixos
 
-            for request in allPending {
-                if let trigger = request.trigger as? UNCalendarNotificationTrigger,
-                   let nextTriggerDate = trigger.nextTriggerDate() {
-                    if calendar.isDate(nextTriggerDate, inSameDayAs: today) {
-                        await UNUserNotificationCenter.current().removePendingNotificationRequests(
-                            withIdentifiers: [request.identifier]
-                        )
-                    }
-                }
-            }
-        }
+        let allPending = await UNUserNotificationCenter.current().pendingNotificationRequests()
+
+        let alvos = allPending.filter { request in
+            // 1. tem de ser lembrete da Alma
+            guard prefixosDaAlma.contains(where: { request.identifier.hasPrefix($0) }) else { return false }
+            // 2. e tem de disparar hoje
+            guard let trigger = request.trigger as? UNCalendarNotificationTrigger,
+                  let proximo = trigger.nextTriggerDate() else { return false }
+            // 3. e não pode ser repetitivo — remover um repetitivo o mata para
+            //    sempre, e o objetivo aqui é só silenciar o dia de hoje.
+            guard !trigger.repeats else { return false }
+            return calendar.isDate(proximo, inSameDayAs: today)
+        }.map(\.identifier)
+
+        guard !alvos.isEmpty else { return }
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: alvos)
     }
 
     /// Controla a frequência de notificações

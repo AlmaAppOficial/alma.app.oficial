@@ -20,6 +20,15 @@ enum DebugContextDump {
         UserDefaults.standard.bool(forKey: "dumpContexto")
     }
 
+    /// [2026-08-03] Suprime os diálogos do sistema (HealthKit e notificações)
+    /// durante a captura de telas de validação. Sem isto, todo screenshot sai
+    /// com um alerta cinza do iOS por cima do conteúdo que se quer conferir —
+    /// e a revisão independente cobrou justamente a validação visual das abas.
+    /// Só em DEBUG e só com `-semPermissoes 1`.
+    static var suprimirPermissoes: Bool {
+        UserDefaults.standard.bool(forKey: "semPermissoes")
+    }
+
     /// Semeia perfil e registros do Corpo para validar as telas sem depender de
     /// automação de toque (o teclado do simulador engole texto digitado por
     /// script). Roda só com `-semearPerfil 1`.

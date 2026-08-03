@@ -46,12 +46,72 @@ enum LocalDataCleanupService {
             defaults.removeObject(forKey: key)
         }
 
+        // Etapa 3 — módulo Corpo e perfil compartilhado.
+        //
+        // [2026-08-03 — BUG B9 da revisão independente]
+        // Este serviço só olhava para `UserDefaults.standard` e para o prefixo
+        // `alma_`. Os dados do Corpo não têm esse prefixo, e o perfil vive no
+        // App Group — ou seja, a "exclusão de conta" deixava para trás peso,
+        // altura, gordura corporal, histórico de pesagens, refeições,
+        // suplementos, **alergias alimentares**, condições de saúde, nome e
+        // data de nascimento.
+        //
+        // Na prática: quem excluísse a conta e passasse o aparelho adiante
+        // entregava junto as próprias alergias. É LGPD Art. 18 e App Store
+        // 5.1.1(v), e era uma promessa quebrada — a tela de Ajustes do Corpo
+        // dizia, em texto, que a exclusão apagava "os dados dos dois módulos".
+        limparDadosDoCorpo(defaults)
+        limparPerfilCompartilhado()
+
         defaults.synchronize()
 
-        print("🧹 LocalDataCleanupService.clearAll: removidas \(almaPrefixedKeys.count) keys com prefixo alma_ + lista explícita")
+        // Etapa 4 — lembretes agendados. [A3] Sem isto, notificações de marco
+        // ("1 MÊS SEM VÍCIO!") continuavam disparando depois da conta apagada.
+        Task { await GradeDeLembretes.limparTudo() }
+
+        print("🧹 LocalDataCleanupService.clearAll: \(almaPrefixedKeys.count) keys alma_ + lista explícita + Corpo + App Group + lembretes")
 
         // Keychain
         clearKeychain()
+    }
+
+    /// Chaves do módulo Corpo — nenhuma delas tem prefixo `alma_`, então a
+    /// varredura por prefixo passava por cima de todas.
+    private static func limparDadosDoCorpo(_ defaults: UserDefaults) {
+        let chavesDoCorpo = [
+            // Perfil corporal e medidas
+            "userName", "goal", "sexBiological", "activityLevel",
+            "weightKg", "heightCm", "ageYears", "bodyFat",
+            "dietaryRestrictions", "healthConditions",   // alergias e condições
+            // Registros do dia a dia
+            "mealsToday", "mealsDate", "waterMl", "lastWaterDate",
+            "userFoods", "supplements", "supplementsTaken", "supplementsTakenDate",
+            "customKcalGoal", "planAppliedAt", "scanResult",
+            // Séries históricas
+            "weightLog", "kcalByDay", "workoutDays",
+            "customWorkouts", "workoutPlan", "mealPlan",
+            // Preferências do módulo
+            "notifyWater", "notifyMeals", "notifyWorkout",
+            "notifySupplements", "supplementHour",
+            "appearance", "hasOnboarded", "isPremium",
+            "trialStartedAt", "healthDisclaimerAccepted"
+        ]
+        chavesDoCorpo.forEach { defaults.removeObject(forKey: $0) }
+    }
+
+    /// Perfil no App Group — compartilhado entre Alma e Corpo. O serviço nunca
+    /// abria esta suite, então nome e data de nascimento sobreviviam à exclusão.
+    private static func limparPerfilCompartilhado() {
+        guard let suite = UserDefaults(suiteName: "group.com.almaapp.shared") else { return }
+        for chave in suite.dictionaryRepresentation().keys where chave.hasPrefix("perfil_") {
+            suite.removeObject(forKey: chave)
+        }
+        // Ponte de entitlement entre os apps: some junto na exclusão de conta.
+        ["alma_isPremium", "corpoealma_isPremium",
+         "alma_premium_since", "corpoealma_premium_since"].forEach {
+            suite.removeObject(forKey: $0)
+        }
+        suite.synchronize()
     }
 
     // MARK: - Logout (seletivo)

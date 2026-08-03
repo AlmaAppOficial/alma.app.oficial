@@ -76,11 +76,24 @@ struct CorpoPaywallView: View {
     // capacidade nativa e NUNCA foi bloqueada no código — anunciá-la como
     // benefício pago fez a Apple entender que cobrávamos por ela. Removida da
     // lista; no lugar entrou o scan com IA (este sim, premium de verdade).
+    // [2026-08-03 — BUG B8 da revisão independente]
+    //
+    // Esta lista vendia duas coisas que não existem neste build:
+    //   • "Scan corporal e de alimentos com IA" — não há GEMINI_API_KEY no
+    //     GoogleService-Info.plist. O scan de alimento devolve erro SEMPRE, e o
+    //     corporal cai num gerador offline por medidas — que ainda simulava
+    //     1,3 s de "processamento" sob um overlay dizendo "Analisando com IA…".
+    //   • "relatórios semanais" — não existem em build nenhum.
+    //
+    // A regra do Assis é a mesma de sempre: ou implementa de verdade, ou não
+    // vende. Como ligar a IA exige rotear pela Cloud Function (trabalho de
+    // outro ciclo), a escolha aqui foi parar de vender e descrever o que o app
+    // realmente entrega. Quando a IA entrar, esta lista volta a crescer.
     private let benefits: [(String, String)] = [
         ("figure.run", "Planos de treino e refeição personalizados"),
-        ("camera.viewfinder", "Scan corporal e de alimentos com IA"),
-        ("chart.xyaxis.line", "Insights avançados e relatórios semanais"),
+        ("chart.xyaxis.line", "Histórico completo e evolução ao longo do tempo"),
         ("fork.knife", "Banco de alimentos completo + código de barras"),
+        ("drop.fill", "Metas de água e calorias calculadas para o seu corpo"),
         ("moon.stars.fill", "Integração total com o app Alma")
     ]
 

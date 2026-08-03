@@ -13,14 +13,24 @@ struct InsightsView: View {
     @State private var showMoodPicker = false
     @State private var showInsightShare = false
 
-    private let moods = [
-        ("Ótimo", "sun.max.fill", Color.yellow),
-        ("Bem", "leaf.fill", Color.green),
-        ("Normal", "cloud.fill", Color.gray),
-        ("Cansado", "moon.zzz.fill", Color.indigo),
-        ("Ansioso", "bolt.heart.fill", Color.orange),
-        ("Triste", "drop.fill", Color.blue)
-    ]
+    // [2026-08-03] Os rótulos passam a vir do enum `Mood`, que é a MESMA fonte
+    // que o classificador de humor usa. Enquanto eram uma lista solta aqui, a
+    // tela gravava "Triste" e o classificador procurava "😢" — a Alma recebia
+    // "semana estável" de quem estava em sofrimento (revisão independente, B2).
+    private let moods: [(String, String, Color)] = Mood.allCases.map {
+        ($0.rawValue, $0.icone, Self.cor(de: $0))
+    }
+
+    private static func cor(de mood: Mood) -> Color {
+        switch mood {
+        case .otimo:   return .yellow
+        case .bem:     return .green
+        case .normal:  return .gray
+        case .cansado: return .indigo
+        case .ansioso: return .orange
+        case .triste:  return .blue
+        }
+    }
 
     var body: some View {
         // [Build 82] Gate premium — paywall para quem não assina
@@ -175,14 +185,18 @@ struct InsightsView: View {
                 let sleepHrs = hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours
                 let hrvVal = hk.averageHRV > 0 ? hk.averageHRV : hk.hrv
                 let hrAvg = hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate
+                // [2026-08-03 — A11] O gate `healthConnected` vira true pela
+                // AUTORIZAÇÃO, não por existir dado. Sem isto a tela paga
+                // exibia "Sono 0.0h · VFC 0 ms · Freq. 0 bpm" como se fossem
+                // medições. A Home, ao lado, já usava "—".
                 VStack(spacing: 10) {
-                    InsightWellnessRow(label: "Sono (ontem)", value: String(format: "%.1fh", sleepHrs),
+                    InsightWellnessRow(label: "Sono (ontem)", value: sleepHrs > 0 ? String(format: "%.1fh", sleepHrs) : "—",
                                 progress: min(sleepHrs / 8.0, 1.0), color: .indigo)
                     InsightWellnessRow(label: "Atividade", value: "\(hk.stepsFormatted) passos",
                                 progress: min(Double(hk.steps) / 10000.0, 1.0), color: .green)
-                    InsightWellnessRow(label: "HRV (variabilidade)", value: "\(Int(hrvVal)) ms",
+                    InsightWellnessRow(label: "HRV (variabilidade)", value: hrvVal > 0 ? "\(Int(hrvVal)) ms" : "—",
                                 progress: min(hrvVal / 80.0, 1.0), color: .purple)
-                    InsightWellnessRow(label: "Freq. média", value: "\(Int(hrAvg)) bpm",
+                    InsightWellnessRow(label: "Freq. média", value: hrAvg > 0 ? "\(Int(hrAvg)) bpm" : "—",
                                 progress: hrAvg > 0 ? min(80.0 / max(hrAvg, 50.0), 1.0) : 0, color: .red)
                 }
             }
@@ -191,21 +205,36 @@ struct InsightsView: View {
     }
 
     // MARK: - Stress Trend
+
+    /// [2026-08-03 — BUG B7 da revisão independente]
+    /// `stressLevel` nasce `.low` e continua `.low` quando não há dado nenhum.
+    /// Sem este gate, a tela — que é PAGA — afirmava "Relaxado · seu corpo está
+    /// respondendo bem" para quem nunca conectou o Apple Saúde. A Home já fazia
+    /// a verificação certa; a Insights não. Mesmo critério nos dois lugares.
+    private var hasStressData: Bool {
+        hk.averageHRV > 0 || hk.hrv > 0 || hk.averageHeartRate > 0 || hk.heartRate > 0
+    }
+
+    @ViewBuilder
     private var stressTrendCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: hk.stressLevel.icon)
-                    .foregroundColor(hk.stressLevel.color)
+                Image(systemName: hasStressData ? hk.stressLevel.icon : "waveform.path.ecg")
+                    .foregroundColor(hasStressData ? hk.stressLevel.color : CalmTheme.textSecondary)
                 Text("Nível de stress")
                     .font(.headline)
                     .foregroundColor(CalmTheme.textPrimary)
                 Spacer()
-                Text(hk.stressLevel.label)
-                    .font(.subheadline.bold())
-                    .foregroundColor(hk.stressLevel.color)
+                if hasStressData {
+                    Text(hk.stressLevel.label)
+                        .font(.subheadline.bold())
+                        .foregroundColor(hk.stressLevel.color)
+                }
             }
 
-            Text(stressDescription)
+            Text(hasStressData
+                 ? stressDescription
+                 : "Sem dados de variabilidade cardíaca ainda. Conecte um relógio ou o app Saúde para a Alma acompanhar isso com você.")
                 .font(.subheadline)
                 .foregroundColor(CalmTheme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

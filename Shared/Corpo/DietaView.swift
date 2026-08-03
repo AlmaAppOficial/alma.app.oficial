@@ -43,6 +43,9 @@ struct DietaView: View {
                     SupplementsSection()
 
                     // Escanear consome IA paga por foto — segue premium.
+                    // [2026-08-03 — B8] E só aparece se a IA existir no build:
+                    // sem chave, este botão só sabia devolver erro.
+                    if CorpoAcesso.scanDeAlimentoDisponivel {
                     Button {
                         if CorpoAcesso.podeUsarIA(model) { activeSheet = .foodScan }
                         else { showPaywall = true }
@@ -61,6 +64,7 @@ struct DietaView: View {
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous))
                     }
+                    }   // fim do gate scanDeAlimentoDisponivel
 
                     Button {
                         activeSheet = .addFood(.cafe)
@@ -94,7 +98,7 @@ struct DietaView: View {
                     FoodScanView()
                 }
             }
-            .sheet(isPresented: $showPaywall) { CorpoPaywallView() }
+            .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
             .sheet(isPresented: $showGoalEditor) { GoalEditorView() }
         }
     }

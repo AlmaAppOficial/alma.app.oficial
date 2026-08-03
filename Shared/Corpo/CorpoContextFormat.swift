@@ -13,6 +13,42 @@
 
 import Foundation
 
+/// Os humores que o check-in oferece. A tela (`InsightsView`) e o classificador
+/// leem a MESMA lista: é impossível acrescentar um humor na interface sem
+/// declarar aqui se ele é pesado, leve ou neutro. Foi a falta dessa amarração
+/// que permitiu a tela gravar "Triste" enquanto o classificador procurava "😢".
+enum Mood: String, CaseIterable, Identifiable {
+    case otimo   = "Ótimo"
+    case bem     = "Bem"
+    case normal  = "Normal"
+    case cansado = "Cansado"
+    case ansioso = "Ansioso"
+    case triste  = "Triste"
+
+    var id: String { rawValue }
+
+    enum Valencia { case leve, neutra, dificil }
+
+    var valencia: Valencia {
+        switch self {
+        case .otimo, .bem:                return .leve
+        case .normal:                     return .neutra
+        case .cansado, .ansioso, .triste: return .dificil
+        }
+    }
+
+    var icone: String {
+        switch self {
+        case .otimo:   return "sun.max.fill"
+        case .bem:     return "leaf.fill"
+        case .normal:  return "cloud.fill"
+        case .cansado: return "moon.zzz.fill"
+        case .ansioso: return "bolt.heart.fill"
+        case .triste:  return "drop.fill"
+        }
+    }
+}
+
 enum CorpoContextFormat {
 
     // MARK: - Números em português
@@ -90,6 +126,28 @@ enum CorpoContextFormat {
     // MARK: - Humor
 
     static let minimoRegistrosHumor = 3
+
+    /// Traduz os rótulos REAIS do check-in em um sinal.
+    ///
+    /// [2026-08-03 — B2] Mora aqui, e não junto da leitura do histórico, por um
+    /// motivo específico: assim é testável de ponta a ponta sem SwiftUI nem
+    /// singletons. A versão anterior classificava por emoji enquanto a tela
+    /// gravava palavras — a interseção era vazia e TODO usuário recebia
+    /// "semana estável", inclusive quem marcou "Triste" sete dias seguidos.
+    /// Os testes não pegaram porque exercitavam contagens injetadas, nunca os
+    /// rótulos que o app grava.
+    static func classificarHumor(rotulos: [String]) -> String? {
+        // Rótulo desconhecido (versão antiga, dado corrompido) fica de fora da
+        // conta em vez de virar "neutro" silencioso.
+        let reconhecidos = rotulos.compactMap { Mood(rawValue: $0) }
+        guard reconhecidos.count >= minimoRegistrosHumor else { return nil }
+
+        return sinalDeHumor(
+            dificeis: reconhecidos.filter { $0.valencia == .dificil }.count,
+            leves:    reconhecidos.filter { $0.valencia == .leve }.count,
+            total:    reconhecidos.count
+        )
+    }
 
     /// Traduz proporções em uma frase. Nunca recebe nem devolve emoji, data ou
     /// contagem — só o significado.

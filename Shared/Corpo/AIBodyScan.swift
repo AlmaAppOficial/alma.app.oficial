@@ -143,8 +143,11 @@ struct RemoteAIPlanService: AIPlanService {
 
 struct MockAIPlanService: AIPlanService {
     func analyze(_ input: ScanInput) async throws -> ScanResult {
-        // Simula o tempo de processamento da IA.
-        try? await Task.sleep(nanoseconds: 1_300_000_000)
+        // [2026-08-03 — B8] Havia aqui um `Task.sleep(1,3s)` comentado como
+        // "simula o tempo de processamento da IA". Era teatro: uma espera
+        // artificial para o cálculo local parecer trabalho de IA, embaixo de um
+        // overlay que dizia "Analisando seu corpo com IA…". Removido — o
+        // cálculo é instantâneo e o app não finge o contrário.
 
         let h = input.heightCm / 100
         let bmi = input.weightKg / (h * h)

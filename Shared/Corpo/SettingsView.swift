@@ -149,7 +149,7 @@ struct SettingsView: View {
                     Button("Concluir") { dismiss() }
                 }
             }
-            .sheet(isPresented: $showPaywall) { CorpoPaywallView() }
+            .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
             .sheet(isPresented: $showDisclaimer) { HealthDisclaimerView() }
             .onChange(of: model.notifyWater) { _ in Task { await applyNotifications() } }
             .onChange(of: model.notifyMeals) { _ in Task { await applyNotifications() } }

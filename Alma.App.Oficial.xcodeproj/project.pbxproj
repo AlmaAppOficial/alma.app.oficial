@@ -116,12 +116,15 @@
 		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
+		2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22125E08D23CEE6A3878453B /* TestePersistencia.swift */; };
+		9DDD6B17B676EFDC4E623F98 /* PaywallDoCorpo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */; };
 		1196E89B07459B5A46E4E900 /* CorpoContextFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */; };
 		DD025001DD025001DD025001 /* CorpoAcesso.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD025000DD025000DD025000 /* CorpoAcesso.swift */; };
 		DD019001DD019001DD019001 /* MoodSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD019000DD019000DD019000 /* MoodSignal.swift */; };
 		DD021001DD021001DD021001 /* DebugContextDump.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD021000DD021000DD021000 /* DebugContextDump.swift */; };
 		DD022001DD022001DD022001 /* UserProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD022000DD022000DD022000 /* UserProfileStore.swift */; };
 		DD024001DD024001DD024001 /* GradeDeLembretes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD024000DD024000DD024000 /* GradeDeLembretes.swift */; };
+		DD026001DD026001DD026001 /* LembretesDaAlma.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD026000DD026000DD026000 /* LembretesDaAlma.swift */; };
 		DD020001DD020001DD020001 /* CorpoContextSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */; };
 		FA900401AA00401BB004111 /* BotaoVoltarParaAlma.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */; };
 		FA900701AA00701BB0071110 /* CorpoInsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */; };
@@ -348,12 +351,15 @@
 		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
+		22125E08D23CEE6A3878453B /* TestePersistencia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TestePersistencia.swift"; sourceTree = "<group>"; };
+		A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/PaywallDoCorpo.swift"; sourceTree = "<group>"; };
 		15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoContextFormat.swift"; sourceTree = "<group>"; };
 		DD025000DD025000DD025000 /* CorpoAcesso.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoAcesso.swift"; sourceTree = "<group>"; };
 		DD019000DD019000DD019000 /* MoodSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoodSignal.swift; sourceTree = "<group>"; };
 		DD021000DD021000DD021000 /* DebugContextDump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugContextDump.swift; sourceTree = "<group>"; };
 		DD022000DD022000DD022000 /* UserProfileStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserProfileStore.swift; sourceTree = "<group>"; };
 		DD024000DD024000DD024000 /* GradeDeLembretes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradeDeLembretes.swift; sourceTree = "<group>"; };
+		DD026000DD026000DD026000 /* LembretesDaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LembretesDaAlma.swift; sourceTree = "<group>"; };
 		DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoContextSnapshot.swift"; sourceTree = "<group>"; };
 		FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BotaoVoltarParaAlma.swift"; sourceTree = "<group>"; };
 		FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsEngine.swift"; sourceTree = "<group>"; };
@@ -563,12 +569,15 @@
 				DD015000DD015000DD015000 /* HealthContextBuilder.swift */,
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
+				22125E08D23CEE6A3878453B /* TestePersistencia.swift */,
+				A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */,
 				15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */,
 				DD025000DD025000DD025000 /* CorpoAcesso.swift */,
 				DD019000DD019000DD019000 /* MoodSignal.swift */,
 				DD021000DD021000DD021000 /* DebugContextDump.swift */,
 				DD022000DD022000DD022000 /* UserProfileStore.swift */,
 				DD024000DD024000DD024000 /* GradeDeLembretes.swift */,
+				DD026000DD026000DD026000 /* LembretesDaAlma.swift */,
 				DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */,
 				FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */,
 				FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */,
@@ -1049,12 +1058,15 @@
 				DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */,
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
+				2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */,
+				9DDD6B17B676EFDC4E623F98 /* PaywallDoCorpo.swift in Sources */,
 				1196E89B07459B5A46E4E900 /* CorpoContextFormat.swift in Sources */,
 				DD025001DD025001DD025001 /* CorpoAcesso.swift in Sources */,
 				DD019001DD019001DD019001 /* MoodSignal.swift in Sources */,
 				DD021001DD021001DD021001 /* DebugContextDump.swift in Sources */,
 				DD022001DD022001DD022001 /* UserProfileStore.swift in Sources */,
 				DD024001DD024001DD024001 /* GradeDeLembretes.swift in Sources */,
+				DD026001DD026001DD026001 /* LembretesDaAlma.swift in Sources */,
 				DD020001DD020001DD020001 /* CorpoContextSnapshot.swift in Sources */,
 				FA900401AA00401BB004111 /* BotaoVoltarParaAlma.swift in Sources */,
 				FA900701AA00701BB0071110 /* CorpoInsightsEngine.swift in Sources */,
@@ -1345,7 +1357,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1379,7 +1391,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1415,7 +1427,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1444,7 +1456,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1469,7 +1481,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -1488,7 +1500,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -1508,7 +1520,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1527,7 +1539,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1548,7 +1560,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1578,7 +1590,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1609,7 +1621,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1646,7 +1658,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;

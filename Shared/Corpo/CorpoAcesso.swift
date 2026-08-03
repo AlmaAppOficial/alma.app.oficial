@@ -26,7 +26,32 @@ import Foundation
 enum CorpoAcesso {
 
     /// Registro manual: sempre liberado. É o diário da pessoa.
+    ///
+    /// [2026-08-03] A revisão independente (B11) mostrou que eu tinha escrito
+    /// esta régua e aplicado só na Dieta. Água e treino continuavam 100% pagos
+    /// no MESMO commit em que este arquivo dizia o contrário. Onde vale hoje:
+    ///
+    ///   GRÁTIS  — refeições, água, peso, suplementos, executar um treino do
+    ///             catálogo e ver o detalhe dos exercícios.
+    ///   PAGO    — montar treino próprio, mapa muscular, planos gerados,
+    ///             histórico e análises (aba Insights), scan por IA.
+    ///
+    /// O critério não é generosidade: é que sem registro não existe contexto, e
+    /// sem contexto a Alma não cumpre a promessa de "enxergar você por inteiro".
+    /// Cobrar pelo registro era cobrar para desligar a própria inteligência do
+    /// app — e um usuário grátis com o diário vazio nunca vira assinante.
     static let registroManualLiberado = true
+
+    /// [2026-08-03 — B8] O scan de ALIMENTO depende do Gemini. Sem chave no
+    /// bundle ele devolve "API key não configurada" — sempre, para todo mundo,
+    /// inclusive para quem acabou de assinar por causa dele. Oferecer um botão
+    /// que só sabe falhar é pior do que não oferecer: enquanto a IA não estiver
+    /// ligada, o recurso não aparece.
+    static var scanDeAlimentoDisponivel: Bool { GeminiConfig.isAvailable }
+
+    /// O scan CORPORAL continua existindo sem IA: ele calcula a partir das
+    /// medidas informadas. O que mudou é que ele não se anuncia mais como IA.
+    static var scanCorporalUsaIA: Bool { GeminiConfig.isAvailable }
 
     /// Recursos que consomem IA paga por uso.
     static func podeUsarIA(_ model: AppModel) -> Bool {
