@@ -98,7 +98,7 @@ struct SaudeView: View {
     private var scanCard: some View {
         VStack(spacing: 12) {
             Button {
-                if model.hasPremiumAccess { goToScan = true } else { showPaywall = true }
+                if CorpoAcesso.podeUsarIA(model) { goToScan = true } else { showPaywall = true }
             } label: {
                 HStack(spacing: 14) {
                     Image(systemName: "sparkles")

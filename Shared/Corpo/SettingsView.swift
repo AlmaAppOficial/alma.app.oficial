@@ -81,11 +81,7 @@ struct SettingsView: View {
                 }
 
                 // Lembretes (notificações locais)
-                Section("Lembretes") {
-                    Toggle(isOn: $model.notifyWater) { Label("Beber água", systemImage: "drop.fill") }
-                    Toggle(isOn: $model.notifyMeals) { Label("Registrar refeições", systemImage: "fork.knife") }
-                    Toggle(isOn: $model.notifyWorkout) { Label("Treino do dia", systemImage: "dumbbell.fill") }
-                }
+                secaoLembretes
 
                 // Conexão com o Alma
                 Section("App Alma") {
@@ -158,6 +154,8 @@ struct SettingsView: View {
             .onChange(of: model.notifyWater) { _ in Task { await applyNotifications() } }
             .onChange(of: model.notifyMeals) { _ in Task { await applyNotifications() } }
             .onChange(of: model.notifyWorkout) { _ in Task { await applyNotifications() } }
+            .onChange(of: model.notifySupplements) { _ in Task { await applyNotifications() } }
+            .onChange(of: model.supplementHour) { _ in Task { await applyNotifications() } }
             // [Fusão] alertas de exclusão de conta removidos — fluxo único no Alma.
         }
     }
@@ -166,15 +164,63 @@ struct SettingsView: View {
     // Alma (AccountDeletionService), que apaga servidor + dados locais dos dois
     // módulos num fluxo só.
 
+    /// Extraída numa propriedade própria porque, inline, o corpo do Form ficava
+    /// grande demais e o compilador desistia de inferir o tipo
+    /// ("unable to type-check this expression in reasonable time").
+    @ViewBuilder
+    private var secaoLembretes: some View {
+        Section {
+            Toggle(isOn: $model.notifyWater) { Label("Beber água", systemImage: "drop.fill") }
+            Toggle(isOn: $model.notifyMeals) { Label("Registrar refeições", systemImage: "fork.knife") }
+            Toggle(isOn: $model.notifyWorkout) { Label("Treino do dia", systemImage: "dumbbell.fill") }
+            Toggle(isOn: $model.notifySupplements) { Label("Suplementos", systemImage: "pills.fill") }
+            if model.notifySupplements {
+                Picker("Horário", selection: $model.supplementHour) {
+                    ForEach(horasDisponiveis, id: \.self) { h in
+                        Text(rotuloHora(h)).tag(h)
+                    }
+                }
+            }
+        } header: {
+            Text("Lembretes")
+        } footer: {
+            // Transparência sobre volume: a pessoa vê o que está ligando.
+            Text(resumoDeLembretes)
+        }
+    }
+
+    private var horasDisponiveis: [Int] { Array(6...22) }
+
+    private func rotuloHora(_ h: Int) -> String {
+        String(format: "%02d:00", h)
+    }
+
+    /// Quantos avisos por dia as opções ligadas representam. Mostrado no rodapé
+    /// da seção: quem liga tudo enxerga o custo antes de reclamar do app.
+    private var resumoDeLembretes: String {
+        var total = 0
+        if model.notifyWater { total += GradeDeLembretes.horariosAgua.count }
+        if model.notifyMeals { total += 3 }
+        if model.notifyWorkout { total += 1 }
+        if model.notifySupplements { total += 1 }
+
+        if total == 0 { return "Nenhum lembrete ativo." }
+        return total == 1
+            ? "1 lembrete por dia."
+            : "\(total) lembretes por dia."
+    }
+
     private func applyNotifications() async {
-        let anyOn = model.notifyWater || model.notifyMeals || model.notifyWorkout
+        let anyOn = model.notifyWater || model.notifyMeals || model.notifyWorkout || model.notifySupplements
         if anyOn {
             _ = await NotificationManager.shared.requestAuthorization()
         }
         NotificationManager.shared.sync(
             water: model.notifyWater,
             meals: model.notifyMeals,
-            workout: model.notifyWorkout
+            workout: model.notifyWorkout,
+            supplements: model.notifySupplements,
+            supplementHour: model.supplementHour
         )
     }
 

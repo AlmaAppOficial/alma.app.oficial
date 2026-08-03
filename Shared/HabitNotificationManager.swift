@@ -385,8 +385,12 @@ actor HabitNotificationManager {
 
     // MARK: - Notification Management
 
+    /// [2026-08-02] Cancela só os lembretes da Alma. Antes usava
+    /// `removeAllPendingNotificationRequests()`, que depois da fusão levava
+    /// junto os lembretes do Corpo (água, refeições, treino, suplementos).
+    /// O simétrico do mesmo bug que existia do outro lado.
     func cancelAllNotifications() async {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        await GradeDeLembretes.limpar(.alma)
     }
 
     func cancelNotification(identifier: String) async {

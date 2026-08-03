@@ -24,8 +24,10 @@ enum HealthConsentCategory: String, CaseIterable, Identifiable {
     case movementAndSleep = "movimento_sono"
     /// Meditação do dia e sequência (dados do próprio Alma).
     case meditation = "meditacao"
-    /// Treino e alimentação — chega com a fusão do Corpo & Alma.
+    /// Treino, alimentação, água, peso e suplementos — módulo Corpo.
     case fitnessAndDiet = "treino_dieta"
+    /// Humor / check-in — vai como SINAL traduzido, nunca o registro em si.
+    case mood = "humor"
     /// Ciclo menstrual — FORA deste build. Gancho pronto para entrar depois,
     /// com consentimento próprio e política de privacidade atualizada.
     case cycle = "ciclo"
@@ -36,7 +38,8 @@ enum HealthConsentCategory: String, CaseIterable, Identifiable {
         switch self {
         case .movementAndSleep: return "Movimento e sono"
         case .meditation:       return "Meditação e sequência"
-        case .fitnessAndDiet:   return "Treino e alimentação"
+        case .fitnessAndDiet:   return "Corpo: treino, comida e peso"
+        case .mood:             return "Como você tem se sentido"
         case .cycle:            return "Ciclo menstrual"
         }
     }
@@ -49,7 +52,9 @@ enum HealthConsentCategory: String, CaseIterable, Identifiable {
         case .meditation:
             return "A Alma sabe se você já meditou hoje e há quantos dias você mantém sua prática."
         case .fitnessAndDiet:
-            return "A Alma considera seus treinos e refeições registrados no Corpo & Alma."
+            return "A Alma considera seus treinos, refeições, água, peso e suplementos registrados no Corpo."
+        case .mood:
+            return "A Alma percebe a tendência do seu humor — nunca o que você escreveu, só o padrão."
         case .cycle:
             return "A Alma considera apenas a fase do seu ciclo — nunca datas nem registros."
         }
@@ -59,8 +64,11 @@ enum HealthConsentCategory: String, CaseIterable, Identifiable {
     /// `fitnessAndDiet` entra na fusão; `cycle` exige decisão de privacidade.
     var isAvailableNow: Bool {
         switch self {
-        case .movementAndSleep, .meditation: return true
-        case .fitnessAndDiet, .cycle:        return false
+        // [2026-08-02] fitnessAndDiet e mood liberados: o módulo Corpo está
+        // dentro do app e o humor passa a viajar como sinal traduzido.
+        case .movementAndSleep, .meditation, .fitnessAndDiet, .mood: return true
+        // Ciclo segue FORA por decisão de privacidade do projeto.
+        case .cycle: return false
         }
     }
 

@@ -172,13 +172,23 @@ struct CorpoHomeView: View {
 
     // Saudação
     private var greeting: some View {
+        // [2026-08-02] Antes o nome caía no padrão "Felipe" — todo usuário era
+        // cumprimentado pelo nome do dono do app. Agora, sem nome informado, a
+        // saudação simplesmente não tem nome. Nada é inventado.
         VStack(alignment: .leading, spacing: 4) {
-            Text(saudacao + ",")
-                .font(.title3)
-                .foregroundStyle(Theme.inkSoft)
-            Text(model.userName)
-                .font(.largeTitle.bold())
-                .foregroundStyle(Theme.ink)
+            if let primeiroNome = model.userName.split(separator: " ").first.map(String.init),
+               !primeiroNome.isEmpty {
+                Text(saudacao + ",")
+                    .font(.title3)
+                    .foregroundStyle(Theme.inkSoft)
+                Text(primeiroNome)
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(Theme.ink)
+            } else {
+                Text(saudacao)
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(Theme.ink)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

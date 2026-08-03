@@ -18,6 +18,8 @@ struct HomeView: View {
     @State private var showCorpoModule = UserDefaults.standard.bool(forKey: "abrirCorpo")
 
     @ObservedObject private var streakManager = StreakManager.shared
+    @ObservedObject private var perfil = UserProfileStore.shared
+    @State private var showOnboarding = false
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -25,6 +27,13 @@ struct HomeView: View {
 
                 // ── Header ─────────────────────────────
                 headerSection
+
+                // ── Complete seu perfil ────────────────
+                // [2026-08-02] Só aparece quando falta algo de verdade, e some
+                // sozinho quando o perfil fica completo.
+                if !perfil.pendencias().isEmpty {
+                    completeSeuPerfilCard
+                }
 
                 // ── Premium banner — [Build 84] freemium: só p/ não-assinante ─
                 if !access.isPremium {
@@ -78,10 +87,21 @@ struct HomeView: View {
         .task {
             authorized = await hk.requestAuthorization()
             if authorized { await hk.loadAll() }
+            #if DEBUG
+            await MainActor.run { DebugContextDump.semearPerfil() }
+            await DebugContextDump.executar(health: hk)
+            #endif
         }
         .fullScreenCover(isPresented: $showCorpoModule) {
             CorpoModuleView()
                 .environmentObject(access)
+        }
+        // [2026-08-02] O card "Complete seu perfil" reabre o MESMO onboarding
+        // da primeira abertura (OnboardingBiometricsView), agora com nome,
+        // medidas e consentimento. Um fluxo só — criar um segundo teria deixado
+        // dois lugares para editar a mesma informação.
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingBiometricsView()
         }
         .sheet(isPresented: $showHomePaywall) {
             PremiumWallView()
@@ -127,6 +147,67 @@ struct HomeView: View {
         // em copy do app (decisão do Assis). A oferta introdutória do ASC, se
         // ativa, aparece na folha de pagamento da própria Apple.
         "Acesso completo · Toque para assinar"
+    }
+
+    // MARK: - Complete seu perfil
+    //
+    // [2026-08-02] O app operava no escuro: não sabia o nome, nem a idade, nem
+    // as medidas de quem estava do outro lado — e mesmo assim calculava metas e
+    // conversava. Este card cobra o que falta, sempre dizendo PARA QUÊ.
+    private var completeSeuPerfilCard: some View {
+        let pendencias = perfil.pendencias()
+
+        return Button {
+            showOnboarding = true
+        } label: {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 10) {
+                    Image(systemName: "person.crop.circle.badge.exclamationmark")
+                        .font(.title3)
+                        .foregroundColor(CalmTheme.primary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Complete seu perfil")
+                            .font(.headline)
+                            .foregroundColor(CalmTheme.textPrimary)
+                        Text(pendencias.count == 1
+                             ? "Falta 1 informação para a Alma te acompanhar de verdade"
+                             : "Faltam \(pendencias.count) informações para a Alma te acompanhar de verdade")
+                            .font(.caption)
+                            .foregroundColor(CalmTheme.textSecondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.bold())
+                        .foregroundColor(CalmTheme.textSecondary)
+                }
+
+                // Barra de progresso: quanto do perfil já existe.
+                let total = PendenciaPerfil.allCases.count
+                let feito = total - pendencias.count
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(CalmTheme.textSecondary.opacity(0.15))
+                        Capsule()
+                            .fill(CalmTheme.primary)
+                            .frame(width: geo.size.width * CGFloat(feito) / CGFloat(total))
+                    }
+                }
+                .frame(height: 6)
+
+                Text(pendencias.first?.porque ?? "")
+                    .font(.caption2)
+                    .foregroundColor(CalmTheme.textSecondary)
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(CalmTheme.surface)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Header
@@ -574,11 +655,20 @@ struct HomeView: View {
     }
 
     // MARK: - Helpers
+    /// [2026-08-02] Passa a chamar a pessoa pelo nome — quando ele existe.
+    /// Sem nome informado, continua "Bom dia" puro: melhor uma saudação neutra
+    /// do que um nome chutado.
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
-        if hour < 12 { return "Bom dia" }
-        if hour < 18 { return "Boa tarde" }
-        return "Boa noite"
+        let base: String
+        if hour < 12 { base = "Bom dia" }
+        else if hour < 18 { base = "Boa tarde" }
+        else { base = "Boa noite" }
+
+        if let nome = perfil.primeiroNome {
+            return "\(base), \(nome)"
+        }
+        return base
     }
 
     private var formattedDate: String {

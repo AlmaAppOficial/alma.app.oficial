@@ -30,18 +30,11 @@ struct DietaView: View {
                             MealGroupCard(
                                 type: type,
                                 items: model.meals.filter { $0.type == type && $0.kcal > 0 },
-                                onAdd: {
-                                    if model.hasPremiumAccess { activeSheet = .addFood(type) }
-                                    else { showPaywall = true }
-                                },
-                                onDelete: {
-                                    if model.hasPremiumAccess { model.removeMeal($0) }
-                                    else { showPaywall = true }
-                                },
-                                onToggleDone: {
-                                    if model.hasPremiumAccess { model.toggleMeal($0) }
-                                    else { showPaywall = true }
-                                }
+                                // [2026-08-02] Registrar, apagar e marcar refeição
+                                // são grátis: é o diário da pessoa. Ver CorpoAcesso.
+                                onAdd: { activeSheet = .addFood(type) },
+                                onDelete: { model.removeMeal($0) },
+                                onToggleDone: { model.toggleMeal($0) }
                             )
                         }
                     }
@@ -49,8 +42,9 @@ struct DietaView: View {
                     // [F5] Suplementos — registro pessoal (100% local)
                     SupplementsSection()
 
+                    // Escanear consome IA paga por foto — segue premium.
                     Button {
-                        if model.hasPremiumAccess { activeSheet = .foodScan }
+                        if CorpoAcesso.podeUsarIA(model) { activeSheet = .foodScan }
                         else { showPaywall = true }
                     } label: {
                         Label("Escanear com IA", systemImage: "sparkles")
@@ -69,8 +63,7 @@ struct DietaView: View {
                     }
 
                     Button {
-                        if model.hasPremiumAccess { activeSheet = .addFood(.cafe) }
-                        else { showPaywall = true }
+                        activeSheet = .addFood(.cafe)
                     } label: {
                         Label("Adicionar alimento", systemImage: "plus")
                             .font(.headline)
@@ -89,8 +82,7 @@ struct DietaView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        if model.hasPremiumAccess { activeSheet = .addFood(.cafe) }
-                        else { showPaywall = true }
+                        activeSheet = .addFood(.cafe)
                     } label: { Image(systemName: "plus") }
                 }
             }

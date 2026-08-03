@@ -5,6 +5,18 @@ struct OnboardingBiometricsView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @State private var currentStep = 0
 
+    // [2026-08-02] Onboarding ÚNICO, cobrindo Alma e Corpo.
+    // Este fluxo já existia e pedia gênero, nascimento, horário e local — mas
+    // nunca perguntava o NOME. Resultado: a Home só sabia dizer "Bom dia" e o
+    // módulo Corpo chamava todo mundo de "Felipe" (o valor padrão herdado).
+    // Em vez de criar um segundo onboarding, os campos que faltavam entraram
+    // aqui: nome (passo 1), peso e altura (passo 2) e o consentimento por
+    // categoria do contexto de saúde (passo 3).
+    @StateObject private var corpo = AppModel()
+    @State private var nomeDigitado = ""
+    @State private var pesoTexto = ""
+    @State private var alturaTexto = ""
+
     // Identity step state
     @State private var selectedGender = ""
     @State private var birthDate = Calendar.current.date(byAdding: .year, value: -30, to: Date()) ?? Date()
@@ -110,14 +122,34 @@ struct OnboardingBiometricsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("✨")
                     .font(.system(size: 36))
-                Text("Conta-nos um pouco sobre você")
+                // [2026-08-02] Era "Conta-nos" e "os seus Insights" — português
+                // de Portugal. O projeto é PT-BR, sem exceção.
+                Text("Conte um pouco sobre você")
                     .font(.title2.bold())
                     .foregroundColor(CalmTheme.textPrimary)
-                Text("Estas informações personalizam os seus Insights da Alma e tornam a experiência única para você.")
+                Text("Estas informações personalizam seus insights da Alma e tornam a experiência única para você.")
                     .font(.subheadline)
                     .foregroundColor(CalmTheme.textSecondary)
                     .lineSpacing(2)
             }
+
+            // ── Nome ──────────────────────────────────────────────────
+            // O campo que faltava. Sem ele a Alma fala com um usuário genérico.
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Como você quer ser chamado?")
+                    .font(.subheadline.bold())
+                    .foregroundColor(CalmTheme.textPrimary)
+                TextField("Seu nome", text: $nomeDigitado)
+                    .textInputAutocapitalization(.words)
+                    .disableAutocorrection(true)
+                    .padding(12)
+                    .background(CalmTheme.surface)
+                    .cornerRadius(10)
+                    .font(.subheadline)
+                    .foregroundColor(CalmTheme.textPrimary)
+            }
+
+            Divider().opacity(0.3)
 
             // ── Género ────────────────────────────────────────────────
             VStack(alignment: .leading, spacing: 10) {
@@ -222,35 +254,102 @@ struct OnboardingBiometricsView: View {
     }
 
     private var healthStep: some View {
-        VStack(spacing: 20) {
-            Spacer().frame(height: 20)
-            Image(systemName: "heart.circle.fill")
-                .font(.system(size: 72))
-                .foregroundColor(.red)
-            Text("Dados de saúde")
-                .font(.title2.bold())
-                .foregroundColor(CalmTheme.textPrimary)
-            Text("A Alma pode usar dados do Apple Health para personalizar suas recomendações de bem-estar, como frequência cardíaca, sono e HRV.")
-                .font(.body)
-                .foregroundColor(CalmTheme.textSecondary)
-                .multilineTextAlignment(.center)
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 8) {
+                Image(systemName: "heart.circle.fill")
+                    .font(.system(size: 44))
+                    .foregroundColor(.red)
+                Text("Seu corpo")
+                    .font(.title2.bold())
+                    .foregroundColor(CalmTheme.textPrimary)
+                Text("A Alma pode usar dados do Apple Health — sono, passos, exercício — para entender seu dia.")
+                    .font(.subheadline)
+                    .foregroundColor(CalmTheme.textSecondary)
+            }
+
+            Divider().opacity(0.3)
+
+            // [2026-08-02] Peso e altura passam a ser pedidos aqui. Antes, o
+            // módulo Corpo assumia 78,4 kg e 1,78 m como padrão e calculava
+            // metas de caloria e água em cima de um corpo que não existia.
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("Peso e altura")
+                        .font(.subheadline.bold())
+                        .foregroundColor(CalmTheme.textPrimary)
+                    Spacer()
+                    Text("Opcional")
+                        .font(.caption)
+                        .foregroundColor(CalmTheme.textSecondary)
+                }
+                Text("Sem isso, as metas de calorias e água seriam chute. Fica só no seu aparelho.")
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+
+                HStack(spacing: 10) {
+                    TextField("Peso (kg)", text: $pesoTexto)
+                        .keyboardType(.decimalPad)
+                        .padding(12)
+                        .background(CalmTheme.surface)
+                        .cornerRadius(10)
+                        .font(.subheadline)
+                    TextField("Altura (cm)", text: $alturaTexto)
+                        .keyboardType(.decimalPad)
+                        .padding(12)
+                        .background(CalmTheme.surface)
+                        .cornerRadius(10)
+                        .font(.subheadline)
+                }
+            }
         }
     }
 
     private var notificationsStep: some View {
-        VStack(spacing: 20) {
-            Spacer().frame(height: 20)
-            Image(systemName: "bell.badge.fill")
-                .font(.system(size: 72))
-                .foregroundColor(CalmTheme.accent)
-            Text("Notificações")
-                .font(.title2.bold())
-                .foregroundColor(CalmTheme.textPrimary)
-            Text("Receba lembretes diários para check-ins de humor e sessões de meditação. Você pode desativar a qualquer momento.")
-                .font(.body)
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 8) {
+                Image(systemName: "lock.shield")
+                    .font(.system(size: 44))
+                    .foregroundColor(CalmTheme.primary)
+                Text("O que a Alma pode ver")
+                    .font(.title2.bold())
+                    .foregroundColor(CalmTheme.textPrimary)
+                Text("Ela recebe um resumo curto do seu dia — nunca seus registros, nunca o que você escreveu. Você escolhe o que entra.")
+                    .font(.subheadline)
+                    .foregroundColor(CalmTheme.textSecondary)
+            }
+
+            // [2026-08-02] O consentimento por categoria estava escondido no
+            // Perfil. Quem nunca foi lá deixava a Alma cega sem saber disso.
+            VStack(spacing: 10) {
+                ForEach(HealthConsentCategory.allCases.filter(\.isAvailableNow)) { categoria in
+                    consentimentoRow(categoria)
+                }
+            }
+
+            Text("Pode desligar tudo quando quiser, no Perfil.")
+                .font(.caption2)
                 .foregroundColor(CalmTheme.textSecondary)
-                .multilineTextAlignment(.center)
         }
+    }
+
+    private func consentimentoRow(_ categoria: HealthConsentCategory) -> some View {
+        Toggle(isOn: Binding(
+            get: { HealthContextConsent.isGranted(categoria) },
+            set: { HealthContextConsent.set($0, for: categoria) }
+        )) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(categoria.title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundColor(CalmTheme.textPrimary)
+                Text(categoria.explanation)
+                    .font(.caption2)
+                    .foregroundColor(CalmTheme.textSecondary)
+            }
+        }
+        .tint(CalmTheme.primary)
+        .padding(12)
+        .background(CalmTheme.surface)
+        .cornerRadius(12)
     }
 
     private var readyStep: some View {
@@ -311,10 +410,33 @@ struct OnboardingBiometricsView: View {
                 birthCity: birthCity,
                 birthCountry: birthCountry
             )
+
+            // [2026-08-02] Nome e nascimento vão para o perfil único, que a Home
+            // e o módulo Corpo leem. Campo vazio não grava nada — sem chute.
+            let nome = nomeDigitado.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !nome.isEmpty {
+                UserProfileStore.shared.nome = nome
+                corpo.userName = nome
+            }
+            if hasBirthDate {
+                UserProfileStore.shared.dataNascimento = birthDate
+                if let idade = Calendar.current.dateComponents([.year], from: birthDate, to: Date()).year {
+                    corpo.ageYears = idade
+                }
+            }
+        }
+        if currentStep == 2 {
+            if let peso = Double(pesoTexto.replacingOccurrences(of: ",", with: ".")), peso > 0 {
+                corpo.weightKg = peso
+            }
+            if let altura = Double(alturaTexto.replacingOccurrences(of: ",", with: ".")), altura > 0 {
+                corpo.heightCm = altura
+            }
         }
         if currentStep < totalSteps - 1 {
             currentStep += 1
         } else {
+            UserProfileStore.shared.onboardingConcluido = true
             onboardingComplete = true
         }
     }

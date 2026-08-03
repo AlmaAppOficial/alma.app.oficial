@@ -7,6 +7,7 @@ o item no grupo Shared e o item na fase de Sources (target iOS).
 
 Idempotente: se o arquivo já estiver registrado, pula.
 """
+import hashlib
 import os
 import re
 
@@ -35,15 +36,25 @@ added = 0
 for i, name in enumerate(swift_files):
     if f"Corpo/{name}" in proj:
         continue
-    # ATENÇÃO: prefixo FA9 (fusão alma). O prefixo "CC" colidiu com UIDs que já
-    # existiam no projeto (PraticasView usa CC001000CC001000CC001000) e o Xcode
-    # passou a ignorar o arquivo original — o build quebrou com
-    # "cannot find type 'MeditationDay'". UID em pbxproj tem de ser único.
-    # UID de pbxproj tem EXATAMENTE 24 caracteres hex. A primeira versão gerava
-    # 23 e o Xcode ignorava a entrada em silêncio — o arquivo não compilava e o
-    # erro aparecia como "cannot find type ... in scope".
-    uid_ref = f"FA9{i:03d}00AA{i:03d}00BB{i:03d}000"[:24]
-    uid_bld = f"FA9{i:03d}01AA{i:03d}01BB{i:03d}111"[:24]
+    # UID de pbxproj: EXATAMENTE 24 caracteres hex e único no arquivo inteiro.
+    #
+    # Duas armadilhas já custaram builds inteiros aqui:
+    #
+    # 1. TAMANHO. A versão anterior montava a string à mão e produzia 23
+    #    caracteres. O `[:24]` truncava, mas nunca preenchia. O Xcode ignorava a
+    #    entrada em silêncio e o erro aparecia longe da causa, como
+    #    "cannot find type ... in scope".
+    #
+    # 2. COLISÃO. O UID vinha do índice `i` da lista. Em execuções diferentes o
+    #    mesmo índice caía em arquivos diferentes: CorpoContextSnapshot (i=7 numa
+    #    rodada) recebeu o UID que já era do CorpoInsightsEngine (i=7 na rodada
+    #    anterior). Dois arquivos, um UID — o Xcode compila só um.
+    #    Agora o UID deriva do NOME, então é estável entre execuções e não
+    #    depende da ordem em que o script varre a pasta.
+    uid_ref = hashlib.sha1(f"ref:{name}".encode()).hexdigest()[:24].upper()
+    uid_bld = hashlib.sha1(f"bld:{name}".encode()).hexdigest()[:24].upper()
+    assert len(uid_ref) == 24 and len(uid_bld) == 24, f"UID fora de 24 chars para {name}"
+    assert uid_ref not in proj and uid_bld not in proj, f"UID colidiu para {name}"
     refs.append(f'\t\t{uid_ref} /* {name} */ = {{isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/{name}"; sourceTree = "<group>"; }};')
     builds.append(f"\t\t{uid_bld} /* {name} in Sources */ = {{isa = PBXBuildFile; fileRef = {uid_ref} /* {name} */; }};")
     groups.append(f"\t\t\t\t{uid_ref} /* {name} */,")

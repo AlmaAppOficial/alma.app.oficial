@@ -169,13 +169,22 @@ enum Goal: String, CaseIterable, Identifiable {
 // MARK: - Estado do app
 
 final class AppModel: ObservableObject {
-    private let store = UserDefaults.standard
+    /// Injetável para que os testes usem um domínio próprio e não contaminem
+    /// os dados reais de quem estiver usando o app.
+    private let store: UserDefaults
 
     // Onboarding
     @Published var hasOnboarded: Bool { didSet { store.set(hasOnboarded, forKey: "hasOnboarded") } }
 
     // Perfil
-    @Published var userName: String { didSet { store.set(userName, forKey: "userName") } }
+    /// Espelha o perfil único do app: o que a pessoa digitar aqui aparece na
+    /// saudação da Alma, e vice-versa. Vazio quando ninguém informou nada.
+    @Published var userName: String {
+        didSet {
+            store.set(userName, forKey: "userName")
+            UserProfileStore.salvarNome(userName)
+        }
+    }
     @Published var goal: Goal { didSet { store.set(goal.rawValue, forKey: "goal") } }
 
     // [F4] Perfil para o cálculo da meta calórica (100% local, nunca sai do device)
@@ -208,6 +217,11 @@ final class AppModel: ObservableObject {
     @Published var notifyWater: Bool { didSet { store.set(notifyWater, forKey: "notifyWater") } }
     @Published var notifyMeals: Bool { didSet { store.set(notifyMeals, forKey: "notifyMeals") } }
     @Published var notifyWorkout: Bool { didSet { store.set(notifyWorkout, forKey: "notifyWorkout") } }
+    /// [2026-08-02] Categoria nova: o app cobrava adesão a suplementos sem
+    /// nunca lembrar de tomá-los.
+    @Published var notifySupplements: Bool { didSet { store.set(notifySupplements, forKey: "notifySupplements") } }
+    /// Hora do lembrete de suplementos — a maioria toma junto do café.
+    @Published var supplementHour: Int { didSet { store.set(supplementHour, forKey: "supplementHour") } }
 
     // Aparência: "system" | "light" | "dark"
     @Published var appearanceMode: String { didSet { store.set(appearanceMode, forKey: "appearanceMode") } }
@@ -249,9 +263,14 @@ final class AppModel: ObservableObject {
         store.set(planAppliedAt?.timeIntervalSince1970 ?? 0, forKey: "planAppliedAt")
     } }
 
-    init() {
+    init(store: UserDefaults = .standard) {
+        self.store = store
         hasOnboarded = store.bool(forKey: "hasOnboarded")
-        userName     = store.string(forKey: "userName") ?? "Felipe"
+        // [2026-08-02] Era `?? "Felipe"` — o nome do dono do app virava o nome
+        // de todo mundo que instalasse. Agora a fonte é o UserProfileStore e,
+        // quando ninguém informou nada, o campo fica vazio e a interface se
+        // adapta em vez de inventar.
+        userName     = store.string(forKey: "userName") ?? UserProfileStore.nomeSalvo() ?? ""
         goal         = Goal(rawValue: store.string(forKey: "goal") ?? "") ?? .manter
         sex          = BiologicalSex(rawValue: store.string(forKey: "sexBiological") ?? "") ?? .masculino
         activityLevel = ActivityLevel(rawValue: store.string(forKey: "activityLevel") ?? "") ?? .leve
@@ -273,6 +292,8 @@ final class AppModel: ObservableObject {
         // convida a completar em vez de exibir número inventado.
         // (Os dados eram coletados no onboarding do Corpo & Alma, que a fusão
         // removeu — daí a regressão.)
+        dietaryRestrictions = store.string(forKey: "dietaryRestrictions") ?? ""
+        healthConditions    = store.string(forKey: "healthConditions") ?? ""
         weightKg     = store.object(forKey: "weightKg") as? Double ?? 0
         heightCm     = store.object(forKey: "heightCm") as? Double ?? 0
         ageYears     = store.object(forKey: "ageYears") as? Int ?? 0
@@ -291,6 +312,28 @@ final class AppModel: ObservableObject {
         notifyWater    = store.bool(forKey: "notifyWater")
         notifyMeals    = store.bool(forKey: "notifyMeals")
         notifyWorkout  = store.bool(forKey: "notifyWorkout")
+        // [2026-08-03] BUG DE PERSISTÊNCIA. As três séries que sustentam os
+        // Insights — peso, calorias por dia e dias de treino — tinham didSet
+        // que GRAVA, mas ninguém as LIA de volta no init. Toda abertura do app
+        // começava com histórico vazio: o gráfico de peso não tinha passado, a
+        // média de calorias reiniciava e a Alma nunca sabia dos treinos.
+        // Mesmo tipo de falha do bug das refeições que o Assis pegou em julho
+        // ("saí e entrei no app e o que havia inserido sumiu").
+        if let d = store.data(forKey: "weightLog"),
+           let lista = try? JSONDecoder().decode([WeightEntry].self, from: d) {
+            weightLog = lista
+        }
+        if let d = store.data(forKey: "kcalByDay"),
+           let mapa = try? JSONDecoder().decode([String: Int].self, from: d) {
+            kcalByDay = mapa
+        }
+        if let dias = store.array(forKey: "workoutDays") as? [String] {
+            workoutDays = Set(dias)
+        }
+
+        notifySupplements = store.bool(forKey: "notifySupplements")
+        let horaSuplemento = store.integer(forKey: "supplementHour")
+        supplementHour = horaSuplemento == 0 ? 9 : horaSuplemento
         appearanceMode = store.string(forKey: "appearanceMode") ?? "system"
         if let d = store.data(forKey: "scanResult") {
             scanResult = try? JSONDecoder().decode(ScanResult.self, from: d)
@@ -562,6 +605,18 @@ final class AppModel: ObservableObject {
         }
     }
 
+    // [2026-08-02] Campos do onboarding único que a IA usa para NÃO sugerir o
+    // que faz mal. Ficam no aparelho; viajam só como parte do resumo, sob o
+    // consentimento da categoria "Corpo".
+    /// Alergias e restrições alimentares, texto livre.
+    @Published var dietaryRestrictions: String {
+        didSet { store.set(dietaryRestrictions, forKey: "dietaryRestrictions") }
+    }
+    /// Condições ou limitações físicas relevantes para o treino.
+    @Published var healthConditions: String {
+        didSet { store.set(healthConditions, forKey: "healthConditions") }
+    }
+
     // Ações
     func addWater(_ ml: Int) {
         waterMl = min(waterMl + ml, waterGoalMl + 1000)
@@ -732,7 +787,8 @@ final class AppModel: ObservableObject {
     func deleteAllData() {
         let keys = ["hasOnboarded", "userName", "goal", "weightKg", "heightCm", "ageYears",
                     "bodyFat", "waterMl", "isPremium", "trialStartedAt",
-                    "notifyWater", "notifyMeals", "notifyWorkout", "scanResult",
+                    "notifyWater", "notifyMeals", "notifyWorkout",
+                    "notifySupplements", "supplementHour", "scanResult",
                     // [2026-07-29] diário alimentar persistido — dado de saúde,
                     // tem de sair na exclusão (App Store 5.1.1(v) / LGPD).
                     Self.mealsKey, Self.mealsDateKey, "customWorkouts",
@@ -749,7 +805,7 @@ final class AppModel: ObservableObject {
         supplements = []
         planAppliedAt = nil
 
-        userName = "Felipe"
+        userName = ""   // [2026-08-02] resetar não pode reintroduzir o nome fictício
         goal = .manter
         weightKg = 0
         heightCm = 0
@@ -761,6 +817,8 @@ final class AppModel: ObservableObject {
         notifyWater = false
         notifyMeals = false
         notifyWorkout = false
+        notifySupplements = false
+        supplementHour = 9
         scanResult = nil
         hasOnboarded = false
     }

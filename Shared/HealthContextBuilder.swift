@@ -85,8 +85,29 @@ struct HealthContextBuilder {
             lines.append("Meditação: " + parts.joined(separator: " · "))
         }
 
-        // ── Treino e alimentação — entra com a fusão do Corpo & Alma ─────────
-        // if HealthContextConsent.isGranted(.fitnessAndDiet) { … }
+        // ── Corpo: alimentação, água, treino, peso e suplementos ─────────────
+        // [2026-08-02] A promessa central: a Alma passa a enxergar o usuário
+        // inteiro, não só movimento e prática. Tudo derivado dos registros do
+        // módulo Corpo, em resumo curto — nunca a lista de alimentos.
+        if HealthContextConsent.isGranted(.fitnessAndDiet) {
+            let corpo = await MainActor.run { CorpoContextSnapshot.atual() }
+
+            if let alimentacao = corpo.linhaAlimentacao { lines.append(alimentacao) }
+            if let agua = corpo.linhaAgua { lines.append(agua) }
+            if let treino = corpo.linhaTreino { lines.append(treino) }
+            if let peso = corpo.linhaPeso { lines.append(peso) }
+            if let suplementos = corpo.linhaSuplementos { lines.append(suplementos) }
+            if let perfil = corpo.linhaPerfil { lines.append(perfil) }
+        }
+
+        // ── Humor — SINAL traduzido, nunca o registro ────────────────────────
+        // A pessoa escreveu "briguei com meu irmão"? A Alma recebe apenas
+        // "semana emocionalmente pesada". O texto nunca sai do aparelho.
+        if HealthContextConsent.isGranted(.mood) {
+            if let sinal = await MainActor.run(body: { MoodSignal.sinalDaSemana() }) {
+                lines.append("Humor: \(sinal)")
+            }
+        }
 
         // ── Ciclo menstrual — FORA por decisão de privacidade do projeto ─────
         // O gancho existe (HealthContextConsent.cycle, hoje sempre false).
