@@ -116,6 +116,8 @@
 		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
+		FA900701AA00701BB007111 /* CorpoInsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900700AA00700BB007000 /* CorpoInsightsEngine.swift */; };
+		FA900801AA00801BB008111 /* CorpoInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900800AA00800BB008000 /* CorpoInsightsView.swift */; };
 		FA900001FA900001FA90001 /* AIBodyScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900000FA900000FA90000 /* AIBodyScan.swift */; };
 		FA900101FA900101FA90011 /* AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900100FA900100FA90010 /* AddFoodView.swift */; };
 		FA900201FA900201FA90021 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900200FA900200FA90020 /* BarcodeScannerView.swift */; };
@@ -123,7 +125,6 @@
 		FA900401FA900401FA90041 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400FA900400FA90040 /* CameraPickerView.swift */; };
 		FA900501FA900501FA90051 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900500FA900500FA90050 /* Components.swift */; };
 		FA900601FA900601FA90061 /* CorpoHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900600FA900600FA90060 /* CorpoHomeView.swift */; };
-		FA900701FA900701FA90071 /* CorpoInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900700FA900700FA90070 /* CorpoInsightsView.swift */; };
 		FA900801FA900801FA90081 /* CorpoPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900800FA900800FA90080 /* CorpoPaywallView.swift */; };
 		FA900901FA900901FA90091 /* CorpoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900900FA900900FA90090 /* CorpoTheme.swift */; };
 		FA901001FA901001FA90101 /* DietaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901000FA901000FA90100 /* DietaView.swift */; };
@@ -339,6 +340,8 @@
 		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
+		FA900700AA00700BB007000 /* CorpoInsightsEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsEngine.swift"; sourceTree = "<group>"; };
+		FA900800AA00800BB008000 /* CorpoInsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsView.swift"; sourceTree = "<group>"; };
 		FA900000FA900000FA90000 /* AIBodyScan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AIBodyScan.swift"; sourceTree = "<group>"; };
 		FA900100FA900100FA90010 /* AddFoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AddFoodView.swift"; sourceTree = "<group>"; };
 		FA900200FA900200FA90020 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BarcodeScannerView.swift"; sourceTree = "<group>"; };
@@ -346,7 +349,6 @@
 		FA900400FA900400FA90040 /* CameraPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CameraPickerView.swift"; sourceTree = "<group>"; };
 		FA900500FA900500FA90050 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Components.swift"; sourceTree = "<group>"; };
 		FA900600FA900600FA90060 /* CorpoHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoHomeView.swift"; sourceTree = "<group>"; };
-		FA900700FA900700FA90070 /* CorpoInsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsView.swift"; sourceTree = "<group>"; };
 		FA900800FA900800FA90080 /* CorpoPaywallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoPaywallView.swift"; sourceTree = "<group>"; };
 		FA900900FA900900FA90090 /* CorpoTheme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoTheme.swift"; sourceTree = "<group>"; };
 		FA901000FA901000FA90100 /* DietaView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/DietaView.swift"; sourceTree = "<group>"; };
@@ -545,6 +547,8 @@
 				DD015000DD015000DD015000 /* HealthContextBuilder.swift */,
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
+				FA900700AA00700BB007000 /* CorpoInsightsEngine.swift */,
+				FA900800AA00800BB008000 /* CorpoInsightsView.swift */,
 				FA900000FA900000FA90000 /* AIBodyScan.swift */,
 				FA900100FA900100FA90010 /* AddFoodView.swift */,
 				FA900200FA900200FA90020 /* BarcodeScannerView.swift */,
@@ -552,7 +556,6 @@
 				FA900400FA900400FA90040 /* CameraPickerView.swift */,
 				FA900500FA900500FA90050 /* Components.swift */,
 				FA900600FA900600FA90060 /* CorpoHomeView.swift */,
-				FA900700FA900700FA90070 /* CorpoInsightsView.swift */,
 				FA900800FA900800FA90080 /* CorpoPaywallView.swift */,
 				FA900900FA900900FA90090 /* CorpoTheme.swift */,
 				FA901000FA901000FA90100 /* DietaView.swift */,
@@ -1022,6 +1025,8 @@
 				DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */,
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
+				FA900701AA00701BB007111 /* CorpoInsightsEngine.swift in Sources */,
+				FA900801AA00801BB008111 /* CorpoInsightsView.swift in Sources */,
 				FA900001FA900001FA90001 /* AIBodyScan.swift in Sources */,
 				FA900101FA900101FA90011 /* AddFoodView.swift in Sources */,
 				FA900201FA900201FA90021 /* BarcodeScannerView.swift in Sources */,
@@ -1029,7 +1034,6 @@
 				FA900401FA900401FA90041 /* CameraPickerView.swift in Sources */,
 				FA900501FA900501FA90051 /* Components.swift in Sources */,
 				FA900601FA900601FA90061 /* CorpoHomeView.swift in Sources */,
-				FA900701FA900701FA90071 /* CorpoInsightsView.swift in Sources */,
 				FA900801FA900801FA90081 /* CorpoPaywallView.swift in Sources */,
 				FA900901FA900901FA90091 /* CorpoTheme.swift in Sources */,
 				FA901001FA901001FA90101 /* DietaView.swift in Sources */,

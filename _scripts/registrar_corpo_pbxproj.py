@@ -39,8 +39,11 @@ for i, name in enumerate(swift_files):
     # existiam no projeto (PraticasView usa CC001000CC001000CC001000) e o Xcode
     # passou a ignorar o arquivo original — o build quebrou com
     # "cannot find type 'MeditationDay'". UID em pbxproj tem de ser único.
-    uid_ref = f"FA9{i:03d}00FA9{i:03d}00FA9{i:03d}0"
-    uid_bld = f"FA9{i:03d}01FA9{i:03d}01FA9{i:03d}1"
+    # UID de pbxproj tem EXATAMENTE 24 caracteres hex. A primeira versão gerava
+    # 23 e o Xcode ignorava a entrada em silêncio — o arquivo não compilava e o
+    # erro aparecia como "cannot find type ... in scope".
+    uid_ref = f"FA9{i:03d}00AA{i:03d}00BB{i:03d}000"[:24]
+    uid_bld = f"FA9{i:03d}01AA{i:03d}01BB{i:03d}111"[:24]
     refs.append(f'\t\t{uid_ref} /* {name} */ = {{isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/{name}"; sourceTree = "<group>"; }};')
     builds.append(f"\t\t{uid_bld} /* {name} in Sources */ = {{isa = PBXBuildFile; fileRef = {uid_ref} /* {name} */; }};")
     groups.append(f"\t\t\t\t{uid_ref} /* {name} */,")

@@ -50,6 +50,12 @@ struct InsightDetailView: View {
 
 #Preview {
     NavigationStack {
-        InsightDetailView(insight: AppModel().insights[0])
+        // [Honestidade] AppModel.insights foi removido (era hardcoded).
+        InsightDetailView(insight: Insight(
+            title: "Exemplo",
+            detail: "Pré-visualização apenas.",
+            systemImage: "sparkles",
+            tint: Theme.primary
+        ))
     }
 }

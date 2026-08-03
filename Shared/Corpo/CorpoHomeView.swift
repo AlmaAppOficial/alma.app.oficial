@@ -236,24 +236,42 @@ struct CorpoHomeView: View {
     private var ringSummary: some View {
         HStack(spacing: 20) {
             ZStack {
-                ProgressRing(progress: Double(model.kcalConsumed) / Double(model.kcalGoal), tint: Theme.coral, lineWidth: 12)
-                    .frame(width: 110, height: 110)
+                // [Honestidade] Sem medidas não há meta — e sem meta não há anel
+                // de progresso "contra" um número inventado.
+                ProgressRing(
+                    progress: model.kcalGoal.map { Double(model.kcalConsumed) / Double($0) } ?? 0,
+                    tint: Theme.coral,
+                    lineWidth: 12
+                )
+                .frame(width: 110, height: 110)
                 VStack(spacing: 0) {
                     Text("\(model.kcalConsumed)")
                         .font(.title.bold())
                         .foregroundStyle(Theme.ink)
-                    Text("/ \(model.kcalGoal) kcal")
-                        .font(.caption)
-                        .foregroundStyle(Theme.inkSoft)
+                    if let meta = model.kcalGoal {
+                        Text("/ \(meta) kcal")
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                    } else {
+                        Text("kcal hoje")
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                    }
                 }
             }
             VStack(alignment: .leading, spacing: 10) {
                 Text("Energia de hoje")
                     .font(.headline)
                     .foregroundStyle(Theme.ink)
-                Text("Faltam \(max(model.kcalGoal - model.kcalConsumed, 0)) kcal para sua meta diária.")
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.inkSoft)
+                if let meta = model.kcalGoal {
+                    Text("Faltam \(max(meta - model.kcalConsumed, 0)) kcal para sua meta diária.")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.inkSoft)
+                } else {
+                    Text("Complete suas medidas para eu calcular sua meta.")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.inkSoft)
+                }
                 Pill(text: "\(model.proteinConsumed) g de proteína", tint: Theme.primary)
             }
             Spacer(minLength: 0)

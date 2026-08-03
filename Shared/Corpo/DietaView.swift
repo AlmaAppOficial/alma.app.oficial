@@ -115,12 +115,21 @@ struct DietaView: View {
                     Text("\(model.kcalConsumed)")
                         .font(.largeTitle.bold())
                         .foregroundStyle(Theme.ink)
-                    Text("de \(model.kcalGoal) kcal consumidas")
-                        .font(.caption)
-                        .foregroundStyle(Theme.inkSoft)
+                    // [Honestidade] Sem medidas, nada de meta inventada.
+                    if let meta = model.kcalGoal {
+                        Text("de \(meta) kcal consumidas")
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                    } else {
+                        Text("kcal consumidas hoje")
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                    }
                     // [F4] Meta editável: sugerida vs personalizada
                     Button { showGoalEditor = true } label: {
-                        Label(model.customKcalGoal == nil ? "Meta sugerida · editar" : "Meta personalizada · editar",
+                        Label(model.kcalGoal == nil
+                              ? "Complete suas medidas para ter uma meta"
+                              : (model.customKcalGoal == nil ? "Meta sugerida · editar" : "Meta personalizada · editar"),
                               systemImage: "slider.horizontal.3")
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(Theme.primary)
@@ -129,14 +138,16 @@ struct DietaView: View {
                 }
                 Spacer()
                 ProgressRing(
-                    progress: Double(model.kcalConsumed) / Double(model.kcalGoal),
+                    progress: model.kcalGoal.map { Double(model.kcalConsumed) / Double($0) } ?? 0,
                     tint: Theme.coral, lineWidth: 9, icon: "flame.fill"
                 )
                 .frame(width: 56, height: 56)
             }
-            MacroBar(label: "Proteína",    value: model.proteinConsumed, goal: model.proteinGoal, tint: Theme.primary)
-            MacroBar(label: "Carboidrato", value: model.carbsConsumed,   goal: model.carbsGoal,   tint: Theme.gold)
-            MacroBar(label: "Gordura",     value: model.fatConsumed,     goal: model.fatGoal,     tint: Theme.azure)
+            if let p = model.proteinGoal, let c = model.carbsGoal, let g = model.fatGoal {
+                MacroBar(label: "Proteína",    value: model.proteinConsumed, goal: p, tint: Theme.primary)
+                MacroBar(label: "Carboidrato", value: model.carbsConsumed,   goal: c, tint: Theme.gold)
+                MacroBar(label: "Gordura",     value: model.fatConsumed,     goal: g, tint: Theme.azure)
+            }
         }
         .cardStyle()
     }

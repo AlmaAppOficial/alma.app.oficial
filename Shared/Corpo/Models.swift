@@ -266,10 +266,17 @@ final class AppModel: ObservableObject {
            let list = try? JSONDecoder().decode([Supplement].self, from: d) {
             supplements = list
         }
-        weightKg     = store.object(forKey: "weightKg") as? Double ?? 78.4
-        heightCm     = store.object(forKey: "heightCm") as? Double ?? 178
-        ageYears     = store.object(forKey: "ageYears") as? Int ?? 30
-        bodyFat      = store.object(forKey: "bodyFat") as? Double ?? 18.2
+        // [Honestidade 2026-08-02] Os defaults fictícios saíram. Antes, quem
+        // nunca preencheu as medidas recebia peso 78,4 kg / altura 178 / idade 30
+        // / gordura 18,2% — e o app calculava a meta calórica em cima disso,
+        // apresentando como se fosse dele. Agora: 0 = "não informado", e a UI
+        // convida a completar em vez de exibir número inventado.
+        // (Os dados eram coletados no onboarding do Corpo & Alma, que a fusão
+        // removeu — daí a regressão.)
+        weightKg     = store.object(forKey: "weightKg") as? Double ?? 0
+        heightCm     = store.object(forKey: "heightCm") as? Double ?? 0
+        ageYears     = store.object(forKey: "ageYears") as? Int ?? 0
+        bodyFat      = store.object(forKey: "bodyFat") as? Double ?? 0
         // Reset diário da água: zera se for um novo dia
         let lastWaterDate = store.object(forKey: "lastWaterDate") as? Date ?? .distantPast
         if Calendar.current.isDateInToday(lastWaterDate) {
@@ -310,12 +317,33 @@ final class AppModel: ObservableObject {
 
     // Metas diárias — [F4] calculadas de verdade (Mifflin-St Jeor × atividade ± objetivo).
     // O usuário pode sobrescrever com uma meta personalizada (customKcalGoal).
-    var suggestedKcalGoal: Int {
-        NutritionEngine.suggestedKcal(weightKg: weightKg, heightCm: heightCm, ageYears: ageYears,
-                                      sex: sex, activity: activityLevel, goal: goal)
+    /// [Honestidade] O perfil está completo o bastante para calcular a meta?
+    /// Sem isso, NADA de meta calórica — a UI convida a completar.
+    var hasBodyProfile: Bool {
+        weightKg > 0 && heightCm > 0 && ageYears > 0
     }
-    var kcalGoal: Int { customKcalGoal ?? suggestedKcalGoal }
-    var proteinGoal: Int { NutritionEngine.macros(kcal: kcalGoal, weightKg: weightKg).protein }
+
+    /// O que ainda falta, em português, para a UI pedir com precisão.
+    var missingProfileFields: [String] {
+        var faltando: [String] = []
+        if weightKg <= 0 { faltando.append("peso") }
+        if heightCm <= 0 { faltando.append("altura") }
+        if ageYears <= 0 { faltando.append("idade") }
+        return faltando
+    }
+
+    /// Meta sugerida — `nil` quando não há medidas suficientes.
+    var suggestedKcalGoal: Int? {
+        guard hasBodyProfile else { return nil }
+        return NutritionEngine.suggestedKcal(weightKg: weightKg, heightCm: heightCm, ageYears: ageYears,
+                                             sex: sex, activity: activityLevel, goal: goal)
+    }
+    /// Meta em uso — `nil` quando não há medidas nem meta manual.
+    var kcalGoal: Int? { customKcalGoal ?? suggestedKcalGoal }
+    var proteinGoal: Int? {
+        guard let kcal = kcalGoal, weightKg > 0 else { return nil }
+        return NutritionEngine.macros(kcal: kcal, weightKg: weightKg).protein
+    }
     let waterGoalMl = 2500
     @Published var waterMl: Int { didSet { store.set(waterMl, forKey: "waterMl") } }
     // stepsToday, activeCaloriesBurned e sleepHoursToday são atualizados pela CorpoHomeView via HealthManager
@@ -396,8 +424,14 @@ final class AppModel: ObservableObject {
     var fatConsumed: Int { meals.filter { $0.done }.reduce(0) { $0 + $1.fat } }
 
     // Metas de macros — [F4] derivadas da meta calórica atual, não mais fixas.
-    var carbsGoal: Int { NutritionEngine.macros(kcal: kcalGoal, weightKg: weightKg).carbs }
-    var fatGoal: Int { NutritionEngine.macros(kcal: kcalGoal, weightKg: weightKg).fat }
+    var carbsGoal: Int? {
+        guard let kcal = kcalGoal, weightKg > 0 else { return nil }
+        return NutritionEngine.macros(kcal: kcal, weightKg: weightKg).carbs
+    }
+    var fatGoal: Int? {
+        guard let kcal = kcalGoal, weightKg > 0 else { return nil }
+        return NutritionEngine.macros(kcal: kcal, weightKg: weightKg).fat
+    }
 
     // Treinos
     let workouts: [Workout] = [
@@ -491,34 +525,42 @@ final class AppModel: ObservableObject {
 
     var todayExercises: [Exercise] { workouts.first?.exercises ?? [] }
 
-    // Insights
-    let insights: [Insight] = [
-        Insight(title: "Você dormiu melhor", detail: "Média de sono subiu 6% nos últimos 7 dias. Continue com o ritual noturno.", systemImage: "moon.stars.fill", tint: Theme.violet),
-        Insight(title: "Proteína em alta", detail: "Você bateu a meta de proteína em 5 dos 7 dias. Ótimo para recuperação muscular.", systemImage: "fork.knife", tint: Theme.coral),
-        Insight(title: "Constância no treino", detail: "4 treinos esta semana. Seu corpo agradece a regularidade.", systemImage: "flame.fill", tint: Theme.primary),
-        Insight(title: "Hidratação a melhorar", detail: "Você ficou abaixo da meta de água em 3 dias. Que tal um lembrete às 15h?", systemImage: "drop.fill", tint: Theme.azure)
-    ]
+    // ─────────────────────────────────────────────────────────────────────────
+    // [Honestidade 2026-08-02] O QUE HAVIA AQUI ERA FALSO.
+    //
+    // `insights` eram QUATRO FRASES LITERAIS, iguais para todo usuário, para
+    // sempre — o app afirmava "sua média de sono subiu 6% nos últimos 7 dias"
+    // sem nunca ter lido sono. `weightTrend` e `caloriesWeek` eram séries
+    // inventadas (79,2→78,4 kg; 2100, 1980, 2250 kcal…) desenhando gráficos de
+    // uma semana que não existiu.
+    //
+    // Tudo isso foi REMOVIDO. O que alimenta a aba Insights agora vem de
+    // CorpoInsightsEngine, calculado dos registros reais — e quando não há dado
+    // suficiente, o app diz isso em vez de inventar.
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // Séries para gráficos
-    let weightTrend: [DayPoint] = [
-        DayPoint(label: "Seg", value: 79.2),
-        DayPoint(label: "Ter", value: 79.0),
-        DayPoint(label: "Qua", value: 78.9),
-        DayPoint(label: "Qui", value: 78.7),
-        DayPoint(label: "Sex", value: 78.6),
-        DayPoint(label: "Sáb", value: 78.5),
-        DayPoint(label: "Dom", value: 78.4)
-    ]
+    /// Histórico de peso registrado pelo usuário (data -> kg). Vazio até haver
+    /// primeiro registro; nunca semeado com valores de exemplo.
+    @Published var weightLog: [WeightEntry] = [] {
+        didSet {
+            if let d = try? JSONEncoder().encode(weightLog) { store.set(d, forKey: "weightLog") }
+        }
+    }
 
-    let caloriesWeek: [DayPoint] = [
-        DayPoint(label: "Seg", value: 2100),
-        DayPoint(label: "Ter", value: 1980),
-        DayPoint(label: "Qua", value: 2250),
-        DayPoint(label: "Qui", value: 2040),
-        DayPoint(label: "Sex", value: 2310),
-        DayPoint(label: "Sáb", value: 2600),
-        DayPoint(label: "Dom", value: 1890)
-    ]
+    /// Calorias consumidas por dia (yyyy-MM-dd -> kcal), gravado ao registrar
+    /// refeições. Base real do gráfico semanal.
+    @Published var kcalByDay: [String: Int] = [:] {
+        didSet {
+            if let d = try? JSONEncoder().encode(kcalByDay) { store.set(d, forKey: "kcalByDay") }
+        }
+    }
+
+    /// Dias em que houve treino concluído (yyyy-MM-dd).
+    @Published var workoutDays: Set<String> = [] {
+        didSet {
+            store.set(Array(workoutDays), forKey: "workoutDays")
+        }
+    }
 
     // Ações
     func addWater(_ ml: Int) {
@@ -709,10 +751,10 @@ final class AppModel: ObservableObject {
 
         userName = "Felipe"
         goal = .manter
-        weightKg = 78.4
-        heightCm = 178
-        ageYears = 30
-        bodyFat = 18.2
+        weightKg = 0
+        heightCm = 0
+        ageYears = 0
+        bodyFat = 0
         waterMl = 1450
         isPremium = false
         trialStartedAt = nil
