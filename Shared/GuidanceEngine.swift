@@ -102,6 +102,27 @@ struct GuidanceEngine {
         return max(1, num)
     }
 
+    /// Todo o texto que este motor pode exibir na Home e na aba Insights.
+    ///
+    /// [2026-08-03] Exposto para a auditoria automática conferir que nada aqui
+    /// está em português europeu. Diferente do script das meditações — que é
+    /// fallback morto —, ISTO aparece na tela do usuário todos os dias.
+    static var todosOsTextos: [String] {
+        var textos: [String] = []
+        for n in 1...9 {
+            textos += messages(forLifePath: n)
+            textos.append(energyForDay(n, n, n))
+            textos.append(elementForNumber(n))
+        }
+        for d in 1...31 {
+            let insight = dailyInsight(
+                birthDate: Calendar.current.date(from: DateComponents(year: 1990, month: 1, day: d)) ?? Date()
+            )
+            textos += [insight.message, insight.quote, insight.energy, insight.element]
+        }
+        return textos
+    }
+
     private static func messages(forLifePath num: Int) -> [String] {
         let allMessages: [Int: [String]] = [
             1: [

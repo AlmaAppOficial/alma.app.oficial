@@ -111,13 +111,29 @@ enum CorpoContextFormat {
 
     /// O objetivo sozinho não vale uma linha — todo mundo tem um. O que muda a
     /// conduta da Alma são as restrições e limitações.
+    /// Teto por campo de texto livre. [A16] Sem isto, uma restrição de 500
+    /// caracteres sozinha estoura o contexto inteiro e empurra as outras linhas
+    /// para fora. Corta em espaço, nunca no meio da palavra.
+    static let maxCaracteresPorCampo = 120
+
+    static func limitar(_ texto: String, _ maximo: Int = maxCaracteresPorCampo) -> String {
+        let limpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard limpo.count > maximo else { return limpo }
+        let corte = limpo.prefix(maximo)
+        // Volta até o último espaço para não entregar palavra pela metade.
+        if let ultimoEspaco = corte.lastIndex(of: " ") {
+            return String(corte[..<ultimoEspaco]) + "…"
+        }
+        return String(corte) + "…"
+    }
+
     static func perfil(objetivo: String, restricoes: String, condicoes: String) -> String? {
         var partes = ["objetivo \(objetivo.lowercased())"]
 
-        let r = restricoes.trimmingCharacters(in: .whitespacesAndNewlines)
+        let r = limitar(restricoes)
         if !r.isEmpty { partes.append("restrições alimentares: \(r)") }
 
-        let c = condicoes.trimmingCharacters(in: .whitespacesAndNewlines)
+        let c = limitar(condicoes)
         if !c.isEmpty { partes.append("limitações: \(c)") }
 
         return partes.count > 1 ? "Perfil: " + partes.joined(separator: " · ") : nil

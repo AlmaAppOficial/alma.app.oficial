@@ -126,6 +126,7 @@
 		DD024001DD024001DD024001 /* GradeDeLembretes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD024000DD024000DD024000 /* GradeDeLembretes.swift */; };
 		DD026001DD026001DD026001 /* LembretesDaAlma.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD026000DD026000DD026000 /* LembretesDaAlma.swift */; };
 		DD027001DD027001DD027001 /* SmokeTestTelas.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD027000DD027000DD027000 /* SmokeTestTelas.swift */; };
+		DD028001DD028001DD028001 /* AuditoriaBloqueadores.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD028000DD028000DD028000 /* AuditoriaBloqueadores.swift */; };
 		DD020001DD020001DD020001 /* CorpoContextSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */; };
 		FA900401AA00401BB004111 /* BotaoVoltarParaAlma.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */; };
 		FA900701AA00701BB0071110 /* CorpoInsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */; };
@@ -362,6 +363,7 @@
 		DD024000DD024000DD024000 /* GradeDeLembretes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradeDeLembretes.swift; sourceTree = "<group>"; };
 		DD026000DD026000DD026000 /* LembretesDaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LembretesDaAlma.swift; sourceTree = "<group>"; };
 		DD027000DD027000DD027000 /* SmokeTestTelas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmokeTestTelas.swift; sourceTree = "<group>"; };
+		DD028000DD028000DD028000 /* AuditoriaBloqueadores.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuditoriaBloqueadores.swift; sourceTree = "<group>"; };
 		DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoContextSnapshot.swift"; sourceTree = "<group>"; };
 		FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BotaoVoltarParaAlma.swift"; sourceTree = "<group>"; };
 		FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsEngine.swift"; sourceTree = "<group>"; };
@@ -581,6 +583,7 @@
 				DD024000DD024000DD024000 /* GradeDeLembretes.swift */,
 				DD026000DD026000DD026000 /* LembretesDaAlma.swift */,
 				DD027000DD027000DD027000 /* SmokeTestTelas.swift */,
+				DD028000DD028000DD028000 /* AuditoriaBloqueadores.swift */,
 				DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */,
 				FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */,
 				FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */,
@@ -1071,6 +1074,7 @@
 				DD024001DD024001DD024001 /* GradeDeLembretes.swift in Sources */,
 				DD026001DD026001DD026001 /* LembretesDaAlma.swift in Sources */,
 				DD027001DD027001DD027001 /* SmokeTestTelas.swift in Sources */,
+				DD028001DD028001DD028001 /* AuditoriaBloqueadores.swift in Sources */,
 				DD020001DD020001DD020001 /* CorpoContextSnapshot.swift in Sources */,
 				FA900401AA00401BB004111 /* BotaoVoltarParaAlma.swift in Sources */,
 				FA900701AA00701BB0071110 /* CorpoInsightsEngine.swift in Sources */,

@@ -1,0 +1,7 @@
+instalação limpa: ok (sem dados de nenhum usuário anterior)
+aba 0 (Inicio): VIVA
+aba 1 (Saude): VIVA
+aba 2 (Dieta): VIVA
+aba 3 (Treino): VIVA
+aba 4 (Insights): VIVA
+crash reports novos: 0

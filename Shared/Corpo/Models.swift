@@ -737,9 +737,16 @@ final class AppModel: ObservableObject {
 
     /// Marca/desmarca o suplemento como tomado hoje. Se ele tiver calorias
     /// relevantes, entra (ou sai) da Dieta como item do dia — integrado à meta.
+    /// Prefixo que marca um item da Dieta como suplemento, e não como refeição.
+    /// [2026-08-03] Existe para o contexto da IA poder distinguir os dois: as
+    /// calorias da creatina somam na meta (correto), mas tomar creatina não é
+    /// "fazer uma refeição" — e a Alma recebia "30 kcal em 1 refeição" de quem
+    /// só tinha tomado um suplemento.
+    static let prefixoSuplemento = "Suplemento · "
+
     func toggleSupplementToday(_ s: Supplement) {
         guard let idx = supplements.firstIndex(where: { $0.id == s.id }) else { return }
-        let mealName = "Suplemento · \(s.name)\(s.brand.map { " (\($0))" } ?? "")"
+        let mealName = "\(Self.prefixoSuplemento)\(s.name)\(s.brand.map { " (\($0))" } ?? "")"
         if supplementTakenToday(s) {
             supplements[idx].takenDates.removeAll { $0 == todayKey }
             if s.kcalPerDose > 0 {
@@ -842,7 +849,12 @@ final class AppModel: ObservableObject {
         let elapsed = Calendar.current.dateComponents([.day], from: start, to: Date()).day ?? 0
         return max(trialDays - elapsed, 0)
     }
-    var isTrialActive: Bool { trialStartedAt != nil && trialDaysRemaining > 0 && !isPremium }
+    /// [2026-08-03] Sempre `false`. O modelo é freemium SEM período de teste
+    /// (decisão de julho). A máquina de trial ficou dormente no código —
+    /// `startFreeTrial()` nunca é chamado — mas `isTrialActive` ainda entrava
+    /// em `hasPremiumAccess`: bastava alguém gravar `trialStartedAt` por
+    /// engano para liberar o app inteiro de graça. Fechado na origem.
+    var isTrialActive: Bool { false }
     /// Premium local (compra/trial neste app) OU assinatura única vinda do Alma
     /// via App Group (AlmaBridge) — pagou em um, desbloqueia os dois. [2026-07-14]
     var hasPremiumAccess: Bool { isPremium || isTrialActive || AlmaBridge.shared.almaHasPremium }

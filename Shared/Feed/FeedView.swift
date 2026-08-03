@@ -195,7 +195,12 @@ struct FeedView: View {
     // MARK: - Open URL
 
     private func open(post: FeedPost) {
-        guard let url = URL(string: post.url) else { return }
+        // [2026-08-03] Só http(s). A URL vem do Firestore; sem esta checagem,
+        // um post com `tel:`, `sms:` ou um esquema de outro app dispararia uma
+        // ação fora do navegador a partir de conteúdo remoto.
+        guard let url = URL(string: post.url),
+              let esquema = url.scheme?.lowercased(),
+              esquema == "http" || esquema == "https" else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
 }

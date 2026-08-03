@@ -71,18 +71,32 @@ struct HealthContextBuilder {
             let streak = await MainActor.run { StreakManager.shared.currentStreak }
             let mindful = await health.mindfulMinutesToday()
 
+            // [2026-08-03] Esta era a única linha que violava a invariante do
+            // arquivo ("campo sem dado não vira linha"): quem nunca meditou,
+            // nunca abriu uma prática e não tem sequência recebia mesmo assim
+            // "Meditação: ainda não meditou hoje". Além de gastar contexto, é
+            // uma cobrança gratuita para quem acabou de instalar o app.
+            //
+            // Agora "ainda não meditou hoje" só é dito a quem TEM histórico —
+            // aí a informação é real e útil ("você vem mantendo, hoje ainda
+            // não"). Sem histórico nenhum, a linha simplesmente não existe.
+            let totalHistorico = await MainActor.run { StreakManager.shared.totalMeditationDays }
+            let temHistorico = streak > 0 || totalHistorico > 0
+
             var parts: [String] = []
             if let mindful, mindful > 0 {
                 parts.append("\(mindful) min hoje")
             } else if meditatedToday {
                 parts.append("já meditou hoje")
-            } else {
+            } else if temHistorico {
                 parts.append("ainda não meditou hoje")
             }
             if streak > 0 {
                 parts.append("sequência de \(streak) \(streak == 1 ? "dia" : "dias")")
             }
-            lines.append("Meditação: " + parts.joined(separator: " · "))
+            if !parts.isEmpty {
+                lines.append("Meditação: " + parts.joined(separator: " · "))
+            }
         }
 
         // ── Corpo: alimentação, água, treino, peso e suplementos ─────────────
@@ -117,11 +131,52 @@ struct HealthContextBuilder {
         guard !lines.isEmpty else { return nil }
 
         let header = "[Contexto de hoje — \(Self.formatTimestamp(now))]"
-        let context = ([header] + lines).joined(separator: "\n")
+        return Self.montarComTeto(header: header, linhas: lines)
+    }
 
-        return context.count > Self.maxCharacters
-            ? String(context.prefix(Self.maxCharacters))
-            : context
+    /// Ordem de prioridade quando o contexto não cabe nos 600 caracteres.
+    ///
+    /// [2026-08-03 — A16] O corte era `String(prefix(600))`: decepava o texto no
+    /// meio da palavra e sacrificava sempre as ÚLTIMAS linhas montadas — que são
+    /// justamente Perfil (alergias, limitações físicas) e Humor.
+    ///
+    /// Enquanto o Perfil nunca emitia (bug B3), isso era teórico. Depois que
+    /// liguei os produtores, virou real: um perfil com restrição longa podia
+    /// empurrar a alergia para fora, ou pior, entregá-la pela metade —
+    /// "restrições alimentares: alergia a amend". Uma IA que lê isso pode
+    /// concluir qualquer coisa.
+    ///
+    /// Agora o corte é por LINHA INTEIRA e por importância: o que protege a
+    /// pessoa de dano fica; o que é conveniência sai primeiro.
+    static func prioridade(_ linha: String) -> Int {
+        if linha.hasPrefix("Perfil:") { return 0 }        // alergias e limitações
+        if linha.hasPrefix("Humor:") { return 1 }         // sinal de sofrimento
+        if linha.hasPrefix("Sono:") { return 2 }
+        if linha.hasPrefix("Movimento:") { return 3 }
+        if linha.hasPrefix("Alimentação") { return 4 }
+        if linha.hasPrefix("Meditação:") { return 5 }
+        if linha.hasPrefix("Treino:") { return 6 }
+        if linha.hasPrefix("Peso:") { return 7 }
+        if linha.hasPrefix("Água:") { return 8 }
+        return 9                                          // suplementos e o resto
+    }
+
+    /// Monta respeitando o teto: descarta linhas inteiras, da menos importante
+    /// para a mais, e nunca corta no meio de uma palavra.
+    static func montarComTeto(header: String, linhas: [String]) -> String {
+        var candidatas = linhas
+        while true {
+            let texto = ([header] + candidatas).joined(separator: "\n")
+            if texto.count <= maxCharacters || candidatas.isEmpty { return texto }
+            // Remove a de menor prioridade (maior número), a última em empate.
+            if let alvo = candidatas.indices.max(by: {
+                (prioridade(candidatas[$0]), $0) < (prioridade(candidatas[$1]), $1)
+            }) {
+                candidatas.remove(at: alvo)
+            } else {
+                return texto
+            }
+        }
     }
 
     // MARK: - Formatação

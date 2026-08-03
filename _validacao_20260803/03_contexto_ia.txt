@@ -1,0 +1,37 @@
+Filtering the log data using "composedMessage CONTAINS "[CONTEXTO]""
+───────── início ─────────
+[Contexto de hoje — 03/08, 12:21]
+Meditação: ainda não meditou hoje
+Alimentação hoje: 0 kcal em 2 refeições · 0% da meta · 0 g de proteína
+Água: 1,5 L hoje (60% da meta)
+Treino: já treinou hoje · 1 vez nos últimos 7 dias
+Peso: 79,5 kg
+Perfil: objetivo manter a forma · restrições alimentares: alergia a amendoim · limitações: hérnia de disco
+(341 de 600 caracteres)
+───────── por fonte ─────────
+alimentação: Alimentação hoje: 0 kcal em 2 refeições · 0% da meta · 0 g de proteína
+água: Água: 1,5 L hoje (60% da meta)
+treino: Treino: já treinou hoje · 1 vez nos últimos 7 dias
+peso: Peso: 79,5 kg
+suplementos: — sem registro
+perfil: Perfil: objetivo manter a forma · restrições alimentares: alergia a amendoim · limitações: hérnia de disco
+humor: — sem registro
+───────── fim ─────────
+───────── início ─────────
+[Contexto de hoje — 03/08, 12:22]
+Meditação: ainda não meditou hoje
+Alimentação hoje: 0 kcal em 2 refeições · 0% da meta · 0 g de proteína
+Água: 1,5 L hoje (60% da meta)
+Treino: já treinou hoje · 1 vez nos últimos 7 dias
+Peso: 79,5 kg
+Perfil: objetivo manter a forma · restrições alimentares: alergia a amendoim · limitações: hérnia de disco
+(341 de 600 caracteres)
+───────── por fonte ─────────
+alimentação: Alimentação hoje: 0 kcal em 2 refeições · 0% da meta · 0 g de proteína
+água: Água: 1,5 L hoje (60% da meta)
+treino: Treino: já treinou hoje · 1 vez nos últimos 7 dias
+peso: Peso: 79,5 kg
+suplementos: — sem registro
+perfil: Perfil: objetivo manter a forma · restrições alimentares: alergia a amendoim · limitações: hérnia de disco
+humor: — sem registro
+───────── fim ─────────

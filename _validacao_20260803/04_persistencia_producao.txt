@@ -1,0 +1,23 @@
+Filtering the log data using "composedMessage CONTAINS "[PERSIST]""
+───── ciclo 1: gravando pelos caminhos de produção ─────
+gravado: peso 80, 1 refeição de 500 kcal, 750 ml, 1 treino, 1 restrição
+───── ciclo 2: app reaberto, model novo do zero ─────
+ok    peso sobreviveu
+ok    refeição sobreviveu
+ok    água sobreviveu
+ok    treino sobreviveu
+ok    restrição alimentar sobreviveu
+ok    série de peso foi PRODUZIDA (não escrita à mão)
+ok    calorias do dia foram PRODUZIDAS ao marcar a refeição
+───── o que a IA recebe depois de reabrir ─────
+alimentação: Alimentação hoje: 500 kcal em 1 refeição · 21% da meta · 30 g de proteína
+água: Água: 0,8 L hoje (30% da meta)
+treino: Treino: já treinou hoje · 1 vez nos últimos 7 dias
+peso: Peso: 80,0 kg
+perfil: Perfil: objetivo manter a forma · restrições alimentares: alergia a amendoim
+ok    linha de treino chega à IA (era inatingível)
+ok    alergia chega à IA
+───── água: o reset do dia novo (bug B4) ─────
+ok    água zerou no dia novo
+ok    água NÃO ressuscita numa segunda instância do mesmo dia
+───── TUDO PASSOU ─────

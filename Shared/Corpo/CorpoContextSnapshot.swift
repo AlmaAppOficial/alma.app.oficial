@@ -48,9 +48,18 @@ struct CorpoContextSnapshot {
 
     @MainActor
     private static func alimentacao(_ m: AppModel) -> String? {
-        CorpoContextFormat.alimentacao(
+        // [2026-08-03] Suplemento calórico entra na Dieta como item para somar
+        // na meta — mas NÃO conta como refeição. Sem este filtro, quem só tomou
+        // creatina aparecia para a Alma como "30 kcal em 1 refeição", e ela
+        // podia responder sobre alimentação com base numa refeição que não
+        // existiu. As calorias continuam somando; a contagem é que fica honesta.
+        let refeicoesDeVerdade = m.meals.filter {
+            $0.done && !$0.name.hasPrefix(AppModel.prefixoSuplemento)
+        }.count
+
+        return CorpoContextFormat.alimentacao(
             kcal: m.kcalConsumed,
-            refeicoesFeitas: m.meals.filter { $0.done }.count,
+            refeicoesFeitas: refeicoesDeVerdade,
             meta: m.kcalGoal,
             proteina: m.proteinConsumed
         )

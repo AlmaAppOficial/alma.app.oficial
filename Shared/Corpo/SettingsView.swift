@@ -16,6 +16,15 @@ struct SettingsView: View {
 
     @State private var showPaywall = false
     @State private var showDisclaimer = false
+    @State private var showEditAssessment = false
+
+    /// Versão real do bundle — nunca um número escrito à mão.
+    static var versaoDoApp: String {
+        let info = Bundle.main.infoDictionary
+        let v = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let b = info?["CFBundleVersion"] as? String ?? "?"
+        return "\(v) (\(b))"
+    }
 
     var body: some View {
         NavigationStack {
@@ -83,17 +92,11 @@ struct SettingsView: View {
                 // Lembretes (notificações locais)
                 secaoLembretes
 
-                // Conexão com o Alma
-                Section("App Alma") {
-                    HStack {
-                        Label("Conta Alma", systemImage: "moon.stars.fill")
-                        Spacer()
-                        Text(AlmaBridge.shared.almaConnected ? "Conectada" : "Não conectada")
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("Tenha Corpo & Alma + Alma juntos: corpo e mente cuidados no mesmo lugar.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
+                // [2026-08-03] Seção "App Alma" REMOVIDA. Era da era em que
+                // existiam dois apps: mostrava se a "conta Alma" estava
+                // conectada e convidava a "ter os dois juntos". Dentro do app
+                // fundido a pergunta não faz sentido — a conta É a do Alma, e
+                // o usuário já está nele.
 
                 // Aparência
                 Section("Aparência") {
@@ -106,32 +109,21 @@ struct SettingsView: View {
                     }
                 }
 
-                // Sobre / legal
-                Section("Sobre") {
-                    Button { showDisclaimer = true } label: {
-                        Label("Aviso de saúde", systemImage: "exclamationmark.shield.fill")
-                    }
-                    Link(destination: URL(string: "https://almaappoficial.com/corpo-e-alma/privacy")!) {
-                        Label("Política de privacidade", systemImage: "hand.raised.fill")
-                    }
-                    Link(destination: URL(string: "https://almaappoficial.com/corpo-e-alma/terms")!) {
-                        Label("Termos de uso", systemImage: "doc.text.fill")
-                    }
-                    HStack {
-                        Text("Versão"); Spacer(); Text("1.0 (1)").foregroundStyle(.secondary)
-                    }
-                }
+                secaoSobre
 
                 // [Fusão 2026-08-02] A seção "Conta" saiu daqui. Dentro do Alma
                 // existe UMA conta só, e quem cuida dela é o Perfil do Alma —
                 // login, logout e exclusão. Manter dois caminhos de deleção no
                 // mesmo app seria confuso e perigoso.
                 Section("Conta") {
-                    Button(role: .destructive) {
-                        model.hasOnboarded = false
-                        dismiss()
+                    // [2026-08-03] "Refazer avaliação inicial" só zerava
+                    // `hasOnboarded`, uma flag órfã que nenhuma tela do app
+                    // fundido lê: o botão não fazia absolutamente nada. Agora
+                    // leva para onde a pessoa realmente edita seus dados.
+                    Button {
+                        showEditAssessment = true
                     } label: {
-                        Label("Refazer avaliação inicial", systemImage: "arrow.counterclockwise")
+                        Label("Revisar minhas medidas e objetivo", systemImage: "arrow.counterclockwise")
                     }
                     HStack(alignment: .top, spacing: 8) {
                         Image(systemName: "info.circle")
@@ -151,6 +143,7 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
             .sheet(isPresented: $showDisclaimer) { HealthDisclaimerView() }
+            .sheet(isPresented: $showEditAssessment) { EditAssessmentView() }
             .onChange(of: model.notifyWater) { _ in Task { await applyNotifications() } }
             .onChange(of: model.notifyMeals) { _ in Task { await applyNotifications() } }
             .onChange(of: model.notifyWorkout) { _ in Task { await applyNotifications() } }
@@ -186,6 +179,33 @@ struct SettingsView: View {
         } footer: {
             // Transparência sobre volume: a pessoa vê o que está ligando.
             Text(resumoDeLembretes)
+        }
+    }
+
+    /// Extraída porque, inline, o Form estourava o type-checker.
+    @ViewBuilder
+    private var secaoSobre: some View {
+        Section("Sobre") {
+            Button { showDisclaimer = true } label: {
+                Label("Aviso de saúde", systemImage: "exclamationmark.shield.fill")
+            }
+            // [2026-08-03] Os links apontavam para /corpo-e-alma/privacy e
+            // /corpo-e-alma/terms — as páginas do app DESCONTINUADO. Dentro do
+            // Alma, a política que vale é a do Alma; mandar o usuário para a
+            // página de outro produto é informação legal errada.
+            Link(destination: URL(string: "https://almaappoficial.com/politica")!) {
+                Label("Política de privacidade", systemImage: "hand.raised.fill")
+            }
+            Link(destination: URL(string: "https://almaappoficial.com/termos")!) {
+                Label("Termos de uso", systemImage: "doc.text.fill")
+            }
+            HStack {
+                Text("Versão")
+                Spacer()
+                // Era "1.0 (1)" chumbado — a versão do Corpo & Alma congelada
+                // no código, que dentro do Alma não correspondia a nada.
+                Text(Self.versaoDoApp).foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -233,10 +253,13 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var statusBadge: some View {
-        if model.isPremium {
+        // [2026-08-03] O badge "Teste · Xd" saiu. O modelo não tem trial desde
+        // julho (decisão do Assis: freemium, sem período de teste), mas a
+        // máquina local de trial continuava no código e podia acender um selo
+        // prometendo dias grátis que não existem. A metadata e a copy já tinham
+        // sido limpas; a UI ainda não.
+        if model.hasPremiumAccess {
             Pill(text: "Premium", tint: Theme.primary)
-        } else if model.isTrialActive {
-            Pill(text: "Teste · \(model.trialDaysRemaining)d", tint: Theme.gold)
         } else {
             Pill(text: "Gratuito", tint: Theme.inkSoft)
         }

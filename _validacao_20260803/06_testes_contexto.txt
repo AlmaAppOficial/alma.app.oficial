@@ -1,0 +1,57 @@
+
+── Alimentação ──
+  ok   sem refeição marcada, não existe linha
+  ok   resumo completo
+  ok   sem meta (perfil incompleto) a linha sai sem porcentagem
+  ok   meta zero não vira divisão por zero
+
+── Água ──
+  ok   zero não é registro
+  ok   decimal em português, com vírgula
+  ok   meta ausente não apaga o registro de água
+
+── Treino ──
+  ok   quem nunca treinou não recebe linha de treino
+  ok   treinou hoje
+  ok   singular correto em 'vez'
+
+── Peso ──
+  ok   peso zero não é peso
+  ok   sem histórico, só o valor
+  ok   perda de peso mostra a direção
+  ok   ganho leva o sinal +
+  ok   variação irrelevante (50 g) não vira ruído
+
+── Suplementos ──
+  ok   quem não cadastrou suplemento não ouve falar de suplemento
+  ok   cadastrou mas não tomou
+  ok   adesão parcial
+
+── Perfil (restrições e limitações) ──
+  ok   só o objetivo não justifica ocupar o contexto
+  ok   restrição alimentar precisa chegar — sugerir amendoim a quem tem alergia é dano real
+  ok   restrições e limitações chegam juntas
+  ok   campo só com espaço não conta como preenchido
+
+── Humor (sinal traduzido) ──
+  ok   menos de 3 registros não é tendência
+  ok   maioria difícil
+  ok   maioria leve
+  ok   sem maioria, com os dois polos
+  ok   registros neutros
+  ok   o sinal de humor não carrega contagem nenhuma
+  ok   o sinal de humor não carrega emoji nenhum
+
+── Humor: pipeline real do check-in ──
+  ok   todo rótulo do check-in é reconhecido pelo classificador
+  ok   sete dias de 'Triste' NÃO podem virar 'semana estável'
+  ok   semana boa é reconhecida
+  ok   altos e baixos
+  ok   'estável' só quando os registros são realmente neutros
+  ok   dois registros não bastam para afirmar nada
+  ok   sem check-in, a Alma não recebe linha de humor
+  ok   rótulo desconhecido (emoji legado) não vira 'estável' silencioso
+  ok   o check-in tem 6 humores; mudou? declare a valência do novo
+  ok   Cansado, Ansioso e Triste contam como semana difícil
+
+39/39 passaram.

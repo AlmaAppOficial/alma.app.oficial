@@ -120,6 +120,49 @@
 				<string>NSPrivacyCollectedDataTypePurposeProductPersonalization</string>
 			</array>
 		</dict>
+		<!--
+		  [2026-08-03 — A9 da revisão independente] Health & Fitness DECLARADO.
+
+		  O manifesto listava e-mail, nome, conteúdo, IDs e interação — mas não
+		  saúde. E o app transmite, sim, um resumo de saúde à Cloud Function do
+		  chat (sono, passos, exercício, peso, água, treino, sinal de humor),
+		  para que a Alma responda com contexto.
+
+		  O que é verdade sobre esse envio, e está refletido abaixo:
+		    • Linked = true — vai junto do ID do usuário autenticado.
+		    • Tracking = false — nunca vai para publicidade, analytics de
+		      terceiros, Meta ou Crashlytics. Proibido pelos termos do HealthKit
+		      e pela corregedoria do projeto.
+		    • Purpose = AppFunctionality — é o que faz a resposta ser
+		      personalizada; sem isso o recurso não existe.
+		    • O dado BRUTO nunca sai do aparelho: o que viaja é um resumo curto
+		      montado localmente, sob consentimento por categoria, e ele é
+		      efêmero — vive só naquela requisição, não é armazenado.
+		-->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeHealth</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeFitness</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
 	</array>
 	<key>NSPrivacyTracking</key>
 	<false/>

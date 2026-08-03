@@ -44,6 +44,17 @@ enum DonoDoLembrete: String, CaseIterable {
 
 enum GradeDeLembretes {
 
+    /// Teto de lembretes por dia, somando TODAS as categorias ligadas.
+    ///
+    /// [2026-08-03] A revisão independente apontou que o "teto de 5/dia" que eu
+    /// tinha mencionado não existia em lugar nenhum do código — com tudo ligado
+    /// eram 9. Ou o número existe e é respeitado, ou não se fala nele. Aqui ele
+    /// existe: 9 é o máximo real (4 de água + 3 de refeição + treino +
+    /// suplemento), e a conta é verificada pela auditoria automática.
+    ///
+    /// Se alguém acrescentar categoria sem rever este número, a auditoria falha.
+    static let tetoDiario = 9
+
     /// Horários de água. Eram 7 (9,11,13,15,17,19,21h). Quatro pontos cobrem o
     /// dia inteiro e mantêm a meta viável sem transformar o app em despertador.
     static let horariosAgua = [9, 13, 17, 20]

@@ -1,3 +1,31 @@
+// GuidedMeditationEngine.swift
+//
+// ⚠️ LEIA ANTES DE MEXER NOS TEXTOS DESTE ARQUIVO ⚠️
+//
+// Os `segments` de cada `buildDayNN()` NÃO são o que o usuário ouve.
+//
+// O que toca no app são os 30 arquivos `meditation_01…30.m4a` do bundle,
+// gravados com a voz clonada do Felipe e revisados em PT-BR. Veja `start()`:
+// se o .m4a existe, ele toca e a função faz `return` — os segments nem chegam
+// a ser lidos. E nenhuma view do app exibe esse texto na tela.
+//
+// Os segments só seriam usados no fallback de TTS, caso um .m4a faltasse ou
+// não abrisse. Como os 30 estão no bundle, esse caminho está morto em produção
+// (confirmado também pelo servidor: a Cloud Function de TTS teve ZERO chamadas
+// em 30 dias).
+//
+// [2026-08-03] Registro de um erro meu, para ninguém repetir:
+// auditei estes textos, encontrei português europeu ("Estás seguro", "o
+// contacto", "Não tens de os seguir") e reportei como se o usuário ouvisse
+// isso ao apertar play. Era falso. O Felipe já tinha traduzido tudo para PT-BR
+// ANTES de gravar — os documentos em `meditation_production/translations/`
+// chamam este script aqui de "Original PT-PT" e trazem a versão nova ao lado.
+// A prova está na duração: o áudio da 1ª geração tinha 2:43; o que está no
+// bundle hoje tem 5:00, exatamente como o documento de produção especifica.
+//
+// Os textos abaixo foram convertidos para PT-BR mesmo assim — não por serem
+// ouvidos, mas para que o fallback, se um dia rodar, não fale outro português.
+//
 import Foundation
 import AVFoundation
 import Combine
@@ -292,6 +320,15 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
         DispatchQueue.main.asyncAfter(deadline: .now() + currentPauseAfterSegment) { [weak self] in
             self?.speakNextSegment()
         }
+    }
+
+    /// Todas as falas narradas, para verificação automática.
+    ///
+    /// [2026-08-03] Depois da conversão PT-PT → PT-BR (A12), a auditoria checa
+    /// que nenhum tuteamento europeu voltou. Sem este acessor, a única forma de
+    /// conferir seria grep no arquivo — que não pega texto montado em runtime.
+    static var todasAsFalas: [String] {
+        buildAllScripts().flatMap { $0.segments.map(\.text) }
     }
 
     // MARK: - Script Builder

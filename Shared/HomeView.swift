@@ -100,6 +100,7 @@ struct HomeView: View {
             authorized = await hk.requestAuthorization()
             if authorized { await hk.loadAll() }
             #if DEBUG
+            await MainActor.run { AuditoriaBloqueadores.executar() }
             await MainActor.run { SmokeTestTelas.executar() }
             await MainActor.run { TestePersistencia.executar() }
             await MainActor.run { DebugContextDump.semearPerfil() }
