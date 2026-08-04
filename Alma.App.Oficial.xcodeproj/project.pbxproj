@@ -117,6 +117,8 @@
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
 		2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22125E08D23CEE6A3878453B /* TestePersistencia.swift */; };
+		AA0804SON100000000000000A /* PontuacaoDeSono.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804SON10000000000002B /* PontuacaoDeSono.swift */; };
+		AA0804AUD100000000000000A /* TesteAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804AUD10000000000002B /* TesteAudio.swift */; };
 		9DDD6B17B676EFDC4E623F98 /* PaywallDoCorpo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */; };
 		1196E89B07459B5A46E4E900 /* CorpoContextFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */; };
 		DD025001DD025001DD025001 /* CorpoAcesso.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD025000DD025000DD025000 /* CorpoAcesso.swift */; };
@@ -354,6 +356,8 @@
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
 		22125E08D23CEE6A3878453B /* TestePersistencia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TestePersistencia.swift"; sourceTree = "<group>"; };
+		AA0804SON10000000000002B /* PontuacaoDeSono.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/PontuacaoDeSono.swift"; sourceTree = "<group>"; };
+		AA0804AUD10000000000002B /* TesteAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TesteAudio.swift"; sourceTree = "<group>"; };
 		A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/PaywallDoCorpo.swift"; sourceTree = "<group>"; };
 		15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoContextFormat.swift"; sourceTree = "<group>"; };
 		DD025000DD025000DD025000 /* CorpoAcesso.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoAcesso.swift"; sourceTree = "<group>"; };
@@ -574,6 +578,8 @@
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
 				22125E08D23CEE6A3878453B /* TestePersistencia.swift */,
+				AA0804SON10000000000002B /* PontuacaoDeSono.swift */,
+				AA0804AUD10000000000002B /* TesteAudio.swift */,
 				A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */,
 				15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */,
 				DD025000DD025000DD025000 /* CorpoAcesso.swift */,
@@ -1065,6 +1071,8 @@
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
 				2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */,
+				AA0804SON100000000000000A /* PontuacaoDeSono.swift in Sources */,
+				AA0804AUD100000000000000A /* TesteAudio.swift in Sources */,
 				9DDD6B17B676EFDC4E623F98 /* PaywallDoCorpo.swift in Sources */,
 				1196E89B07459B5A46E4E900 /* CorpoContextFormat.swift in Sources */,
 				DD025001DD025001DD025001 /* CorpoAcesso.swift in Sources */,
