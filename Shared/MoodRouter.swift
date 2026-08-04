@@ -278,7 +278,10 @@ actor MoodRouter {
             meditationType: "anxiety_relief",
             duration: duration,
             title: "Acalme sua Ansiedade",
-            description: "Sessão de respiração e aterramento especialmente projetada para aliviar a ansiedade",
+            // [2026-08-04] Era "especialmente projetada para aliviar a
+            // ansiedade" — promessa de efeito clínico. Agora descreve o que a
+            // sessão É, não o que ela cura.
+            description: "Uma pausa de respiração e aterramento para quando a ansiedade aperta",
             sequence: phases,
             reasoning: "Você está ansioso. Preparei uma sessão de respiração 4-7-8 seguida de meditação de aterramento — isso ativa seu sistema nervoso parassimpático e traz você de volta ao presente.",
             tags: ["respiração", "aterramento", "ansiedade"]

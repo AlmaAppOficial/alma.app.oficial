@@ -200,22 +200,38 @@ struct AddictionFreeView: View {
         )
     }
 
-    // MARK: - Health Benefits Timeline
+    // MARK: - Marcos da jornada
+    //
+    // [2026-08-04 — VARREDURA DE CONFORMIDADE]
+    //
+    // Isto se chamava "Benefícios alcançados" e afirmava mudanças no CORPO da
+    // pessoa a partir do tempo decorrido: "função pulmonar aumenta até 30%",
+    // "risco de doença cardíaca cortado pela metade", "monóxido de carbono no
+    // sangue cai para níveis normais".
+    //
+    // Os números vêm da literatura de cessação do tabagismo e são verdadeiros
+    // como informação de saúde pública. O problema não é a fonte — é a forma:
+    // apresentados como conquista PESSOAL e quantificada, viram alegação médica
+    // sobre o organismo de quem lê. O Alma não é dispositivo médico, e este é
+    // exatamente o tipo de afirmação que já custou uma suspensão no Google Play.
+    //
+    // A régua nova: celebrar o TEMPO (que é fato, medido pelo app) e falar do
+    // corpo só de forma geral e atribuída, sem número e sem "você alcançou".
     private var healthBenefitsSection: some View {
         let days = elapsedComponents.days
         let hours = days * 24 + elapsedComponents.hours
 
         let benefits: [(hours: Int, icon: String, title: String, description: String)] = [
-            (1, "heart.fill", "Pressão normaliza", "A pressão arterial e frequência cardíaca começam a normalizar"),
-            (12, "lungs.fill", "CO₂ reduzido", "Monóxido de carbono no sangue cai para níveis normais"),
-            (48, "nose.fill", "Cheiro e paladar", "Sentidos de olfato e paladar começam a melhorar"),
-            (168, "figure.walk", "Circulação melhora", "1 semana: circulação sanguínea melhora significativamente"),
-            (720, "wind", "Pulmões mais limpos", "1 mês: função pulmonar aumenta até 30%"),
-            (8760, "star.fill", "1 ANO LIVRE!", "Risco de doença cardíaca cortado pela metade — PARABÉNS!"),
+            (1, "heart.fill", "Primeira hora", "O começo de tudo é a decisão que você já tomou"),
+            (12, "lungs.fill", "12 horas", "Meio dia inteiro sem ceder — o corpo agradece do seu jeito"),
+            (48, "nose.fill", "2 dias", "Muita gente relata que cheiro e paladar ficam mais presentes"),
+            (168, "figure.walk", "1 semana", "Sete dias. A primeira semana costuma ser a mais dura"),
+            (720, "wind", "1 mês", "Um mês inteiro. Respirar fica diferente quando o hábito afrouxa"),
+            (8760, "star.fill", "1 ANO LIVRE!", "Um ano. A literatura de saúde associa esse marco a ganhos importantes a longo prazo — converse com seu médico sobre os seus. PARABÉNS!"),
         ]
 
         return VStack(alignment: .leading, spacing: 10) {
-            Text("Benefícios alcançados")
+            Text("Marcos da sua jornada")
                 .font(.headline)
                 .foregroundColor(CalmTheme.textPrimary)
 

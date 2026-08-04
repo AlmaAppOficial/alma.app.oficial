@@ -504,7 +504,7 @@ struct AboutView: View {
                         // mas um resumo curto do dia acompanha a conversa. A
                         // frase certa é a que já estava em "O que a Alma pode
                         // ver" — agora as duas dizem a mesma coisa.
-                        body: "A Alma usa inteligência artificial para ouvi-la sem julgamentos. As sessões de chat são processadas de forma segura.\n\nSeus dados de saúde são lidos diretamente do Apple Health e ficam no aparelho: o que pode acompanhar a conversa é um resumo curto do seu dia (por exemplo, \"6h30 de sono, 7.432 passos\") — e só das categorias que você autorizar em \"O que a Alma pode ver\". Nada é enviado com tudo desligado.\n\nAs meditações guiadas e os sons terapêuticos são desenvolvidos com base em evidências científicas sobre bem-estar.")
+                        body: "A Alma usa inteligência artificial para ouvi-la sem julgamentos. As sessões de chat são processadas de forma segura.\n\nSeus dados de saúde são lidos diretamente do Apple Health e ficam no aparelho: o que pode acompanhar a conversa é um resumo curto do seu dia (por exemplo, \"6h30 de sono, 7.432 passos\") — e só das categorias que você autorizar em \"O que a Alma pode ver\". Nada é enviado com tudo desligado.\n\nAs meditações guiadas e os sons são criados para apoiar momentos de pausa e descanso.")
 
                     aboutCard(icon: "cpu", color: .orange, title: "Tecnologia",
                         body: "Construída com SwiftUI para uma experiência nativa no iOS e Apple Watch. Integrada com HealthKit para dados de saúde em tempo real. A IA conversacional é alimentada por modelos de linguagem de última geração.\n\nTodos os dados sensíveis são criptografados e sua privacidade é nossa prioridade.")

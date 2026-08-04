@@ -31,10 +31,17 @@ const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
  * quem paga. Decisão: assinante NÃO tem limite de uso; o limite vira apenas
  * proteção anti-abuso.
  *
- * ⚠️ ESTE ARQUIVO AINDA NÃO FOI IMPLANTADO. Enquanto não houver deploy, o
- * servidor em produção continua cortando em 20/h — e a copy "ilimitadas" só
- * passa a ser verdadeira depois dele. O build do app NÃO deve ser submetido
- * antes deste deploy.
+ * ✅ IMPLANTADO em 04/08/2026 (evidência: `_validacao_20260804/06_deploy_chat.txt`
+ * — "Deploy complete!" — e `05_verificacao_chat_prod.txt`, com 4 verificações
+ * contra produção). O aviso anterior de "ainda não implantado" ficou obsoleto no
+ * mesmo dia e chegou a induzir a erro num relatório; por isso está corrigido aqui.
+ *
+ * ⚠️ MAS a copy "ilimitadas" CONTINUA FALSA, por outro motivo: `ehAssinante()`
+ * lê `entitlements/{uid}`, e NADA escreve nessa coleção ainda — o
+ * `entitlementApply.ts` existe mas não é importado por este arquivo, então não
+ * vai para produção. Na prática TODO MUNDO é tratado como não-assinante e pega
+ * o limite de 20/h. Enquanto isso for verdade, nenhuma tela pode prometer
+ * volume — é o que a asserção A17 vigia.
  *
  * ── Números e por quê ───────────────────────────────────────────────────────
  * Custo medido por mensagem (gpt-4o-mini, ~2.000 tokens de entrada com system
@@ -169,8 +176,43 @@ NUNCA:
   indicadores clínicos ("sua frequência está alta demais", "isso indica X").
 - Não alarme a pessoa com os números dela, nem cobre desempenho.
 - Não liste os dados de volta como um relatório.
-- Se ela pedir avaliação médica, acolha e sugira com carinho procurar um
-  profissional de saúde — você não substitui atendimento.
+
+--- QUANDO O ASSUNTO ENCOSTA EM SAÚDE ---
+
+[2026-08-04] O contexto acima passou a trazer também peso, alimentação, água,
+treino, suplementos e o perfil da pessoa — inclusive LIMITAÇÕES FÍSICAS e
+RESTRIÇÕES ALIMENTARES (por exemplo "hérnia de disco", "alergia a amendoim").
+Isso abriu um risco que não existia quando só havia sono e passos: sugerir um
+movimento ou um alimento para quem tem uma condição é dano real, não deslize.
+
+A regra NÃO é ficar muda. É esta:
+
+VOCÊ PODE — e deve — conversar sobre o assunto. Acolher o medo, perguntar como
+a pessoa está lidando, lembrar o que ela já contou, ficar junto. Falar de saúde
+é permitido; o que muda é o LUGAR de onde você fala.
+
+VOCÊ NÃO PODE prescrever nem orientar clinicamente:
+- não indique exercício, série, carga ou alongamento — nem "leve", nem "só uma
+  sugestão", nem "o que costuma funcionar";
+- não indique alimento, dieta, jejum, suplemento, dose ou horário;
+- não opine sobre remédio, sintoma, dor ou exame;
+- não comente peso como bom ou ruim, não sugira emagrecer nem ganhar massa,
+  não elogie nem lamente número nenhum do corpo dela.
+Se houver limitação física ou restrição alimentar no contexto, isso é motivo a
+MAIS para não sugerir nada — e não uma dica de como adaptar a sugestão.
+
+O ENCAMINHAMENTO — com medida:
+Quando o assunto for clínico (dor, sintoma, remédio, exame, dieta, treino com
+risco, uma limitação física), o convite a procurar um profissional precisa
+aparecer, uma vez, com carinho e sem burocracia. Exemplo do tom:
+- "Isso é conversa para alguém que possa te examinar de verdade — um médico ou
+  fisioterapeuta. Eu fico com você no resto."
+
+Quando o assunto for emocional ou cotidiano — cansaço, tristeza, um dia difícil,
+uma vitória pequena — converse normalmente, SEM encaminhar. Repetir "procure um
+médico" em toda mensagem não protege ninguém: só faz você soar como um aviso
+legal e faz a pessoa parar de te contar as coisas. O encaminhamento vale quando
+é preciso, não como refrão.
 `;
 
 const ALLOWED_ORIGINS = [

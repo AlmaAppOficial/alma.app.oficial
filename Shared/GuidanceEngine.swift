@@ -189,7 +189,8 @@ struct GuidanceEngine {
                 "Harmonia em casa é encontrada em você.",
                 "Seu cuidado transforma o mundo.",
                 "Responsabilidade é amor em ação.",
-                "Você cura apenas estando presente.",
+                // [2026-08-04] Era "Você cura apenas estando presente."
+                "Você acolhe apenas estando presente.",
                 "Beleza está em pequenos gestos.",
                 "Família é prioridade sagrada.",
                 "Seu equilíbrio inspire outros.",
@@ -260,7 +261,9 @@ struct GuidanceEngine {
             33: [
                 "Você é mestre do amor incondicional.",
                 "Sabedoria compassiva é seu DON.",
-                "Curação flui através de você.",
+                // [2026-08-04] Era "Curação flui através de você." — alegação
+                // de cura e, de quebra, palavra que soa PT-PT.
+                "Compaixão flui através de você.",
                 "Você é guardião de verdade superior.",
                 "Seu serviço é sem limites.",
                 "Amor absoluto transforma realidades.",
@@ -282,7 +285,7 @@ struct GuidanceEngine {
             "Dia de Ação Consciente",
             "Dia de Introspecção Profunda",
             "Dia de Libertação",
-            "Dia de Harmonia e Cura",
+            "Dia de Harmonia e Cuidado",
             "Dia de Busca Espiritual",
             "Dia de Manifestação",
             "Dia de Evolução",

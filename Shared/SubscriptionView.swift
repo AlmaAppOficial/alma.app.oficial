@@ -66,14 +66,41 @@ struct PremiumWallView: View {
                                // ⛔️ ACOPLAMENTO: esta frase só é verdadeira
                                // DEPOIS do deploy da função. Não submeter o
                                // build antes dele.
-                               text: "Conversas ilimitadas com a Alma")
+                               //
+                               // [2026-08-04, decisão do Assis — MODO ENTREGA]
+                               // O entitlement completo não fecha hoje COM PROVA
+                               // (falta decodificar signedTransactionInfo, o app
+                               // enviar originalTransactionId, o deploy e o
+                               // teste em sandbox). Sem isso, "ilimitadas" é
+                               // falsa nas DUAS pontas: não-assinante tem 0
+                               // mensagens (FreemiumLimits.chatMessagesPerDay)
+                               // e o servidor — que JÁ foi implantado em 04/08
+                               // com "assinante sem limite de uso" — trata
+                               // TODO MUNDO como não-assinante, porque
+                               // `ehAssinante()` lê `entitlements/{uid}` e nada
+                               // escreve lá ainda. Na prática, 20/h para todos.
+                               //
+                               // Caminho honesto e rápido: a copy passa a dizer
+                               // o que o Premium entrega de fato — acesso ao
+                               // chat. Nenhuma afirmação de quantidade.
+                               // O entitlement entra no 2.0.1 e aí a copy pode
+                               // voltar a falar de volume.
+                               text: "Converse com a Alma")
                     featureRow(icon: "waveform.path.ecg",
                                // [2026-08-04] "Monitorização" é PT-PT; em
                                // PT-BR é "monitoramento". Passou por dois
                                // pentes finos de PT-PT porque meu checador não
                                // tinha a palavra na lista — e ela estava no
                                // paywall, uma das telas mais vistas do app.
-                               text: "Monitoramento de saúde avançado")
+                               //
+                               // [2026-08-04, decisão do Assis] Era
+                               // "Monitoramento de saúde avançado". O recurso é
+                               // registro e visualização dos dados da pessoa —
+                               // não orientação clínica. "Avançado" sugeria
+                               // capacidade médica que o app não tem e não quer
+                               // ter. A copy nova nomeia o que existe: a pessoa
+                               // acompanha os próprios números.
+                               text: "Acompanhe sono, passos, peso e alimentação")
                     featureRow(icon: "music.note",
                                text: "Sons binaurais e meditações guiadas")
                     featureRow(icon: "chart.line.uptrend.xyaxis",

@@ -23,7 +23,10 @@ struct TreinoView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    ScreenHeader(title: "Treino", subtitle: "Movimento é remédio")
+                    // [2026-08-04] Era "Movimento é remédio" — metáfora
+                    // simpática, mas "remédio" é palavra de alegação médica
+                    // num app de saúde. Trocado por algo que não promete nada.
+                    ScreenHeader(title: "Treino", subtitle: "Um dia de cada vez")
 
                     todayWorkoutCard
 
