@@ -1336,3 +1336,4 @@ export const notifyNewFeedPost = onDocumentCreated(
 
 // ─── Billing Android ──────────────────────────────────────────────────────────
 export * from './billing';
+export { appleNotifications } from './appleNotifications';

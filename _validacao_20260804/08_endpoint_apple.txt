@@ -1,0 +1,6 @@
+--- endpoint appleNotifications: provas ---
+GET                -> 405
+POST sem payload   -> 400 {"error":"signedPayload ausente"}
+POST JWS forjado   -> 401 {"error":"assinatura inválida"}
+
+URL: https://southamerica-east1-alma-app-7dae6.cloudfunctions.net/appleNotifications
