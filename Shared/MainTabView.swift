@@ -116,6 +116,12 @@ struct MainTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .openFeedTab)) { _ in
             selectedTab = .feed
         }
+        // [2026-08-04 — Watch] Handoff do relógio: o áudio já foi disparado
+        // pelo WatchBridge (toca até com o app em background); aqui só levamos
+        // a pessoa para a aba de Práticas quando o app está aberto.
+        .onReceive(NotificationCenter.default.publisher(for: .playMeditationFromWatch)) { _ in
+            selectedTab = .praticas
+        }
         .sheet(isPresented: $paywallManager.shouldShowPaywall, onDismiss: {
             Task { await PaywallTriggerManager.shared.dismissPaywall() }
         }) {

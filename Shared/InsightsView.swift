@@ -144,6 +144,12 @@ struct InsightsView: View {
                             todayMood = mood.0
                             moodHistory.append((name: mood.0, date: Date()))
                             UserMemoryManager.shared.recordMood(mood.0)
+                            #if os(iOS)
+                            // [2026-08-04 — Watch] Espelha o rótulo do dia para
+                            // o contexto do relógio (tela Humor mostra "feito").
+                            WatchBridge.registrarHumorParaOWatch(mood.0)
+                            WatchBridge.shared.publicarContexto()
+                            #endif
                         }) {
                             VStack(spacing: 6) {
                                 Image(systemName: mood.1)

@@ -51,11 +51,24 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
 
         // Apple Watch — ativa a sessão para receber o handoff ("tocar meditação X")
-        // disparado pelo app do relógio. Tolerante: se não houver Watch, é no-op.
+        // e os eventos registrados no pulso (água, humor, treino, respiração).
+        // Tolerante: se não houver Watch, é no-op.
         if WCSession.isSupported() {
             WCSession.default.delegate = self
             WCSession.default.activate()
         }
+        // A ponte publica o estado (streak, água, treino, premium, catálogo
+        // das 30 meditações) e processa os eventos com deduplicação.
+        WatchBridge.shared.iniciar()
+
+        // Categoria dos lembretes: no relógio, notificações desta categoria
+        // usam a interface do Alma (NotificationController do AlmaWatch).
+        UNUserNotificationCenter.current().setNotificationCategories([
+            UNNotificationCategory(identifier: "ALMA_LEMBRETE",
+                                   actions: [],
+                                   intentIdentifiers: [],
+                                   options: [])
+        ])
 
         return true
     }
@@ -144,22 +157,36 @@ extension AppDelegate: WCSessionDelegate {
         handleWatchMessage(message)
     }
 
+    /// Variante com resposta: o relógio espera saber a verdade — tocou,
+    /// precisa do plano, ou dia inexistente (feedback honesto na tela).
+    func session(_ session: WCSession,
+                 didReceiveMessage message: [String: Any],
+                 replyHandler: @escaping ([String: Any]) -> Void) {
+        if (message["action"] as? String) == "playMeditation",
+           let day = message["day"] as? Int {
+            DispatchQueue.main.async {
+                let status = WatchBridge.shared.tocarMeditacao(dia: day)
+                replyHandler(["status": status])
+            }
+        } else {
+            handleWatchMessage(message)
+            replyHandler(["status": "ok"])
+        }
+    }
+
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
         handleWatchMessage(userInfo)
     }
 
-    /// Recebe o pedido do relógio e avisa o app para tocar a meditação do dia.
-    /// O áudio mora no iPhone; o Watch só dispara. Quem ouve `.playMeditationFromWatch`
-    /// abre/inicia a prática (a tela de Práticas pode observar isto).
+    /// [2026-08-04 — Watch] Antes, este método postava .playMeditationFromWatch
+    /// e NINGUÉM escutava — tocar no relógio não tocava nada (achado do
+    /// diagnóstico). Agora tudo passa pelo WatchBridge: meditação toca DIRETO
+    /// no engine (funciona em background, o app tem o modo audio), e os
+    /// eventos do pulso (água, humor, treino, respiração) são aplicados com
+    /// deduplicação por ID.
     private func handleWatchMessage(_ payload: [String: Any]) {
-        guard (payload["action"] as? String) == "playMeditation",
-              let day = payload["day"] as? Int else { return }
         DispatchQueue.main.async {
-            NotificationCenter.default.post(
-                name: .playMeditationFromWatch,
-                object: nil,
-                userInfo: ["day": day]
-            )
+            WatchBridge.shared.processarPayload(payload)
         }
     }
 }

@@ -335,6 +335,16 @@ struct PraticasView: View {
                 .environmentObject(access)
                 .environmentObject(store)
         }
+        // [2026-08-04 — Watch] O relógio pediu uma meditação: o WatchBridge já
+        // colocou o áudio para tocar (com gate de premium). Se esta tela está
+        // montada, refletimos o estado no painel — sem tocar de novo.
+        .onReceive(NotificationCenter.default.publisher(for: .playMeditationFromWatch)) { nota in
+            guard let dia = nota.userInfo?["day"] as? Int,
+                  let med = MeditationDay.all30Days.first(where: { $0.day == dia }) else { return }
+            withAnimation(.easeInOut(duration: 0.3)) {
+                selectedMeditationDay = med
+            }
+        }
     }
 
     // MARK: - Page Header

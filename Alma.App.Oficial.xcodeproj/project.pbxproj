@@ -54,6 +54,20 @@
 		9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1082F589311009412A7 /* FirebaseAuth */; };
 		AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001001AA001001AA001001 /* AlmaWatchApp.swift */; };
 		AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001002AA001002AA001002 /* AlmaWatchContentView.swift */; };
+		A11AWB010000000000000000 /* WatchTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF010000000000000000 /* WatchTheme.swift */; };
+		A11AWB020000000000000000 /* WatchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF020000000000000000 /* WatchState.swift */; };
+		A11AWB030000000000000000 /* WatchSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF030000000000000000 /* WatchSync.swift */; };
+		A11AWB040000000000000000 /* WatchHealth.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF040000000000000000 /* WatchHealth.swift */; };
+		A11AWB050000000000000000 /* WorkoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF050000000000000000 /* WorkoutManager.swift */; };
+		A11AWB060000000000000000 /* Componentes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF060000000000000000 /* Componentes.swift */; };
+		A11AWB070000000000000000 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF070000000000000000 /* TodayView.swift */; };
+		A11AWB080000000000000000 /* WaterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF080000000000000000 /* WaterView.swift */; };
+		A11AWB090000000000000000 /* MoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF090000000000000000 /* MoodView.swift */; };
+		A11AWB100000000000000000 /* BreatheView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF100000000000000000 /* BreatheView.swift */; };
+		A11AWB110000000000000000 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF110000000000000000 /* WorkoutView.swift */; };
+		A11AWB120000000000000000 /* MeditationsWatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF120000000000000000 /* MeditationsWatchView.swift */; };
+		A11AWB130000000000000000 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF130000000000000000 /* NotificationController.swift */; };
+		A11AWB99000000000000000B /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF99000000000000000F /* WatchBridge.swift */; };
 		AA009003AA009003AA009003 /* Alma Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E25ED1DA2F77018D0089226E /* Alma Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		ALMA00FCM2026MAY15FFFF01 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */; };
 		ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */; };
@@ -306,6 +320,20 @@
 		9ECED0F02F58902F009412A7 /* InsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		AA001001AA001001AA001001 /* AlmaWatchApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchApp.swift; sourceTree = "<group>"; };
 		AA001002AA001002AA001002 /* AlmaWatchContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchContentView.swift; sourceTree = "<group>"; };
+		A11AWF010000000000000000 /* WatchTheme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchTheme.swift; sourceTree = "<group>"; };
+		A11AWF020000000000000000 /* WatchState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchState.swift; sourceTree = "<group>"; };
+		A11AWF030000000000000000 /* WatchSync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchSync.swift; sourceTree = "<group>"; };
+		A11AWF040000000000000000 /* WatchHealth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchHealth.swift; sourceTree = "<group>"; };
+		A11AWF050000000000000000 /* WorkoutManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WorkoutManager.swift; sourceTree = "<group>"; };
+		A11AWF060000000000000000 /* Componentes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Componentes.swift; sourceTree = "<group>"; };
+		A11AWF070000000000000000 /* TodayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		A11AWF080000000000000000 /* WaterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaterView.swift; sourceTree = "<group>"; };
+		A11AWF090000000000000000 /* MoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoodView.swift; sourceTree = "<group>"; };
+		A11AWF100000000000000000 /* BreatheView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreatheView.swift; sourceTree = "<group>"; };
+		A11AWF110000000000000000 /* WorkoutView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
+		A11AWF120000000000000000 /* MeditationsWatchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeditationsWatchView.swift; sourceTree = "<group>"; };
+		A11AWF130000000000000000 /* NotificationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		A11AWF99000000000000000F /* WatchBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchBridge.swift; sourceTree = "<group>"; };
 		AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_02.m4a; sourceTree = "<group>"; };
 		AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_03.m4a; sourceTree = "<group>"; };
 		AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_04.m4a; sourceTree = "<group>"; };
@@ -584,6 +612,7 @@
 				22125E08D23CEE6A3878453B /* TestePersistencia.swift */,
 				AA0804DIT10000000000002B /* AcumuladorDeDitado.swift */,
 				AA0804PES10000000000002B /* PesoVigente.swift */,
+				A11AWF99000000000000000F /* WatchBridge.swift */,
 				AA0804SON10000000000002B /* PontuacaoDeSono.swift */,
 				AA0804AUD10000000000002B /* TesteAudio.swift */,
 				A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */,
@@ -700,6 +729,19 @@
 				E267315F2FE19F190003BE9F /* Assets.xcassets */,
 				AA001001AA001001AA001001 /* AlmaWatchApp.swift */,
 				AA001002AA001002AA001002 /* AlmaWatchContentView.swift */,
+				A11AWF010000000000000000 /* WatchTheme.swift */,
+				A11AWF020000000000000000 /* WatchState.swift */,
+				A11AWF030000000000000000 /* WatchSync.swift */,
+				A11AWF040000000000000000 /* WatchHealth.swift */,
+				A11AWF050000000000000000 /* WorkoutManager.swift */,
+				A11AWF060000000000000000 /* Componentes.swift */,
+				A11AWF070000000000000000 /* TodayView.swift */,
+				A11AWF080000000000000000 /* WaterView.swift */,
+				A11AWF090000000000000000 /* MoodView.swift */,
+				A11AWF100000000000000000 /* BreatheView.swift */,
+				A11AWF110000000000000000 /* WorkoutView.swift */,
+				A11AWF120000000000000000 /* MeditationsWatchView.swift */,
+				A11AWF130000000000000000 /* NotificationController.swift */,
 			);
 			path = AlmaWatch;
 			sourceTree = "<group>";
@@ -1079,6 +1121,7 @@
 				2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */,
 				AA0804DIT100000000000000A /* AcumuladorDeDitado.swift in Sources */,
 				AA0804PES100000000000000A /* PesoVigente.swift in Sources */,
+				A11AWB99000000000000000B /* WatchBridge.swift in Sources */,
 				AA0804SON100000000000000A /* PontuacaoDeSono.swift in Sources */,
 				AA0804AUD100000000000000A /* TesteAudio.swift in Sources */,
 				9DDD6B17B676EFDC4E623F98 /* PaywallDoCorpo.swift in Sources */,
@@ -1216,6 +1259,19 @@
 			files = (
 				AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */,
 				AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */,
+				A11AWB010000000000000000 /* WatchTheme.swift in Sources */,
+				A11AWB020000000000000000 /* WatchState.swift in Sources */,
+				A11AWB030000000000000000 /* WatchSync.swift in Sources */,
+				A11AWB040000000000000000 /* WatchHealth.swift in Sources */,
+				A11AWB050000000000000000 /* WorkoutManager.swift in Sources */,
+				A11AWB060000000000000000 /* Componentes.swift in Sources */,
+				A11AWB070000000000000000 /* TodayView.swift in Sources */,
+				A11AWB080000000000000000 /* WaterView.swift in Sources */,
+				A11AWB090000000000000000 /* MoodView.swift in Sources */,
+				A11AWB100000000000000000 /* BreatheView.swift in Sources */,
+				A11AWB110000000000000000 /* WorkoutView.swift in Sources */,
+				A11AWB120000000000000000 /* MeditationsWatchView.swift in Sources */,
+				A11AWB130000000000000000 /* NotificationController.swift in Sources */,
 				E26731622FE19F930003BE9F /* Assets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1604,7 +1660,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Debug;
 		};
@@ -1634,7 +1690,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
 		};
@@ -1643,6 +1699,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 90;
@@ -1671,7 +1728,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Debug;
 		};
@@ -1680,6 +1737,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 90;
@@ -1708,7 +1766,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
 		};

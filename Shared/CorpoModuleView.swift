@@ -61,6 +61,14 @@ struct CorpoModuleView: View {
         conteudo
             // Uma fonte de verdade só para aparência, em todo o app.
             .preferredColorScheme(isDarkMode ? .dark : .light)
+            .task {
+                #if os(iOS)
+                // [2026-08-04 — Watch] Enquanto o Corpo está aberto, a ponte
+                // do relógio aplica eventos (água, treino) NESTA instância —
+                // a tela reflete na hora, sem esperar reabrir o módulo.
+                WatchBridge.shared.attachCorpoModel(corpoModel)
+                #endif
+            }
     }
 
     private var conteudo: some View {

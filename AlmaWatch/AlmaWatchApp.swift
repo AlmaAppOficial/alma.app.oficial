@@ -1,18 +1,28 @@
 // AlmaWatchApp.swift
-// Alma — app companheiro para Apple Watch (watchOS).
+// Alma — app do Apple Watch, ponto de entrada.
 //
-// Ponto de entrada. Toda a UI vive em AlmaWatchContentView.swift (vários tipos no
-// mesmo arquivo, de propósito: os dois arquivos já estão referenciados no target
-// "Alma Watch App" do projeto, então evitamos mexer no project.pbxproj para a parte
-// de código).
+// Além da cena principal, registra a cena de notificação: os lembretes do
+// iPhone (manhã/noite, água, treino, suplementos) espelham no relógio e,
+// com a categoria ALMA_LEMBRETE, ganham a cara do Alma em vez do cartão
+// genérico do sistema.
 
 import SwiftUI
+import WatchKit
 
 @main
 struct AlmaWatchApp: App {
+
+    init() {
+        // Acorda a ponte com o iPhone já na abertura (recebe contexto pendente).
+        _ = WatchSync.shared
+    }
+
     var body: some Scene {
         WindowGroup {
             AlmaWatchContentView()
         }
+
+        WKNotificationScene(controller: NotificationController.self,
+                            category: "ALMA_LEMBRETE")
     }
 }

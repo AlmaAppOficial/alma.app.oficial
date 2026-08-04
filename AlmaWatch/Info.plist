@@ -2,11 +2,34 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Leitura de saúde nativa no Watch (HR + passos). Dados ficam no dispositivo. -->
+	<!-- Leitura de saúde nativa no Watch. Dados ficam no aparelho. -->
 	<key>NSHealthShareUsageDescription</key>
-	<string>O Alma lê sua frequência cardíaca e passos para mostrar seu bem-estar no relógio. Os dados ficam no seu dispositivo.</string>
+	<string>O Alma lê sua frequência cardíaca, passos, energia e os anéis de atividade para mostrar o seu dia no relógio. Os dados ficam no seu aparelho.</string>
+	<!-- Escrita: agora é VERDADE — respiração vira mindfulSession e o treino
+	     é gravado pelo HKWorkoutSession (correção da promessa não cumprida
+	     apontada no diagnóstico de 04/08/2026). -->
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>O Alma salva sessões de meditação e mindfulness no Apple Health para registrar seu histórico de bem-estar.</string>
+	<string>O Alma salva no Apple Saúde as suas sessões de respiração (atenção plena) e os treinos iniciados no relógio.</string>
+	<!-- Sessões que continuam com o pulso abaixado:
+	     mindfulness = respiração guiada (WKExtendedRuntimeSession, até 1 h)
+	     workout-processing = treino (HKWorkoutSession) -->
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>mindfulness</string>
+		<string>workout-processing</string>
+	</array>
+	<!-- Deep links das complicações e do sistema: alma://watch/<pagina> -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.almaapp.app.watchkitapp</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>alma</string>
+			</array>
+		</dict>
+	</array>
 	<!-- WKApplication / WKCompanionAppBundleIdentifier vêm das build settings do target. -->
 </dict>
 </plist>

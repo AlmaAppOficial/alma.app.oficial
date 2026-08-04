@@ -67,6 +67,9 @@ final class NotificationManager: ObservableObject {
         content.title = title
         content.body = body
         content.sound = .default
+        // [2026-08-04 — Watch] Mesma categoria dos lembretes da Alma: no
+        // relógio, a notificação aparece com a interface da marca.
+        content.categoryIdentifier = "ALMA_LEMBRETE"
 
         var comps = DateComponents()
         comps.hour = hour

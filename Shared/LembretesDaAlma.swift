@@ -67,6 +67,9 @@ enum LembretesDaAlma {
         content.title = "Alma"
         content.body = corpo
         content.sound = .default
+        // [2026-08-04 — Watch] Espelhado no relógio, este lembrete ganha a
+        // interface do Alma (NotificationController do target AlmaWatch).
+        content.categoryIdentifier = "ALMA_LEMBRETE"
 
         var quando = DateComponents()
         quando.hour = hora
