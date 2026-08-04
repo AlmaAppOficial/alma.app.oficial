@@ -89,6 +89,13 @@ extension AppDelegate: MessagingDelegate {
         guard let token = fcmToken,
               let uid = Auth.auth().currentUser?.uid else { return }
 
+        // [2026-08-04 — D-5] Este `setData(merge: true)` RECRIA `users/{uid}`.
+        // A idempotência da Cloud Function só trata a transição false→true de
+        // `deletionRequested`: um documento recriado depois da deleção nunca
+        // mais era apagado. Se há limpeza pendente, a conta está em processo de
+        // exclusão — não gravar nada.
+        guard !LocalDataCleanupService.temLimpezaPendente else { return }
+
         Firestore.firestore().collection("users").document(uid).setData([
             "fcmToken": token,
             "fcmTokenUpdatedAt": FieldValue.serverTimestamp()
@@ -172,6 +179,12 @@ struct AlmaApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                // [2026-08-04 — D-1] Se a exclusão de conta foi interrompida
+                // entre a escrita irreversível no servidor e o fim da limpeza
+                // local, a marca continua no disco e a limpeza é concluída
+                // aqui. Sem isto, o servidor apagava a conta e o aparelho
+                // ficava com peso, alergias, condições de saúde e humor.
+                .task { LocalDataCleanupService.retomarLimpezaPendenteSeNecessario() }
                 .preferredColorScheme(isDarkMode ? .dark : .light)
                 // [2026-08-04 — achado na conferência visual] A Dieta exibia
                 // "de 2 368 kcal consumidas": `Text("\(inteiro)")` no SwiftUI

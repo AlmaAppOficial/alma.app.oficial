@@ -317,6 +317,8 @@ struct ChatView: View {
                 .foregroundColor(CalmTheme.textPrimary)
                 .multilineTextAlignment(.center)
 
+            // [2026-08-04 — B-3] Verdadeiro somente APÓS o deploy da função
+            // que remove o limite para assinante. Não submeter antes.
             Text("Conversas ilimitadas com a sua mentora de bem-estar, memória da sua jornada e acolhimento sempre que precisar.")
                 .font(.subheadline)
                 .foregroundColor(CalmTheme.textSecondary)

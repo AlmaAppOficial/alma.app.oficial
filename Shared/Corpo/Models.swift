@@ -482,9 +482,13 @@ final class AppModel: ObservableObject {
         }
         let calLabel = activeCaloriesBurned > 0 ? "\(activeCaloriesBurned)" : "—"
         return [
-            CorpoHealthMetric(title: "Passos", value: stepsToday > 0 ? "\(stepsToday)" : "—", unit: "de \(stepsGoal)", systemImage: "figure.walk", tint: Theme.primary, progress: Double(stepsToday) / Double(stepsGoal)),
+            // [2026-08-04] Saía "de 10000" sem separador, no MESMO card que
+            // exibe "2.368 kcal" com separador.
+            CorpoHealthMetric(title: "Passos", value: stepsToday > 0 ? CorpoContextFormat.inteiro(stepsToday) : "—", unit: "de \(CorpoContextFormat.inteiro(stepsGoal))", systemImage: "figure.walk", tint: Theme.primary, progress: Double(stepsToday) / Double(stepsGoal)),
             CorpoHealthMetric(title: "Calorias", value: calLabel, unit: "kcal queimadas", systemImage: "flame.fill", tint: Theme.coral, progress: Double(activeCaloriesBurned) / Double(caloriesGoal)),
-            CorpoHealthMetric(title: "Água", value: String(format: "%.1f", Double(waterMl) / 1000), unit: "de 2,5 L", systemImage: "drop.fill", tint: Theme.azure, progress: Double(waterMl) / Double(waterGoalMl)),
+            // [2026-08-04] `String(format:)` ignora o locale: saía "1.5" com
+            // ponto ao lado de "de 2,5 L" com vírgula, no MESMO card.
+            CorpoHealthMetric(title: "Água", value: CorpoContextFormat.decimal(Double(waterMl) / 1000), unit: "de \(CorpoContextFormat.decimal(Double(waterGoalMl) / 1000)) L", systemImage: "drop.fill", tint: Theme.azure, progress: Double(waterMl) / Double(waterGoalMl)),
             CorpoHealthMetric(title: "Sono", value: sleepLabel, unit: "de 8h ideais", systemImage: "bed.double.fill", tint: Theme.violet, progress: sleepProgress)
         ]
     }

@@ -50,6 +50,22 @@ struct PremiumWallView: View {
                 // Feature list
                 VStack(spacing: 14) {
                     featureRow(icon: "bubble.left.and.bubble.right.fill",
+                               // [2026-08-04 — B-3 da reauditoria] Era
+                               // "Conversas ilimitadas com a Alma". O servidor
+                               // corta em 20 mensagens por hora
+                               // (functions/src/index.ts:26) e NÃO há exceção
+                               // para assinante — varri o arquivo por
+                               // premium|entitl|subscri|tier|plan: nada.
+                               // "Ilimitadas" era falso para quem paga.
+                               //
+                               // [decisão do Assis, 04/08] A copy FICA; quem
+                               // muda é o servidor: assinante sem limite de
+                               // uso, com guardas anti-abuso invisíveis
+                               // (functions/src/index.ts).
+                               //
+                               // ⛔️ ACOPLAMENTO: esta frase só é verdadeira
+                               // DEPOIS do deploy da função. Não submeter o
+                               // build antes dele.
                                text: "Conversas ilimitadas com a Alma")
                     featureRow(icon: "waveform.path.ecg",
                                // [2026-08-04] "Monitorização" é PT-PT; em
@@ -111,7 +127,10 @@ struct PremiumWallView: View {
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 .scaleEffect(0.8)
                         }
-                        Text(isRefreshing ? "A verificar…" : "Restaurar compras")
+                        // [2026-08-04] "A verificar…" é PT-PT (perífrase
+                        // "a + infinitivo"). O checador não tinha padrão para
+                        // isso — agora tem.
+                        Text(isRefreshing ? "Verificando…" : "Restaurar compras")
                     }
                 }
                 .font(.footnote)
@@ -163,34 +182,48 @@ struct PremiumWallView: View {
                     .padding(.horizontal, 32)
             }
         } else {
-            Text("Acesso completo a todas as funcionalidades.")
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white.opacity(0.72))
-                .padding(.horizontal, 40)
+            // [2026-08-04 — B-5 da reauditoria] Sem produto carregado, a tela
+            // não mostrava preço, nem nome do plano, nem período — e mesmo
+            // assim oferecia um CTA ativo. Tocar produzia só um texto de erro.
+            // Agora a tela ADMITE que não conseguiu carregar e oferece a única
+            // ação útil: tentar de novo.
+            VStack(spacing: 8) {
+                Text("Não consegui carregar o preço agora")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Text("Isso costuma ser conexão. O valor e o período aparecem aqui antes de qualquer cobrança — a Apple confirma tudo antes de você pagar.")
+                    .font(.footnote)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white.opacity(0.75))
+                    .padding(.horizontal, 32)
+            }
         }
     }
+
+    /// Preço carregado? Só então existe algo para comprar.
+    private var podeComprar: Bool { store.monthlyProduct != nil }
 
     @ViewBuilder
     private var subscribeButton: some View {
         // [2026-07-28] 3.1.2(c): CTA sem promoção do trial — o preço dominante
         // está no priceHeader; o trial é nota subordinada.
+        // [2026-08-04 — B-5] O rótulo antes caía para "Assinar Alma Plus"
+        // (nome inexistente) quando o produto não carregava. Agora, sem preço,
+        // o botão não é de compra: é de nova tentativa.
         let label: String = {
-            if store.monthlyProduct != nil {
-                return "Assinar agora"
-            }
-            // [2026-08-04] Era "Assinar Alma Plus" — nome que não existe em
-            // lugar nenhum do app (Perfil e Início dizem "Alma Premium"), e
-            // que aparecia justamente quando o produto do StoreKit NÃO
-            // carregou: o usuário via um CTA sem preço, com nome errado.
-            return "Assinar Alma Premium"
+            guard let produto = store.monthlyProduct else { return "Tentar de novo" }
+            return "Assinar Alma Premium · \(produto.displayPrice)/mês"
         }()
 
         Button {
             Task {
                 localError = nil
                 guard let product = store.monthlyProduct else {
-                    localError = "Produto não disponível. Tenta mais tarde."
+                    // Sem produto: recarregar é a ação certa, não falhar.
+                    await store.loadProducts()
+                    if store.monthlyProduct == nil {
+                        localError = "Ainda não consegui carregar o preço. Verifique a conexão e tente de novo."
+                    }
                     return
                 }
                 let success = await store.purchase(product)
@@ -216,6 +249,10 @@ struct PremiumWallView: View {
             .foregroundColor(Color(red: 0.22, green: 0.20, blue: 0.45))
             .cornerRadius(16)
         }
+        // [2026-08-04 — B-5] `.disabled(store.isPurchasing)` não cobria o caso
+        // "produto não carregou": o botão de COMPRA ficava ativo sem preço.
+        // Agora, sem produto, o botão é de nova tentativa (rótulo acima) e só
+        // fica desabilitado enquanto está recarregando ou comprando.
         .disabled(store.isPurchasing)
         .shadow(color: .black.opacity(0.25), radius: 12, x: 0, y: 6)
     }

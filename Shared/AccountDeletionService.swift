@@ -45,6 +45,23 @@ final class AccountDeletionService: ObservableObject {
             }
         }
 
+        // ── [2026-08-04 — D-1, apontado na reauditoria] ─────────────────────
+        //
+        // A ordem estava invertida e criava perda PERMANENTE de dados: a
+        // escrita de `deletionRequested` (abaixo) é irreversível — a Cloud
+        // Function dispara nela e apaga Firestore + Auth. A limpeza local só
+        // vinha três passos depois, atrás de uma chamada de rede sem timeout.
+        // Se o app morresse, perdesse rede ou a revogação pendurasse, o
+        // servidor apagava tudo e o APARELHO ficava com peso, altura,
+        // alergias, condições de saúde, humor e o histórico do chat. Para
+        // sempre — e a tela promete "apagados para sempre".
+        //
+        // Agora: (1) marca-se a limpeza como PENDENTE antes de qualquer coisa
+        // irreversível; (2) limpa-se o local ANTES da escrita remota; (3) a
+        // marca só sai no fim. Se o processo morrer em qualquer ponto, o boot
+        // seguinte encontra a marca e termina o serviço (ver `AlmaApp`).
+        Self.executarLimpezaLocal()
+
         // Step 2: Write deletion flag — Cloud Function picks this up and deletes all data
         let uid = user.uid
         do {
@@ -67,12 +84,35 @@ final class AccountDeletionService: ObservableObject {
             print("Deletion revoke outcome: \(outcome)")
         }
 
-        // Step 4: Limpa todos os dados locais (UserDefaults + Keychain)
-        // Exigido por Apple Guideline 5.1.1(v) e LGPD Art. 18
-        LocalDataCleanupService.clearAll()
-
-        // Step 5: Sign out immediately — UI returns to login; cleanup continues server-side
+        // Step 4: Sign out — a UI volta ao login; o servidor segue apagando.
         try? Auth.auth().signOut()
+
+        Self.finalizarLimpezaLocal()
+    }
+
+    // MARK: - Limpeza local (entradas testáveis)
+    //
+    // [2026-08-04 — REAUDITORIA] A revisora comentou `clearAll()` na linha 72 e
+    // as quatro asserções B9 continuaram verdes: elas chamavam
+    // `LocalDataCleanupService.clearAll()` DIRETO, provando que o serviço
+    // funciona quando chamado — nunca que a exclusão de conta o chama.
+    //
+    // Estes dois métodos são o nível certo para o harness entrar: são o que a
+    // `requestDeletion` executa. Apagar a chamada de dentro daqui deixa a
+    // asserção B9e VERMELHA, que é o teste que a prova precisava passar.
+
+    /// Tudo que precisa acontecer no aparelho ANTES do ponto de não retorno.
+    static func executarLimpezaLocal() {
+        LocalDataCleanupService.marcarLimpezaPendente()
+        LocalDataCleanupService.clearAll()
+    }
+
+    /// Roda DEPOIS do `signOut()`: ele dispara o listener do AccessManager, que
+    /// republica `alma_isPremium`/`alma_active` no App Group e desfaz parte da
+    /// limpeza (D-3). Só então a marca de pendência sai.
+    static func finalizarLimpezaLocal() {
+        LocalDataCleanupService.clearAll()
+        LocalDataCleanupService.concluirLimpezaPendente()
     }
 
     private func reauthErrorMessage(for error: NSError) -> String {

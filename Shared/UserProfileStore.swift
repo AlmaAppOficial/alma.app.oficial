@@ -73,6 +73,28 @@ final class UserProfileStore: ObservableObject {
         didSet { store.set(decidiuSobreContexto, forKey: "perfil_decidiuContexto") }
     }
 
+    /// [2026-08-04 — D-2] Zera o que está EM MEMÓRIA.
+    ///
+    /// `clearAll()` apagava `perfil_nome` do disco, mas este singleton segurava
+    /// o valor antigo e o app não reinicia — `RootView` só troca a View. A
+    /// sequência real era: excluir conta → logar outra pessoa → a Home
+    /// cumprimentava o novo usuário pelo nome do anterior, e o onboarding
+    /// regravava esse nome no App Group. O dado apagado voltava sozinho.
+    ///
+    /// Chamado por `LocalDataCleanupService.clearAll()` e no logout.
+    func resetarEmMemoria() {
+        nome = nil
+        dataNascimento = nil
+        onboardingConcluido = false
+        decidiuSobreContexto = false
+        carimboDeMudanca &+= 1
+    }
+
+    /// Ponte para quem não está no MainActor (o serviço de limpeza).
+    nonisolated static func resetar() {
+        Task { @MainActor in UserProfileStore.shared.resetarEmMemoria() }
+    }
+
     /// Avisa que o perfil mudou. `nonisolated` porque quem grava peso e altura é
     /// o `AppModel` do módulo Corpo, que não é `@MainActor`.
     nonisolated static func avisarMudanca() {

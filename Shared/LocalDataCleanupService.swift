@@ -71,6 +71,11 @@ enum LocalDataCleanupService {
 
         print("🧹 LocalDataCleanupService.clearAll: \(almaPrefixedKeys.count) keys alma_ + lista explícita + Corpo + App Group + lembretes")
 
+        // [2026-08-04 — D-2] Zera o singleton do perfil EM MEMÓRIA. Sem isto,
+        // apagar o disco não bastava: o nome do excluído voltava na conta
+        // seguinte, porque o app não reinicia entre uma sessão e outra.
+        UserProfileStore.resetar()
+
         // Keychain
         clearKeychain()
     }
@@ -93,8 +98,15 @@ enum LocalDataCleanupService {
             // Preferências do módulo
             "notifyWater", "notifyMeals", "notifyWorkout",
             "notifySupplements", "supplementHour",
-            "appearance", "hasOnboarded", "isPremium",
-            "trialStartedAt", "healthDisclaimerAccepted"
+            // [2026-08-04 — D-4] "appearance" era chave ERRADA: o que o app
+            // grava é "appearanceMode" (Corpo/Models.swift:268). Mantidas as
+            // duas — a antiga pode existir em instalações velhas.
+            "appearance", "appearanceMode", "hasOnboarded", "isPremium",
+            "trialStartedAt", "healthDisclaimerAccepted",
+            // [2026-08-04 — D-4] Faltavam, e todas guardam dado pessoal:
+            "offProductCache",          // o que a pessoa escaneou e comeu
+            "meta_consent_granted",     // a tela promete apagar o consentimento
+            "meta_consent_asked"
         ]
         chavesDoCorpo.forEach { defaults.removeObject(forKey: $0) }
     }
@@ -107,11 +119,53 @@ enum LocalDataCleanupService {
             suite.removeObject(forKey: chave)
         }
         // Ponte de entitlement entre os apps: some junto na exclusão de conta.
+        // [2026-08-04 — D-3/D-4] `alma_active` faltava (o AccessManager o
+        // republica no signOut) e `shared_user_name` também — é o nome gravado
+        // pelo C&A standalone, que a varredura por prefixo `perfil_` nunca
+        // alcançava.
         ["alma_isPremium", "corpoealma_isPremium",
-         "alma_premium_since", "corpoealma_premium_since"].forEach {
+         "alma_premium_since", "corpoealma_premium_since",
+         "alma_active", "corpoealma_active",
+         "alma_isPremium_updatedAt", "corpoealma_isPremium_updatedAt",
+         "shared_user_name"].forEach {
             suite.removeObject(forKey: $0)
         }
         suite.synchronize()
+    }
+
+    // MARK: - Limpeza pendente (D-1)
+
+    /// [2026-08-04 — D-1] A exclusão passa por uma escrita IRREVERSÍVEL no
+    /// Firestore. Se o app morrer entre ela e o fim da limpeza, o servidor
+    /// apaga a conta e o aparelho fica com os dados de saúde para sempre.
+    ///
+    /// A marca é gravada antes de qualquer passo irreversível e só sai no fim.
+    /// `AlmaApp` a consulta no boot: se ainda estiver lá, a limpeza é
+    /// reexecutada. `clearAll()` é idempotente, então repetir é seguro.
+    private static let chaveLimpezaPendente = "alma_limpezaPendente"
+
+    static func marcarLimpezaPendente() {
+        UserDefaults.standard.set(true, forKey: chaveLimpezaPendente)
+        UserDefaults.standard.synchronize()
+    }
+
+    static func concluirLimpezaPendente() {
+        UserDefaults.standard.removeObject(forKey: chaveLimpezaPendente)
+        UserDefaults.standard.synchronize()
+    }
+
+    static var temLimpezaPendente: Bool {
+        UserDefaults.standard.bool(forKey: chaveLimpezaPendente)
+    }
+
+    /// Chamado no boot. Devolve `true` quando havia uma limpeza interrompida.
+    @discardableResult
+    static func retomarLimpezaPendenteSeNecessario() -> Bool {
+        guard temLimpezaPendente else { return false }
+        clearAll()
+        concluirLimpezaPendente()
+        print("⚠️ LocalDataCleanupService: limpeza interrompida foi retomada e concluída no boot")
+        return true
     }
 
     // MARK: - Logout (seletivo)

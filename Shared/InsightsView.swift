@@ -12,6 +12,8 @@ struct InsightsView: View {
     @State private var moodHistory: [(name: String, date: Date)] = []
     @State private var showMoodPicker = false
     @State private var showInsightShare = false
+    /// [2026-08-04 — B-4] Paywall vira sheet: a aba deixa de SER o paywall.
+    @State private var showPaywallSheet = false
 
     // [2026-08-03] Os rótulos passam a vir do enum `Mood`, que é a MESMA fonte
     // que o classificador de humor usa. Enquanto eram uma lista solta aqui, a
@@ -34,10 +36,61 @@ struct InsightsView: View {
 
     var body: some View {
         // [Build 82] Gate premium — paywall para quem não assina
+        //
+        // [2026-08-04 — B-4 da reauditoria] O gate engolia o check-in de humor
+        // junto: `moodCheckInCard` mora dentro do `else`, e
+        // `UserMemoryManager.recordMood()` é chamado em UM único lugar do app
+        // (:93 desta tela). Ou seja, o usuário grátis não conseguia registrar
+        // um único humor — enquanto o ChatView escreve, para ele, que "o
+        // check-in de humor continua livre para você".
+        //
+        // Efeito colateral que ninguém tinha visto: as asserções B2a/B2b/B2c
+        // provam que o classificador de humor está certo, e não havia como o
+        // grátis produzir um humor para ele classificar.
+        //
+        // Agora o não-assinante recebe o check-in + o convite; o resto dos
+        // insights (análises, tendências, histórico) segue pago, como a régua
+        // manda.
         if !access.isPremium {
-            PremiumWallView()
-                .environmentObject(access)
-                .environmentObject(store)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack {
+                        Text("Insights")
+                            .font(.largeTitle.bold())
+                            .foregroundColor(CalmTheme.textPrimary)
+                        Spacer()
+                        AlmaLogo(size: 44)
+                    }
+
+                    moodCheckInCard
+
+                    Button(action: { showPaywallSheet = true }) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Suas análises e tendências")
+                                .font(.headline)
+                                .foregroundColor(CalmTheme.textPrimary)
+                            Text("O check-in de humor é livre. As análises da semana, o histórico e as tendências fazem parte do Premium.")
+                                .font(.caption)
+                                .foregroundColor(CalmTheme.textSecondary)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .fill(CalmTheme.surface)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(20)
+            }
+            .background(CalmTheme.backgroundGradient.ignoresSafeArea())
+            .sheet(isPresented: $showPaywallSheet) {
+                PremiumWallView()
+                    .environmentObject(access)
+                    .environmentObject(store)
+            }
         } else {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {

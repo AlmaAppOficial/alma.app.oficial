@@ -22,9 +22,95 @@ const metaAccessToken = defineSecret('META_ACCESS_TOKEN');
 const whatsappAccessToken = defineSecret('WHATSAPP_ACCESS_TOKEN');
 const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
 
-/** Max requests per user per sliding-window hour */
-const RATE_LIMIT = 20;
-const WINDOW_MS = 3_600_000; // 1 hour in ms
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * LIMITES DO CHAT — [2026-08-04, decisão do Assis]
+ *
+ * Antes: RATE_LIMIT = 20/hora para TODO MUNDO, sem exceção para assinante,
+ * enquanto o paywall vendia "Conversas ilimitadas". A promessa era falsa para
+ * quem paga. Decisão: assinante NÃO tem limite de uso; o limite vira apenas
+ * proteção anti-abuso.
+ *
+ * ⚠️ ESTE ARQUIVO AINDA NÃO FOI IMPLANTADO. Enquanto não houver deploy, o
+ * servidor em produção continua cortando em 20/h — e a copy "ilimitadas" só
+ * passa a ser verdadeira depois dele. O build do app NÃO deve ser submetido
+ * antes deste deploy.
+ *
+ * ── Números e por quê ───────────────────────────────────────────────────────
+ * Custo medido por mensagem (gpt-4o-mini, ~2.000 tokens de entrada com system
+ * prompt + memória + histórico + contexto de saúde, ~300 de saída):
+ *     entrada  2.000 × US$0,15/1M = US$0,00030
+ *     saída      300 × US$0,60/1M = US$0,00018
+ *     total                        ≈ US$0,0005 por mensagem
+ * Média real hoje: ~US$0,17 por usuário/mês (≈ 340 mensagens/mês).
+ *
+ * NÃO-ASSINANTE — 20/hora (inalterado).
+ *   No modelo atual ele tem 0 mensagens grátis no cliente, então este limite é
+ *   só guarda do endpoint contra quem chamar a função direto.
+ *
+ * ASSINANTE — sem limite de uso, com três guardas invisíveis:
+ *
+ *   1) RAJADA: 60 mensagens / 5 minutos.
+ *      12 por minuto sustentados por 5 minutos não é conversa — é laço ou
+ *      script. Um humano lendo a resposta faz 2 a 4 por minuto no máximo.
+ *
+ *   2) TETO DIÁRIO: 300 mensagens/dia (≈ US$0,15/dia).
+ *      Uma sessão longa de desabafo raramente passa de 50. 300 é 6× isso.
+ *
+ *   3) DISJUNTOR DE CUSTO: 3.000 mensagens/mês (≈ US$1,50/mês/usuário).
+ *      É ~9× a média atual (US$0,17). Ninguém conversando de verdade encosta
+ *      nisso; um script chega numa tarde. Ao atingir, o serviço não quebra:
+ *      responde com uma mensagem humana e volta no dia seguinte.
+ *
+ * Os três vivem em `config/limits` no Firestore (lidos abaixo), para ajuste
+ * sem novo deploy.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+const RATE_LIMIT = 20;               // não-assinante: por hora
+const WINDOW_MS = 3_600_000;         // 1 hour in ms
+
+/** Assinante: guardas anti-abuso. Sobrescrevíveis por `config/limits`. */
+const LIMITES_ASSINANTE_PADRAO = {
+  rajadaMax: 60,
+  rajadaJanelaMs: 300_000,      // 5 min
+  diarioMax: 300,
+  mensalMax: 3_000,
+};
+
+/**
+ * Entitlement do usuário — SEMPRE do servidor, nunca do cliente.
+ *
+ * ⚠️ FURO DE RECEITA ENCONTRADO EM 04/08 (relatado ao Assis):
+ * `firestore.rules:12` deixa o dono gravar em `users/{uid}`, e o app escreve
+ * premium ali (`LegacyEntitlementStore.swift:67`). Se esta função lesse o
+ * premium DAQUELE documento, qualquer pessoa se autoconcederia assinatura
+ * editando o próprio doc. Por isso a leitura é de `entitlements/{uid}`, uma
+ * coleção que o cliente NÃO pode escrever (regra a acrescentar:
+ *   match /entitlements/{uid} { allow read: if request.auth.uid == uid;
+ *                               allow write: if false; }
+ * ), preenchida apenas por servidor a partir da Apple.
+ *
+ * Enquanto as App Store Server Notifications V2 não estiverem ligadas, esta
+ * função devolve `false` — ou seja, na dúvida o usuário é tratado como
+ * não-assinante e o limite antigo continua valendo. Falhar para o lado seguro.
+ */
+async function ehAssinante(
+  db: FirebaseFirestore.Firestore,
+  uid: string,
+): Promise<boolean> {
+  try {
+    const doc = await db.collection('entitlements').doc(uid).get();
+    if (!doc.exists) return false;
+    const d = doc.data() ?? {};
+    if (d.active !== true) return false;
+    const expira = d.expiresAt as FirebaseFirestore.Timestamp | undefined;
+    if (expira && expira.toMillis() < Date.now()) return false;
+    return true;
+  } catch (e) {
+    console.error('[entitlement] falha ao ler; tratando como não-assinante', e);
+    return false;
+  }
+}
 
 /**
  * [Build 84 — 2026-07-28] Máximo de caracteres por mensagem do chat.
@@ -112,8 +198,11 @@ function setCorsHeaders(
 }
 
 class RateLimitError extends Error {
-  constructor() {
+  /** [2026-08-04] Qual guarda disparou: 'hora' | 'rajada' | 'dia' | 'mes'. */
+  readonly motivo: string;
+  constructor(motivo: string = 'hora') {
     super('RATE_LIMIT');
+    this.motivo = motivo;
   }
 }
 
@@ -215,6 +304,18 @@ export const chat = onRequest(
     const db = admin.firestore();
     const rateLimitRef = db.collection('rate_limits').doc(uid);
 
+    // [2026-08-04] Entitlement verificado NO SERVIDOR. O cliente não envia e
+    // não poderia enviar: o único dado dele aqui é o ID token, já validado.
+    const assinante = await ehAssinante(db, uid);
+
+    // Limites ajustáveis sem redeploy.
+    const cfg = await db.collection('config').doc('limites').get()
+      .then((d) => ({ ...LIMITES_ASSINANTE_PADRAO, ...(d.data() ?? {}) }))
+      .catch(() => LIMITES_ASSINANTE_PADRAO);
+
+    const chaveDia = new Date(now).toISOString().slice(0, 10);   // yyyy-mm-dd
+    const chaveMes = chaveDia.slice(0, 7);                        // yyyy-mm
+
     try {
       await db.runTransaction(async (tx) => {
         const snap = await tx.get(rateLimitRef);
@@ -224,17 +325,47 @@ export const chat = onRequest(
           (t) => t > windowStart,
         );
 
-        if (requests.length >= RATE_LIMIT) {
-          throw new RateLimitError();
+        if (!assinante) {
+          // Não-assinante: o limite antigo, agora como guarda do endpoint.
+          if (requests.length >= RATE_LIMIT) {
+            throw new RateLimitError('hora');
+          }
+        } else {
+          // Assinante: SEM limite de uso. Só as três guardas anti-abuso.
+          const rajada = requests.filter((t) => t > now - cfg.rajadaJanelaMs);
+          if (rajada.length >= cfg.rajadaMax) {
+            throw new RateLimitError('rajada');
+          }
+          const doDia = data.dia === chaveDia ? (data.diaCount as number ?? 0) : 0;
+          if (doDia >= cfg.diarioMax) {
+            throw new RateLimitError('dia');
+          }
+          const doMes = data.mes === chaveMes ? (data.mesCount as number ?? 0) : 0;
+          if (doMes >= cfg.mensalMax) {
+            throw new RateLimitError('mes');
+          }
+          tx.set(rateLimitRef, {
+            dia: chaveDia,
+            diaCount: doDia + 1,
+            mes: chaveMes,
+            mesCount: doMes + 1,
+          }, { merge: true });
         }
 
         requests.push(now);
-        tx.set(rateLimitRef, { requests });
+        tx.set(rateLimitRef, { requests }, { merge: true });
       });
     } catch (err) {
       if (err instanceof RateLimitError) {
+        // Mensagens humanas, não código de erro. Nenhuma delas culpa a pessoa.
+        const textos: Record<string, string> = {
+          hora: 'Limite de mensagens atingido. Tente novamente em 1 hora.',
+          rajada: 'Muitas mensagens em poucos minutos. Respire — daqui a pouco a gente continua.',
+          dia: 'Conversamos bastante hoje. Volto com você amanhã.',
+          mes: 'Você conversou muito comigo este mês. O chat volta na virada do mês — as meditações e os sons continuam aqui.',
+        };
         res.status(429).json({
-          error: 'Limite de mensagens atingido. Tente novamente em 1 hora.',
+          error: textos[(err as RateLimitError).motivo] ?? textos.hora,
         });
         return;
       }

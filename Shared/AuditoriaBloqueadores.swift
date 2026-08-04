@@ -109,6 +109,22 @@ enum AuditoriaBloqueadores {
         checa("B4b", "água NÃO ressuscita na 2ª instância do mesmo dia",
               segunda.waterMl == 0, "\(segunda.waterMl) ml")
 
+        // [2026-08-04 — REAUDITORIA] B4a/B4b só testavam o ZERO do rollover.
+        // A revisora esvaziou o `didSet` de `waterMl` — a água deixou de
+        // chegar ao disco — e as duas continuaram verdes, porque zero é o que
+        // elas esperam. Faltava o caso oposto: o registro do dia sobrevive?
+        let suiteAgua = "auditoria.agua"
+        UserDefaults().removePersistentDomain(forName: suiteAgua)
+        let storeAgua = UserDefaults(suiteName: suiteAgua)!
+        do {
+            let m = AppModel(store: storeAgua)
+            m.addWater(750)
+        }
+        let aguaReaberta = AppModel(store: storeAgua)
+        checa("B4c", "água registrada hoje SOBREVIVE ao fechamento do app",
+              aguaReaberta.waterMl == 750, "\(aguaReaberta.waterMl) ml")
+        UserDefaults().removePersistentDomain(forName: suiteAgua)
+
         // ── B5 · IMC nunca é NaN nem "Obesidade" sem medidas ────────────────
         let vazio = AppModel(store: UserDefaults(suiteName: "auditoria.vazio")!)
         UserDefaults().removePersistentDomain(forName: "auditoria.vazio")
@@ -134,7 +150,13 @@ enum AuditoriaBloqueadores {
         let grupo = UserDefaults(suiteName: "group.com.almaapp.shared")
         grupo?.set("Fulano", forKey: "perfil_nome")
 
-        LocalDataCleanupService.clearAll()
+        // [2026-08-04 — REAUDITORIA] Era `LocalDataCleanupService.clearAll()`
+        // direto. A revisora comentou a chamada DENTRO do
+        // AccountDeletionService e as quatro B9 continuaram verdes. Agora a
+        // entrada é a mesma que a exclusão de conta usa: apagar a chamada lá
+        // dentro deixa estas asserções vermelhas.
+        AccountDeletionService.executarLimpezaLocal()
+        AccountDeletionService.finalizarLimpezaLocal()
 
         checa("B9a", "exclusão apaga nome do Corpo (sem prefixo alma_)",
               UserDefaults.standard.string(forKey: "userName") == nil,
@@ -170,14 +192,22 @@ enum AuditoriaBloqueadores {
               "premium=\(semPremium.hasPremiumAccess), água \(aguaAntes)→\(semPremium.waterMl) ml")
 
         // ── notificações ────────────────────────────────────────────────────
-        checa("N1", "categoria de suplementos existe",
-              semPremium.notifySupplements == false && store.object(forKey: "supplementHour") != nil
-                || true,   // a chave existe no modelo; o valor default é 9
-              "hora padrão \(semPremium.supplementHour)h")
-        let totalMax = GradeDeLembretes.horariosAgua.count + 3 + 1 + 1
-        checa("N2", "teto de lembretes por dia respeitado",
-              totalMax <= GradeDeLembretes.tetoDiario,
-              "\(totalMax)/dia com tudo ligado (teto \(GradeDeLembretes.tetoDiario))")
+        //
+        // [2026-08-04 — REAUDITORIA] N1 e N2 foram REMOVIDAS, não corrigidas.
+        //
+        // N1 era `X || true` — uma tautologia, aprovado grátis no placar. Eu
+        // escrevi o `|| true` como conveniência ("a chave existe no modelo") e
+        // com isso inflei o número que eu mesma reportava como evidência.
+        //
+        // N2 calculava `totalMax` dentro do próprio teste, a partir de duas
+        // constantes, e comparava com uma terceira constante. Se o agendador
+        // disparar 50 lembretes por dia, N2 continua verde: ela testa
+        // aritmética, não o app.
+        //
+        // A regra nova: uma assertion só entra no placar se ficar VERMELHA
+        // quando a linha de produção que ela protege é apagada. Nenhuma das
+        // duas passava nesse teste, e nenhuma delas protege um bloqueador.
+        // Voltam se e quando houver um agendador real para exercitar.
         checa("N3", "cada dono limpa só o que é seu",
               DonoDoLembrete.allCases.count == 3
                 && !DonoDoLembrete.alma.prefixos.contains(where: { DonoDoLembrete.corpo.prefixos.contains($0) }),
@@ -251,15 +281,33 @@ enum AuditoriaBloqueadores {
                         options: [.regularExpression]) != nil
         }
         let prometemIA = textosDeIA.filter { prometeIA($0.1) }
-        checa("B8b", "sem IA na build, nenhuma tela promete IA",
-              AIService.isRealAI || prometemIA.isEmpty,
-              prometemIA.isEmpty ? "IA disponível: \(AIService.isRealAI) · 5 textos limpos"
-                                 : "prometem IA: \(prometemIA.map(\.0).joined(separator: ", "))")
 
-        checa("B8c", "o scan corporal não descreve uso de foto que não acontece",
-              AIService.isRealAI
-                || BodyScanView.notaDePrivacidade.localizedCaseInsensitiveContains("nenhuma foto"),
-              BodyScanView.notaDePrivacidade.prefix(60) + "…")
+        // [2026-08-04 — REAUDITORIA] As duas começavam com `AIService.isRealAI
+        // || …`: no dia em que a IA ligasse, viravam `true` incondicional —
+        // exatamente o dia em que mais precisariam checar. Agora a regra é
+        // BICONDICIONAL: prometer IA é permitido se, e somente se, a IA existe.
+        // Assim a assertion serve nos dois estados do mundo.
+        checa("B8b", "prometer IA se e somente se a IA existe",
+              prometemIA.isEmpty != AIService.isRealAI,
+              "IA disponível: \(AIService.isRealAI) · \(textosDeIA.count) textos · prometem IA: "
+              + (prometemIA.isEmpty ? "nenhum" : prometemIA.map(\.0).joined(separator: ", ")))
+
+        // Idem: a nota de privacidade tem de descrever o que ACONTECE nos dois
+        // casos — "nenhuma foto" sem IA, "suas fotos" com IA.
+        let notaDizNenhumaFoto = BodyScanView.notaDePrivacidade
+            .localizedCaseInsensitiveContains("nenhuma foto")
+        checa("B8c", "a nota de privacidade descreve o uso real de foto",
+              notaDizNenhumaFoto != AIService.isRealAI,
+              String(BodyScanView.notaDePrivacidade.prefix(60)) + "…")
+
+        // [2026-08-04 — B-2] O sexto texto, o que a reauditoria achou: o
+        // subtítulo do banner que leva ao paywall. Antes B8b auditava cinco
+        // textos e a lista parava uma tela antes do botão.
+        checa("B8d", "o banner do Premium no Corpo não vende IA inexistente",
+              CorpoHomeView.subtituloDoBannerPremium
+                .range(of: "(?<![\\p{L}])IA(?![\\p{L}])", options: [.regularExpression]) == nil
+                || AIService.isRealAI,
+              CorpoHomeView.subtituloDoBannerPremium)
 
         // ── CARD · "Complete seu perfil" ────────────────────────────────────
         //
@@ -286,11 +334,15 @@ enum AuditoriaBloqueadores {
         modelDaTela.weightKg = 82
         modelDaTela.heightCm = 180
 
-        // A cópia da Home continua velha: é a prova de que perguntar à
-        // instância era o erro.
-        checa("C1b", "a instância da Home continua desatualizada (era esta a causa)",
-              modelDaHome.weightKg == 0,
-              "peso na cópia da Home: \(modelDaHome.weightKg) · no disco: \(storeCard.double(forKey: "weightKg"))")
+        // [2026-08-04 — REAUDITORIA] C1b foi REMOVIDA. Ela aprovava quando
+        // `modelDaHome.weightKg == 0`, ou seja, EXIGIA que a cópia da Home
+        // continuasse desatualizada. Se alguém melhorasse o AppModel para
+        // observar o disco, C1b ficaria vermelha: era um teste que punia a
+        // melhoria e travava uma regressão como se fosse requisito.
+        //
+        // O que importa provar é o comportamento do CARD (C1c), não o defeito
+        // da instância. A linha abaixo fica só como observação no log.
+        log("· contexto C1: peso na cópia velha da Home: \(modelDaHome.weightKg) · no disco: \(storeCard.double(forKey: "weightKg"))")
 
         // E o card, que agora lê o disco, para de cobrar NA HORA.
         faltando = UserProfileStore.shared.pendencias(

@@ -8,6 +8,15 @@
 import SwiftUI
 
 struct CorpoHomeView: View {
+    /// [2026-08-04 — B-2] Estático para o harness ler o MESMO texto da tela.
+    /// Era literal inline e por isso ficou fora da lista que a assertion B8b
+    /// auditava — o sexto texto vendendo IA passou por baixo dela.
+    static var subtituloDoBannerPremium: String {
+        AIService.isRealAI
+        ? "Planos personalizados, scan com IA e insights"
+        : "Planos personalizados, acompanhamento e insights"
+    }
+
     @EnvironmentObject var model: AppModel
     @EnvironmentObject var health: HealthManager
     @State private var showPaywall = false
@@ -106,7 +115,13 @@ struct CorpoHomeView: View {
                         //    modelo é freemium com trial de acesso no app, não
                         //    trial de cobrança. Prometer "7 dias grátis" aqui
                         //    seria alegação falsa.
-                        Text("Planos personalizados, scan com IA e insights")
+                        // [2026-08-04 — B-2 da reauditoria] Dizia "Planos
+                        // personalizados, scan com IA e insights". Era o SEXTO
+                        // texto vendendo IA que a build não tem — e o pior
+                        // deles, porque é o botão que leva ao paywall pago. A
+                        // correção de ontem cobriu cinco textos e parou uma
+                        // tela antes do botão.
+                        Text(Self.subtituloDoBannerPremium)
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.9))
                     }

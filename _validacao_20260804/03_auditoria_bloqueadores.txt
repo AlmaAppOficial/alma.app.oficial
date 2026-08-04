@@ -10,6 +10,7 @@
 ✓ B3e healthConditions persistiu — 'hérnia de disco'
 ✓ B4a água zera no dia novo — 0 ml
 ✓ B4b água NÃO ressuscita na 2ª instância do mesmo dia — 0 ml
+✓ B4c água registrada hoje SOBREVIVE ao fechamento do app — 750 ml
 ✓ B5a sem medidas, imcSeguro é nil (não NaN) — nil
 ✓ B5b sem medidas, classificação NÃO é 'Obesidade' — 'sem medidas'
 ✓ B5c com medidas reais o IMC volta a funcionar — 25.2
@@ -22,16 +23,15 @@
 ✓ B10b nenhum ID do app descontinuado — com.almaapp.app.premium_monthly / com.almaapp.app.premium_annual
 ✓ B11a registro manual liberado (régua) — true
 ✓ B11b usuário SEM premium consegue registrar água — premium=false, água 0→250 ml
-✓ N1 categoria de suplementos existe — hora padrão 9h
-✓ N2 teto de lembretes por dia respeitado — 9/dia com tudo ligado (teto 9)
 ✓ N3 cada dono limpa só o que é seu — donos: corpo, alma, vicio
 ✓ A16a sob pressão, a linha de ALERGIA sobrevive — 498 chars
 ✓ A16b o corte respeita o teto — 498 de 600
 ✓ A16c campo de texto livre é limitado na origem — 171 chars
-✓ B8b sem IA na build, nenhuma tela promete IA — IA disponível: false · 5 textos limpos
-✓ B8c o scan corporal não descreve uso de foto que não acontece — Nesta versão nenhuma foto é enviada nem analisada — o result…
+✓ B8b prometer IA se e somente se a IA existe — IA disponível: false · 5 textos · prometem IA: nenhum
+✓ B8c a nota de privacidade descreve o uso real de foto — Nesta versão nenhuma foto é enviada nem analisada — o result…
+✓ B8d o banner do Premium no Corpo não vende IA inexistente — Planos personalizados, acompanhamento e insights
 ✓ C1a perfil vazio: o card cobra as medidas — nome, nascimento, medidas, contexto
-✓ C1b a instância da Home continua desatualizada (era esta a causa) — peso na cópia da Home: 0.0 · no disco: 82.0
+· contexto C1: peso na cópia velha da Home: 0.0 · no disco: 82.0
 ✓ C1c preencheu medidas → o card para de cobrar sem reabrir o app — ainda falta: nome, nascimento, contexto
 ✓ C1d app reaberto: as medidas sobreviveram — 82.0 kg · 180.0 cm
 ✓ C2a o card DIZ qual campo falta — Falta peso e altura para a Alma te acompanhar de verdade
@@ -40,5 +40,5 @@
 ✓ C3 peso sem altura NÃO conta como medidas completas — Faltam como te chamar, sua data de nascimento, peso e altura e escolher o que ela pode ver para a Alma te acompanhar de verdade
 ✓ A12 nenhum texto EXIBIDO em PT-PT (Home e Insights) — 232 textos verificados
 ═════ RESULTADO ═════
-aprovados: 40
+aprovados: 39
 reprovados: NENHUM

@@ -9,6 +9,9 @@ import re
 import sys
 from pathlib import Path
 
+# `\p{L}` não existe no `re` da stdlib; traduzimos para a classe equivalente.
+_LETRA = r"A-Za-zÀ-ÖØ-öø-ÿ"
+
 PADROES = {
     "tuteamento": r"\b(teu|tua|teus|tuas|ti|tu|contigo)\b",
     "conjugação 2ª pessoa": r"\b(estás|és|tens|podes|queres|sabes|precisas|vais|vens|fazes|dizes|vês|mereces|consegues)\b",
@@ -29,6 +32,21 @@ PADROES = {
                        r"eléctrico|actividade|actividades|colectivo|exacto|exacta)\b"),
     "ênclise": r"\b\w+-te\b",
     "até aos": r"\baté aos\b",
+    # [2026-08-04 — reauditoria] Dois resíduos no PAYWALL escaparam de todos os
+    # padrões acima: "A verificar…" e "Tenta mais tarde".
+    #   • imperativo de 2ª pessoa: nenhum padrão cobria `tenta|olha|escolhe|…`;
+    #   • perífrase "a + infinitivo" ("a verificar", "a carregar", "a guardar"),
+    #     que é a marca mais característica do PT-PT em software — e não havia
+    #     padrão nenhum para ela.
+    # Só no INÍCIO de frase, com maiúscula. "a Apple confirma tudo" e "Você
+    # escolhe o que ela vê" são indicativo de 3ª pessoa e têm a MESMA forma —
+    # sem restringir a posição, o padrão gerava 14 falsos positivos e o
+    # checador voltava a ser ruído. Aqui o PT-BR usaria "Tente", "Escolha".
+    "imperativo 2ª pessoa": (r'(?:^|["“(]|[.!?] )(Tenta|Espera|Escolhe|Olha|Confirma|'
+                             rf"Verifica|Regista|Guarda|Descarrega)(?![{_LETRA}])"),
+    "perífrase a+infinitivo": (rf"(?<![{_LETRA}])[Aa] (verificar|carregar|guardar|"
+                               rf"processar|sincronizar|actualizar|gravar|"
+                               rf"enviar|descarregar|calcular)(?![{_LETRA}])"),
 }
 
 raiz = Path(sys.argv[1] if len(sys.argv) > 1 else ".")
