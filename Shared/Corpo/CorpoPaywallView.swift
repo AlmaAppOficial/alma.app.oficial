@@ -192,7 +192,10 @@ struct CorpoPaywallView: View {
         // design é fixo (gradiente verde + cards brancos), o paywall inteiro
         // é travado no esquema CLARO: todas as cores adaptativas internas
         // resolvem para as variantes legíveis, em qualquer aparência.
-        .environment(\.colorScheme, .light)
+        // [2026-08-04] Removido o `.environment(\.colorScheme, .light)` que
+        // forçava o paywall do Corpo em claro mesmo com o app em escuro — a
+        // pegadinha que o CLAUDE.md já registrava. A aparência agora vem de uma
+        // fonte só (`isDarkMode`, aplicada em CorpoModuleView).
     }
 
     private var closeButton: some View {

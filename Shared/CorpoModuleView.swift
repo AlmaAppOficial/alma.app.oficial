@@ -33,6 +33,19 @@ struct CorpoModuleView: View {
     @StateObject private var corpoHealth = HealthManager()
     @StateObject private var corpoStore = StoreManager()
 
+    /// [2026-08-04] A aparência do app inteiro é ESTA — a mesma chave que o
+    /// toggle do Perfil do Alma grava. O módulo Corpo herdou do Corpo & Alma um
+    /// `appearanceMode` próprio ("system"/"light"/"dark") em `AppModel`, com
+    /// botão de lua na Início do Corpo; só que o `model.colorScheme` que ele
+    /// calcula NÃO era aplicado em lugar nenhum — varri o projeto por
+    /// `preferredColorScheme` e não havia nenhuma ocorrência dentro de
+    /// `Shared/Corpo/`. Resultado: um botão que gravava uma preferência que
+    /// ninguém lia, e o módulo aparecendo claro com o Alma escuro.
+    ///
+    /// Aplicar aqui é idempotente: se o `fullScreenCover` já herdasse a
+    /// preferência da raiz, esta linha não muda nada; como não herdava, corrige.
+    @AppStorage("isDarkMode") private var isDarkMode = false
+
     /// [Fusão 2026-08-02] Módulo portado: as 5 abas reais do Corpo & Alma
     /// (Início, Saúde, Dieta, Treino, Insights) rodam dentro do Alma.
     static let isModuleReady = true
@@ -45,6 +58,12 @@ struct CorpoModuleView: View {
         // O caminho de volta agora vive dentro de cada aba, via
         // .almaBackButton(), no topo DIREITO — simétrico ao botão "Corpo" da
         // Início do Alma.
+        conteudo
+            // Uma fonte de verdade só para aparência, em todo o app.
+            .preferredColorScheme(isDarkMode ? .dark : .light)
+    }
+
+    private var conteudo: some View {
         ZStack {
             CalmTheme.backgroundGradient.ignoresSafeArea()
 

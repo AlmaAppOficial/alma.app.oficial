@@ -21,15 +21,9 @@ final class VoiceInputController: ObservableObject {
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
 
-    /// O que já foi ditado ANTES desta rodada de reconhecimento.
-    ///
-    /// [2026-08-04] O Assis narrou o bug enquanto gravava a tela: "se eu paro de
-    /// falar por 1 segundo, apaga o que eu falei anteriormente". Era literal —
-    /// o `SFSpeechRecognizer` devolve `isFinal` depois de uma pausa curta, a
-    /// tarefa encerra, e a rodada seguinte começa com uma `bestTranscription`
-    /// nova, do zero. Como o código fazia `transcript = ...` (atribuição), tudo
-    /// o que ele tinha falado antes ia embora.
-    private var ditadoAcumulado = ""
+    /// Junta os enunciados do ditado. Ver `AcumuladorDeDitado` para a história
+    /// das duas explicações erradas que dei antes de achar a causa real.
+    private var acumulador = AcumuladorDeDitado()
 
     func toggle() {
         if isRecording {
@@ -96,18 +90,20 @@ final class VoiceInputController: ObservableObject {
             audioEngine.prepare()
             try audioEngine.start()
 
-            // NÃO zera o que já foi ditado: a rodada nova ACRESCENTA.
-            ditadoAcumulado = transcript.isEmpty ? "" : transcript + " "
+            // Preserva o que já estava escrito no campo.
+            acumulador.semear(textoExistente: transcript)
             isRecording = true
 
             task = recognizer.recognitionTask(with: request) { [weak self] result, error in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
                     if let result {
-                        self.transcript = self.ditadoAcumulado + result.bestTranscription.formattedString
+                        // A junção acontece AQUI, na fronteira de enunciado —
+                        // não no start(), que só roda quando se toca no botão.
+                        self.transcript = self.acumulador.receber(
+                            result.bestTranscription.formattedString)
                         if result.isFinal {
-                            // Fecha o trecho e guarda como base da próxima rodada.
-                            self.ditadoAcumulado = self.transcript
+                            self.transcript = self.acumulador.encerrar()
                             self.teardown()
                         }
                     }
@@ -552,12 +548,17 @@ struct ChatView: View {
         .padding(.horizontal, 16)
     }
 
-    // MARK: - Faixa de transcrição ao vivo [Build 85 — 2026-07-31]
-    // Enquanto o ditado está ativo, mostra o texto reconhecido rolando sozinho
-    // para o fim — o Assis relatou não conseguir acompanhar a frase inteira.
-    // O campo de entrada cresce até 5 linhas; esta faixa garante que o trecho
-    // MAIS RECENTE esteja sempre visível, mesmo em falas longas.
-    private var liveTranscriptStrip: some View {
+    // MARK: - Faixa de transcrição ao vivo [Build 85 — REMOVIDA em 2026-08-04]
+    //
+    // Existia para o texto ditado ficar sempre visível em falas longas. O efeito
+    // colateral foi pior que o problema: duplicava o texto do campo de entrada,
+    // ocupava até 96 pt acima dele e cortava a última mensagem da Alma.
+    // Decisão do Assis, com os prints do build 90 na mão: um campo só.
+    //
+    // Mantida abaixo, sem uso, por uma versão — se a legibilidade em falas
+    // longas voltar a incomodar, a saída é o próprio campo rolar para o fim,
+    // não uma segunda caixa.
+    private var liveTranscriptStripRemovida: some View {
         ScrollViewReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
                 Text(inputText.isEmpty ? "Pode falar…" : inputText)
@@ -598,9 +599,15 @@ struct ChatView: View {
     // MARK: - Input Bar
     private var inputBar: some View {
         VStack(spacing: 4) {
-            if voice.isRecording {
-                liveTranscriptStrip
-            }
+            // [2026-08-04 — decisão do Assis: "não deve haver duplicação"]
+            // A faixa de transcrição ao vivo saiu daqui. Ela repetia, acima do
+            // campo, exatamente o mesmo texto que já aparecia dentro dele —
+            // dois campos empilhados mostrando a mesma frase, comendo quase
+            // metade da tela e cortando o último balão da Alma.
+            //
+            // Agora o texto ditado vai DIRETO para o campo de entrada normal, e
+            // o indicador de "ouvindo" mora nele. Um campo só, um placeholder
+            // só. A `liveTranscriptStrip` foi removida junto.
 
             // [Build 84] Contador discreto quando o texto se aproxima do limite
             if inputText.count > ChatLimits.counterVisibleFrom {

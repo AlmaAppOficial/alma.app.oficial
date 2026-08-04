@@ -15,16 +15,19 @@ struct SaudeView: View {
 
     @State private var showPaywall = false
 
-    // Peso e IMC preferem o Apple Saúde quando disponível.
-    private var currentWeight: Double { health.bodyMass ?? model.weightKg }
+    // [2026-08-04] Era `health.bodyMass ?? model.weightKg` — o Apple Saúde
+    // ganhava sempre, e o peso digitado nunca chegava à tela. Ver PesoVigente
+    // para a história inteira e a precedência decidida pelo Assis.
+    private var pesoDecidido: (kg: Double, origem: OrigemDoPeso) {
+        PesoVigente.decidir(digitado: model.weightKg, appleSaude: health.bodyMass)
+    }
+    private var currentWeight: Double { pesoDecidido.kg }
 
     /// [2026-08-03 — BUG B5] Opcional de propósito: sem peso/altura não existe
     /// IMC, e a tela precisa ser obrigada a lidar com isso. Antes, 0/0 = NaN
     /// era exibido como "nan" e classificado como "Obesidade".
     private var currentIMC: Double? {
-        guard currentWeight > 0, model.heightCm > 0 else { return nil }
-        let valor = currentWeight / pow(model.heightCm / 100, 2)
-        return valor.isFinite ? valor : nil
+        PesoVigente.imc(pesoKg: currentWeight, alturaCm: model.heightCm)
     }
 
     var body: some View {
@@ -50,10 +53,21 @@ struct SaudeView: View {
                     // era a constante 62 bpm (BUG B6): o app exibia como medida
                     // um número que nunca foi medido em ninguém.
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
-                        bodyStat("Peso", medida(currentWeight, casas: 1), "kg", "scalemass.fill", Theme.primary, fromHealth: health.bodyMass != nil)
+                        // `fromHealth` agora segue a ORIGEM decidida, não a mera
+                        // existência de um dado no HealthKit — senão o card
+                        // exibia o peso digitado com o rótulo do Apple Saúde.
+                        bodyStat("Peso", medida(currentWeight, casas: 1), "kg", "scalemass.fill", Theme.primary, fromHealth: pesoDecidido.origem.veioDoAppleSaude)
                         bodyStat("Altura", medida(model.heightCm, casas: 0), "cm", "ruler.fill", Theme.azure, fromHealth: false)
                         bodyStat("Gordura", medida(model.bodyFat, casas: 1), "%", "drop.triangle.fill", Theme.coral, fromHealth: false)
                         bodyStat("FC repouso", health.restingHeartRate.map { "\(Int($0))" } ?? "—", "bpm", "heart.fill", Theme.violet, fromHealth: health.restingHeartRate != nil)
+                    }
+
+                    // [2026-08-04] Diz de ONDE veio o peso. Metade da confusão
+                    // do Assis foi não saber qual dos dois números estava vendo.
+                    if pesoDecidido.origem != .ausente {
+                        Text("Peso \(pesoDecidido.origem.rotulo).")
+                            .font(.caption)
+                            .foregroundColor(Theme.inkSoft)
                     }
 
                     SectionTitle(text: "Apple Saúde · ao vivo")

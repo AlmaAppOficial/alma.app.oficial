@@ -475,6 +475,96 @@ enum AuditoriaBloqueadores {
               prometeVolume("Conversas ilimitadas com a Alma"),
               prometeVolume("Conversas ilimitadas com a Alma") ? "acusou" : "DETECTOR CEGO")
 
+        // ── A20 · ditado: duas rodadas de fala com pausa no meio ────────────
+        //
+        // [2026-08-04] ESTE é o caminho onde o bug vive e que nenhum teste meu
+        // cobria: a pessoa fala, PARA alguns segundos, e fala de novo — SEM
+        // tocar no botão. A sequência abaixo é exatamente o que o
+        // SFSpeechRecognizer entrega nesse cenário (cresce dentro do enunciado,
+        // recomeça do zero no enunciado seguinte), e foi reproduzida a partir
+        // dos cinco prints do build 90.
+        var acc = AcumuladorDeDitado()
+        var saida = ""
+        // 1ª rodada
+        saida = acc.receber("Vou")
+        saida = acc.receber("Vou falar")
+        // ── pausa ── o reconhecedor recomeça, trazendo SÓ a fala nova
+        saida = acc.receber("Mas")
+        saida = acc.receber("Mas não sei")
+        saida = acc.receber("Mas não sei se vai ficar salvo aqui")
+        checa("A20a", "duas rodadas com pausa: a primeira fala NÃO se perde",
+              saida == "Vou falar Mas não sei se vai ficar salvo aqui",
+              "\"\(saida)\"")
+
+        // Três rodadas, como nos prints dele.
+        var acc3 = AcumuladorDeDitado()
+        _ = acc3.receber("Vou falar")
+        _ = acc3.receber("Mas não sei se vai ficar salvo aqui")
+        let tres = acc3.receber("Se ficou algum segundo sem falar")
+        checa("A20b", "três rodadas mantêm tudo, na ordem",
+              tres == "Vou falar Mas não sei se vai ficar salvo aqui Se ficou algum segundo sem falar",
+              "\"\(tres)\"")
+
+        // Revisão do próprio enunciado NÃO pode virar duplicata.
+        var accRev = AcumuladorDeDitado()
+        _ = accRev.receber("Vou fala")
+        let revisado = accRev.receber("Vou falar")   // o motor corrigiu o final
+        checa("A20c", "revisão do enunciado não duplica texto",
+              revisado == "Vou falar", "\"\(revisado)\"")
+
+        // O que já estava digitado no campo é preservado.
+        var accSem = AcumuladorDeDitado()
+        accSem.semear(textoExistente: "Oi Alma")
+        let comSemente = accSem.receber("tudo bem")
+        checa("A20d", "texto já digitado sobrevive ao ligar o microfone",
+              comSemente == "Oi Alma tudo bem", "\"\(comSemente)\"")
+
+        // A regra de fronteira, isolada.
+        checa("A20e", "crescer é continuar; recomeçar não é",
+              AcumuladorDeDitado.continua(novo: "Vou falar", anterior: "Vou")
+                && !AcumuladorDeDitado.continua(novo: "Mas", anterior: "Vou falar"),
+              "crescer=true recomeçar=false")
+
+        // ── A19 · UMA verdade sobre o peso ──────────────────────────────────
+        // [2026-08-04] O Assis digitou 83,0 e a aba Saúde mostrou 82,7 (Apple
+        // Saúde). Precedência decidida: o digitado SEMPRE vence.
+        let comAmbos = PesoVigente.decidir(digitado: 83.0, appleSaude: 82.7)
+        checa("A19a", "com os dois, vence o que a pessoa digitou",
+              comAmbos.kg == 83.0 && comAmbos.origem == .digitado,
+              "\(comAmbos.kg) · \(comAmbos.origem.rotulo)")
+
+        let sóHealth = PesoVigente.decidir(digitado: 0, appleSaude: 82.7)
+        checa("A19b", "sem nada digitado, o Apple Saúde preenche",
+              sóHealth.kg == 82.7 && sóHealth.origem == .appleSaude,
+              "\(sóHealth.kg) · \(sóHealth.origem.rotulo)")
+
+        let semPesoNenhum = PesoVigente.decidir(digitado: 0, appleSaude: nil)
+        checa("A19c", "sem peso nenhum não inventa número",
+              semPesoNenhum.kg == 0 && semPesoNenhum.origem == OrigemDoPeso.ausente,
+              "\(semPesoNenhum.kg) · \(semPesoNenhum.origem.rotulo)")
+
+        // O IMC tem de sair do MESMO peso — eram dois IMCs para a mesma pessoa.
+        let imcDecidido = PesoVigente.imc(pesoKg: comAmbos.kg, alturaCm: 183)
+        checa("A19d", "o IMC usa o peso digitado, não o do Apple Saúde",
+              imcDecidido.map { abs($0 - 24.78) < 0.05 } ?? false,
+              imcDecidido.map { String(format: "%.2f", $0) } ?? "nil")
+
+        checa("A19e", "sem altura o IMC é nil, nunca NaN",
+              PesoVigente.imc(pesoKg: 83, alturaCm: 0) == nil, "nil")
+
+        // Persistência: o peso digitado sobrevive ao fechamento do app.
+        let suitePeso = "auditoria.peso"
+        UserDefaults().removePersistentDomain(forName: suitePeso)
+        let storePeso = UserDefaults(suiteName: suitePeso)!
+        let mPeso1 = AppModel(store: storePeso)
+        mPeso1.weightKg = 83.0
+        let mPeso2 = AppModel(store: storePeso)   // "reabre o app"
+        let reaberto = PesoVigente.decidir(digitado: mPeso2.weightKg, appleSaude: 82.7)
+        checa("A19f", "peso digitado sobrevive ao reabrir e continua vencendo",
+              reaberto.kg == 83.0 && reaberto.origem == OrigemDoPeso.digitado,
+              "\(reaberto.kg) · \(reaberto.origem.rotulo)")
+        UserDefaults().removePersistentDomain(forName: suitePeso)
+
         // ── A18 · pontuação de sono ─────────────────────────────────────────
         // [2026-08-04] Regra pura, exercitada com noites fabricadas. O valor de
         // cada asserção é impresso para o Assis conferir a conta na mão.
