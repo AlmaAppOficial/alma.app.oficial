@@ -1,0 +1,21 @@
+=== CADEIA COMPLETA — App Store Server Notifications V2 ===
+04/08/2026
+
+1. Autenticacao no App Store Server API (chave IAP 4Y98QV45J3):
+   SANDBOX    HTTP 400 / 4000006  AUTENTICOU
+   PRODUCTION HTTP 400 / 4000006  AUTENTICOU
+   (401 seria falha de chave; 4000006 = transacao inexistente)
+
+2. requestTestNotification:
+   PRODUCTION token 56fa58ab-ed2b-4c78-aeea-57b60a061baa_1785850577476
+   SANDBOX    ERRO 404 / 4040007 — URL de sandbox NAO cadastrada no ASC
+
+3. Entrega, segundo a Apple:
+   sendAttempts: [{attemptDate:1785850577508, sendAttemptResult:SUCCESS}]
+
+4. Persistido pelo endpoint (Firestore apple_notifications):
+   uuid 56fa58ab-ed2b-4c78-aeea-57b60a061baa
+   notificationType TEST | environment Production | processada false
+
+A persistencia so ocorre APOS a verificacao da assinatura: o documento
+existir e a prova de que a cadeia inteira funcionou.
