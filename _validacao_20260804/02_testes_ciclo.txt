@@ -1,0 +1,98 @@
+=== HEAD: 0618c48 — 04/08/2026 07:53 ===
+
+--- compilando cycle_tests ---
+compilou OK
+═══ CycleCalculatorTests — 2026-08-04 06:53:04 +0000 ═══
+
+— Grupo 1: paridade com referência clínica (cenário dos prints) —
+  ✅ dia do ciclo em 28/07 (Flo: 9) → 9
+  ✅ dia da ovulação (Flo: dia 15 = 03/08) → 15
+  ✅ próxima menstruação (Flo: 18/08) → 18/08/2026
+  ✅ dias até a próxima menstruação → 21
+  ✅ não está atrasada → false
+  ✅ janela fértil começa (dia) → 10
+  ✅ janela fértil termina (dia) → 16
+  ✅ fase no dia 9 (menstruação de 4d → folicular) → follicular
+
+— Grupo 2: contagem por dia de calendário —
+  ✅ 23:30 → 00:10 do dia seguinte é dia 2 → 2
+  ✅ mesmo dia (09h → 22h) é dia 1 → 1
+  ✅ registro no futuro clampa em dia 1 → 1
+
+— Grupo 3: ciclo atrasado continua contando —
+  ✅ dia 37 (código antigo mostrava 9) → 37
+  ✅ isLate → true
+  ✅ dias de atraso → 9
+  ✅ próxima prevista rola para frente → 17/08/2026
+  ✅ fase em atraso = lútea → luteal
+
+— Grupo 4: viradas de mês e de ano —
+  ✅ 25/07 → 01/08 é dia 8 → 8
+  ✅ próxima menstruação 22/08 → 22/08/2026
+  ✅ 20/12/2026 → 05/01/2027 é dia 17 → 17
+  ✅ próxima menstruação 17/01/2027 → 17/01/2027
+
+— Grupo 5: ano bissexto —
+  ✅ 01/02/2028 + ciclo 28 = 29/02/2028 (bissexto) → 29/02/2028
+  ✅ 01/02/2027 + ciclo 28 = 01/03/2027 (não bissexto) → 01/03/2027
+
+— Grupo 6: previsão caindo hoje —
+  ✅ previsão de hoje retorna HOJE (não pula ciclo) → 28/07/2026
+  ✅ daysUntil = 0 → UI mostra 'Hoje' → 0
+  ✅ registrada hoje → próxima em 28 dias → 25/08/2026
+
+— Grupo 7: ciclos curtos (clamps) —
+  ✅ ciclo 21 → ovulação dia 7 → 7
+  ✅ ciclo 21 → fértil começa dia 2 → 2
+  ✅ ciclo 21 → fértil termina dia 8 → 8
+  ✅ ciclo 14 → ovulação clampada em 1 → 1
+  ✅ ciclo 14 → fértil começa dia 1 (sem negativo) → 1
+  ✅ ciclo 14 → fértil termina dia 2 → 2
+
+— Grupo 8: fases do ciclo —
+  ✅ dia 1 = menstruação → menstrual
+  ✅ dia 5 = menstruação → menstrual
+  ✅ dia 6 = folicular → follicular
+  ✅ dia 12 = folicular → follicular
+  ✅ dia 13 = ovulação (ov−1) → ovulation
+  ✅ dia 14 = ovulação → ovulation
+  ✅ dia 15 = ovulação (ov+1) → ovulation
+  ✅ dia 16 = lútea → luteal
+  ✅ dia 28 = lútea → luteal
+  ✅ menstruação 4d → dia 5 é folicular → follicular
+  ✅ menstruação 7d → dia 7 é menstruação → menstrual
+  ✅ periodLength > ciclo não quebra → menstrual
+
+— Grupo 9: histórico / média / variação —
+  ✅ nº de ciclos completos → 2
+  ✅ ciclo 1 (21/05–22/06) = 32 dias → 32
+  ✅ ciclo 2 (22/06–20/07) = 28 dias → 28
+  ✅ média = 30 → 30
+  ✅ variação mín → 28
+  ✅ variação máx → 32
+  ✅ 28–32 é REGULAR (Δ4 ≤ 7) → true
+  ✅ irregular mín → 24
+  ✅ irregular máx → 38
+  ✅ 24–38 é IRREGULAR (Δ14 > 7) → false
+  ✅ intervalos implausíveis (365d, 9d) ignorados → 0
+  ✅ mesmo dia não duplica no histórico → 1
+  ✅ registro retroativo entra ordenado (primeiro) → 21/05/2026
+  ✅ último início continua sendo 20/07 → 20/07/2026
+  ✅ histórico limitado a 24 registros → 24
+
+— Grupo 10: gravidez —
+  ✅ semanas gestacionais (DPP 01/10, hoje 28/07) → 30
+  ✅ semana 13 → 1º trimestre → 1
+  ✅ semana 14 → 2º trimestre → 2
+  ✅ semana 27 → 2º trimestre (bug antigo dava 3º) → 2
+  ✅ semana 28 → 3º trimestre → 3
+  ✅ pós-DPP clampa em 42 semanas → 42
+  ✅ DPP distante → 0 semanas (sem negativo) → 0
+
+— Grupo 11: mesmo resultado em UTC e São Paulo —
+  ✅ dia do ciclo em São Paulo → 9
+  ✅ dia do ciclo em UTC → 9
+
+
+═══ RESULTADO: 67 passaram, 0 falharam ═══
+exit=0

@@ -36,6 +36,40 @@ enum SmokeTestTelas {
         UserDefaults.standard.bool(forKey: "smokeTelas")
     }
 
+    /// [2026-08-04] Salva o PNG de cada tela renderizada.
+    ///
+    /// A conferência visual estava pendente desde a revisão de 03/08 e as duas
+    /// tentativas por screenshot do simulador falharam: a de 03/08 gerou cinco
+    /// capturas idênticas, e a de hoje mostrou a Home do Alma porque
+    /// `-abrirCorpo` não apresenta o `fullScreenCover`. Em vez de insistir na
+    /// navegação, saímos pelo lado que JÁ funciona — o `ImageRenderer` que
+    /// varre as 43 telas — e pedimos a ele a imagem que ele já produz.
+    ///
+    /// Vantagem sobre o screenshot: não depende de navegação, de toque nem de
+    /// diálogo do sistema, e cobre 43 telas em vez de 5.
+    /// Limite honesto: é a árvore SwiftUI renderizada fora da tela — sem
+    /// animação, sem barra de status, sem teclado.
+    static var salvarPNGs: Bool {
+        UserDefaults.standard.bool(forKey: "capturarTelas")
+    }
+
+    private static var pastaDeCapturas: URL? {
+        guard salvarPNGs else { return nil }
+        let base = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("capturas", isDirectory: true)
+        try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        return base
+    }
+
+    private static func salvar(_ imagem: UIImage, como nome: String) {
+        guard let pasta = pastaDeCapturas, let png = imagem.pngData() else { return }
+        let limpo = nome
+            .replacingOccurrences(of: " · ", with: "__")
+            .replacingOccurrences(of: " ", with: "_")
+            .replacingOccurrences(of: "/", with: "-")
+        try? png.write(to: pasta.appendingPathComponent("\(limpo).png"))
+    }
+
     private static func log(_ t: String) { NSLog("%@", "[SMOKE] " + t) }
 
     static func executar() {
@@ -59,26 +93,63 @@ enum SmokeTestTelas {
 
         /// Renderiza a view. Qualquer crash mata o processo aqui — e o log já
         /// registrou o nome antes, então a tela culpada fica identificada.
+        // [2026-08-04 — O HARNESS ESTAVA MENTINDO]
+        //
+        // Até aqui isto usava `ImageRenderer` e dava a tela por aprovada quando
+        // `renderer.uiImage != nil`. Ao salvar os PNGs pela primeira vez, hoje,
+        // apareceu o que a asserção nunca ia pegar: das 43 telas saíam **9
+        // imagens distintas** — as do Corpo eram o placeholder amarelo com a
+        // faixa vermelha (SwiftUI dizendo "não consigo representar isto") e as
+        // do Alma eram só o gradiente de fundo, sem um único elemento.
+        //
+        // Ou seja: o `body` das telas quase nunca rodava. "43/43 sem crash" era
+        // verdade sobre o renderer, não sobre o app — um `nil` que nunca vinha.
+        // Um `fatalError` dentro de uma lista jamais teria sido alcançado.
+        //
+        // Agora a tela é montada num `UIWindow` de verdade, com
+        // `UIHostingController`, layout forçado e uma volta do run loop — que é
+        // o caminho pelo qual o SwiftUI realmente constrói o `body`. Se algo
+        // explodir, explode aqui, como explodiria no aparelho.
         func render<V: View>(_ nome: String, _ view: V) {
             log("→ \(nome)")
-            let renderer = ImageRenderer(content:
-                view
-                    .frame(width: 393, height: 852)   // iPhone 15/16 lógico
-                    .environmentObject(model)
-                    .environmentObject(health)
-                    .environmentObject(store)
-                    .environmentObject(access)
-                    .environmentObject(storeAlma)
-                    .environmentObject(hk)
-            )
-            renderer.scale = 1
-            if renderer.uiImage != nil {
-                testadas += 1
-                log("  ok   \(nome)")
-            } else {
-                falhas.append(nome)
-                log("  VAZIA \(nome) (renderizou nil)")
+
+            let conteudo = view
+                // Mesmo locale da raiz do app: sem isto a captura mostraria
+                // números formatados diferente da tela real.
+                .environment(\.locale, Locale(identifier: "pt_BR"))
+                .environmentObject(model)
+                .environmentObject(health)
+                .environmentObject(store)
+                .environmentObject(access)
+                .environmentObject(storeAlma)
+                .environmentObject(hk)
+
+            let quadro = CGRect(x: 0, y: 0, width: 393, height: 852)  // iPhone 15/16 lógico
+            let host = UIHostingController(rootView: AnyView(conteudo))
+            host.view.frame = quadro
+            host.view.backgroundColor = .systemBackground
+
+            let janela = UIWindow(frame: quadro)
+            janela.rootViewController = host
+            janela.isHidden = false          // sem estar "na tela", o body não roda
+            janela.layoutIfNeeded()
+            host.view.setNeedsLayout()
+            host.view.layoutIfNeeded()
+            // Uma volta curta do run loop: é aqui que o SwiftUI resolve o body,
+            // dispara os onAppear e monta as listas.
+            RunLoop.current.run(until: Date().addingTimeInterval(0.12))
+
+            let desenhista = UIGraphicsImageRenderer(bounds: quadro)
+            let imagem = desenhista.image { _ in
+                host.view.drawHierarchy(in: quadro, afterScreenUpdates: true)
             }
+
+            testadas += 1
+            salvar(imagem, como: nome)
+            log("  ok   \(nome)")
+
+            janela.isHidden = true
+            janela.rootViewController = nil
         }
 
         log("═════ ALMA ═════")

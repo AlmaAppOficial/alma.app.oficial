@@ -1,0 +1,28 @@
+───────── início ─────────
+[Contexto de hoje — 04/08, 08:22]
+Movimento: 7.432 passos · 26 min de exercício
+Sono: 6h30 na noite passada
+Meditação: 12 min hoje · sequência de 4 dias
+Alimentação hoje: 1 refeição marcada, sem alimentos registrados
+Água: 1,5 L hoje (60% da meta)
+Treino: já treinou hoje · 1 vez nos últimos 7 dias
+Peso: 79,5 kg
+Suplementos: 1 de 1 tomados hoje
+Perfil: objetivo manter a forma · restrições alimentares: alergia a amendoim · limitações: hérnia de disco
+Humor: semana emocionalmente pesada
+(488 de 600 caracteres)
+───────── por fonte (os 12) ─────────
+ 1. passos chega  7.432 passos  [semeado]
+ 2. exercício chega  26 min  [semeado]
+ 3. sono chega  6h30 na noite passada  [semeado]
+ 4. meditação chega  12 min hoje  [semeado]
+ 5. sequência chega  4 dia(s)  [semeado]
+ 6. alimentação chega  Alimentação hoje: 1 refeição marcada, sem alimentos registrados
+ 7. água chega  Água: 1,5 L hoje (60% da meta)
+ 8. treino chega  Treino: já treinou hoje · 1 vez nos últimos 7 dias
+ 9. peso chega  Peso: 79,5 kg
+10. suplementos chega  Suplementos: 1 de 1 tomados hoje
+11. perfil chega  Perfil: objetivo manter a forma · restrições alimentares: alergia a amendoim · limitações: hérnia de disco
+12. humor chega  semana emocionalmente pesada
+───────── placar: 12 de 12 chegam à IA ─────────
+───────── fim ─────────

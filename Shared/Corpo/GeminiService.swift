@@ -133,6 +133,37 @@ enum GeminiService {
 
     // MARK: - Análise corporal
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // ⛔️ GATE DE PRIVACIDADE — LEIA ANTES DE LIGAR A IA DO SCAN [2026-08-04]
+    //
+    // Hoje `GeminiConfig.isAvailable == false` (não há key no bundle), então
+    // NADA daqui roda: o scan cai na estimativa por medidas e nenhuma foto sai
+    // do aparelho. A copy do app foi escrita para essa realidade.
+    //
+    // NO DIA EM QUE ALGUÉM PUSER UMA KEY (ou apontar para um backend), este
+    // método passa a enviar PARA FORA DO APARELHO:
+    //     • as duas fotos do corpo (frente e lado);
+    //     • peso, altura, idade, % de gordura e objetivo.
+    //
+    // A COPY PRECISA MUDAR ANTES, não depois. Quatro lugares:
+    //     1. OnboardingBiometricsView — "Fica só no seu aparelho."
+    //     2. ProfileView — cartões "Inteligência Artificial" e "Armazenamento".
+    //     3. BodyScanView — a tela onde a pessoa tira as fotos.
+    //     4. PrivacyInfo.xcprivacy + App Privacy no ASC.
+    //
+    // Texto proposto para esse dia (as duas versões estão em
+    // docs/GATE_SCAN_IA_20260804.md, junto com a recomendação de arquitetura):
+    //
+    //     "Para gerar o plano, suas duas fotos e suas medidas são enviadas
+    //      criptografadas para análise e apagadas logo depois. Nada é
+    //      guardado, nem usado para treinar modelo nenhum. Você decide a cada
+    //      envio — e pode usar a estimativa por medidas, sem foto."
+    //
+    // Recomendação (detalhada no doc): NÃO reativar a chamada direta com key
+    // embarcada. Passar pela Cloud Function, como o chat já faz, e exigir
+    // consentimento explícito POR ENVIO.
+    // ═══════════════════════════════════════════════════════════════════════
+
     /// Analisa fotos corporais + medidas e gera plano personalizado.
     static func analyzeBody(input: ScanInput) async throws -> ScanResult {
         let prompt = """

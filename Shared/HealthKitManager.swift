@@ -276,6 +276,9 @@ class HealthKitManager: ObservableObject {
     /// Minutos de exercício de hoje (anel verde da Apple). `nil` quando não há
     /// dado ou autorização — a UI e o contexto distinguem "zero" de "sem dado".
     nonisolated func exerciseMinutesToday() async -> Int? {
+        #if DEBUG
+        if SementeDeSaude.ligada { return SementeDeSaude.exercicioMinutos }
+        #endif
         guard HKHealthStore.isHealthDataAvailable(),
               HKQuantityType.quantityType(forIdentifier: .appleExerciseTime) != nil else { return nil }
         let minutes = await fetchTodaySum(.appleExerciseTime, unit: .minute())
@@ -285,6 +288,9 @@ class HealthKitManager: ObservableObject {
     /// Minutos de atenção plena de hoje, somando TODAS as fontes do Saúde
     /// (Alma, Corpo & Alma, Apple Watch, outros apps).
     nonisolated func mindfulMinutesToday() async -> Int? {
+        #if DEBUG
+        if SementeDeSaude.ligada { return SementeDeSaude.mindfulMinutos }
+        #endif
         guard HKHealthStore.isHealthDataAvailable(),
               let type = HKCategoryType.categoryType(forIdentifier: .mindfulSession) else { return nil }
 
@@ -307,6 +313,9 @@ class HealthKitManager: ObservableObject {
 
     /// Passos de hoje (`nil` quando não há dado/autorização).
     nonisolated func stepsToday() async -> Int? {
+        #if DEBUG
+        if SementeDeSaude.ligada { return SementeDeSaude.passos }
+        #endif
         guard HKHealthStore.isHealthDataAvailable() else { return nil }
         let steps = await fetchTodaySum(.stepCount, unit: .count())
         return steps > 0 ? Int(steps) : nil
@@ -314,6 +323,9 @@ class HealthKitManager: ObservableObject {
 
     /// Horas de sono da noite passada (`nil` quando não há dado/autorização).
     nonisolated func lastNightSleepHours() async -> Double? {
+        #if DEBUG
+        if SementeDeSaude.ligada { return SementeDeSaude.sonoHoras }
+        #endif
         guard HKHealthStore.isHealthDataAvailable() else { return nil }
         let hours = await fetchYesterdaySleepHours()
         return hours > 0 ? hours : nil

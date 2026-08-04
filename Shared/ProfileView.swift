@@ -498,7 +498,13 @@ struct AboutView: View {
                         body: "A Alma nasceu para ser sua companheira de bem-estar emocional. Acreditamos que cuidar da mente é tão importante quanto cuidar do corpo — e que todos merecem acesso a uma mentora empática, disponível a qualquer hora.\n\nNossa missão é democratizar o apoio emocional e tornar o mindfulness acessível a todos.")
 
                     aboutCard(icon: "brain.head.profile", color: CalmTheme.primary, title: "Como Funciona",
-                        body: "A Alma usa inteligência artificial avançada para ouvi-la sem julgamentos. As sessões de chat são processadas de forma segura e seus dados de saúde são lidos diretamente do Apple Health — nunca saem do seu dispositivo.\n\nAs meditações guiadas e os sons terapêuticos são desenvolvidos com base em evidências científicas sobre bem-estar.")
+                        // [2026-08-04 — A15] Dizia "seus dados de saúde… nunca
+                        // saem do seu dispositivo". Era falso desde que o
+                        // contexto de saúde entrou no chat: o dado BRUTO fica,
+                        // mas um resumo curto do dia acompanha a conversa. A
+                        // frase certa é a que já estava em "O que a Alma pode
+                        // ver" — agora as duas dizem a mesma coisa.
+                        body: "A Alma usa inteligência artificial para ouvi-la sem julgamentos. As sessões de chat são processadas de forma segura.\n\nSeus dados de saúde são lidos diretamente do Apple Health e ficam no aparelho: o que pode acompanhar a conversa é um resumo curto do seu dia (por exemplo, \"6h30 de sono, 7.432 passos\") — e só das categorias que você autorizar em \"O que a Alma pode ver\". Nada é enviado com tudo desligado.\n\nAs meditações guiadas e os sons terapêuticos são desenvolvidos com base em evidências científicas sobre bem-estar.")
 
                     aboutCard(icon: "cpu", color: .orange, title: "Tecnologia",
                         body: "Construída com SwiftUI para uma experiência nativa no iOS e Apple Watch. Integrada com HealthKit para dados de saúde em tempo real. A IA conversacional é alimentada por modelos de linguagem de última geração.\n\nTodos os dados sensíveis são criptografados e sua privacidade é nossa prioridade.")
@@ -568,7 +574,10 @@ struct PrivacyView: View {
                         body: "A Alma não contém publicidade. Não vendemos seus dados a anunciantes. Nosso modelo de negócio baseia-se apenas nas assinaturas — o que significa que nossos interesses estão sempre alinhados com os seus.")
 
                     privacyCard(icon: "icloud.and.arrow.down", color: .blue, title: "Armazenamento e Segurança",
-                        body: "Os dados da conta são armazenados criptografados. Usamos Firebase Authentication com conexões seguras. Seus dados biométricos nunca saem do seu dispositivo Apple — processados localmente pelo iOS.")
+                        // [2026-08-04 — A15] "Dados biométricos" era ambíguo:
+                        // dava para ler como as medidas do corpo. Aqui sempre
+                        // se falou de Face ID / Touch ID — agora está escrito.
+                        body: "Os dados da conta são armazenados criptografados. Usamos Firebase Authentication com conexões seguras. Face ID e Touch ID são processados pelo próprio iOS e nunca chegam ao app nem a nós.")
 
                     privacyCard(icon: "hand.raised.fill", color: .red, title: "Seus Direitos (Proteção de Dados)",
                         body: "Você tem direito a acessar, corrigir ou excluir todos os dados pessoais que temos sobre você. Para exercer esses direitos, entre em contato em privacidade@almaapp.pt. Responderemos em até 30 dias úteis, conforme a LGPD e o RGPD.")
