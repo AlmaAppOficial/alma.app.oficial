@@ -1,0 +1,11 @@
+usuário de teste: bGjLOeJFAD…
+
+✓ (a) requisição normal responde — HTTP 200 · resposta com 80 chars
+✓ (c) usuário SEM entitlement é tratado como não-assinante — passou pelo caminho do não-assinante (limite 20/h) sem erro
+✓ (d) payload de 1500 chars continua funcionando — 1500 chars → HTTP 200
+  · entitlement gravado e rajadaMax baixado para 3 (teste controlado)
+✓ (b) guarda de rajada devolve 429 — disparou na 2ª chamada · mensagem: "Muitas mensagens em poucos minutos. Respire — daqui a pouco a gente continua."
+
+limpeza: config/limites, entitlements, rate_limits e usuário de teste removidos
+
+═══ TODAS AS VERIFICAÇÕES PASSARAM ═══
