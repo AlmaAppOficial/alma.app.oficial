@@ -144,6 +144,84 @@ enum SmokeTestTelas {
         var body: some View { Color(red: 0.95, green: 0.94, blue: 0.98) }
     }
 
+    // MARK: - Conferência de aparência (claro × escuro) [2026-08-04]
+    //
+    // Por que esta função existe: a conferência por `simctl launch -corpoAba N`
+    // NÃO funciona. Tentei três vezes hoje e nas três o app abriu na Home do
+    // Alma em vez do módulo Corpo — o `fullScreenCover` não apresenta a partir
+    // do `.task`, nem com o estado começando `false`, nem com espera. Numa
+    // dessas rodadas os md5 passaram a diferir e quase engoli a prova: era o
+    // RELÓGIO da barra de status virando o minuto, não a tela mudando.
+    //
+    // Aqui a aparência é imposta na própria view (`.environment(\.colorScheme,)`)
+    // e a tela é montada no mesmo `UIWindow` de verdade que o smoke usa — o
+    // caminho pelo qual o SwiftUI realmente resolve o `body`. Não depende de
+    // navegação, de toque nem de flag de lançamento.
+    //
+    // LIMITE HONESTO desta técnica: `drawHierarchy` não reproduz fielmente
+    // blur, vibrancy e o vidro do iOS 26. Serve para julgar CONTRASTE DE TEXTO
+    // sobre card — que é exatamente o risco do modo escuro neste app (texto
+    // adaptativo sobre card de cor fixa foi o que gerou a rejeição de julho).
+    // Não serve para julgar a barra de abas flutuante.
+    static func conferenciaDeAparencia() {
+        guard UserDefaults.standard.bool(forKey: "conferenciaAparencia") else { return }
+
+        let model = AppModel()
+        let health = HealthManager()
+        let store = StoreManager()
+        let access = AccessManager()
+        let storeAlma = StoreKitManager()
+        let hk = HealthKitManager()
+
+        log("═════ APARÊNCIA — 5 ABAS DO CORPO × 2 ═════")
+
+        func renderizar<V: View>(_ nome: String, _ view: V, _ esquema: ColorScheme) {
+            let conteudo = view
+                .environment(\.locale, Locale(identifier: "pt_BR"))
+                .environment(\.colorScheme, esquema)
+                .environmentObject(model)
+                .environmentObject(health)
+                .environmentObject(store)
+                .environmentObject(access)
+                .environmentObject(storeAlma)
+                .environmentObject(hk)
+
+            let quadro = CGRect(x: 0, y: 0, width: 393, height: 852)
+            let host = UIHostingController(rootView: AnyView(conteudo))
+            host.overrideUserInterfaceStyle = esquema == .dark ? .dark : .light
+            host.view.frame = quadro
+
+            let janela = UIWindow(frame: quadro)
+            janela.overrideUserInterfaceStyle = host.overrideUserInterfaceStyle
+            janela.rootViewController = host
+            janela.isHidden = false
+            janela.layoutIfNeeded()
+            host.view.setNeedsLayout()
+            host.view.layoutIfNeeded()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.20))
+
+            let desenhista = UIGraphicsImageRenderer(bounds: quadro)
+            let imagem = desenhista.image { _ in
+                host.view.drawHierarchy(in: quadro, afterScreenUpdates: true)
+            }
+            let rotulo = "\(esquema == .dark ? "escuro" : "claro") · \(nome)"
+            salvar(imagem, como: rotulo)
+            log("  \(rotulo) — energia \(String(format: "%.2f", energiaDeBorda(imagem)))")
+
+            janela.isHidden = true
+            janela.rootViewController = nil
+        }
+
+        for esquema in [ColorScheme.light, .dark] {
+            renderizar("1 Inicio", CorpoHomeView(), esquema)
+            renderizar("2 Saude", SaudeView(), esquema)
+            renderizar("3 Dieta", DietaView(), esquema)
+            renderizar("4 Treino", TreinoView(), esquema)
+            renderizar("5 Insights", CorpoInsightsView(), esquema)
+        }
+        log("═════ FIM APARÊNCIA ═════")
+    }
+
     static func executar() {
         guard ligado else { return }
 

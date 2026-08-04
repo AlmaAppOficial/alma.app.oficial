@@ -331,6 +331,40 @@ class HealthKitManager: ObservableObject {
         return hours > 0 ? hours : nil
     }
 
+    /// A noite passada COM os estágios, quando o aparelho os grava.
+    ///
+    /// [2026-08-04] Existe para a pontuação de sono. Usa a mesma janela de
+    /// `fetchYesterdaySleepHours` — se as duas divergissem, o card e a linha da
+    /// IA falariam de madrugadas diferentes. A montagem é da função pura
+    /// `NoiteDeSono.montar`, compartilhada com o módulo Corpo.
+    nonisolated func lastNightSleep() async -> NoiteDeSono? {
+        guard HKHealthStore.isHealthDataAvailable() else { return nil }
+        let cal = Calendar.current
+        let now = Date()
+        let ontem = cal.date(byAdding: .day, value: -1, to: now) ?? now
+        let inicio = cal.date(bySettingHour: 18, minute: 0, second: 0, of: ontem) ?? ontem
+        let meioDia = cal.date(bySettingHour: 12, minute: 0, second: 0, of: now) ?? now
+        let fim = meioDia < now ? meioDia : now
+
+        if let noite = await sleepStages(from: inicio, to: fim) { return noite }
+        // Mesmo fallback de 48 h da duração: quem dormiu fora da janela típica.
+        let fallback = cal.date(byAdding: .hour, value: -48, to: now) ?? now
+        return await sleepStages(from: fallback, to: now)
+    }
+
+    nonisolated private func sleepStages(from start: Date, to end: Date) async -> NoiteDeSono? {
+        guard let type = HKCategoryType.categoryType(forIdentifier: .sleepAnalysis) else { return nil }
+        let pred = HKQuery.predicateForSamples(withStart: start, end: end)
+        return await withCheckedContinuation { (cont: CheckedContinuation<NoiteDeSono?, Never>) in
+            let q = HKSampleQuery(sampleType: type, predicate: pred,
+                                  limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+                let cats = (samples ?? []).compactMap { $0 as? HKCategorySample }
+                cont.resume(returning: NoiteDeSono.montar(cats.compactMap(traduzirAmostraDeSono)))
+            }
+            self.store.execute(q)
+        }
+    }
+
     nonisolated private func fetchTodaySum(_ id: HKQuantityTypeIdentifier, unit: HKUnit) async -> Double {
         let start = Calendar.current.startOfDay(for: Date())
         return await fetchRangeSum(id, unit: unit, from: start, to: Date())

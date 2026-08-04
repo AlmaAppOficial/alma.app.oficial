@@ -17,11 +17,15 @@ struct HomeView: View {
     /// sem depender de automação de toque.
     /// [2026-08-03 — A13] A flag só existe em DEBUG. Compilada em Release, era
     /// um caminho de teste embarcado no app da loja.
-    #if DEBUG
-    @State private var showCorpoModule = UserDefaults.standard.bool(forKey: "abrirCorpo")
-    #else
+    /// [2026-08-04] Começa SEMPRE `false`, inclusive em DEBUG. Nascer `true` era
+    /// o bug: um `.fullScreenCover` que já começa apresentado não apresenta —
+    /// SwiftUI só reage à MUDANÇA do binding. O comentário do `.task` já
+    /// descrevia esse defeito, mas a correção parou no meio: o `.task` mandava
+    /// `true` num estado que já era `true`, ou seja, não mandava nada.
+    /// Resultado: `-abrirCorpo 1` continuava caindo na Home do Alma, e as
+    /// conferências visuais de 03/08 e 04/08 fotografaram a tela errada duas
+    /// vezes. Quem liga a flag agora é só o `.task`.
     @State private var showCorpoModule = false
-    #endif
 
     @ObservedObject private var streakManager = StreakManager.shared
     @ObservedObject private var perfil = UserProfileStore.shared
@@ -109,18 +113,38 @@ struct HomeView: View {
             // Alma achando que eram as 5 abas do Corpo. Agora a flag vira o
             // estado depois da tela existir.
             #if DEBUG
-            if UserDefaults.standard.bool(forKey: "abrirCorpo") { showCorpoModule = true }
+            // [2026-08-04, 3ª tentativa] Só mudar o estado no `.task` também não
+            // bastava: o `.task` dispara durante o primeiro layout, antes da
+            // view estar na janela, e uma apresentação pedida nesse instante é
+            // engolida. As duas conferências anteriores fotografaram a Home do
+            // Alma por causa disso — e a segunda me enganou porque os md5
+            // diferiam: era o RELÓGIO da barra de status mudando de minuto, não
+            // a tela. Meio segundo de espera resolve, e é código de DEBUG.
+            if UserDefaults.standard.bool(forKey: "abrirCorpo") {
+                try? await Task.sleep(nanoseconds: 600_000_000)
+                showCorpoModule = true
+            }
             #endif
             authorized = await hk.requestAuthorization()
             if authorized { await hk.loadAll() }
             #if DEBUG
-            await MainActor.run { AuditoriaBloqueadores.executar() }
-            await TesteAudio.executar()
-            await MainActor.run { SmokeTestTelas.executar() }
-            await MainActor.run { TestePersistencia.executar() }
+            // [2026-08-04] `-soVisual 1` pula os harnesses pesados. A conferência
+            // visual capturava a Home do Alma no lugar das abas do Corpo porque
+            // o auditor, o teste de áudio, o smoke de 43 telas e o de
+            // persistência rodam AQUI, no MainActor, logo depois de ligar o
+            // `fullScreenCover` — e seguravam a apresentação além do tempo da
+            // captura. As sementes ficam: sem elas as telas apareceriam vazias.
+            let soVisual = UserDefaults.standard.bool(forKey: "soVisual")
+            await MainActor.run { SmokeTestTelas.conferenciaDeAparencia() }
+            if !soVisual {
+                await MainActor.run { AuditoriaBloqueadores.executar() }
+                await TesteAudio.executar()
+                await MainActor.run { SmokeTestTelas.executar() }
+                await MainActor.run { TestePersistencia.executar() }
+            }
             await MainActor.run { DebugContextDump.semearPerfil() }
             await MainActor.run { DebugContextDump.semearSaude() }
-            await DebugContextDump.executar(health: hk)
+            if !soVisual { await DebugContextDump.executar(health: hk) }
             #endif
         }
         .fullScreenCover(isPresented: $showCorpoModule) {
@@ -373,7 +397,9 @@ struct HomeView: View {
                         .font(.title3.bold())
                         .foregroundColor(.white)
                     Text(access.isPremium
-                         ? "Sua mentora de bem-estar esta pronta para te ouvir"
+                         // [2026-08-04] "esta" sem acento, no card mais visto do
+                         // app — apareceu na captura real do modo escuro.
+                         ? "Sua mentora de bem-estar está pronta para te ouvir"
                          : (FreemiumLimits.chatHasFreeQuota
                             ? "\(FreemiumLimits.chatMessagesPerDay) mensagens grátis por dia · Toque para conversar"
                             : "Recurso Premium · Toque para conhecer"))

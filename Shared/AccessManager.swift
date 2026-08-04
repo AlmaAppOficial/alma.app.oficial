@@ -54,6 +54,65 @@ enum FreemiumLimits {
     }
 }
 
+// MARK: - OrigemDoAcesso [2026-08-04]
+//
+// O app sabia SE a pessoa é premium e não sabia POR QUÊ. Isso bastava enquanto
+// a única coisa a fazer com a resposta era liberar telas. Parou de bastar
+// quando a tela de gestão do plano precisou dizer a verdade para o assinante:
+//
+//   • quem comprou na App Store tem o que gerenciar (renovação, cancelamento) —
+//     e o lugar disso é a folha nativa da Apple, não uma tela nossa;
+//   • quem tem o acesso herdado do Corpo & Alma NÃO tem assinatura ativa: não
+//     há nada a renovar nem a cancelar, e mandá-lo para a folha da Apple seria
+//     um beco sem saída;
+//   • quem assinou fora do app gerencia onde assinou.
+//
+// Sem esta distinção, a tela ou mente ("gerencie sua assinatura" para quem não
+// tem uma) ou some com a informação. Por isso a origem é publicada.
+enum OrigemDoAcesso: String {
+    case nenhuma
+    /// Compra ativa na App Store (StoreKit 2 `currentEntitlements`).
+    case appStore
+    /// Custom claim do Firebase — assinatura contratada fora do app.
+    case web
+    /// Entitlement herdado do Corpo & Alma. Permanente, sem renovação.
+    case legado
+
+    var rotulo: String {
+        switch self {
+        case .nenhuma:  return "Sem assinatura ativa"
+        case .appStore: return "Assinatura ativa pela App Store"
+        case .web:      return "Assinatura contratada fora do app"
+        case .legado:   return "Acesso liberado pela sua assinatura do Corpo & Alma"
+        }
+    }
+
+    var explicacao: String {
+        switch self {
+        case .nenhuma:
+            return "Você usa a parte gratuita do Alma."
+        case .appStore:
+            return "A cobrança e a renovação são da Apple. Dá para ver o valor, "
+                 + "trocar de plano ou cancelar na sua conta Apple."
+        case .web:
+            return "Esta assinatura não foi comprada dentro do app, então ela "
+                 + "não aparece na sua conta Apple. Gerencie onde você a contratou."
+        case .legado:
+            return "É um acesso permanente que você ganhou por ter assinado o "
+                 + "Corpo & Alma. Não há cobrança nem renovação — e por isso "
+                 + "também não há nada para cancelar."
+        }
+    }
+
+    /// Só quem comprou pela App Store tem o que gerenciar lá.
+    var temAssinaturaNaApple: Bool { self == .appStore }
+
+    /// Lista explícita para o auditor varrer todos os textos.
+    /// Não uso `CaseIterable` de propósito: um caso novo tem de ser acrescentado
+    /// aqui À MÃO, e é isso que obriga quem o criar a olhar para as asserções.
+    static let allCasesDoAlma: [OrigemDoAcesso] = [.nenhuma, .appStore, .web, .legado]
+}
+
 @MainActor
 class AccessManager: ObservableObject {
 
@@ -63,6 +122,9 @@ class AccessManager: ObservableObject {
     @Published var isPremium: Bool = false
     @Published var isChecking: Bool = true
 
+    /// De onde vem o acesso premium desta pessoa. Ver `OrigemDoAcesso`.
+    @Published var origem: OrigemDoAcesso = .nenhuma
+
     init() {
         // Ouvir mudanças de autenticação Firebase
         authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -71,6 +133,7 @@ class AccessManager: ObservableObject {
                     await self?.checkAccess(user: user)
                 } else {
                     self?.isPremium = false
+                    self?.origem = .nenhuma
                     self?.isChecking = false
                     // Logout: derruba o flag compartilhado para o Corpo & Alma
                     // não continuar desbloqueado por uma sessão antiga do Alma.
@@ -101,12 +164,19 @@ class AccessManager: ObservableObject {
         isChecking = true
         let previousValue = isPremium
 
+        // A ordem abaixo também define a PRECEDÊNCIA da origem: a assinatura
+        // da App Store vence, porque é a única que a pessoa consegue gerenciar
+        // por conta própria dentro do iPhone.
+        var origemApurada: OrigemDoAcesso = .nenhuma
+
         // 1. Verificar StoreKit — Apple IAP tem prioridade
         if await checkStoreKitEntitlement() {
             isPremium = true
+            origemApurada = .appStore
         } else {
             // 2. Fallback: Firebase Custom Claims (subscritores web / Stripe)
             await checkFirebaseClaims(user: user)
+            if isPremium { origemApurada = .web }
         }
 
         // 3. Entitlement HERDADO do Corpo & Alma — permanente, sem prazo.
@@ -115,9 +185,11 @@ class AccessManager: ObservableObject {
         if !isPremium {
             if LegacyEntitlementStore.isGranted {
                 isPremium = true
+                origemApurada = .legado
             } else if await LegacyEntitlementStore.restoreFromAccount() {
                 // Aparelho novo / reinstalação: o carimbo veio da conta.
                 isPremium = true
+                origemApurada = .legado
             }
         }
 
@@ -127,7 +199,12 @@ class AccessManager: ObservableObject {
         if Self.corpoAlmaPremiumActive() {
             LegacyEntitlementStore.grant(reason: "ponte App Group com o Corpo & Alma")
             isPremium = true
+            // Só assume a origem legada se não houver compra de verdade: quem
+            // paga na App Store tem de ver a assinatura que paga.
+            if origemApurada == .nenhuma { origemApurada = .legado }
         }
+
+        origem = isPremium ? origemApurada : .nenhuma
 
         // Publica o estado atual para o Corpo & Alma (lado Alma da ponte).
         publishToSharedBridge()
@@ -174,6 +251,7 @@ class AccessManager: ObservableObject {
     func refresh() async {
         guard let user = Auth.auth().currentUser else {
             isPremium = false
+            origem = .nenhuma
             isChecking = false
             return
         }

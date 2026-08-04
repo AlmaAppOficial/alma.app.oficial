@@ -1,3 +1,17 @@
+// ⛔️ ARQUIVO MORTO — NÃO COMPILA E NÃO PODE VOLTAR COMO ESTÁ. [2026-08-04]
+//
+// Zero referências no `project.pbxproj`. Guardado como histórico.
+//
+// Traz TRÊS preços escritos à mão que não existem no App Store Connect:
+// "R$ 24,99/mês" (duas vezes) e "Apenas R$ 399 para sempre". O preço real é
+// R$ 49,90/mês a partir de 06/08 — e mesmo esse não deve virar literal: quem
+// diz o preço é o StoreKit (`Product.displayPrice`), na moeda e no storefront
+// de quem está olhando.
+//
+// Além do preço, a ideia de preço dinâmico por perfil de usuário esbarra na
+// Guideline 3.1.2: o valor exibido tem de ser o valor cobrado, e o mesmo para
+// todo mundo no mesmo território.
+
 import Foundation
 import FirebaseAnalytics
 

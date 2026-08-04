@@ -12,6 +12,7 @@ struct ProfileView: View {
     @State private var showAboutSheet = false
     @State private var showPrivacySheet = false
     @State private var showPaywall = false
+    @State private var showGestaoDoPlano = false
     @State private var notifStatus: UNAuthorizationStatus = .notDetermined
     @State private var showNotifDeniedAlert = false
     /// [Build 85 / 2.0] Espelho em memória do consentimento por categoria,
@@ -128,11 +129,24 @@ struct ProfileView: View {
                 .environmentObject(access)
                 .environmentObject(store)
         }
+        .sheet(isPresented: $showGestaoDoPlano) {
+            GestaoDoPlanoView()
+                .environmentObject(access)
+                .environmentObject(store)
+        }
     }
 
     // MARK: - Premium Row
+    //
+    // [2026-08-04] Esta linha mandava TODO MUNDO para o `PremiumWallView`,
+    // inclusive quem já assina. O subtítulo dizia "Você é Premium" e o toque
+    // abria a tela de venda com o botão "Assinar Alma Premium". Agora a porta
+    // depende de quem bate nela: assinante vai para a gestão do plano, não
+    // assinante vai para a oferta.
     private var premiumRow: some View {
-        Button(action: { showPaywall = true }) {
+        Button(action: {
+            if access.isPremium { showGestaoDoPlano = true } else { showPaywall = true }
+        }) {
             HStack(spacing: 12) {
                 Image(systemName: "star.circle.fill")
                     .font(.body)
@@ -163,9 +177,11 @@ struct ProfileView: View {
         "Alma Premium"
     }
 
+    /// [2026-08-04] Para o assinante, a linha passa a anunciar o que ele vai
+    /// encontrar do outro lado (gestão), não um elogio ("Você é Premium") que
+    /// terminava numa tela de venda.
     private var premiumRowSubtitle: String {
-        if access.isPremium { return "Você é Premium" }
-        return "Conheça os benefícios"
+        access.isPremium ? "Ativo · ver e gerenciar seu plano" : "Conheça os benefícios"
     }
 
     // MARK: - Alma Brand Header

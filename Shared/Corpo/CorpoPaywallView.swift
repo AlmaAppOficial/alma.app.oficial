@@ -3,9 +3,23 @@
 //  Corpo & Alma
 //
 //  Tela de assinatura — plano Premium (modelo freemium, igual ao Alma).
-//  Não há oferta introdutória cadastrada no App Store Connect: a cobrança
-//  começa na compra. Todo texto de teste gratuito é condicionado a
-//  StoreManager.isEligibleForIntroOffer, que só fica true se a oferta existir.
+//
+//  [2026-08-04 — bug de app relatado pelo Assis]
+//  Esta tela carregava DOIS preços escritos à mão ("R$ 199,90/ano" e
+//  "R$ 24,99/mês") como fallback de quando o StoreKit não respondia. Nenhum dos
+//  dois existe no App Store Connect. Um app que mostra um preço e cobra outro é
+//  a infração 3.1.2(c) na veia — e, pior que a infração, é uma mentira para a
+//  pessoa que está prestes a pagar.
+//
+//  Regra agora: TODO preço desta tela vem de `Product.displayPrice`, no
+//  storefront e na moeda do usuário. Sem produto carregado não há número
+//  nenhum — a tela ADMITE que não conseguiu carregar e oferece nova tentativa.
+//  Preço inventado nunca mais.
+//
+//  Consequência prática: o plano ANUAL não existe no ASC (grupo 22008487 só tem
+//  o mensal). Por isso ele simplesmente NÃO aparece — em vez de aparecer com um
+//  valor fantasia ou com um botão que leva a lugar nenhum. No dia em que o
+//  produto anual for criado, ele aparece sozinho, sem tocar em código.
 //
 
 import SwiftUI
@@ -22,7 +36,8 @@ struct CorpoPaywallView: View {
         case anual, mensal
         var id: String { rawValue }
         var title: String { self == .anual ? "Anual" : "Mensal" }
-        var price: String { self == .anual ? "R$ 199,90/ano" : "R$ 24,99/mês" }
+        /// Sufixo do período. O VALOR vem sempre do StoreKit — aqui só o "/ano".
+        var sufixo: String { self == .anual ? "/ano" : "/mês" }
         var highlight: Bool { self == .anual }
     }
 
@@ -52,11 +67,88 @@ struct CorpoPaywallView: View {
         p == .anual ? store.annualProduct : store.monthlyProduct
     }
 
-    private func priceText(_ p: Plan) -> String {
-        if let product = storeProduct(p) {
-            return product.displayPrice + (p == .anual ? "/ano" : "/mês")
+    /// Planos que a App Store realmente vende agora. Um plano sem produto
+    /// carregado não é oferecido — não há preço para mostrar, e mostrar um
+    /// plano sem preço é convidar a pessoa para um beco sem saída.
+    static func planosVendaveis(anual: Product?, mensal: Product?) -> [Plan] {
+        Plan.allCases.filter { $0 == .anual ? anual != nil : mensal != nil }
+    }
+
+    private var planosVendaveis: [Plan] {
+        Self.planosVendaveis(anual: store.annualProduct, mensal: store.monthlyProduct)
+    }
+
+    /// `nil` quando não há produto. Quem chama é obrigado a lidar com a
+    /// ausência — é isso que impede o retorno silencioso a um valor inventado.
+    private func priceText(_ p: Plan) -> String? {
+        guard let product = storeProduct(p) else { return nil }
+        return product.displayPrice + p.sufixo
+    }
+
+    /// O que a tela diz no lugar do preço quando não há produto.
+    /// [2026-08-04] Texto de INDISPONIBILIDADE, nunca um número de reserva.
+    static let precoIndisponivel = "Preço indisponível agora"
+    static let precoIndisponivelDetalhe =
+        "Não consegui falar com a App Store. O valor e o período aparecem aqui "
+      + "antes de qualquer cobrança — nada é cobrado sem a Apple confirmar."
+
+    // MARK: - Oferta introdutória
+    //
+    // [2026-08-04] Aqui havia `if store.isEligibleForIntroOffer { Text("7 dias
+    // grátis antes da primeira cobrança.") }`. Dois erros num `if` só:
+    //
+    //   1. o "7 dias" era escrito à mão e não corresponde a oferta nenhuma —
+    //      não existe oferta introdutória cadastrada no ASC;
+    //   2. `isEligibleForIntroOffer` responde *"esta pessoa PODERIA receber uma
+    //      oferta introdutória"*, e não *"existe uma oferta introdutória"*. Num
+    //      produto sem oferta cadastrada — exatamente o nosso caso — ele volta
+    //      `true` para todo mundo que nunca assinou. A promessa de trial
+    //      aparecia, portanto, para TODO usuário novo.
+    //
+    // Agora o texto é derivado da oferta que o StoreKit entrega. Sem oferta,
+    // sem frase. E o período vem da Apple, não de mim.
+
+    /// Descrição da oferta a partir do que a Apple devolve — nunca escrita à mão.
+    static func descricaoDaOferta(_ oferta: Product.SubscriptionOffer) -> String? {
+        let periodo = textoDePeriodo(oferta.period)
+        if oferta.paymentMode == .freeTrial {
+            return "\(periodo) grátis antes da primeira cobrança."
         }
-        return p.price
+        if oferta.paymentMode == .payUpFront {
+            return "\(oferta.displayPrice) pelo primeiro período de \(periodo)."
+        }
+        if oferta.paymentMode == .payAsYouGo {
+            return "\(oferta.displayPrice) por \(periodo) e depois o valor cheio."
+        }
+        return nil
+    }
+
+    static func textoDePeriodo(_ p: Product.SubscriptionPeriod) -> String {
+        let n = p.value
+        let unidade: String
+        switch p.unit {
+        case .day:   unidade = n == 1 ? "dia" : "dias"
+        case .week:  unidade = n == 1 ? "semana" : "semanas"
+        case .month: unidade = n == 1 ? "mês" : "meses"
+        case .year:  unidade = n == 1 ? "ano" : "anos"
+        @unknown default: unidade = "período"
+        }
+        return "\(n) \(unidade)"
+    }
+
+    private var textoDaOfertaIntrodutoria: String? {
+        guard let produto = storeProduct(plan),
+              let oferta = produto.subscription?.introductoryOffer,
+              store.isEligibleForIntroOffer else { return nil }
+        return Self.descricaoDaOferta(oferta)
+    }
+
+    /// Se o plano selecionado não é vendável (caso do anual hoje), cai para o
+    /// primeiro que é. Sem isto a tela abriria já apontando para um plano sem
+    /// preço e com o botão desabilitado.
+    private func ajustarPlanoSelecionado() {
+        guard !planosVendaveis.contains(plan), let primeiro = planosVendaveis.first else { return }
+        plan = primeiro
     }
 
     /// Só conclui a compra com um produto real do StoreKit. Sem produto → não faz nada
@@ -136,20 +228,27 @@ struct CorpoPaywallView: View {
 
                     // [2026-07-28] 3.1.2(c): o VALOR COBRADO é o elemento de preço
                     // mais claro e conspícuo do fluxo (título grande, branco puro,
-                    // imediatamente acima do CTA). O trial aparece apenas como nota
-                    // subordinada, em fonte menor.
+                    // imediatamente acima do CTA).
                     VStack(spacing: 4) {
-                        Text(priceText(plan))
-                            .font(.title.bold())
-                            .foregroundStyle(.white)
-                        // [2026-07-28] NÃO existe oferta introdutória cadastrada
-                        // no App Store Connect — o modelo é freemium (acesso
-                        // gratuito limitado + assinatura). A cobrança começa na
-                        // compra. A guarda `isEligibleForIntroOffer` fica como
-                        // rede de segurança: se um dia a oferta for criada em
-                        // ASC, o texto volta sozinho e correto.
-                        if store.isEligibleForIntroOffer {
-                            Text("7 dias grátis antes da primeira cobrança.")
+                        if let preco = priceText(plan) {
+                            Text(preco)
+                                .font(.title.bold())
+                                .foregroundStyle(.white)
+                        } else {
+                            // [2026-08-04] Aqui morava o preço inventado. Agora a
+                            // tela diz a verdade: não sei o preço, então não te
+                            // mostro número nenhum.
+                            Text(Self.precoIndisponivel)
+                                .font(.title3.bold())
+                                .foregroundStyle(.white)
+                            Text(Self.precoIndisponivelDetalhe)
+                                .font(.footnote)
+                                .foregroundStyle(.white.opacity(0.9))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 8)
+                        }
+                        if let intro = textoDaOfertaIntrodutoria {
+                            Text(intro)
                                 .font(.footnote)
                                 .foregroundStyle(.white.opacity(0.9))
                                 .multilineTextAlignment(.center)
@@ -160,9 +259,9 @@ struct CorpoPaywallView: View {
 
                     // [2026-07-28] Guideline 4 (tipografia): caption2 a 70% de opacidade
                     // sobre gradiente era ilegível — subido para footnote a 90%.
-                    Text(store.isEligibleForIntroOffer
-                         ? "Renovação automática. Você pode cancelar a qualquer momento em Ajustes > Apple ID > Assinaturas. O teste gratuito de 7 dias converte no plano escolhido se não for cancelado."
-                         : "Renovação automática. Você pode cancelar a qualquer momento em Ajustes > Apple ID > Assinaturas.")
+                    // [2026-08-04] A variante longa citava "o teste gratuito de 7
+                    // dias" com o número escrito à mão. Saiu junto com o resto.
+                    Text("Renovação automática. Você pode cancelar a qualquer momento em Ajustes > Apple ID > Assinaturas.")
                         .font(.footnote)
                         .foregroundStyle(.white.opacity(0.9))
                         .multilineTextAlignment(.center)
@@ -234,7 +333,10 @@ struct CorpoPaywallView: View {
 
     private var plansSelector: some View {
         VStack(spacing: 12) {
-            ForEach(Plan.allCases) { p in
+            // [2026-08-04] Era `ForEach(Plan.allCases)`: o plano anual aparecia
+            // sempre, com preço chumbado, mesmo não existindo no App Store
+            // Connect. Agora só entra na lista o plano que a App Store vende.
+            ForEach(planosVendaveis) { p in
                 Button { plan = p } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 3) {
@@ -256,7 +358,7 @@ struct CorpoPaywallView: View {
                                 .foregroundStyle(Theme.inkSoft)
                         }
                         Spacer()
-                        Text(priceText(p))
+                        Text(priceText(p) ?? "—")
                             .font(.subheadline.bold())
                             .foregroundStyle(Theme.ink)
                         Image(systemName: plan == p ? "largecircle.fill.circle" : "circle")
@@ -296,7 +398,10 @@ struct CorpoPaywallView: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous))
         }
         .disabled(ctaDisabled)
-        .task { await store.load() }
+        .task {
+            await store.load()
+            ajustarPlanoSelecionado()
+        }
     }
 
     private var ctaTitle: String {

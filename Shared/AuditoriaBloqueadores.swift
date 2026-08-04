@@ -607,6 +607,154 @@ enum AuditoriaBloqueadores {
                 && PontuacaoDeSono.rodape.contains("não é avaliação clínica"),
               PontuacaoDeSono.rodape)
 
+        // ── A18 (montagem) · da amostra do aparelho para a noite ────────────
+        // [2026-08-04] A UI entrou nesta rodada, e com ela a tradução das
+        // amostras. Estas asserções exercitam a função PURA `NoiteDeSono.montar`
+        // com noites fabricadas — nenhuma encosta em dado de saúde real.
+        let base = Date(timeIntervalSince1970: 1_770_000_000)
+        func amostra(_ e: AmostraDeSono.Estagio, _ deHoras: Double, _ ateHoras: Double) -> AmostraDeSono {
+            AmostraDeSono(estagio: e,
+                          inicio: base.addingTimeInterval(deHoras * 3600),
+                          fim: base.addingTimeInterval(ateHoras * 3600))
+        }
+
+        // Noite classificada pelo relógio: 8 h no total, 1 despertar.
+        let comEstagios = NoiteDeSono.montar([
+            amostra(.leve, 0, 4.8),      // 4,8 h
+            amostra(.profundo, 4.8, 6.24), // 1,44 h = 18%
+            amostra(.rem, 6.24, 8.0),      // 1,76 h = 22%
+            amostra(.acordado, 8.0, 8.24)  // 0,24 h = 3%
+        ])
+        checa("A18g", "amostras com estágio viram noite pontuável",
+              comEstagios?.temEstagios == true && comEstagios?.despertares == 1,
+              "total=\(comEstagios?.totalDormido ?? -1) despertares=\(comEstagios?.despertares ?? -1)")
+
+        // O aparelho registrou sono mas NÃO classificou: não pode virar score.
+        let soIndeterminado = NoiteDeSono.montar([amostra(.indeterminado, 0, 7.5)])
+        checa("A18h", "sono sem classificação de estágio não vira pontuação",
+              soIndeterminado?.temEstagios == false
+                && PontuacaoDeSono.calcular(soIndeterminado!).pontos == nil,
+              "total=\(soIndeterminado?.totalDormido ?? -1) rem=\(String(describing: soIndeterminado?.rem))")
+
+        // "Na cama" (caso Garmin) dá duração, jamais pontuação.
+        let soNaCama = NoiteDeSono.montar([amostra(.naCama, 0, 7.0)])
+        checa("A18i", "'na cama' vira duração e nunca pontuação",
+              soNaCama?.totalDormido == 7.0 && soNaCama?.temEstagios == false
+                && PontuacaoDeSono.calcular(soNaCama!).pontos == nil,
+              "total=\(soNaCama?.totalDormido ?? -1)")
+
+        // [2026-08-04 — furo achado pela própria mutação] A18i sozinha era CEGA
+        // para o somatório: fiz `dormido` incluir `naCama` e ela continuou
+        // verde, porque a noite caía no ramo "sem classificação" e produzia o
+        // mesmo resultado. O caso que separa os dois é a noite MISTA — relógio
+        // classificando 6 h enquanto o iPhone registra 8 h "na cama" na mesma
+        // madrugada. Aí "na cama" inflar o total muda o número que a pessoa vê.
+        let mista = NoiteDeSono.montar([
+            amostra(.leve, 0, 3.6),
+            amostra(.profundo, 3.6, 4.68),
+            amostra(.rem, 4.68, 6.0),
+            amostra(.naCama, -0.5, 8.0)     // 8,5 h na cama, 6 h dormidas
+        ])
+        checa("A18m", "'na cama' NÃO infla o total quando há estágios",
+              mista?.totalDormido == 6.0,
+              "total=\(mista?.totalDormido ?? -1) (esperado 6.0)")
+
+        // Sem amostra nenhuma não existe noite — e a tela não pode inventar uma.
+        checa("A18j", "sem amostras não existe noite",
+              NoiteDeSono.montar([]) == nil,
+              NoiteDeSono.montar([]) == nil ? "nil" : "objeto fabricado")
+
+        // A linha que a IA recebe: existe com estágios, some sem eles.
+        let linhaIA = PontuacaoDeSono.linhaParaIA(PontuacaoDeSono.calcular(comEstagios!))
+        checa("A18k", "a linha da IA descreve, se declara estimativa e não recomenda",
+              linhaIA?.contains("estimativa do Alma") == true
+                && linhaIA?.contains("não é medida clínica") == true
+                && linhaIA?.lowercased().contains("tente") == false
+                && linhaIA?.lowercased().contains("procure") == false,
+              linhaIA ?? "nil")
+
+        checa("A18l", "sem estágios a IA não recebe pontuação nenhuma",
+              PontuacaoDeSono.linhaParaIA(PontuacaoDeSono.calcular(soNaCama!)) == nil,
+              "nil esperado")
+
+        // ── A23 · nenhum preço sai da cabeça de ninguém ─────────────────────
+        // [2026-08-04] O paywall do Corpo tinha "R$ 199,90/ano" e "R$ 24,99/mês"
+        // escritos no código, como fallback de quando o StoreKit não responde.
+        // Nenhum dos dois existe no App Store Connect. Estas asserções foram
+        // validadas por MUTAÇÃO: reintroduzi o `var price` chumbado e as vi
+        // ficarem vermelhas (evidência em _validacao_20260804/).
+
+        // A20a exercita a REGRA de quais planos entram na tela. É a única que
+        // pode ser exercitada sem App Store: `Product` não é construível fora
+        // do StoreKit, então a função recebe os opcionais e decide.
+        let semNenhum = CorpoPaywallView.planosVendaveis(anual: nil, mensal: nil)
+        checa("A23a", "sem produto carregado, NENHUM plano é oferecido",
+              semNenhum.isEmpty, "\(semNenhum.map(\.rawValue))")
+
+        // A20b: o enum não pode ter voltado a carregar preço. `Plan` só conhece
+        // título, sufixo de período e destaque — valor, nunca.
+        let sufixos = CorpoPaywallView.Plan.allCases.map(\.sufixo)
+        let titulos = CorpoPaywallView.Plan.allCases.map(\.title)
+        let comMoeda = (sufixos + titulos).filter {
+            $0.contains("R$") || $0.contains("$") || $0.rangeOfCharacter(from: .decimalDigits) != nil
+        }
+        checa("A23b", "o enum de planos não carrega valor em dinheiro",
+              comMoeda.isEmpty, comMoeda.isEmpty ? "\(titulos) \(sufixos)" : "\(comMoeda)")
+
+        // A20c: o texto de indisponibilidade não pode conter número nenhum —
+        // era exatamente aí que o preço inventado morava.
+        let textosDeFalta = [CorpoPaywallView.precoIndisponivel,
+                             CorpoPaywallView.precoIndisponivelDetalhe]
+        let comNumero = textosDeFalta.filter { $0.rangeOfCharacter(from: .decimalDigits) != nil }
+        checa("A23c", "sem produto, a tela não exibe número algum",
+              comNumero.isEmpty, comNumero.isEmpty ? "2 textos limpos" : "\(comNumero)")
+
+        // ── A21 · assinante não recebe oferta de compra ─────────────────────
+        // [2026-08-04] O Assis é Premium e as duas telas de gestão do plano
+        // abriam o paywall de venda. Validadas por mutação (invertendo a
+        // condição da porta).
+        checa("A21a", "só a origem App Store oferece gestão nativa da Apple",
+              OrigemDoAcesso.appStore.temAssinaturaNaApple
+                && !OrigemDoAcesso.legado.temAssinaturaNaApple
+                && !OrigemDoAcesso.web.temAssinaturaNaApple
+                && !OrigemDoAcesso.nenhuma.temAssinaturaNaApple,
+              "appStore=\(OrigemDoAcesso.appStore.temAssinaturaNaApple) "
+              + "legado=\(OrigemDoAcesso.legado.temAssinaturaNaApple)")
+
+        // O acesso herdado NÃO pode ser descrito como assinatura a gerenciar:
+        // mandar essa pessoa para a folha da Apple é um beco sem saída.
+        checa("A21b", "o acesso herdado se declara sem cobrança e sem renovação",
+              OrigemDoAcesso.legado.explicacao.contains("Não há cobrança nem renovação"),
+              OrigemDoAcesso.legado.explicacao)
+
+        // Nenhum rótulo de origem pode prometer valor, período ou trial.
+        let textosDeOrigem = OrigemDoAcesso.allCasesDoAlma.flatMap { [$0.rotulo, $0.explicacao] }
+        let origemQuePromete = textosDeOrigem.filter {
+            $0.contains("R$") || $0.lowercased().contains("grátis")
+                || $0.lowercased().contains("teste") || $0.lowercased().contains("dias")
+        }
+        checa("A21c", "nenhum texto da gestão do plano promete preço, prazo ou teste",
+              origemQuePromete.isEmpty,
+              origemQuePromete.isEmpty ? "\(textosDeOrigem.count) textos" : "\(origemQuePromete)")
+
+        // ── A22 · o trial não existe em lugar nenhum ────────────────────────
+        // [2026-08-04] "7 dias grátis" sobreviveu a três limpezas porque vivia
+        // em comentário e em texto guardado por um flag mal entendido
+        // (`isEligibleForIntroOffer` diz que a PESSOA é elegível, não que a
+        // OFERTA existe). Esta asserção varre os textos de assinatura exibíveis.
+        let textosDeAssinatura = [
+            CorpoPaywallView.precoIndisponivel,
+            CorpoPaywallView.precoIndisponivelDetalhe,
+            "Renovação automática. Você pode cancelar a qualquer momento em Ajustes > Apple ID > Assinaturas."
+        ] + textosDeOrigem
+        let comTrial = textosDeAssinatura.filter {
+            let t = $0.lowercased()
+            return t.contains("7 dias") || t.contains("sete dias") || t.contains("teste gratuito")
+                || t.contains("período gratuito") || t.contains("trial")
+        }
+        checa("A22a", "nenhuma promessa de teste grátis nos textos de assinatura",
+              comTrial.isEmpty, comTrial.isEmpty ? "\(textosDeAssinatura.count) textos" : "\(comTrial)")
+
         // ── A13 · migração do histórico de menstruação ──────────────────────
         // [2026-08-04] Verifica a REGRA, com entradas fabricadas, sem encostar
         // no Keychain: é dado de saúde real de uma pessoa. Ver o comentário de

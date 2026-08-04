@@ -18,15 +18,15 @@ final class StoreManager: ObservableObject {
     enum LoadState { case idle, loading, loaded, failed }
     @Published var loadState: LoadState = .idle
 
-    /// [2026-07-28] O usuário ainda pode receber os 7 dias grátis?
+    /// O usuário ainda teria direito a uma oferta introdutória, SE existisse uma?
     ///
-    /// A oferta introdutória é consumida uma única vez por Apple ID / grupo de
-    /// assinatura. A paywall só menciona o teste quando o StoreKit confirma a
-    /// elegibilidade — anunciar um trial que a App Store não vai honrar é
-    /// alegação enganosa (Guideline 3.1.2).
-    ///
-    /// Começa `false` e só vira `true` com confirmação: em falha de rede,
-    /// preferimos não anunciar um teste real a anunciar um inexistente.
+    /// ⚠️ [2026-08-04] Este flag NÃO diz que existe oferta. Ele responde apenas
+    /// se a PESSOA já consumiu uma oferta neste grupo de assinatura. Em produto
+    /// sem oferta cadastrada — o nosso caso — volta `true` para todo usuário
+    /// novo, e foi assim que "7 dias grátis" apareceu no paywall do Corpo para
+    /// quem nunca teve trial nenhum. Sozinho, ele nunca autoriza copy de
+    /// oferta: é preciso checar `introductoryOffer != nil` e ler dali o período
+    /// e o valor. Ver `CorpoPaywallView.descricaoDaOferta`.
     @Published var isEligibleForIntroOffer: Bool = false
 
     // [2026-08-03 — BUG B10 da revisão independente]

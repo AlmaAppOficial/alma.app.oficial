@@ -70,6 +70,9 @@ struct SaudeView: View {
                             .foregroundColor(Theme.inkSoft)
                     }
 
+                    SectionTitle(text: "Sono")
+                    cardDePontuacaoDeSono
+
                     SectionTitle(text: "Apple Saúde · ao vivo")
                     appleHealthCard
                 }
@@ -283,6 +286,121 @@ struct SaudeView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .cardStyle()
+    }
+
+    // MARK: - Pontuação de sono [2026-08-04]
+    //
+    // O cálculo já existia e estava provado; faltava a tela. Três coisas são
+    // obrigatórias aqui e nenhuma é decorativa:
+    //
+    //   1. UMA LINHA dizendo como a conta é feita. Um número de 0 a 100 sem
+    //      explicação vira superstição — a pessoa passa a perseguir o número
+    //      sem saber o que ele mede.
+    //   2. RODAPÉ dizendo que é estimativa do Alma, que não vem do Apple Saúde
+    //      e que não é avaliação clínica. Não existe score de sono no HealthKit;
+    //      deixar a dúvida no ar seria deixar a pessoa achar que é dado médico.
+    //   3. SEM NÚMERO quando faltam os estágios. Nesse caso a tela mostra a
+    //      duração e explica por que não há pontuação. Estimar a partir da
+    //      duração pura seria dar ar de precisão a um chute.
+    @ViewBuilder
+    private var cardDePontuacaoDeSono: some View {
+        let resultado = health.noiteDeSono.map(PontuacaoDeSono.calcular)
+
+        VStack(alignment: .leading, spacing: 14) {
+            if let r = resultado, let pontos = r.pontos {
+                HStack(spacing: 20) {
+                    ZStack {
+                        ProgressRing(progress: Double(pontos) / 100,
+                                     tint: Theme.violet, lineWidth: 12)
+                            .frame(width: 104, height: 104)
+                        VStack(spacing: 0) {
+                            Text("\(pontos)")
+                                .font(.title.bold())
+                                .foregroundStyle(Theme.ink)
+                            Text("de 100")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Theme.inkSoft)
+                        }
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(r.descricao)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(Theme.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(PontuacaoDeSono.explicacao)
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                }
+
+                // Como a conta se distribui — sem prometer precisão clínica.
+                VStack(spacing: 8) {
+                    ForEach(r.fatores, id: \.nome) { fator in
+                        HStack(spacing: 10) {
+                            Text(fator.nome)
+                                .font(.caption)
+                                .foregroundStyle(Theme.inkSoft)
+                                .frame(width: 108, alignment: .leading)
+                            ProgressView(value: fator.nota)
+                                .tint(Theme.violet)
+                            Text("\(Int((fator.nota * Double(fator.peso)).rounded()))/\(fator.peso)")
+                                .font(.caption.monospacedDigit())
+                                .foregroundStyle(Theme.inkSoft)
+                                .frame(width: 48, alignment: .trailing)
+                        }
+                    }
+                }
+            } else if let r = resultado, r.precisaDeEstagios {
+                // Tem sono, faltam estágios: mostra a duração e explica o porquê.
+                HStack(spacing: 14) {
+                    Image(systemName: "bed.double.fill")
+                        .font(.title2)
+                        .foregroundStyle(Theme.violet)
+                        .frame(width: 48, height: 48)
+                        .background(Theme.violet.opacity(0.14))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(r.descricao)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Theme.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(PontuacaoDeSono.semEstagios)
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                }
+            } else {
+                HStack(spacing: 14) {
+                    Image(systemName: "bed.double")
+                        .font(.title2)
+                        .foregroundStyle(Theme.inkSoft)
+                        .frame(width: 48, height: 48)
+                        .background(Theme.inkSoft.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Sem registro de sono na noite passada")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Theme.ink)
+                        Text("Quando o app Saúde tiver a sua noite, a pontuação aparece aqui.")
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                }
+            }
+
+            Divider()
+            Text(PontuacaoDeSono.rodape)
+                .font(.caption)
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
         .cardStyle()
     }
 

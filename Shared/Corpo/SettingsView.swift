@@ -11,10 +11,16 @@ struct SettingsView: View {
     @EnvironmentObject var model: AppModel
     @EnvironmentObject var health: HealthManager
     @EnvironmentObject var store: StoreManager
+    // [2026-08-04] Injetados pelo CorpoModuleView. `access` é a fonte única do
+    // "esta pessoa assina?" no app inteiro; `storeAlma` é o StoreKit do Alma,
+    // que a gestão do plano usa para restaurar compras.
+    @EnvironmentObject var access: AccessManager
+    @EnvironmentObject var storeAlma: StoreKitManager
     // [Fusão] auth removido — a conta é do Alma.
     @Environment(\.dismiss) private var dismiss
 
     @State private var showPaywall = false
+    @State private var showGestaoDoPlano = false
     @State private var showDisclaimer = false
     @State private var showEditAssessment = false
 
@@ -49,25 +55,28 @@ struct SettingsView: View {
                 }
 
                 // Assinatura
+                //
+                // [2026-08-04] O botão já dizia "Gerenciar plano" para o
+                // assinante — e abria o paywall de VENDA. Rótulo certo, destino
+                // errado: a pessoa que paga tocava em "gerenciar" e recebia
+                // "Assinar Alma Premium". Agora cada rótulo leva ao seu lugar.
+                //
+                // A fonte da verdade aqui passou a ser `access.isPremium`, a
+                // mesma que libera as telas no app inteiro. `hasPremiumAccess`
+                // do AppModel é uma leitura própria do módulo Corpo e podia
+                // divergir — dois donos da mesma pergunta.
                 Section("Assinatura") {
-                    Button { showPaywall = true } label: {
-                        Label(model.hasPremiumAccess ? "Gerenciar plano" : "Conhecer o Premium",
+                    Button {
+                        if access.isPremium { showGestaoDoPlano = true } else { showPaywall = true }
+                    } label: {
+                        Label(access.isPremium ? "Ver e gerenciar seu plano" : "Conhecer o Premium",
                               systemImage: "leaf.circle.fill")
                     }
-                    Button {
-                        Task {
-                            await store.restore()
-                            if store.hasActiveSubscription { model.activatePremium() }
-                        }
-                    } label: {
-                        Label("Restaurar compras", systemImage: "arrow.clockwise")
-                    }
-                    if model.isPremium {
-                        Button { AlmaBridge.openAlmaApp() } label: {
-                            Label("Sua assinatura também desbloqueia o Alma 💜 — Abrir o Alma",
-                                  systemImage: "arrow.up.forward.app.fill")
-                        }
-                    }
+                    // [2026-08-04] "Restaurar compras" saiu daqui: para o
+                    // assinante ele vive dentro da gestão do plano, e para o não
+                    // assinante ele já existe no paywall. Duplicado, ele fazia
+                    // `model.activatePremium()` — o caminho que carimba o
+                    // entitlement permanente no Keychain e nunca mais sai.
                 }
 
                 // Saúde e dispositivos
@@ -142,6 +151,11 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
+            .sheet(isPresented: $showGestaoDoPlano) {
+                GestaoDoPlanoView()
+                    .environmentObject(access)
+                    .environmentObject(storeAlma)
+            }
             .sheet(isPresented: $showDisclaimer) { HealthDisclaimerView() }
             .sheet(isPresented: $showEditAssessment) { EditAssessmentView() }
             .onChange(of: model.notifyWater) { _ in Task { await applyNotifications() } }

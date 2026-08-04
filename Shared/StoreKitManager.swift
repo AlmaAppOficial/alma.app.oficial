@@ -2,8 +2,19 @@
 // Alma App — In-App Purchase via Apple StoreKit 2
 //
 // Product IDs no App Store Connect:
-//   com.almaapp.app.premium_monthly  → Assinatura mensal com 7 dias grátis
-//   com.almaapp.app.premium_annual   → Assinatura anual com 7 dias grátis
+//   com.almaapp.app.premium_monthly  → Assinatura mensal (grupo 22008487)
+//   com.almaapp.app.premium_annual   → Assinatura anual — AINDA NÃO EXISTE no
+//                                      ASC. O app já sabe carregá-la; enquanto
+//                                      o produto não for criado, o StoreKit
+//                                      devolve só o mensal e nenhuma tela
+//                                      oferece o anual.
+//
+// [2026-08-04] Este cabeçalho dizia "Assinatura mensal com 7 dias grátis" e
+// "Assinatura anual com 7 dias grátis". NÃO HÁ TRIAL. Nunca houve oferta
+// introdutória cadastrada neste grupo de assinatura. O modelo é freemium:
+// parte do app é grátis, o Premium é pago desde a primeira cobrança. Comentário
+// errado vira copy errada na próxima pessoa que ler o arquivo — foi assim que
+// a promessa de 7 dias sobreviveu a três limpezas.
 //
 // Como verificar no App Store Connect:
 //   App Store Connect → Alma App Oficial → Monetização → Assinaturas
@@ -26,15 +37,17 @@ class StoreKitManager: ObservableObject {
     @Published var isPurchasing: Bool     = false
     @Published var purchaseError: String? = nil
 
-    /// [2026-07-28] O usuário ainda pode receber os 7 dias grátis?
+    /// O usuário ainda teria direito a uma oferta introdutória, SE existisse uma?
     ///
-    /// A oferta introdutória é consumida uma única vez por Apple ID / grupo de
-    /// assinatura. Sem checar isso, o app anunciava "7 dias grátis" para quem já
-    /// tinha usado o teste — promessa que a App Store não vai honrar. Quem sabe
-    /// a resposta é o StoreKit (`isEligibleForIntroOffer`), não o app.
+    /// ⚠️ Leia o nome com cuidado: `isEligibleForIntroOffer` responde sobre a
+    /// ELEGIBILIDADE DA PESSOA (ela já consumiu uma oferta neste grupo?), e não
+    /// sobre a EXISTÊNCIA da oferta. Num produto sem oferta cadastrada — o nosso
+    /// caso — ele devolve `true` para todo mundo que nunca assinou.
     ///
-    /// Começa `false` e só vira `true` quando o StoreKit confirma: na dúvida,
-    /// não prometemos nada.
+    /// Portanto esta propriedade sozinha NUNCA autoriza uma frase de trial na
+    /// tela. Quem quiser anunciar oferta tem de checar também
+    /// `product.subscription?.introductoryOffer != nil` e tirar o período e o
+    /// valor de lá. Ver `CorpoPaywallView.descricaoDaOferta`.
     @Published var isEligibleForIntroOffer: Bool = false
 
     // MARK: - Private

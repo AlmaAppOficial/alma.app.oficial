@@ -1,3 +1,19 @@
+// ⛔️ ARQUIVO MORTO — NÃO COMPILA E NÃO PODE VOLTAR COMO ESTÁ. [2026-08-04]
+//
+// Zero referências no `project.pbxproj`: este arquivo não entra em build
+// nenhum, e o `DynamicPricingManager` que ele usa também não. Ficam no repo
+// como histórico.
+//
+// Antes de reativar qualquer coisa daqui, apagar TODO preço escrito à mão:
+// há "R$ 24,99/mês" mais abaixo, e o `DynamicPricingManager` traz outros dois
+// além de "Apenas R$ 399 para sempre". Nenhum desses valores existe no App
+// Store Connect — o preço real é R$ 49,90/mês (a partir de 06/08) e sai do
+// StoreKit (`Product.displayPrice`), nunca de literal em Swift.
+//
+// A regra vale para o app inteiro: preço só do StoreKit; sem produto
+// carregado, estado de indisponível — nunca um valor de reserva. Ver
+// `CorpoPaywallView` e `SubscriptionView`.
+
 import SwiftUI
 import FirebaseAnalytics
 

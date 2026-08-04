@@ -19,6 +19,10 @@ final class HealthManager: ObservableObject {
     @Published var steps: Double?
     @Published var restingHeartRate: Double?
     @Published var sleepHours: Double?
+    /// [2026-08-04] A noite passada com os estágios, quando o aparelho os grava.
+    /// `nil` = não há dado. A tela decide o que mostrar; ela nunca preenche
+    /// buraco com número. Ver `PontuacaoDeSono`.
+    @Published var noiteDeSono: NoiteDeSono?
     @Published var bodyMass: Double?
     @Published var oxygen: Double?      // SpO2 em %
     @Published var hrv: Double?         // variabilidade (ms)
@@ -131,20 +135,20 @@ final class HealthManager: ObservableObject {
         let start = Calendar.current.date(byAdding: .hour, value: -30, to: Date()) ?? Date()
         let predicate = HKQuery.predicateForSamples(withStart: start, end: Date())
         let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self] _, samples, _ in
-            let asleep = (samples as? [HKCategorySample])?.filter { sample in
-                if #available(iOS 16.0, *) {
-                    return sample.value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue
-                        || sample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue
-                        || sample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue
-                        || sample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue
-                } else {
-                    return sample.value == HKCategoryValueSleepAnalysis.asleep.rawValue
-                }
-            } ?? []
-            let seconds = asleep.reduce(0.0) { $0 + $1.endDate.timeIntervalSince($1.startDate) }
-            Task { @MainActor in self?.sleepHours = seconds > 0 ? seconds / 3600 : nil }
+            let brutas = (samples as? [HKCategorySample]) ?? []
+            // [2026-08-04] Antes esta consulta só somava horas e jogava fora o
+            // ESTÁGIO de cada amostra — o dado mais rico que o relógio entrega.
+            // Agora a amostra é traduzida e a noite inteira é montada por uma
+            // função pura, compartilhada com o resto do app.
+            let noite = NoiteDeSono.montar(brutas.compactMap(traduzirAmostraDeSono))
+            Task { @MainActor in
+                self?.noiteDeSono = noite
+                // A duração exibida continua vindo da mesma soma de sempre.
+                self?.sleepHours = (noite?.totalDormido).flatMap { $0 > 0 ? $0 : nil }
+            }
         }
         store.execute(query)
     }
+
     #endif
 }

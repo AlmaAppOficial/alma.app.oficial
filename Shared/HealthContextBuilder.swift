@@ -66,6 +66,15 @@ struct HealthContextBuilder {
             if let sleep = await health.lastNightSleepHours() {
                 lines.append("Sono: \(Self.formatHours(sleep)) na noite passada")
             }
+
+            // [2026-08-04] A pontuação só viaja quando EXISTE — ou seja, quando
+            // o aparelho gravou os estágios. Sem estágios não há linha: a Alma
+            // recebe a duração e nada mais, exatamente como antes. O texto
+            // descreve e se declara estimativa; nunca recomenda (regra 3.2).
+            if let noite = await health.lastNightSleep(),
+               let linha = PontuacaoDeSono.linhaParaIA(PontuacaoDeSono.calcular(noite)) {
+                lines.append(linha)
+            }
         }
 
         // ── Meditação e sequência (dados do próprio Alma + HealthKit) ────────
@@ -155,6 +164,12 @@ struct HealthContextBuilder {
         if linha.hasPrefix("Perfil:") { return 0 }        // alergias e limitações
         if linha.hasPrefix("Humor:") { return 1 }         // sinal de sofrimento
         if linha.hasPrefix("Sono:") { return 2 }
+        // [2026-08-04] A pontuação é DERIVADA da duração, então é a primeira a
+        // sair quando o contexto não cabe: entre perder o número estimado e
+        // perder as horas reais, perde-se o estimado. (Explícito de propósito —
+        // ela já cairia no 9 por não ter o prefixo "Sono:", mas deixar isso
+        // implícito seria um acidente esperando a próxima refatoração.)
+        if linha.hasPrefix("Pontuação de sono:") { return 9 }
         if linha.hasPrefix("Movimento:") { return 3 }
         if linha.hasPrefix("Alimentação") { return 4 }
         if linha.hasPrefix("Meditação:") { return 5 }

@@ -157,6 +157,12 @@ struct CorpoHomeView: View {
                     watchStat(health.restingHeartRate.map { "\(Int($0))" } ?? "—", "bpm", "heart.fill")
                     Divider()
                     watchStat(health.sleepHours.map { String(format: "%.1fh", $0) } ?? "—", "sono", "bed.double.fill")
+                    Divider()
+                    // [2026-08-04] Número compacto da pontuação de sono. "—"
+                    // quando faltam os estágios: o card resumido nunca estima.
+                    // A conta, a explicação e o aviso de que é estimativa do
+                    // Alma ficam no card completo, na aba Saúde.
+                    watchStat(pontuacaoDeSonoCompacta ?? "—", "pontuação", "moon.stars.fill")
                 }
             } else {
                 Text("Conecte o app Saúde para puxar passos, batimentos e sono do seu relógio automaticamente.")
@@ -174,6 +180,14 @@ struct CorpoHomeView: View {
             }
         }
         .cardStyle()
+    }
+
+    /// `nil` quando não há noite com estágios — e aí o card mostra "—".
+    /// Nunca cai para uma estimativa a partir da duração pura.
+    private var pontuacaoDeSonoCompacta: String? {
+        guard let noite = health.noiteDeSono,
+              let pontos = PontuacaoDeSono.calcular(noite).pontos else { return nil }
+        return "\(pontos)"
     }
 
     private func watchStat(_ value: String, _ label: String, _ icon: String) -> some View {
