@@ -1,0 +1,11 @@
+
+✔  Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/alma-app-7dae6/overview
+✓ R1 cliente NÃO consegue se autoconceder assinatura — PATCH entitlements/mLuGXAfM… → HTTP 403
+✓ R2 cliente NÃO escreve no entitlement de outro — HTTP 403
+✓ R3 cliente LÊ o próprio entitlement — GET → HTTP 200
+✓ R4 cliente NÃO lê o entitlement de outro — HTTP 403
+✓ R5 cliente NÃO lê config/limites — HTTP 403
+
+═══ REGRA PROVADA ═══

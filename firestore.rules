@@ -7,6 +7,25 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // [2026-08-04] entitlements: a VERDADE sobre quem é assinante.
+    //
+    // Existe porque `users/{uid}` é gravável pelo dono (regra abaixo) e o app
+    // grava premium lá (LegacyEntitlementStore.swift:67). Se a Cloud Function
+    // lesse o premium daquele documento, qualquer pessoa se autoconcederia
+    // assinatura editando o próprio doc — furo de receita.
+    //
+    // Aqui o cliente LÊ o próprio estado (para a UI) e NUNCA escreve. Só o
+    // Admin SDK escreve, a partir das App Store Server Notifications V2.
+    match /entitlements/{uid} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // config/limites: lido pela Cloud Function (Admin SDK). Cliente não toca.
+    match /config/{doc} {
+      allow read, write: if false;
+    }
+
     // cada utilizador só acede aos seus próprios dados
     match /users/{userId} {
       allow read, write: if request.auth != null
