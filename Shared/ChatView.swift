@@ -21,6 +21,16 @@ final class VoiceInputController: ObservableObject {
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
 
+    /// O que já foi ditado ANTES desta rodada de reconhecimento.
+    ///
+    /// [2026-08-04] O Assis narrou o bug enquanto gravava a tela: "se eu paro de
+    /// falar por 1 segundo, apaga o que eu falei anteriormente". Era literal —
+    /// o `SFSpeechRecognizer` devolve `isFinal` depois de uma pausa curta, a
+    /// tarefa encerra, e a rodada seguinte começa com uma `bestTranscription`
+    /// nova, do zero. Como o código fazia `transcript = ...` (atribuição), tudo
+    /// o que ele tinha falado antes ia embora.
+    private var ditadoAcumulado = ""
+
     func toggle() {
         if isRecording {
             stop()
@@ -86,15 +96,18 @@ final class VoiceInputController: ObservableObject {
             audioEngine.prepare()
             try audioEngine.start()
 
-            transcript = ""
+            // NÃO zera o que já foi ditado: a rodada nova ACRESCENTA.
+            ditadoAcumulado = transcript.isEmpty ? "" : transcript + " "
             isRecording = true
 
             task = recognizer.recognitionTask(with: request) { [weak self] result, error in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
                     if let result {
-                        self.transcript = result.bestTranscription.formattedString
+                        self.transcript = self.ditadoAcumulado + result.bestTranscription.formattedString
                         if result.isFinal {
+                            // Fecha o trecho e guarda como base da próxima rodada.
+                            self.ditadoAcumulado = self.transcript
                             self.teardown()
                         }
                     }
@@ -115,7 +128,7 @@ final class VoiceInputController: ObservableObject {
         if audioEngine.isRunning { audioEngine.stop() }
         audioEngine.inputNode.removeTap(onBus: 0)
         isRecording = false
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        devolverSessaoParaReproducao()
     }
 
     private func teardown() {
@@ -124,7 +137,21 @@ final class VoiceInputController: ObservableObject {
         request = nil
         task = nil
         isRecording = false
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        devolverSessaoParaReproducao()
+    }
+
+    /// [2026-08-04 — ÁUDIO MORTO NO BUILD 89] Devolve a sessão à reprodução.
+    ///
+    /// Antes aqui só havia `setActive(false)`. A categoria continuava `.record`,
+    /// e a AVAudioSession é uma só para o processo inteiro: dali em diante
+    /// nenhuma meditação, som ou música saía pelo alto-falante — `play()`
+    /// devolvia `true`, `isPlaying` ficava `true`, o tempo andava, e silêncio.
+    /// Só voltava ao normal matando e reabrindo o app.
+    ///
+    /// Quem sabe configurar a sessão de reprodução é o AudioManager; chamamos
+    /// ele para não existirem duas verdades sobre categoria e modo.
+    private func devolverSessaoParaReproducao() {
+        AudioManager.shared.restaurarSessaoDeReproducao()
     }
 }
 
@@ -319,7 +346,9 @@ struct ChatView: View {
 
             // [2026-08-04 — B-3] Verdadeiro somente APÓS o deploy da função
             // que remove o limite para assinante. Não submeter antes.
-            Text("Conversas ilimitadas com a sua mentora de bem-estar, memória da sua jornada e acolhimento sempre que precisar.")
+            // [2026-08-04] Era "Conversas ilimitadas com a sua mentora..." —
+            // mesma promessa falsa do paywall principal. Ver SubscriptionView.
+            Text("Converse com a sua mentora de bem-estar, com memória da sua jornada e acolhimento sempre que precisar.")
                 .font(.subheadline)
                 .foregroundColor(CalmTheme.textSecondary)
                 .multilineTextAlignment(.center)

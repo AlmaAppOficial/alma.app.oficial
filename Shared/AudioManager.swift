@@ -70,6 +70,28 @@ class AudioManager: NSObject, ObservableObject {
     // MARK: - Session & Remote Setup
 
     private func setupAudioSession() {
+        restaurarSessaoDeReproducao()
+    }
+
+    /// Devolve a AVAudioSession ao estado de REPRODUÇÃO.
+    ///
+    /// [2026-08-04 — ÁUDIO MORTO NO BUILD 89]
+    ///
+    /// A AVAudioSession é única no processo inteiro. O ditado do chat a colocava
+    /// em `.record` (`ChatView`) e, ao terminar, só chamava `setActive(false)` —
+    /// nunca devolvia a categoria. Categoria `.record` não tem rota de saída:
+    /// dali em diante `player.play()` devolve `true`, `isPlaying` fica `true`,
+    /// o `currentTime` anda — e NÃO SAI SOM. Meditação, sons e músicas, todos
+    /// mudos até o app ser morto e reaberto.
+    ///
+    /// Isto era invisível para qualquer teste que configurasse a sessão antes de
+    /// tocar (como o `TesteAudio` faz), e é por isso que o harness passava
+    /// enquanto o aparelho do Assis ficava em silêncio.
+    ///
+    /// Antes esta configuração só rodava UMA vez, no `init()` do singleton.
+    /// Agora é pública e idempotente, para poder ser rechamada sempre que algo
+    /// tiver mexido na sessão.
+    func restaurarSessaoDeReproducao() {
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(
