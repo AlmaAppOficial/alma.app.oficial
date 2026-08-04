@@ -107,7 +107,14 @@ struct SaudeView: View {
         .buttonStyle(.plain)
     }
 
-    // Card de entrada do Scan corporal com IA
+    /// [2026-08-04] Estático e público para o harness poder assertar o MESMO
+    /// texto que a tela exibe — sem cópia paralela que sai de sincronia.
+    static var tituloDoScan: String {
+        AIService.isRealAI ? "Scan corporal com IA"
+                                      : "Estimativa corporal por medidas"
+    }
+
+    // Card de entrada do Scan corporal
     private var scanCard: some View {
         VStack(spacing: 12) {
             Button {
@@ -121,10 +128,15 @@ struct SaudeView: View {
                         .background(.white.opacity(0.2))
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Scan corporal com IA")
+                        // [2026-08-04 — B8 REABERTO] O banner vendia "Scan
+                        // corporal com IA" numa build sem IA nenhuma. Era a
+                        // porta de entrada do fluxo: a promessa começava aqui.
+                        Text(Self.tituloDoScan)
                             .font(.subheadline.weight(.bold))
                             .foregroundStyle(.white)
-                        Text("Gere seu plano de dieta e treino sob medida")
+                        Text(AIService.isRealAI
+                             ? "Gere seu plano de dieta e treino sob medida"
+                             : "Plano de dieta e treino a partir das suas medidas")
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.9))
                     }

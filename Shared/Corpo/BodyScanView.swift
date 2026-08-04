@@ -68,15 +68,38 @@ struct BodyScanView: View {
 
     // MARK: Seções
 
+    /// [2026-08-04] Estáticos para o harness assertar o MESMO texto exibido.
+    static var tituloDaTela: String {
+        AIService.isRealAI ? "Análise corporal com IA"
+                                      : "Estimativa corporal por medidas"
+    }
+
+    static var chamadaDaTela: String {
+        AIService.isRealAI
+        ? "Adicione 2 fotos e confirme suas medidas. A IA estima seu perfil e monta um plano de alimentação e treino sob medida."
+        : "Confirme suas medidas e o app calcula uma estimativa do seu perfil, com um plano de alimentação e treino. Nesta versão não há análise por IA e as fotos não são usadas."
+    }
+
+    static var notaDePrivacidade: String {
+        AIService.isRealAI
+        ? "Suas fotos são usadas apenas para gerar sua análise e não são compartilhadas. Esta avaliação é informativa e não substitui um profissional de saúde."
+        : "Nesta versão nenhuma foto é enviada nem analisada — o resultado vem só das suas medidas. Esta avaliação é informativa e não substitui um profissional de saúde."
+    }
+
     private var intro: some View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: "figure.arms.open")
                 .font(.system(size: 40))
                 .foregroundStyle(Theme.primary)
-            Text("Análise corporal com IA")
+            // [2026-08-04 — B8 REABERTO na varredura visual] Esta tela dizia
+            // "Análise corporal com IA" e "A IA estima seu perfil" no topo, e
+            // no rodapé "A análise por IA não está disponível nesta versão".
+            // As duas frases, na mesma tela, ao mesmo tempo. O título vence a
+            // ressalva: quem lê de cima para baixo já decidiu que tem IA.
+            Text(Self.tituloDaTela)
                 .font(.title3.bold())
                 .foregroundStyle(Theme.ink)
-            Text("Adicione 2 fotos e confirme suas medidas. A IA estima seu perfil e monta um plano de alimentação e treino sob medida.")
+            Text(Self.chamadaDaTela)
                 .font(.subheadline)
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -224,7 +247,10 @@ struct BodyScanView: View {
     }
 
     private var privacyNote: some View {
-        Text("Suas fotos são usadas apenas para gerar sua análise e não são compartilhadas. Esta avaliação é informativa e não substitui um profissional de saúde.")
+        // [2026-08-04] Dizia "Suas fotos são usadas apenas para gerar sua
+        // análise" numa versão em que foto nenhuma é usada. Descrever um uso
+        // que não existe é tão errado quanto esconder um que existe.
+        Text(Self.notaDePrivacidade)
             .font(.caption2)
             .foregroundStyle(Theme.inkSoft)
     }

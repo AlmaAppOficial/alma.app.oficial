@@ -28,6 +28,8 @@
 ✓ A16a sob pressão, a linha de ALERGIA sobrevive — 498 chars
 ✓ A16b o corte respeita o teto — 498 de 600
 ✓ A16c campo de texto livre é limitado na origem — 171 chars
+✓ B8b sem IA na build, nenhuma tela promete IA — IA disponível: false · 5 textos limpos
+✓ B8c o scan corporal não descreve uso de foto que não acontece — Nesta versão nenhuma foto é enviada nem analisada — o result…
 ✓ C1a perfil vazio: o card cobra as medidas — nome, nascimento, medidas, contexto
 ✓ C1b a instância da Home continua desatualizada (era esta a causa) — peso na cópia da Home: 0.0 · no disco: 82.0
 ✓ C1c preencheu medidas → o card para de cobrar sem reabrir o app — ainda falta: nome, nascimento, contexto
@@ -38,5 +40,5 @@
 ✓ C3 peso sem altura NÃO conta como medidas completas — Faltam como te chamar, sua data de nascimento, peso e altura e escolher o que ela pode ver para a Alma te acompanhar de verdade
 ✓ A12 nenhum texto EXIBIDO em PT-PT (Home e Insights) — 232 textos verificados
 ═════ RESULTADO ═════
-aprovados: 38
+aprovados: 40
 reprovados: NENHUM

@@ -52,7 +52,12 @@ struct PremiumWallView: View {
                     featureRow(icon: "bubble.left.and.bubble.right.fill",
                                text: "Conversas ilimitadas com a Alma")
                     featureRow(icon: "waveform.path.ecg",
-                               text: "Monitorização de saúde avançada")
+                               // [2026-08-04] "Monitorização" é PT-PT; em
+                               // PT-BR é "monitoramento". Passou por dois
+                               // pentes finos de PT-PT porque meu checador não
+                               // tinha a palavra na lista — e ela estava no
+                               // paywall, uma das telas mais vistas do app.
+                               text: "Monitoramento de saúde avançado")
                     featureRow(icon: "music.note",
                                text: "Sons binaurais e meditações guiadas")
                     featureRow(icon: "chart.line.uptrend.xyaxis",
@@ -174,7 +179,11 @@ struct PremiumWallView: View {
             if store.monthlyProduct != nil {
                 return "Assinar agora"
             }
-            return "Assinar Alma Plus"
+            // [2026-08-04] Era "Assinar Alma Plus" — nome que não existe em
+            // lugar nenhum do app (Perfil e Início dizem "Alma Premium"), e
+            // que aparecia justamente quando o produto do StoreKit NÃO
+            // carregou: o usuário via um CTA sem preço, com nome errado.
+            return "Assinar Alma Premium"
         }()
 
         Button {

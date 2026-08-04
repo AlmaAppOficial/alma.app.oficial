@@ -75,7 +75,10 @@ enum AuditoriaBloqueadores {
             m.ageYears = 38
             m.meals.append(Meal(type: .cafe, name: "Auditoria", kcal: 400,
                                 protein: 25, carbs: 30, fat: 12, done: true))
-            m.workoutDays.insert(CorpoInsightsEngine.chaveDia(Date()))
+            // [2026-08-04] Era `m.workoutDays.insert(...)` — a própria asserção
+            // fabricava o dado que dizia estar verificando. Agora chama o
+            // método que o botão "Treino concluído" chama.
+            m.registrarTreinoConcluido()
             m.dietaryRestrictions = "alergia a amendoim"
             m.healthConditions = "hérnia de disco"
             m.addWater(750)
@@ -220,6 +223,43 @@ enum AuditoriaBloqueadores {
                 texto.range(of: "\\b\(termo)\\b", options: [.regularExpression, .caseInsensitive]) != nil
             }
         }
+
+        // ── B8b · nenhuma tela promete IA que a build não tem ───────────────
+        //
+        // [2026-08-04] O B8 foi dado como fechado em 03/08 e REABRIU: a
+        // varredura visual achou QUATRO telas vendendo IA — o banner da Saúde,
+        // o topo do scan corporal (que ainda se contradizia com o proprio
+        // rodape) e o scan de comida, este sem ressalva nenhuma. A asserção
+        // de 03/08 (`B8a`) só checava se o scan de alimento APARECIA; nunca
+        // olhou o que os textos prometiam. Agora olha.
+        let textosDeIA: [(String, String)] = [
+            ("Saúde · banner", SaudeView.tituloDoScan),
+            ("Scan corporal · título", BodyScanView.tituloDaTela),
+            ("Scan corporal · privacidade", BodyScanView.notaDePrivacidade),
+            ("Scan de comida · título", FoodScanView.tituloDaTela),
+            ("Scan de comida · chamada", FoodScanView.chamadaDaTela)
+        ]
+        // [2026-08-04] A primeira versão desta asserção usava
+        // `localizedCaseInsensitiveContains("IA")` e reprovou o texto CORRIGIDO:
+        // "nenhuma foto é enviada" contém "ia" dentro de "envIAda". É o MESMO
+        // erro de substring que eu tinha acabado de criticar no detector de
+        // PT-PT ("tua" dentro de "fluTUA") — cometido na asserção escrita para
+        // impedir esse tipo de descuido. Fica registrado.
+        // Agora "IA" só conta como palavra inteira, maiúscula.
+        func prometeIA(_ texto: String) -> Bool {
+            texto.range(of: "(?<![\\p{L}])IA(?![\\p{L}])",
+                        options: [.regularExpression]) != nil
+        }
+        let prometemIA = textosDeIA.filter { prometeIA($0.1) }
+        checa("B8b", "sem IA na build, nenhuma tela promete IA",
+              AIService.isRealAI || prometemIA.isEmpty,
+              prometemIA.isEmpty ? "IA disponível: \(AIService.isRealAI) · 5 textos limpos"
+                                 : "prometem IA: \(prometemIA.map(\.0).joined(separator: ", "))")
+
+        checa("B8c", "o scan corporal não descreve uso de foto que não acontece",
+              AIService.isRealAI
+                || BodyScanView.notaDePrivacidade.localizedCaseInsensitiveContains("nenhuma foto"),
+              BodyScanView.notaDePrivacidade.prefix(60) + "…")
 
         // ── CARD · "Complete seu perfil" ────────────────────────────────────
         //

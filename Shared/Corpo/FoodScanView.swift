@@ -79,15 +79,31 @@ struct FoodScanView: View {
 
     // MARK: Seções
 
+    /// [2026-08-04] Estáticos para o harness assertar o MESMO texto exibido.
+    static var tituloDaTela: String {
+        GeminiConfig.isAvailable ? "Scan de comida com IA"
+                                 : "Scan de comida — indisponível nesta versão"
+    }
+
+    static var chamadaDaTela: String {
+        GeminiConfig.isAvailable
+        ? "Tire uma foto do seu prato e a IA estima os macronutrientes em segundos."
+        : "A leitura do prato por foto não está disponível nesta versão. Registre o alimento pela busca ou pelo código de barras — o resultado é o mesmo, sem chute."
+    }
+
     private var intro: some View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: "camera.fill")
                 .font(.system(size: 40))
                 .foregroundStyle(Theme.coral)
-            Text("Scan de comida com IA")
+            // [2026-08-04 — B8 REABERTO] Esta era a pior das quatro: prometia
+            // "a IA estima os macronutrientes em segundos" e não tinha nem a
+            // ressalva que a tela do scan corporal tinha. A pessoa ia direto
+            // para a câmera acreditando na estimativa.
+            Text(Self.tituloDaTela)
                 .font(.title3.bold())
                 .foregroundStyle(Theme.ink)
-            Text("Tire uma foto do seu prato e a IA estima os macronutrientes em segundos.")
+            Text(Self.chamadaDaTela)
                 .font(.subheadline)
                 .foregroundStyle(Theme.inkSoft)
         }

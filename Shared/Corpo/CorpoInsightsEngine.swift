@@ -114,7 +114,11 @@ enum CorpoInsightsEngine {
             titulo: "Treinos na semana",
             valor: feitos == 1 ? "1 treino" : "\(feitos) treinos",
             variacao: variacao,
-            diasDeDados: 7,
+            // [2026-08-04] Era `7` fixo: a tela dizia "1 treino · com base em
+            // 7 registros" para quem tinha UM treino. O rodapé existe para
+            // dizer o tamanho da amostra — inflá-lo é mentir sobre a
+            // confiabilidade do próprio número que está logo acima.
+            diasDeDados: feitos,
             systemImage: "dumbbell.fill"
         )
     }

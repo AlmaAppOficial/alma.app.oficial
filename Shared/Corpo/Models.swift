@@ -214,6 +214,13 @@ final class AppModel: ObservableObject {
         }
     }
 
+    /// [2026-08-04] Veio da `WorkoutSessionView`, onde era um método privado da
+    /// View — inalcançável para o harness. Aqui, a asserção B3a exercita o
+    /// MESMO caminho que o botão "Treino concluído" percorre.
+    func registrarTreinoConcluido(em data: Date = Date()) {
+        workoutDays.insert(CorpoInsightsEngine.chaveDia(data))
+    }
+
     /// Guarda uma pesagem por dia — a última do dia vence. Sem isso, quem
     /// corrige um dígito errado cria dois pontos no gráfico.
     private func registrarPesagem(oldValue: Double) {

@@ -268,8 +268,16 @@ struct WorkoutSessionView: View {
     ///
     /// Ontem eu "corrigi a persistência" desta coleção: consertei a LEITURA de
     /// algo que ninguém ESCREVIA.
+    /// [2026-08-04] Era `private` e vivia AQUI, dentro da View. Consequência:
+    /// a asserção B3a do harness não conseguia chamá-la e acabava inserindo o
+    /// dia ela mesma — ou seja, provava que `workoutDays` PERSISTE, nunca que
+    /// concluir o treino GRAVA. Se alguém apagasse esta linha, o B3a continuaria
+    /// verde e o bug B3 voltaria inteiro, calado.
+    ///
+    /// A lógica mudou para o `AppModel` (o produtor). A View chama, o harness
+    /// chama, os dois exercitam o mesmo caminho.
     private func registrarTreinoConcluido() {
-        model.workoutDays.insert(CorpoInsightsEngine.chaveDia(Date()))
+        model.registrarTreinoConcluido()
     }
 
     /// Duração medida do relógio, não a do template.

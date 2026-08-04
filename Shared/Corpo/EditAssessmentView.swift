@@ -21,7 +21,9 @@ struct EditAssessmentView: View {
                             Text(g.rawValue).tag(g)
                         }
                     }
-                    Stepper("Idade: \(model.ageYears) anos", value: $model.ageYears, in: 12...100)
+                    // [2026-08-04] "Idade: 0 anos" quando ninguém informou.
+                    Stepper(model.ageYears > 0 ? "Idade: \(model.ageYears) anos" : "Idade: —",
+                            value: $model.ageYears, in: 12...100)
                 }
 
                 Section("Medidas") {
@@ -81,7 +83,13 @@ struct EditAssessmentView: View {
             HStack {
                 Text(title)
                 Spacer()
-                Text("\(String(format: "%.1f", value.wrappedValue)) \(unit)")
+                // [2026-08-04 — varredura visual] Saía "79.5 kg", "178.0 cm",
+                // "0.0 %": ponto decimal em PT-BR. E zero não é medida — com
+                // o campo em branco a tela mostrava "0.0 kg" como se a pessoa
+                // pesasse zero, o mesmo pecado do IMC "nan · Obesidade".
+                Text(value.wrappedValue > 0
+                     ? "\(CorpoContextFormat.decimal(value.wrappedValue)) \(unit)"
+                     : "—")
                     .foregroundStyle(Theme.inkSoft)
             }
             Slider(value: value, in: range, step: 0.1)
