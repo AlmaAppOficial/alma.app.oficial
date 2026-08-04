@@ -301,24 +301,57 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
         return AVSpeechSynthesisVoice(language: "en-US")
     }
 
-    // MARK: - AVSpeechSynthesizerDelegate (fallback path)
-    @MainActor
-    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        // Fallback path: synthesizer finished an utterance (postUtteranceDelay already applied)
-        speakNextSegment()
+    // MARK: - Callbacks da AVFoundation
+    //
+    // [2026-08-04 — DATA RACE, warnings 2 e 3 do build]
+    //
+    // Estes dois métodos estavam marcados `@MainActor`. O compilador avisava:
+    // "conformance ... crosses into main actor-isolated code and can cause data
+    // races; this is an error in the Swift 6 language mode".
+    //
+    // O motivo: `AVSpeechSynthesizerDelegate` e `AVAudioPlayerDelegate` declaram
+    // estes callbacks como NÃO isolados — a AVFoundation pode chamá-los de
+    // qualquer thread, e chama mesmo, dependendo de como o áudio termina.
+    // Prometer `@MainActor` numa conformidade que o protocolo não isola não
+    // torna a chamada segura: só faz o compilador parar de olhar. O estado
+    // tocado aqui (`ttsPlayer`, `ttsCurrentTempURL`, e tudo dentro de
+    // `speakNextSegment`) é estado de MainActor de verdade.
+    //
+    // A correção certa: declarar `nonisolated` — que é a verdade sobre quem
+    // chama — e pular para o MainActor lá dentro, onde o estado vive.
+    //
+    // Nota sobre o que muda no comportamento: o corpo passa a rodar no próximo
+    // giro do run loop em vez de na mesma pilha da AVFoundation. O caminho do
+    // TTS já era assíncrono (havia um `asyncAfter` aqui). O caminho do
+    // sintetizador de fallback passa a ter esse atraso mínimo entre segmentos —
+    // imperceptível numa meditação, e o preço de não ter corrida.
+    //
+    // Nenhum dos dois usa seus parâmetros, então nada não-Sendable é capturado
+    // pelo `Task` — o que também evita trocar um aviso por outro.
+
+    // MARK: AVSpeechSynthesizerDelegate (caminho de fallback)
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                       didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor [weak self] in
+            self?.speakNextSegment()
+        }
     }
 
-    // MARK: - AVAudioPlayerDelegate (TTS path)
-    @MainActor
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully _: Bool) {
-        // TTS audio finished — clean up temp file, wait for pause, then continue
-        ttsPlayer = nil
-        if let url = ttsCurrentTempURL {
-            try? FileManager.default.removeItem(at: url)
-            ttsCurrentTempURL = nil
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + currentPauseAfterSegment) { [weak self] in
-            self?.speakNextSegment()
+    // MARK: AVAudioPlayerDelegate (caminho do TTS)
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer,
+                                                 successfully _: Bool) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            // Áudio terminou — apaga o temporário, espera a pausa, segue.
+            self.ttsPlayer = nil
+            if let url = self.ttsCurrentTempURL {
+                try? FileManager.default.removeItem(at: url)
+                self.ttsCurrentTempURL = nil
+            }
+            let pausa = self.currentPauseAfterSegment
+            DispatchQueue.main.asyncAfter(deadline: .now() + pausa) { [weak self] in
+                self?.speakNextSegment()
+            }
         }
     }
 

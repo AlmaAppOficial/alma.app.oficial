@@ -63,25 +63,51 @@ enum FeminineHealthSecureStore {
     /// Na primeira leitura, semeia com `lastPeriodTimestamp` legado se existir.
     static var periodHistory: [Double] {
         get {
-            if let raw = read(periodHistoryKey),
-               let data = raw.data(using: .utf8),
-               let list = try? JSONDecoder().decode([Double].self, from: data) {
-                return list
-            }
-            // Migração: um único registro legado vira o primeiro item do histórico
-            let legacy = lastPeriodTimestamp
-            if legacy > 0 {
-                let seeded = [legacy]
-                periodHistory = seeded
-                return seeded
-            }
-            return []
+            let decidido = decidirHistórico(bruto: read(periodHistoryKey),
+                                            legado: lastPeriodTimestamp)
+            if decidido.precisaGravar { persistirHistórico(decidido.lista) }
+            return decidido.lista
         }
-        set {
-            if let data = try? JSONEncoder().encode(newValue),
-               let raw = String(data: data, encoding: .utf8) {
-                write(raw, forKey: periodHistoryKey)
-            }
+        set { persistirHistórico(newValue) }
+    }
+
+    /// Decide o histórico a partir do que está gravado e do valor legado.
+    ///
+    /// [2026-08-04] Existe por dois motivos.
+    ///
+    /// 1) Antes, a migração fazia `periodHistory = seeded` DENTRO do próprio
+    ///    getter, e o compilador acusava: "attempting to access 'periodHistory'
+    ///    within its own getter". NÃO era recursão infinita — atribuir chama o
+    ///    SETTER, não o getter. Está provado em
+    ///    `_validacao_20260804/probe_periodHistory.swift`, que reproduz o mesmo
+    ///    aviso, roda até o fim e conta 2 chamadas do getter. Mas um getter que
+    ///    escreve em si mesmo por caminho indireto é difícil de ler, e o aviso
+    ///    ficava permanentemente ligado escondendo os próximos.
+    ///
+    /// 2) Isolada do Keychain de propósito: assim a REGRA pode ser verificada
+    ///    sem gravar nada. Isto é dado de saúde — um teste que escrevesse no
+    ///    Keychain de verdade apagaria o histórico real de uma pessoa. Nenhuma
+    ///    asserção vale esse preço.
+    ///
+    /// - Returns: a lista a devolver e se ela ainda precisa ser persistida.
+    static func decidirHistórico(bruto: String?, legado: Double) -> (lista: [Double], precisaGravar: Bool) {
+        if let raw = bruto,
+           let data = raw.data(using: .utf8),
+           let lista = try? JSONDecoder().decode([Double].self, from: data) {
+            return (lista, false)               // já gravado: nada a migrar
+        }
+        if legado > 0 {
+            return ([legado], true)             // um registro legado vira o 1º item
+        }
+        return ([], false)                      // nada gravado, nada legado
+    }
+
+    /// Grava o histórico no Keychain. Único ponto de escrita da chave —
+    /// usado pelo setter e pela migração do valor legado.
+    private static func persistirHistórico(_ histórico: [Double]) {
+        if let data = try? JSONEncoder().encode(histórico),
+           let raw = String(data: data, encoding: .utf8) {
+            write(raw, forKey: periodHistoryKey)
         }
     }
 

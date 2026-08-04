@@ -115,6 +115,7 @@ struct HomeView: View {
             if authorized { await hk.loadAll() }
             #if DEBUG
             await MainActor.run { AuditoriaBloqueadores.executar() }
+            await TesteAudio.executar()
             await MainActor.run { SmokeTestTelas.executar() }
             await MainActor.run { TestePersistencia.executar() }
             await MainActor.run { DebugContextDump.semearPerfil() }
@@ -829,11 +830,46 @@ struct SoundTile: View {
 }
 
 // MARK: - ShareSheet (UIActivityViewController wrapper)
+//
+// [2026-08-04 — TELA PRESA DEPOIS DE COMPARTILHAR]
+//
+// Sintoma relatado: no "Compartilhar insight", depois de compartilhar, o botão
+// Fechar não fazia mais nada e a pessoa ficava presa na tela.
+//
+// Causa: faltava o `completionWithItemsHandler`. O `UIActivityViewController`
+// se fecha SOZINHO quando o compartilhamento termina ou é cancelado — e esse
+// fechamento acontece pelo lado do UIKit, sem passar pelo SwiftUI. Resultado: o
+// `@State showActivitySheet` que abriu o `.sheet` continuava `true` para sempre.
+// Com o SwiftUI ainda acreditando que existe um sheet filho apresentado, o
+// pedido de fechar o sheet PAI era engolido.
+//
+// O handler abaixo é a única via pela qual o UIKit avisa o SwiftUI de que
+// terminou. Sem ele, o estado nunca volta.
+//
+// Nota de escopo: este é o único uso cru de `UIActivityViewController` no
+// projeto — o Feed usa `ShareLink`, que gerencia o próprio estado e não sofre
+// deste problema.
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
+    /// Estado do `.sheet` que apresenta este share. O handler devolve ele a
+    /// `false` quando o UIKit se fecha por conta própria.
+    @Binding var isPresented: Bool
+
+    /// Fábrica separada do `makeUIViewController` de propósito: `Context` não
+    /// tem inicializador público, então o método do protocolo é impossível de
+    /// chamar num teste. Assim o harness exercita o controller de verdade.
+    func fazerController() -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: items,
+                                                  applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, _, _, _ in
+            isPresented = false
+        }
+        return controller
+    }
+
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
+        fazerController()
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}

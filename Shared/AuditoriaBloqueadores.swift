@@ -10,6 +10,8 @@
 
 #if DEBUG
 import Foundation
+import SwiftUI
+import UIKit
 
 @MainActor
 enum AuditoriaBloqueadores {
@@ -388,6 +390,186 @@ enum AuditoriaBloqueadores {
               telaPTPT.isEmpty,
               telaPTPT.isEmpty ? "\(textoDeTela.count) textos verificados"
                                : "\(telaPTPT.count): \(telaPTPT.prefix(2))")
+
+        // ── A15 · nenhuma alegação de saúde no texto EXIBIDO ────────────────
+        //
+        // [2026-08-04] A régua do Assis: o app registra e mostra os dados da
+        // pessoa; não promete resultado clínico. Este checador existe porque a
+        // varredura manual de hoje achou "cura", "remédio", "terapêuticos" e
+        // "função pulmonar aumenta até 30%" espalhados pela UI — e a manual só
+        // acontece quando alguém lembra. Este roda em toda auditoria.
+        //
+        // Escopo honesto: cobre os textos que `GuidanceEngine.todosOsTextos`
+        // expõe (Home e Insights, ~232 strings) e a lista fixa abaixo, que traz
+        // as telas onde a varredura achou problema. NÃO varre o app inteiro —
+        // dizer que varre seria a mentira que este projeto já cansou de pegar.
+        func temAlegacaoDeSaude(_ texto: String) -> Bool {
+            // Palavras que, no texto de UI, afirmam efeito clínico.
+            // "cuidado", "bem-estar" e "descanso" ficam de fora de propósito:
+            // descrevem intenção, não resultado.
+            let proibidas = ["cura", "curar", "curação", "curativa", "remédio",
+                             "terapêutico", "terapêutica", "terapêuticos",
+                             "diagnóstico", "tratamento", "emagrece",
+                             "comprovado", "cientificamente", "clinicamente"]
+            return proibidas.contains { termo in
+                texto.range(of: "\\b\(termo)\\b",
+                            options: [.regularExpression, .caseInsensitive]) != nil
+            }
+        }
+
+        // Os textos gerados (Home/Insights).
+        let gerados = GuidanceEngine.todosOsTextos.filter(temAlegacaoDeSaude)
+        checa("A15a", "nenhum texto gerado (Home/Insights) alega efeito clínico",
+              gerados.isEmpty,
+              gerados.isEmpty ? "\(GuidanceEngine.todosOsTextos.count) textos verificados"
+                              : "\(gerados.count): \(gerados.prefix(2))")
+
+        // As telas corrigidas hoje. Se alguém reverter uma delas, cai aqui.
+        // A frase é copiada da tela; se a tela mudar e esta lista não, o teste
+        // deixa de proteger — por isso cada item cita arquivo:linha.
+        let copiaDeTelas = [
+            "Acompanhe sono, passos, peso e alimentação",              // SubscriptionView:76
+            "Um dia de cada vez",                                      // TreinoView:26
+            "Uma pausa de respiração e aterramento para quando a ansiedade aperta", // MoodRouter:281
+            "As meditações guiadas e os sons são criados para apoiar momentos de pausa e descanso.", // ProfileView:507
+            "Marcos da sua jornada",                                   // AddictionFreeView:217
+        ]
+        let telasSujas = copiaDeTelas.filter(temAlegacaoDeSaude)
+        checa("A15b", "a copy corrigida hoje continua sem alegação clínica",
+              telasSujas.isEmpty,
+              telasSujas.isEmpty ? "\(copiaDeTelas.count) frases verificadas"
+                                 : "\(telasSujas.count): \(telasSujas.prefix(2))")
+
+        // Canário: o detector TEM de acusar uma frase sabidamente proibida.
+        // Sem isto, A15a e A15b poderiam estar verdes por o detector estar cego.
+        let canarioCopy = "Esta meditação é terapêutica e promove a cura."
+        checa("A15c", "canário — o detector de alegação acusa uma frase proibida",
+              temAlegacaoDeSaude(canarioCopy),
+              temAlegacaoDeSaude(canarioCopy) ? "acusou" : "DETECTOR CEGO")
+
+        // ── A17 · a copy do chat não promete volume que o build não entrega ─
+        //
+        // [2026-08-04] O paywall vendia "Conversas ilimitadas com a Alma" com
+        // `chatMessagesPerDay = 0` para grátis e 20/h para assinante em
+        // produção. Era falso nas duas pontas. Enquanto o entitlement não
+        // estiver implantado E provado, nenhuma tela pode falar de volume.
+        func prometeVolume(_ t: String) -> Bool {
+            ["ilimitad", "sem limite", "quantas quiser", "à vontade", "infinit"]
+                .contains { t.range(of: $0, options: .caseInsensitive) != nil }
+        }
+
+        let copyDoChat = [
+            "Converse com a Alma",  // SubscriptionView (linha do featureRow do chat)
+            "Converse com a sua mentora de bem-estar, com memória da sua jornada e acolhimento sempre que precisar.", // ChatView
+            "Recurso Premium · Toque para conhecer",  // HomeView (sem cota grátis)
+        ]
+        let prometem = copyDoChat.filter(prometeVolume)
+        checa("A17a", "nenhuma copy do chat promete volume ilimitado",
+              prometem.isEmpty,
+              prometem.isEmpty
+                ? "\(copyDoChat.count) frases · cota grátis = \(FreemiumLimits.chatMessagesPerDay)/dia"
+                : "\(prometem.count): \(prometem.prefix(1))")
+
+        // Canário: sem ele, A16a poderia estar verde por o detector estar cego.
+        checa("A17b", "canário — o detector acusa promessa de volume",
+              prometeVolume("Conversas ilimitadas com a Alma"),
+              prometeVolume("Conversas ilimitadas com a Alma") ? "acusou" : "DETECTOR CEGO")
+
+        // ── A18 · pontuação de sono ─────────────────────────────────────────
+        // [2026-08-04] Regra pura, exercitada com noites fabricadas. O valor de
+        // cada asserção é impresso para o Assis conferir a conta na mão.
+        let perfeita = NoiteDeSono(totalDormido: 8, rem: 8 * 0.22, profundo: 8 * 0.18,
+                                   acordado: 8 * 0.03, despertares: 1)
+        let rPerfeita = PontuacaoDeSono.calcular(perfeita)
+        checa("A18a", "noite de referência dá 100", rPerfeita.pontos == 100,
+              "\(rPerfeita.pontos.map(String.init) ?? "nil") · \(rPerfeita.descricao)")
+
+        let curta = NoiteDeSono(totalDormido: 6, rem: 6 * 0.15, profundo: 6 * 0.10,
+                                acordado: 6 * 0.08, despertares: 4)
+        let rCurta = PontuacaoDeSono.calcular(curta)
+        checa("A18b", "noite curta e fragmentada pontua abaixo da referência",
+              (rCurta.pontos ?? 100) < 80,
+              "\(rCurta.pontos.map(String.init) ?? "nil") · \(rCurta.descricao)")
+
+        // A REGRA DE HONESTIDADE: sem estágios, NÃO existe pontuação.
+        let semEstagios = NoiteDeSono(totalDormido: 7.5, rem: nil, profundo: nil,
+                                      acordado: nil, despertares: nil)
+        let rSem = PontuacaoDeSono.calcular(semEstagios)
+        checa("A18c", "sem estágios NÃO inventa pontuação",
+              rSem.pontos == nil && rSem.precisaDeEstagios,
+              "pontos=\(rSem.pontos.map(String.init) ?? "nil") · \(rSem.descricao)")
+
+        let semSono = PontuacaoDeSono.calcular(
+            NoiteDeSono(totalDormido: 0, rem: nil, profundo: nil, acordado: nil, despertares: nil))
+        checa("A18d", "noite sem registro não pontua nem pede estágios",
+              semSono.pontos == nil && !semSono.precisaDeEstagios, semSono.descricao)
+
+        // A descrição é descritiva, nunca diagnóstica.
+        let julgamentos = ["ruim", "péssim", "insuficiente", "inadequad", "problema", "distúrbio"]
+        let textos = [rPerfeita.descricao, rCurta.descricao, rSem.descricao, semSono.descricao,
+                      PontuacaoDeSono.explicacao, PontuacaoDeSono.rodape]
+        let julga = textos.filter { t in julgamentos.contains { t.lowercased().contains($0) } }
+        checa("A18e", "nenhuma frase da pontuação julga o sono da pessoa",
+              julga.isEmpty, julga.isEmpty ? "\(textos.count) frases" : "\(julga)")
+
+        checa("A18f", "o rodapé nega que o número venha do Apple Saúde",
+              PontuacaoDeSono.rodape.contains("Não vem do Apple Saúde")
+                && PontuacaoDeSono.rodape.contains("não é avaliação clínica"),
+              PontuacaoDeSono.rodape)
+
+        // ── A13 · migração do histórico de menstruação ──────────────────────
+        // [2026-08-04] Verifica a REGRA, com entradas fabricadas, sem encostar
+        // no Keychain: é dado de saúde real de uma pessoa. Ver o comentário de
+        // `decidirHistórico` para por que ela é separada do armazenamento.
+        let semNada = FeminineHealthSecureStore.decidirHistórico(bruto: nil, legado: 0)
+        checa("A13a", "sem gravado e sem legado, histórico vazio e não grava",
+              semNada.lista.isEmpty && !semNada.precisaGravar,
+              "\(semNada.lista) gravar=\(semNada.precisaGravar)")
+
+        let sóLegado = FeminineHealthSecureStore.decidirHistórico(bruto: nil, legado: 1_700_000_000)
+        checa("A13b", "legado sozinho vira o 1º item E pede gravação",
+              sóLegado.lista == [1_700_000_000] && sóLegado.precisaGravar,
+              "\(sóLegado.lista) gravar=\(sóLegado.precisaGravar)")
+
+        let jáGravado = FeminineHealthSecureStore.decidirHistórico(bruto: "[111.0,222.0]",
+                                                                  legado: 1_700_000_000)
+        checa("A13c", "histórico gravado tem precedência sobre o legado e não regrava",
+              jáGravado.lista == [111, 222] && !jáGravado.precisaGravar,
+              "\(jáGravado.lista) gravar=\(jáGravado.precisaGravar)")
+
+        let corrompido = FeminineHealthSecureStore.decidirHistórico(bruto: "{lixo",
+                                                                   legado: 1_700_000_000)
+        checa("A13d", "JSON corrompido cai na migração em vez de perder o legado",
+              corrompido.lista == [1_700_000_000] && corrompido.precisaGravar,
+              "\(corrompido.lista) gravar=\(corrompido.precisaGravar)")
+
+        // ── A14 · tela presa depois de compartilhar ─────────────────────────
+        // [2026-08-04] O `UIActivityViewController` se fecha sozinho pelo lado
+        // do UIKit. Se ele não avisar o SwiftUI, o `.sheet` fica preso em `true`
+        // e o botão Fechar da tela de cima para de funcionar. Estas asserções
+        // exercitam o controller DE VERDADE — não uma imitação dele.
+        var folhaAberta = true
+        let ponte = Binding<Bool>(get: { folhaAberta }, set: { folhaAberta = $0 })
+        let controller = ShareSheet(items: [UIImage()], isPresented: ponte).fazerController()
+
+        checa("A14a", "o UIActivityViewController recebe um completionWithItemsHandler",
+              controller.completionWithItemsHandler != nil,
+              controller.completionWithItemsHandler == nil ? "nil" : "instalado")
+
+        // Simula o fim do compartilhamento, como o UIKit faria.
+        controller.completionWithItemsHandler?(nil, true, nil, nil)
+        checa("A14b", "terminado o compartilhamento, o estado do sheet volta a false",
+              folhaAberta == false,
+              "isPresented=\(folhaAberta)")
+
+        // Cancelar também precisa devolver o estado — senão a tela trava igual.
+        var folhaCancelada = true
+        let ponteCancel = Binding<Bool>(get: { folhaCancelada }, set: { folhaCancelada = $0 })
+        let controllerCancel = ShareSheet(items: [UIImage()], isPresented: ponteCancel).fazerController()
+        controllerCancel.completionWithItemsHandler?(nil, false, nil, nil)
+        checa("A14c", "cancelar o compartilhamento também devolve o estado",
+              folhaCancelada == false,
+              "isPresented=\(folhaCancelada)")
 
         UserDefaults().removePersistentDomain(forName: suite)
 

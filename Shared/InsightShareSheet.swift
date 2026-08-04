@@ -35,7 +35,7 @@ struct InsightShareSheet: View {
                 shareButton
                     .padding(.horizontal, 24)
 
-                Button("Cancelar") { isPresented = false }
+                Button("Cancelar") { fechar() }
                     .font(.subheadline)
                     .foregroundColor(CalmTheme.textSecondary)
                     .padding(.bottom, 32)
@@ -44,16 +44,29 @@ struct InsightShareSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Fechar") { isPresented = false }
+                    Button("Fechar") { fechar() }
                         .foregroundColor(CalmTheme.primary)
                 }
             }
         }
         .sheet(isPresented: $showActivitySheet) {
             if let image = renderedImage {
-                ShareSheet(items: [image])
+                ShareSheet(items: [image], isPresented: $showActivitySheet)
             }
         }
+    }
+
+    /// Fecha a tela. Zera o sheet filho ANTES de fechar o pai.
+    ///
+    /// [2026-08-04] Cinto e suspensório do bug da tela presa. O conserto de
+    /// verdade está no `completionWithItemsHandler` do `ShareSheet` — mas se um
+    /// dia esse handler deixar de disparar por qualquer motivo, o SwiftUI
+    /// voltaria a achar que há um sheet filho aberto e engoliria o fechamento
+    /// do pai. Limpar o estado do filho aqui custa uma linha e tira essa
+    /// dependência do caminho de saída da pessoa.
+    private func fechar() {
+        showActivitySheet = false
+        isPresented = false
     }
 
     private var shareButton: some View {

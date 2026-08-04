@@ -72,6 +72,78 @@ enum SmokeTestTelas {
 
     private static func log(_ t: String) { NSLog("%@", "[SMOKE] " + t) }
 
+    // MARK: - Detector de tela vazia
+    //
+    // [2026-08-04 — SEGUNDA MENTIRA DO HARNESS]
+    //
+    // A primeira foi o `ImageRenderer` (ver comentário lá embaixo). Esta é a
+    // irmã dela: `var falhas` era declarada, nunca recebia nada, e no fim o
+    // relatório imprimia "nenhuma falha" — sempre. O compilador chegou a avisar
+    // ("variable 'falhas' was never mutated"), e o aviso passou batido.
+    //
+    // Resultado prático, medido nas 43 capturas de hoje: `Alma · Feed` saiu com
+    // energia de borda 0,44 — a tela inteira era o spinner "Carregando feed…" —
+    // e o harness deu "ok". Renderizar sem morrer não é renderizar a tela.
+    //
+    // O que este detector acrescenta: mede quanta variação horizontal existe na
+    // imagem. Texto, botões e separadores criam bordas duras; um fundo liso ou
+    // um gradiente puro, quase nenhuma. Não julga se a tela está CERTA — julga
+    // se ela tem CONTEÚDO. É pouco, mas é honesto, e é mais do que zero.
+
+    /// Abaixo disto a tela é considerada vazia.
+    ///
+    /// Calibrado com as 43 capturas reais de 04/08 (`_validacao_20260804/telas`):
+    /// as vazias mediram 0,00 / 0,44 / 1,55 e a mais pobre COM conteúdo de
+    /// verdade mediu 4,05. O corte em 3,0 cai no vale entre as duas populações.
+    private static let limiteDeConteudo: Double = 3.0
+
+    /// Telas que saem em branco por limitação do simulador, não por defeito:
+    /// dependem de câmera real. Ficam fora do julgamento — com o motivo escrito.
+    private static let brancoEsperado: Set<String> = [
+        "Corpo · Código de barras (montagem)",
+        "Corpo · Câmera de foto (montagem)"
+    ]
+
+    /// Média da diferença de cor entre pixels vizinhos na horizontal.
+    private static func energiaDeBorda(_ imagem: UIImage) -> Double {
+        guard let cg = imagem.cgImage else { return 0 }
+        let largura = cg.width, altura = cg.height
+        guard largura > 8, altura > 8 else { return 0 }
+
+        let bytesPorLinha = largura * 4
+        var pixels = [UInt8](repeating: 0, count: bytesPorLinha * altura)
+        guard let ctx = CGContext(data: &pixels,
+                                  width: largura, height: altura,
+                                  bitsPerComponent: 8, bytesPerRow: bytesPorLinha,
+                                  space: CGColorSpaceCreateDeviceRGB(),
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return 0 }
+        ctx.draw(cg, in: CGRect(x: 0, y: 0, width: largura, height: altura))
+
+        let passo = 4
+        var soma = 0, amostras = 0
+        var y = 0
+        while y < altura {
+            var x = 0
+            while x + passo < largura {
+                let a = y * bytesPorLinha + x * 4
+                let b = y * bytesPorLinha + (x + passo) * 4
+                soma += abs(Int(pixels[a])     - Int(pixels[b]))
+                      + abs(Int(pixels[a + 1]) - Int(pixels[b + 1]))
+                      + abs(Int(pixels[a + 2]) - Int(pixels[b + 2]))
+                amostras += 1
+                x += passo
+            }
+            y += passo
+        }
+        return amostras == 0 ? 0 : Double(soma) / Double(amostras)
+    }
+
+    /// Tela deliberadamente vazia, usada como canário do detector.
+    private struct TelaVaziaDePropósito: View {
+        var body: some View { Color(red: 0.95, green: 0.94, blue: 0.98) }
+    }
+
     static func executar() {
         guard ligado else { return }
 
@@ -110,7 +182,8 @@ enum SmokeTestTelas {
         // `UIHostingController`, layout forçado e uma volta do run loop — que é
         // o caminho pelo qual o SwiftUI realmente constrói o `body`. Se algo
         // explodir, explode aqui, como explodiria no aparelho.
-        func render<V: View>(_ nome: String, _ view: V) {
+        @discardableResult
+        func render<V: View>(_ nome: String, _ view: V) -> Double {
             log("→ \(nome)")
 
             let conteudo = view
@@ -146,10 +219,22 @@ enum SmokeTestTelas {
 
             testadas += 1
             salvar(imagem, como: nome)
-            log("  ok   \(nome)")
+
+            // Renderizar sem crash é metade. A outra metade é ter conteúdo.
+            let energia = energiaDeBorda(imagem)
+            let medida = String(format: "%.2f", energia)
+            if brancoEsperado.contains(nome) {
+                log("  —    \(nome) — branco esperado (depende de câmera real); conteúdo não julgado")
+            } else if energia < limiteDeConteudo {
+                falhas.append("\(nome) [energia \(medida)]")
+                log("  VAZIA \(nome) — energia \(medida) < \(limiteDeConteudo): sem crash, mas sem conteúdo")
+            } else {
+                log("  ok   \(nome) — energia \(medida)")
+            }
 
             janela.isHidden = true
             janela.rootViewController = nil
+            return energia
         }
 
         log("═════ ALMA ═════")
@@ -237,12 +322,30 @@ enum SmokeTestTelas {
         render("Corpo · Insights SEM dados", CorpoInsightsView().environmentObject(vazio))
         render("Corpo · Dieta SEM refeições", DietaView().environmentObject(vazio))
 
+        log("═════ CANÁRIO DO DETECTOR ═════")
+        // Quem vigia o vigia. Uma tela deliberadamente vazia TEM de ser acusada.
+        // Se ela passar, o detector morreu — e todo "nenhuma tela vazia" acima
+        // vira o mesmo papel pintado que o "nenhuma falha" era até hoje.
+        let marcaCanário = "CANÁRIO · tela vazia de propósito"
+        let energiaCanário = render(marcaCanário, TelaVaziaDePropósito())
+        let canárioAcusado = falhas.contains { $0.hasPrefix(marcaCanário) }
+        falhas.removeAll { $0.hasPrefix(marcaCanário) }   // não é defeito do app
+        testadas -= 1                                     // nem é tela do app
+
+        if canárioAcusado {
+            log("✓ detector vivo — acusou a tela vazia (energia \(String(format: "%.2f", energiaCanário)))")
+        } else {
+            log("✗✗ DETECTOR CEGO — a tela vazia passou (energia \(String(format: "%.2f", energiaCanário)))")
+            log("   Enquanto esta linha existir, o resultado abaixo não vale nada.")
+            falhas.append("DETECTOR CEGO (o canário passou)")
+        }
+
         log("═════ RESULTADO ═════")
         log("\(testadas) telas renderizadas sem crash")
         if falhas.isEmpty {
-            log("nenhuma falha")
+            log("nenhuma tela vazia")
         } else {
-            log("FALHAS: \(falhas.joined(separator: ", "))")
+            log("\(falhas.count) TELA(S) SEM CONTEÚDO: \(falhas.joined(separator: ", "))")
         }
     }
 }
