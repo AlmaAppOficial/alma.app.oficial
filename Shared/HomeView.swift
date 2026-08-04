@@ -26,12 +26,17 @@ struct HomeView: View {
     @ObservedObject private var streakManager = StreakManager.shared
     @ObservedObject private var perfil = UserProfileStore.shared
     @State private var showOnboarding = false
-    /// [2026-08-03 — B4/MÉDIO] Um AppModel só, criado uma vez. Antes a Home
-    /// chamava `pendencias()` sem argumento e o método construía um `AppModel()`
-    /// novo — duas vezes por render. Cada construção decodifica ~6 blobs JSON e,
-    /// pior, carimba `lastWaterDate`: era um dos gatilhos da água de ontem
-    /// ressuscitando como água de hoje.
-    @StateObject private var corpoModel = AppModel()
+    // [2026-08-03 — B4/MÉDIO] A Home construía um `AppModel()` novo a cada
+    // render (2× por passagem) só para saber peso e altura: ~6 blobs JSON
+    // decodificados, e o init carimbava `lastWaterDate` — um dos gatilhos da
+    // água de ontem virando água de hoje. A correção daquele dia guardou UMA
+    // instância num @StateObject.
+    //
+    // [2026-08-04 — BUG DO CARD] Guardar a instância trocou um bug por outro: a
+    // tela que preenche o perfil tem o AppModel dela, gravava no disco, e esta
+    // cópia continuava velha — o card nunca sumia. Agora a Home não constrói
+    // AppModel nenhum: a completude do perfil é lida do disco pelo
+    // UserProfileStore. Os dois problemas somem, e a Home fica mais leve.
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -43,7 +48,7 @@ struct HomeView: View {
                 // ── Complete seu perfil ────────────────
                 // [2026-08-02] Só aparece quando falta algo de verdade, e some
                 // sozinho quando o perfil fica completo.
-                if !perfil.pendencias(corpo: corpoModel).isEmpty {
+                if !perfil.pendencias().isEmpty {
                     completeSeuPerfilCard
                 }
 
@@ -97,6 +102,15 @@ struct HomeView: View {
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationBarHidden(true)
         .task {
+            // [2026-08-04] `-abrirCorpo 1` não abria nada: o @State nascia
+            // `true` e um `.fullScreenCover` que já começa apresentado não
+            // apresenta — SwiftUI só reage à MUDANÇA do binding. Foi por isso
+            // que a conferência visual de 03/08 gerou 5 capturas da Home do
+            // Alma achando que eram as 5 abas do Corpo. Agora a flag vira o
+            // estado depois da tela existir.
+            #if DEBUG
+            if UserDefaults.standard.bool(forKey: "abrirCorpo") { showCorpoModule = true }
+            #endif
             authorized = await hk.requestAuthorization()
             if authorized { await hk.loadAll() }
             #if DEBUG
@@ -104,6 +118,7 @@ struct HomeView: View {
             await MainActor.run { SmokeTestTelas.executar() }
             await MainActor.run { TestePersistencia.executar() }
             await MainActor.run { DebugContextDump.semearPerfil() }
+            await MainActor.run { DebugContextDump.semearSaude() }
             await DebugContextDump.executar(health: hk)
             #endif
         }
@@ -171,7 +186,7 @@ struct HomeView: View {
     // as medidas de quem estava do outro lado — e mesmo assim calculava metas e
     // conversava. Este card cobra o que falta, sempre dizendo PARA QUÊ.
     private var completeSeuPerfilCard: some View {
-        let pendencias = perfil.pendencias(corpo: corpoModel)
+        let pendencias = perfil.pendencias()
 
         return Button {
             showOnboarding = true
@@ -185,9 +200,10 @@ struct HomeView: View {
                         Text("Complete seu perfil")
                             .font(.headline)
                             .foregroundColor(CalmTheme.textPrimary)
-                        Text(pendencias.count == 1
-                             ? "Falta 1 informação para a Alma te acompanhar de verdade"
-                             : "Faltam \(pendencias.count) informações para a Alma te acompanhar de verdade")
+                        // [2026-08-04] Dizia "Faltam 2 informações" e deixava a
+                        // pessoa caçar quais. Agora nomeia os campos: quem lê
+                        // sabe na hora o que o app ainda não tem.
+                        Text(PendenciaPerfil.textoDoQueFalta(pendencias))
                             .font(.caption)
                             .foregroundColor(CalmTheme.textSecondary)
                             .multilineTextAlignment(.leading)
@@ -687,11 +703,20 @@ struct HomeView: View {
         return base
     }
 
+    /// [2026-08-04 — achado na conferência visual] Saía "Terça-Feira, 4 De
+    /// Agosto": `.capitalized` põe maiúscula em TODA palavra, e em português
+    /// mês e a segunda parte do dia da semana são minúsculos. O certo é
+    /// "Terça-feira, 4 de agosto" — só a primeira letra.
     private var formattedDate: String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
         f.dateFormat = "EEEE, d 'de' MMMM"
-        return f.string(from: Date()).capitalized
+        return Self.primeiraMaiuscula(f.string(from: Date()))
+    }
+
+    static func primeiraMaiuscula(_ texto: String) -> String {
+        guard let primeira = texto.first else { return texto }
+        return String(primeira).uppercased() + texto.dropFirst()
     }
 }
 

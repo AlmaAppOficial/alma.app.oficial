@@ -62,10 +62,41 @@ enum CorpoContextFormat {
         n == 1 ? singular : plural
     }
 
+    /// Inteiro com separador de milhar do PT-BR: 7432 → "7.432".
+    ///
+    /// [2026-08-04] Achado no primeiro dump completo dos 12 dados: a linha de
+    /// passos usava `.formatted(.number.grouping(.automatic))`, que segue o
+    /// locale do APARELHO. Num aparelho fora do pt-BR saía "7 432" (espaço
+    /// estreito) ou "7,432" — e a regra do projeto é PT-BR sempre, inclusive
+    /// no texto que a IA lê e repete de volta para a pessoa.
+    static func inteiro(_ valor: Int) -> String {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        f.locale = Locale(identifier: "pt_BR")
+        f.groupingSeparator = "."
+        f.usesGroupingSeparator = true
+        return f.string(from: NSNumber(value: valor)) ?? "\(valor)"
+    }
+
     // MARK: - Linhas
 
     static func alimentacao(kcal: Int, refeicoesFeitas: Int, meta: Int?, proteina: Int) -> String? {
         guard refeicoesFeitas > 0 else { return nil }
+
+        // [2026-08-04] Achado no primeiro dump completo dos 12 dados: marcar a
+        // refeição como feita SEM registrar alimento produzia
+        // "0 kcal em 1 refeição · 0% da meta · 0 g de proteína" — três zeros
+        // apresentados como medição, exatamente o dado fingido que a
+        // corregedoria proíbe. Uma IA que lê isso pode concluir que a pessoa
+        // passou o dia em jejum.
+        //
+        // O gesto é real e continua contando; os números não existem e por isso
+        // não são afirmados.
+        guard kcal > 0 || proteina > 0 else {
+            let n = "\(refeicoesFeitas) \(plural(refeicoesFeitas, "refeição", "refeições"))"
+            let marcada = plural(refeicoesFeitas, "marcada", "marcadas")
+            return "Alimentação hoje: \(n) \(marcada), sem alimentos registrados"
+        }
 
         var partes = ["\(kcal) kcal em \(refeicoesFeitas) \(plural(refeicoesFeitas, "refeição", "refeições"))"]
         if let meta, meta > 0 {

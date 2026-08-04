@@ -205,6 +205,12 @@ final class AppModel: ObservableObject {
             // gráfico de evolução e a linha "(-2,5 kg desde o primeiro
             // registro)" que a Alma recebe eram código inalcançável.
             registrarPesagem(oldValue: oldValue)
+            // [2026-08-04 — BUG DO CARD] Avisa o UserProfileStore para o card
+            // "Complete seu perfil" recalcular. Fica aqui, no PRODUTOR, e não
+            // em cada tela que grava: assim vale para o onboarding, para a
+            // edição de medidas e para o scan corporal, sem depender de
+            // ninguém lembrar de chamar.
+            UserProfileStore.avisarMudanca()
         }
     }
 
@@ -217,7 +223,12 @@ final class AppModel: ObservableObject {
         weightLog.append(WeightEntry(date: Date(), kg: weightKg))
         weightLog.sort { $0.date < $1.date }
     }
-    @Published var heightCm: Double { didSet { store.set(heightCm, forKey: "heightCm") } }
+    @Published var heightCm: Double {
+        didSet {
+            store.set(heightCm, forKey: "heightCm")
+            UserProfileStore.avisarMudanca()   // [2026-08-04 — BUG DO CARD]
+        }
+    }
     @Published var ageYears: Int { didSet { store.set(ageYears, forKey: "ageYears") } }
     @Published var bodyFat: Double { didSet { store.set(bodyFat, forKey: "bodyFat") } }
     // [2026-08-03 — BUG B6] Havia aqui `@Published var restingHR: Int = 62`:

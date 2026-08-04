@@ -173,6 +173,18 @@ struct AlmaApp: App {
         WindowGroup {
             RootView()
                 .preferredColorScheme(isDarkMode ? .dark : .light)
+                // [2026-08-04 — achado na conferência visual] A Dieta exibia
+                // "de 2 368 kcal consumidas": `Text("\(inteiro)")` no SwiftUI
+                // formata pelo locale do APARELHO, e o separador de milhar em
+                // PT-BR é ponto, não espaço. O mesmo valia para qualquer outro
+                // número interpolado em Text no app inteiro.
+                //
+                // O Alma é um app PT-BR — a regra do projeto é PT-BR SEMPRE.
+                // Fixar o locale na raiz resolve todos os casos de uma vez, em
+                // vez de caçar interpolação por interpolação. (O contexto da
+                // IA não depende disto: lá o número passa por
+                // `CorpoContextFormat.inteiro`, que já é explícito.)
+                .environment(\.locale, Locale(identifier: "pt_BR"))
         }
     }
 }

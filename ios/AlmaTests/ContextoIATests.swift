@@ -255,6 +255,28 @@ struct ContextoIATests {
 
         // Trava de regressão: se alguém acrescentar um humor na tela sem
         // declarar a valência, este teste cai.
+        // ── [2026-08-04] Dois achados do primeiro dump completo dos 12 ──────
+        print("\n── Achados do dump completo de 04/08 ──")
+
+        igual(CorpoContextFormat.inteiro(7432), "7.432",
+              "milhar em PT-BR usa ponto, não o separador do locale do aparelho")
+        igual(CorpoContextFormat.inteiro(950), "950",
+              "abaixo de mil não ganha separador")
+        igual(CorpoContextFormat.inteiro(1234567), "1.234.567",
+              "milhão também")
+
+        igual(CorpoContextFormat.alimentacao(kcal: 0, refeicoesFeitas: 1, meta: 2200, proteina: 0),
+              "Alimentação hoje: 1 refeição marcada, sem alimentos registrados",
+              "refeição marcada sem alimento NÃO vira '0 kcal · 0% da meta · 0 g'")
+
+        igual(CorpoContextFormat.alimentacao(kcal: 0, refeicoesFeitas: 2, meta: 2200, proteina: 0),
+              "Alimentação hoje: 2 refeições marcadas, sem alimentos registrados",
+              "plural correto no caso sem alimentos")
+
+        igual(CorpoContextFormat.alimentacao(kcal: 0, refeicoesFeitas: 1, meta: 2200, proteina: 24),
+              "Alimentação hoje: 0 kcal em 1 refeição · 0% da meta · 24 g de proteína",
+              "com proteína registrada, o zero de kcal é informação real e fica")
+
         check(Mood.allCases.count == 6, "o check-in tem 6 humores; mudou? declare a valência do novo")
         check(Mood.allCases.filter { $0.valencia == .dificil }.count == 3,
               "Cansado, Ansioso e Triste contam como semana difícil")

@@ -51,7 +51,10 @@ struct HealthContextBuilder {
         if HealthContextConsent.isGranted(.movementAndSleep) {
             var movement: [String] = []
             if let steps = await health.stepsToday() {
-                movement.append("\(steps.formatted(.number.grouping(.automatic))) passos")
+                // [2026-08-04] Era `.formatted(.number.grouping(.automatic))`,
+                // que segue o locale do aparelho: "7 432" ou "7,432" fora do
+                // Brasil. Agora o separador é sempre o do PT-BR.
+                movement.append("\(CorpoContextFormat.inteiro(steps)) passos")
             }
             if let exercise = await health.exerciseMinutesToday() {
                 movement.append("\(exercise) min de exercício")

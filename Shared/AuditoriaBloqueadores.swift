@@ -221,6 +221,75 @@ enum AuditoriaBloqueadores {
             }
         }
 
+        // ── CARD · "Complete seu perfil" ────────────────────────────────────
+        //
+        // [2026-08-04] Bug relatado pelo Assis: preencheu o perfil e o card
+        // continuou lá. Estas asserções reproduzem o MECANISMO — duas
+        // instâncias de AppModel, uma na Home e outra na tela de edição — e
+        // provam que a completude agora é lida do disco, não de uma cópia.
+        let suiteCard = "auditoria.card.alma"
+        UserDefaults().removePersistentDomain(forName: suiteCard)
+        let storeCard = UserDefaults(suiteName: suiteCard)!
+
+        // A instância que a Home guardava (criada ANTES de a pessoa preencher).
+        let modelDaHome = AppModel(store: storeCard)
+
+        var faltando = UserProfileStore.shared.pendencias(
+            medidas: .persistidas(store: storeCard))
+        checa("C1a", "perfil vazio: o card cobra as medidas",
+              faltando.contains(.medidas),
+              faltando.map(\.rawValue).joined(separator: ", "))
+
+        // A tela de edição tem o SEU PRÓPRIO model — é exatamente isto que
+        // acontece em OnboardingBiometricsView (@StateObject próprio).
+        let modelDaTela = AppModel(store: storeCard)
+        modelDaTela.weightKg = 82
+        modelDaTela.heightCm = 180
+
+        // A cópia da Home continua velha: é a prova de que perguntar à
+        // instância era o erro.
+        checa("C1b", "a instância da Home continua desatualizada (era esta a causa)",
+              modelDaHome.weightKg == 0,
+              "peso na cópia da Home: \(modelDaHome.weightKg) · no disco: \(storeCard.double(forKey: "weightKg"))")
+
+        // E o card, que agora lê o disco, para de cobrar NA HORA.
+        faltando = UserProfileStore.shared.pendencias(
+            medidas: .persistidas(store: storeCard))
+        checa("C1c", "preencheu medidas → o card para de cobrar sem reabrir o app",
+              !faltando.contains(.medidas),
+              faltando.isEmpty ? "nenhuma pendência"
+                               : "ainda falta: \(faltando.map(\.rawValue).joined(separator: ", "))")
+
+        // App reaberto: model novo lendo do zero, mesmo resultado.
+        let modelReaberto = AppModel(store: storeCard)
+        checa("C1d", "app reaberto: as medidas sobreviveram",
+              modelReaberto.weightKg == 82 && modelReaberto.heightCm == 180,
+              "\(modelReaberto.weightKg) kg · \(modelReaberto.heightCm) cm")
+
+        // O texto do card NOMEIA o que falta, em vez de "faltam 2 informações".
+        let textoMedidas = PendenciaPerfil.textoDoQueFalta([.medidas])
+        checa("C2a", "o card DIZ qual campo falta",
+              textoMedidas.contains("peso e altura"),
+              textoMedidas)
+
+        let textoDois = PendenciaPerfil.textoDoQueFalta([.nascimento, .medidas])
+        checa("C2b", "com dois campos, nomeia os dois",
+              textoDois.contains("sua data de nascimento") && textoDois.contains("peso e altura"),
+              textoDois)
+
+        checa("C2c", "perfil completo → texto vazio (card não aparece)",
+              PendenciaPerfil.textoDoQueFalta([]).isEmpty,
+              "\"\(PendenciaPerfil.textoDoQueFalta([]))\"")
+
+        // Só peso, sem altura: continua incompleto — e diz o que falta.
+        storeCard.removeObject(forKey: "heightCm")
+        let sóPeso = UserProfileStore.shared.pendencias(medidas: .persistidas(store: storeCard))
+        checa("C3", "peso sem altura NÃO conta como medidas completas",
+              sóPeso.contains(.medidas),
+              PendenciaPerfil.textoDoQueFalta(sóPeso))
+
+        UserDefaults().removePersistentDomain(forName: suiteCard)
+
         let textoDeTela = GuidanceEngine.todosOsTextos
         let telaPTPT = textoDeTela.filter(temPTPT)
         checa("A12", "nenhum texto EXIBIDO em PT-PT (Home e Insights)",
