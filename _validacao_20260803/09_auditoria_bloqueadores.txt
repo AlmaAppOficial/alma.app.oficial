@@ -1,15 +1,16 @@
 ═════ AUDITORIA DOS BLOQUEADORES ═════
-✓ B1 build != 88 (88 já está no TestFlight) — 2.0 (89)
+✓ B1 build != 88 (88 já está no TestFlight) — 2.0 (90)
 ✓ B2a 7× 'Triste' NÃO vira 'semana estável' — semana emocionalmente pesada
 ✓ B2b emoji legado não vira afirmação silenciosa — nil
 ✓ B2c todo humor da tela é reconhecido pelo classificador — Ótimo, Bem, Normal, Cansado, Ansioso, Triste
 ✓ B3a workoutDays gravou e sobreviveu ao fechamento — 1 dia(s)
 ✓ B3b weightLog foi PRODUZIDO ao alterar o peso — 1 ponto(s)
-✓ B3c kcalByDay foi PRODUZIDO ao marcar refeição — ["2026-08-03": 400]
+✓ B3c kcalByDay foi PRODUZIDO ao marcar refeição — ["2026-08-04": 400]
 ✓ B3d dietaryRestrictions persistiu — 'alergia a amendoim'
 ✓ B3e healthConditions persistiu — 'hérnia de disco'
 ✓ B4a água zera no dia novo — 0 ml
 ✓ B4b água NÃO ressuscita na 2ª instância do mesmo dia — 0 ml
+✓ B4c água registrada hoje SOBREVIVE ao fechamento do app — 750 ml
 ✓ B5a sem medidas, imcSeguro é nil (não NaN) — nil
 ✓ B5b sem medidas, classificação NÃO é 'Obesidade' — 'sem medidas'
 ✓ B5c com medidas reais o IMC volta a funcionar — 25.2
@@ -22,13 +23,72 @@
 ✓ B10b nenhum ID do app descontinuado — com.almaapp.app.premium_monthly / com.almaapp.app.premium_annual
 ✓ B11a registro manual liberado (régua) — true
 ✓ B11b usuário SEM premium consegue registrar água — premium=false, água 0→250 ml
-✓ N1 categoria de suplementos existe — hora padrão 9h
-✓ N2 teto de lembretes por dia respeitado — 9/dia com tudo ligado (teto 9)
 ✓ N3 cada dono limpa só o que é seu — donos: corpo, alma, vicio
 ✓ A16a sob pressão, a linha de ALERGIA sobrevive — 498 chars
 ✓ A16b o corte respeita o teto — 498 de 600
 ✓ A16c campo de texto livre é limitado na origem — 171 chars
+✓ B8b prometer IA se e somente se a IA existe — IA disponível: false · 5 textos · prometem IA: nenhum
+✓ B8c a nota de privacidade descreve o uso real de foto — Nesta versão nenhuma foto é enviada nem analisada — o result…
+✓ B8d o banner do Premium no Corpo não vende IA inexistente — Planos personalizados, acompanhamento e insights
+✓ C1a perfil vazio: o card cobra as medidas — nome, nascimento, medidas, contexto
+· contexto C1: peso na cópia velha da Home: 0.0 · no disco: 82.0
+✓ C1c preencheu medidas → o card para de cobrar sem reabrir o app — ainda falta: nome, nascimento, contexto
+✓ C1d app reaberto: as medidas sobreviveram — 82.0 kg · 180.0 cm
+✓ C2a o card DIZ qual campo falta — Falta peso e altura para a Alma te acompanhar de verdade
+✓ C2b com dois campos, nomeia os dois — Faltam sua data de nascimento e peso e altura para a Alma te acompanhar de verdade
+✓ C2c perfil completo → texto vazio (card não aparece) — ""
+✓ C3 peso sem altura NÃO conta como medidas completas — Faltam como te chamar, sua data de nascimento, peso e altura e escolher o que ela pode ver para a Alma te acompanhar de verdade
 ✓ A12 nenhum texto EXIBIDO em PT-PT (Home e Insights) — 232 textos verificados
+✓ A15a nenhum texto gerado (Home/Insights) alega efeito clínico — 232 textos verificados
+✓ A15b a copy corrigida hoje continua sem alegação clínica — 5 frases verificadas
+✓ A15c canário — o detector de alegação acusa uma frase proibida — acusou
+✓ A17a nenhuma copy do chat promete volume ilimitado — 3 frases · cota grátis = 0/dia
+✓ A17b canário — o detector acusa promessa de volume — acusou
+✓ A20a duas rodadas com pausa: a primeira fala NÃO se perde — "Vou falar Mas não sei se vai ficar salvo aqui"
+✓ A20b três rodadas mantêm tudo, na ordem — "Vou falar Mas não sei se vai ficar salvo aqui Se ficou algum segundo sem falar"
+✓ A20c revisão do enunciado não duplica texto — "Vou falar"
+✓ A20d texto já digitado sobrevive ao ligar o microfone — "Oi Alma tudo bem"
+✓ A20e crescer é continuar; recomeçar não é — crescer=true recomeçar=false
+✓ A19a com os dois, vence o que a pessoa digitou — 83.0 · informado por você
+✓ A19b sem nada digitado, o Apple Saúde preenche — 82.7 · do Apple Saúde
+✓ A19c sem peso nenhum não inventa número — 0.0 · sem peso informado
+✓ A19d o IMC usa o peso digitado, não o do Apple Saúde — 24.78
+✓ A19e sem altura o IMC é nil, nunca NaN — nil
+✓ A19f peso digitado sobrevive ao reabrir e continua vencendo — 83.0 · informado por você
+✓ A18a noite de referência dá 100 — 100 · Noite parecida com a de referência — 8h00.
+✓ A18b noite curta e fragmentada pontua abaixo da referência — 69 · Noite com algumas diferenças da referência — 6h00.
+✓ A18c sem estágios NÃO inventa pontuação — pontos=nil · 7h30 de sono. A pontuação precisa dos estágios do sono.
+✓ A18d noite sem registro não pontua nem pede estágios — Sem registro de sono nesta noite.
+✓ A18e nenhuma frase da pontuação julga o sono da pessoa — 6 frases
+✓ A18f o rodapé nega que o número venha do Apple Saúde — Estimativa do Alma a partir dos seus dados. Não vem do Apple Saúde e não é avaliação clínica.
+✗ A18g amostras com estágio viram noite pontuável — OBSERVADO: total=8.0 despertares=-1
+✓ A18h sono sem classificação de estágio não vira pontuação — total=7.5 rem=nil
+✓ A18i 'na cama' vira duração e nunca pontuação — total=7.0
+✓ A18m 'na cama' NÃO infla o total quando há estágios — total=6.0 (esperado 6.0)
+✗ A18j sem amostras não existe noite — OBSERVADO: objeto fabricado
+✓ A18k a linha da IA descreve, se declara estimativa e não recomenda — Pontuação de sono: 100/100 (estimativa do Alma pelos estágios da noite, não é medida clínica)
+✗ A18l sem estágios a IA não recebe pontuação nenhuma — OBSERVADO: nil esperado
+✓ A23a sem produto carregado, NENHUM plano é oferecido — []
+✓ A23b o enum de planos não carrega valor em dinheiro — ["Anual", "Mensal"] ["/ano", "/mês"]
+✗ A23c sem produto, a tela não exibe número algum — OBSERVADO: ["Você tem 7 dias grátis. O valor e o período aparecem aqui antes de qualquer cobrança — nada é cobrado sem a Apple confirmar."]
+✓ A21a só a origem App Store oferece gestão nativa da Apple — appStore=true legado=false
+✗ A21b o acesso herdado se declara sem cobrança e sem renovação — OBSERVADO: É um acesso permanente que você ganhou por ter assinado o Corpo & Alma.
+✗ A21c nenhum texto da gestão do plano promete preço, prazo ou teste — OBSERVADO: ["Você paga R$ 24,90 por mês. Dá para ver o valor, trocar de plano ou cancelar na sua conta Apple."]
+✗ A22a nenhuma promessa de teste grátis nos textos de assinatura — OBSERVADO: ["Você tem 7 dias grátis. O valor e o período aparecem aqui antes de qualquer cobrança — nada é cobrado sem a Apple confirmar."]
+✓ A13a sem gravado e sem legado, histórico vazio e não grava — [] gravar=false
+✓ A13b legado sozinho vira o 1º item E pede gravação — [1700000000.0] gravar=true
+✓ A13c histórico gravado tem precedência sobre o legado e não regrava — [111.0, 222.0] gravar=false
+✓ A13d JSON corrompido cai na migração em vez de perder o legado — [1700000000.0] gravar=true
+✓ A14a o UIActivityViewController recebe um completionWithItemsHandler — instalado
+✓ A14b terminado o compartilhamento, o estado do sheet volta a false — isPresented=false
+✓ A14c cancelar o compartilhamento também devolve o estado — isPresented=false
 ═════ RESULTADO ═════
-aprovados: 30
-reprovados: NENHUM
+aprovados: 75
+REPROVADOS (7):
+   ✗ A18g amostras com estágio viram noite pontuável
+   ✗ A18j sem amostras não existe noite
+   ✗ A18l sem estágios a IA não recebe pontuação nenhuma
+   ✗ A23c sem produto, a tela não exibe número algum
+   ✗ A21b o acesso herdado se declara sem cobrança e sem renovação
+   ✗ A21c nenhum texto da gestão do plano promete preço, prazo ou teste
+   ✗ A22a nenhuma promessa de teste grátis nos textos de assinatura
