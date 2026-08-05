@@ -18,6 +18,41 @@ struct FoodScanResult {
     let proteinPer100: Int
     let carbsPer100: Int
     let fatPer100: Int
+
+    /// [2026-08-05] A porção que a IA enxergou no prato, COMO NÚMERO.
+    ///
+    /// Antes ela existia só dentro de `description`, como prosa
+    /// ("Porção estimada na foto: 250 g"). Um número que só vive numa frase não
+    /// pode ser usado para calcular nada — e não era: o botão registrava
+    /// `grams: 100` fixo. A tela dizia 250 g e o diário recebia 100 g.
+    ///
+    /// Sendo campo, ele alimenta ao mesmo tempo o que a tela mostra e o que
+    /// entra na dieta. Ver `macrosDaPorcao` e a asserção H2.
+    let porcaoG: Int
+
+    /// Os quatro números que a tela mostra E que vão para o diário.
+    ///
+    /// Passam pela MESMA função que o `AppModel.addFood` usa
+    /// (`AppModel.escalarPor100`). É isso que torna impossível a tela dizer uma
+    /// coisa e o registro gravar outra — que era o bug.
+    var macrosDaPorcao: (kcal: Int, proteina: Int, carbo: Int, gordura: Int) {
+        (kcal:     AppModel.escalarPor100(kcalPer100,    gramas: porcaoG),
+         proteina: AppModel.escalarPor100(proteinPer100, gramas: porcaoG),
+         carbo:    AppModel.escalarPor100(carbsPer100,   gramas: porcaoG),
+         gordura:  AppModel.escalarPor100(fatPer100,     gramas: porcaoG))
+    }
+
+    /// O `FoodItem` que vai para o diário. Carrega os valores POR 100 g porque
+    /// é assim que o `addFood` os espera — a porção vai separada, no `grams:`.
+    var comoFoodItem: FoodItem {
+        FoodItem(name: name,
+                 kcalPer100: kcalPer100,
+                 proteinPer100: proteinPer100,
+                 carbsPer100: carbsPer100,
+                 fatPer100: fatPer100,
+                 emoji: "🍽️",
+                 brand: brand)
+    }
 }
 
 // MARK: - Tela principal
@@ -232,12 +267,22 @@ struct FoodScanView: View {
                     .foregroundStyle(Theme.inkSoft)
             }
 
-            // 4 MacroTiles: kcal / proteína / carboidrato / gordura
+            // [2026-08-05] Os quatro números são DA PORÇÃO, e o rótulo diz de
+            // qual porção. Antes eram por 100 g, sem dizer, logo abaixo de uma
+            // frase que anunciava a porção estimada: quem lia "250 g" e "520
+            // kcal" somava 520 kcal a um prato que tem 1 300.
+            //
+            // São exatamente os números que o botão abaixo registra — os dois
+            // leem `r.macrosDaPorcao`.
+            Text("Valores para os \(r.porcaoG) g estimados na foto")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Theme.inkSoft)
+
             HStack(spacing: 10) {
-                macroTile("\(r.kcalPer100)", "kcal", Theme.coral)
-                macroTile("\(r.proteinPer100) g", "Prot", Theme.primary)
-                macroTile("\(r.carbsPer100) g", "Carbo", Theme.gold)
-                macroTile("\(r.fatPer100) g", "Gord", Theme.azure)
+                macroTile("\(r.macrosDaPorcao.kcal)", "kcal", Theme.coral)
+                macroTile("\(r.macrosDaPorcao.proteina) g", "Prot", Theme.primary)
+                macroTile("\(r.macrosDaPorcao.carbo) g", "Carbo", Theme.gold)
+                macroTile("\(r.macrosDaPorcao.gordura) g", "Gord", Theme.azure)
             }
 
             // Picker de refeição
@@ -247,20 +292,17 @@ struct FoodScanView: View {
             .pickerStyle(.segmented)
 
             // Confirmar e adicionar
+            //
+            // [2026-08-05] Era `grams: 100`, fixo, ignorando a porção que a IA
+            // estimou e que a tela logo acima anunciava. O app informava uma
+            // porção e registrava outra na dieta — e a contagem de calorias,
+            // que é o valor inteiro desta parte do app, ficava errada em
+            // silêncio, sem nada na tela que denunciasse.
             Button {
-                let food = FoodItem(
-                    name: r.name,
-                    kcalPer100: r.kcalPer100,
-                    proteinPer100: r.proteinPer100,
-                    carbsPer100: r.carbsPer100,
-                    fatPer100: r.fatPer100,
-                    emoji: "🍽️",
-                    brand: r.brand
-                )
-                model.addFood(food, grams: 100, to: mealType)
+                model.addFood(r.comoFoodItem, grams: r.porcaoG, to: mealType)
                 dismiss()
             } label: {
-                Label("Adicionar à \(mealType.rawValue)", systemImage: "checkmark")
+                Label("Adicionar \(r.porcaoG) g à \(mealType.rawValue)", systemImage: "checkmark")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -344,16 +386,19 @@ struct FoodScanView: View {
             do {
                 let prato = try await AnaliseDeFotoService.analisarPrato(
                     foto: imageData, consentimento: true)
+                // A porção vem da IA e agora é NÚMERO, não frase. `max(1,…)`
+                // porque porção zero registraria uma refeição de 0 kcal com
+                // cara de refeição registrada.
+                let porcao = max(1, Int(prato.porcaoG.rounded()))
                 result = FoodScanResult(
                     name: prato.nome,
                     brand: nil,
-                    // A porção que a IA enxergou no prato. Aparece para a pessoa
-                    // conferir antes de somar às calorias do dia.
-                    description: "Porção estimada na foto: \(Int(prato.porcaoG.rounded())) g",
+                    description: "Porção estimada na foto: \(porcao) g",
                     kcalPer100: Int(prato.kcalPor100.rounded()),
                     proteinPer100: Int(prato.proteinaPor100.rounded()),
                     carbsPer100: Int(prato.carboPor100.rounded()),
-                    fatPer100: Int(prato.gorduraPor100.rounded())
+                    fatPer100: Int(prato.gorduraPor100.rounded()),
+                    porcaoG: porcao
                 )
             } catch {
                 // [F2/B8] Erro é erro. Nunca um "resultado" inventado que

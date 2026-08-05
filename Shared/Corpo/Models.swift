@@ -728,15 +728,28 @@ final class AppModel: ObservableObject {
         meals.removeAll { $0.id == meal.id }
     }
 
+    /// [2026-08-05] FONTE ÚNICA da conta de porção.
+    ///
+    /// Existia em duplicata implícita: o `addFood` escalava por 100 g aqui, e a
+    /// tela do scan de comida exibia os valores POR 100 g com um texto dizendo
+    /// "porção estimada na foto: N g" ao lado. Duas contas diferentes na mesma
+    /// tela — a pessoa lia 250 g / 520 kcal e o diário recebia 100 g / 520 kcal.
+    ///
+    /// Com uma função só, exibido e registrado não conseguem divergir: divergir
+    /// exigiria chamar a função com gramas diferentes, e é exatamente isso que
+    /// a asserção H2 compara. Não mexa aqui sem olhar H2.
+    static func escalarPor100(_ valorPor100: Int, gramas: Int) -> Int {
+        Int((Double(valorPor100) * Double(gramas) / 100.0).rounded())
+    }
+
     func addFood(_ food: FoodItem, grams: Int, to type: MealType) {
-        let f = Double(grams) / 100.0
         let meal = Meal(
             type: type,
             name: "\(food.name) · \(grams) g",
-            kcal: Int((Double(food.kcalPer100) * f).rounded()),
-            protein: Int((Double(food.proteinPer100) * f).rounded()),
-            carbs: Int((Double(food.carbsPer100) * f).rounded()),
-            fat: Int((Double(food.fatPer100) * f).rounded()),
+            kcal:    Self.escalarPor100(food.kcalPer100,    gramas: grams),
+            protein: Self.escalarPor100(food.proteinPer100, gramas: grams),
+            carbs:   Self.escalarPor100(food.carbsPer100,   gramas: grams),
+            fat:     Self.escalarPor100(food.fatPer100,     gramas: grams),
             done: true
         )
         meals.append(meal)

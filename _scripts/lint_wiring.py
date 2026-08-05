@@ -82,7 +82,7 @@ REGRAS = [
         "precisa": r"temLimpezaPendente",
         "mutacao": "remover a guarda antes do setData do fcmToken",
     },
-    # ── N-W · encaminhamento por toque em notificação (2026-08-05) ──────────
+    # ── R-W · encaminhamento por toque em notificação (2026-08-05) ──────────
     #
     # Por que estas regras existem sendo estáticas: as asserções N1..N7 do
     # harness provam o MAPA (identificador → destino) em runtime, mas não
@@ -90,14 +90,14 @@ REGRAS = [
     # XCUITest, ausente no projeto. Cada regra abaixo cobre um elo que o
     # runtime não enxerga, e fica vermelha sob a mutação declarada.
     {
-        "id": "N-W1",
+        "id": "R-W1",
         "desc": "o toque em notificação atravessa a rota (não só o openFeed)",
         "arquivo": "Shared/AlmaApp.swift",
         "precisa": r"RotaDaNotificacao\.destino\(identificador:",
         "mutacao": "voltar o delegate a tratar apenas action == openFeed",
     },
     {
-        "id": "N-W2",
+        "id": "R-W2",
         "desc": "a Alma encaminha o destino pendente ao NASCER (app fechado)",
         "arquivo": "Shared/MainTabView.swift",
         "precisa": r"\.onAppear\s*\{\s*encaminharNotificacaoPendente\(\)\s*\}",
@@ -105,21 +105,21 @@ REGRAS = [
                    "partida fria, que é o caminho que ninguém testa",
     },
     {
-        "id": "N-W3",
+        "id": "R-W3",
         "desc": "a Alma encaminha o destino que chega com o app vivo",
         "arquivo": "Shared/MainTabView.swift",
         "precisa": r"onChange\(of:\s*roteador\.pendente\)",
         "mutacao": "remover o .onChange — quebra o app em segundo plano",
     },
     {
-        "id": "N-W4",
+        "id": "R-W4",
         "desc": "a Início abre Corpo/chat/vícios a partir do destino",
         "arquivo": "Shared/HomeView.swift",
         "precisa": r"case \.conversarComAlma:\s*\n\s*showChat = true",
         "mutacao": "apagar o ramo do chat do encaminhamento da Início",
     },
     {
-        "id": "N-W5",
+        "id": "R-W5",
         "desc": "o RootTabView aplica a aba pedida pela notificação",
         "arquivo": "Shared/Corpo/RootTabView.swift",
         "precisa": r"selection = aba\.rawValue",
@@ -127,25 +127,73 @@ REGRAS = [
                    "notificação de almoço deixa de chegar na Dieta",
     },
     {
-        "id": "N-W6",
+        "id": "R-W6",
         "desc": "os lembretes do Corpo carimbam o destino ao serem agendados",
         "arquivo": "Shared/Corpo/NotificationManager.swift",
         "precisa": r"content\.userInfo = RotaDaNotificacao\.carimbo\(para: id\)",
         "mutacao": "remover o carimbo — sobra só o roteamento por prefixo",
     },
     {
-        "id": "N-W7",
+        "id": "R-W7",
         "desc": "os lembretes da Alma carimbam o destino",
         "arquivo": "Shared/LembretesDaAlma.swift",
         "precisa": r"content\.userInfo = RotaDaNotificacao\.carimbo\(para: id\)",
         "mutacao": "remover o carimbo dos lembretes de meditação",
     },
     {
-        "id": "N-W8",
+        "id": "R-W8",
         "desc": "os marcos de vício carimbam o destino",
         "arquivo": "Shared/AddictionFreeView.swift",
         "precisa": r"content\.userInfo = RotaDaNotificacao\.carimbo",
         "mutacao": "remover o carimbo dos marcos",
+    },
+    # ── C · exibido == registrado (2026-08-05) ─────────────────────────────
+    {
+        "id": "H-W1",
+        "desc": "o scan de comida registra a porção estimada, não 100 g fixo",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        "proibe": r"addFood\([^)]*grams:\s*100\b",
+        "mutacao": "voltar `grams: 100` no botão de adicionar",
+    },
+    {
+        "id": "H-W2",
+        "desc": "os tiles mostram os macros DA PORÇÃO",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        "precisa": r"macroTile\(\"\\\(r\.macrosDaPorcao\.kcal\)\"",
+        "mutacao": "voltar os tiles a exibir r.kcalPer100",
+    },
+    {
+        "id": "H-W3",
+        "desc": "porção e macros saem da mesma função de escala",
+        "arquivo": "Shared/Corpo/Models.swift",
+        "precisa": r"static func escalarPor100\(_ valorPor100: Int, gramas: Int\)",
+        "mutacao": "reescrever a conta dentro do addFood, criando duplicata",
+    },
+    {
+        "id": "H-W4",
+        "desc": "o caminho de IA exige somatotipo e resumo da própria IA",
+        "arquivo": "Shared/Corpo/AnaliseDeFotoService.swift",
+        "precisa": r"guard let somatotipo = r\.somatotipo\.flatMap",
+        "mutacao": "voltar o fallback `?? base.analysis.somatotype`",
+    },
+    {
+        "id": "H-W5",
+        "desc": "nenhum texto do MockAIPlanService entra no resultado com IA",
+        "arquivo": "Shared/Corpo/AnaliseDeFotoService.swift",
+        "proibe": r"base\.analysis\.(summary|observations|focusAreas|somatotype)",
+        "mutacao": "reintroduzir qualquer `base.analysis.<texto>` como reserva",
+    },
+    {
+        # Guarda a DECISÃO, não o código: 05/08 decidiu-se NÃO registrar o
+        # HabitNotificationManager (~500 linhas que nunca compilaram). Se
+        # alguém o acrescentar ao target sem revisar, três prefixos da
+        # GradeDeLembretes passam a agendar notificações sem rota — e a
+        # asserção N7 já está calibrada para o estado atual. Ver CLAUDE.md.
+        "id": "R-W9",
+        "desc": "HabitNotificationManager segue FORA do build (dívida declarada)",
+        "arquivo": "Alma.App.Oficial.xcodeproj/project.pbxproj",
+        "proibe": r"HabitNotificationManager",
+        "mutacao": "adicionar HabitNotificationManager.swift ao target",
     },
 ]
 

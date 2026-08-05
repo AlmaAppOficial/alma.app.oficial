@@ -405,7 +405,7 @@
 		DD022000DD022000DD022000 /* UserProfileStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserProfileStore.swift; sourceTree = "<group>"; };
 		DD024000DD024000DD024000 /* GradeDeLembretes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradeDeLembretes.swift; sourceTree = "<group>"; };
 		DD026000DD026000DD026000 /* LembretesDaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LembretesDaAlma.swift; sourceTree = "<group>"; };
-		92A8051AB10A3E1BE8945BFC /* RotaDaNotificacao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Shared/RotaDaNotificacao.swift"; sourceTree = "<group>"; };
+		92A8051AB10A3E1BE8945BFC /* RotaDaNotificacao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RotaDaNotificacao.swift; sourceTree = "<group>"; };
 		DD027000DD027000DD027000 /* SmokeTestTelas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmokeTestTelas.swift; sourceTree = "<group>"; };
 		DD028000DD028000DD028000 /* AuditoriaBloqueadores.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuditoriaBloqueadores.swift; sourceTree = "<group>"; };
 		DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoContextSnapshot.swift"; sourceTree = "<group>"; };

@@ -121,13 +121,39 @@ enum AnaliseDeFotoService {
                                      medidas: medidas, consentimento: consentimento)
         let r = try decodificar(RespostaCorpo.self, de: dados)
 
+        // ═══════════════════════════════════════════════════════════════════
+        // [2026-08-05] A GUARDA EXIGE A LEITURA DA FOTO INTEIRA, não só a gordura.
+        //
+        // Antes exigia `legivel` + `gorduraEstimada`, e os outros campos caíam
+        // para o `MockAIPlanService` quando vinham vazios. O somatotipo e o
+        // resumo SÃO a leitura da foto — é o que só a IA faz. Se ela não os
+        // entrega, a análise por foto não aconteceu, e devolver um resultado
+        // completo com esses campos preenchidos por heurística local é
+        // apresentar cálculo de medidas como se fosse leitura de imagem.
+        //
+        // Isto é o mesmo erro do B8, um nível abaixo: lá o app inteiro caía no
+        // cálculo local; aqui caíam três campos, em silêncio e sem banner,
+        // porque `isAIGenerated` continuava `true`.
+        // ═══════════════════════════════════════════════════════════════════
         guard r.legivel, let gordura = r.gorduraEstimada else {
             throw ErroDaAnalise.fotoIlegivel(
                 r.motivo ?? "Não consegui ler essa foto o suficiente para estimar.")
         }
+        guard let somatotipo = r.somatotipo.flatMap(Somatotype.init(rawValue:)),
+              let resumo = r.resumo, !resumo.isEmpty else {
+            throw ErroDaAnalise.indisponivel(
+                "A análise da foto voltou incompleta. Tente de novo em alguns minutos.")
+        }
 
-        // A IA entrega a leitura da foto. O plano numérico sai do cálculo local,
-        // agora alimentado pela gordura que a IA estimou em vez da informada.
+        // A IA entrega a leitura da foto. O plano NUMÉRICO sai do cálculo
+        // local, alimentado pela gordura que a IA estimou em vez da informada —
+        // e a tela diz isso, no `notes` logo abaixo.
+        //
+        // O `base` serve SÓ para os números do plano. Nenhum texto dele
+        // atravessa para cá: o `MockAIPlanService` escreve para a tela do
+        // caminho SEM IA ("sem análise de fotos", "adicione foto de frente e de
+        // lado") e essas frases, numa tela de resultado com foto analisada,
+        // mandam a pessoa fazer o que ela acabou de fazer.
         let comGorduraDaIA = ScanInput(
             weightKg: input.weightKg, heightCm: input.heightCm,
             ageYears: input.ageYears, bodyFat: gordura,
@@ -135,11 +161,11 @@ enum AnaliseDeFotoService {
         let base = try await MockAIPlanService().analyze(comGorduraDaIA)
 
         let analise = BodyAnalysis(
-            somatotype: Somatotype(rawValue: r.somatotipo ?? "") ?? base.analysis.somatotype,
+            somatotype: somatotipo,
             estimatedBodyFat: gordura,
-            summary: r.resumo ?? base.analysis.summary,
-            observations: r.observacoes.isEmpty ? base.analysis.observations : r.observacoes,
-            focusAreas: r.focos.isEmpty ? base.analysis.focusAreas : r.focos
+            summary: resumo,
+            observations: r.observacoes.isEmpty ? Self.observacoesPadraoDaIA : r.observacoes,
+            focusAreas: r.focos.isEmpty ? Self.focosPadraoDaIA : r.focos
         )
 
         let plano = GeneratedPlan(
@@ -153,6 +179,20 @@ enum AnaliseDeFotoService {
 
         return ScanResult(analysis: analise, plan: plano, isAIGenerated: true)
     }
+
+    /// Textos de reserva DO CAMINHO DE IA. Existem para que nenhum campo vazio
+    /// da resposta puxe frase do `MockAIPlanService`, que fala para a outra
+    /// tela. São verdadeiros nos dois casos: a foto foi analisada e o plano é
+    /// estimativa.
+    ///
+    /// Asserção C1 exige que nenhuma delas cite foto ausente — é a frase que
+    /// vazava e que mandava a pessoa anexar a foto que ela já tinha anexado.
+    static let observacoesPadraoDaIA = [
+        "Estimativa a partir da foto e das suas medidas.",
+        "Reavalie a cada 2–4 semanas, com a mesma luz e o mesmo enquadramento."
+    ]
+
+    static let focosPadraoDaIA = ["Constância", "Composição corporal"]
 
     // MARK: Comida
 

@@ -1,0 +1,133 @@
+═════ AUDITORIA DOS BLOQUEADORES ═════
+✓ B1 build != 88 (88 já está no TestFlight) — 2.0 (93)
+✓ B2a 7× 'Triste' NÃO vira 'semana estável' — semana emocionalmente pesada
+✓ B2b emoji legado não vira afirmação silenciosa — nil
+✓ B2c todo humor da tela é reconhecido pelo classificador — Ótimo, Bem, Normal, Cansado, Ansioso, Triste
+✓ B3a workoutDays gravou e sobreviveu ao fechamento — 1 dia(s)
+✓ B3b weightLog foi PRODUZIDO ao alterar o peso — 1 ponto(s)
+✓ B3c kcalByDay foi PRODUZIDO ao marcar refeição — ["2026-08-05": 400]
+✓ B3d dietaryRestrictions persistiu — 'alergia a amendoim'
+✓ B3e healthConditions persistiu — 'hérnia de disco'
+✓ B4a água zera no dia novo — 0 ml
+✓ B4b água NÃO ressuscita na 2ª instância do mesmo dia — 0 ml
+✓ B4c água registrada hoje SOBREVIVE ao fechamento do app — 750 ml
+✓ B5a sem medidas, imcSeguro é nil (não NaN) — nil
+✓ B5b sem medidas, classificação NÃO é 'Obesidade' — 'sem medidas'
+✓ B5c com medidas reais o IMC volta a funcionar — 25.2
+✓ B8a scan de alimento só aparece se a IA existir no build — IA disponível: true
+✓ B9a exclusão apaga nome do Corpo (sem prefixo alma_) — nil
+✓ B9b exclusão apaga peso — nil
+✓ B9c exclusão apaga ALERGIAS — nil
+✓ B9d exclusão apaga o perfil do App Group — nil
+✓ B10a StoreManager do Corpo usa o produto mensal do Alma — com.almaapp.app.premium_monthly
+✓ B10b nenhum ID do app descontinuado — com.almaapp.app.premium_monthly / com.almaapp.app.premium_annual
+✓ B11a registro manual liberado (régua) — true
+✓ B11b usuário SEM premium consegue registrar água — premium=false, água 0→250 ml
+✓ N3 cada dono limpa só o que é seu — donos: corpo, alma, vicio
+✓ A16a sob pressão, a linha de ALERGIA sobrevive — 498 chars
+✓ A16b o corte respeita o teto — 498 de 600
+✓ A16c campo de texto livre é limitado na origem — 171 chars
+✓ B8b prometer IA se e somente se a IA existe — IA disponível: true · 5 textos · prometem IA: Saúde · banner, Scan corporal · título, Scan corporal · privacidade, Scan de comida · título, Scan de comida · chamada
+✓ B8c a nota de privacidade descreve o uso real de foto — A foto é analisada e não fica guardada no Alma. O provedor d…
+✓ B8d o banner do Premium no Corpo não vende IA inexistente — Planos personalizados, scan com IA e insights
+✓ C1a perfil vazio: o card cobra as medidas — nome, nascimento, medidas, contexto
+· contexto C1: peso na cópia velha da Home: 0.0 · no disco: 82.0
+✓ C1c preencheu medidas → o card para de cobrar sem reabrir o app — ainda falta: nome, nascimento, contexto
+✓ C1d app reaberto: as medidas sobreviveram — 82.0 kg · 180.0 cm
+✓ C2a o card DIZ qual campo falta — Falta peso e altura para a Alma te acompanhar de verdade
+✓ C2b com dois campos, nomeia os dois — Faltam sua data de nascimento e peso e altura para a Alma te acompanhar de verdade
+✓ C2c perfil completo → texto vazio (card não aparece) — ""
+✓ C3 peso sem altura NÃO conta como medidas completas — Faltam como te chamar, sua data de nascimento, peso e altura e escolher o que ela pode ver para a Alma te acompanhar de verdade
+✓ A12 nenhum texto EXIBIDO em PT-PT (Home e Insights) — 232 textos verificados
+✓ A15a nenhum texto gerado (Home/Insights) alega efeito clínico — 232 textos verificados
+✓ A15b a copy corrigida hoje continua sem alegação clínica — 5 frases verificadas
+✓ A15c canário — o detector de alegação acusa uma frase proibida — acusou
+✓ A17a nenhuma copy do chat promete volume ilimitado — 3 frases · cota grátis = 0/dia
+✓ A17b canário — o detector acusa promessa de volume — acusou
+✓ A20a duas rodadas com pausa: a primeira fala NÃO se perde — "Vou falar Mas não sei se vai ficar salvo aqui"
+✓ A20b três rodadas mantêm tudo, na ordem — "Vou falar Mas não sei se vai ficar salvo aqui Se ficou algum segundo sem falar"
+✓ A20c revisão do enunciado não duplica texto — "Vou falar"
+✓ A20d texto já digitado sobrevive ao ligar o microfone — "Oi Alma tudo bem"
+✓ A20e crescer é continuar; recomeçar não é — crescer=true recomeçar=false
+✓ A19a com os dois, vence o que a pessoa digitou — 83.0 · informado por você
+✓ A19b sem nada digitado, o Apple Saúde preenche — 82.7 · do Apple Saúde
+✓ A19c sem peso nenhum não inventa número — 0.0 · sem peso informado
+✓ A19d o IMC usa o peso digitado, não o do Apple Saúde — 24.78
+✓ A19e sem altura o IMC é nil, nunca NaN — nil
+✓ A19f peso digitado sobrevive ao reabrir e continua vencendo — 83.0 · informado por você
+✓ A18a noite de referência dá 100 — 100 · Noite parecida com a de referência — 8h00.
+✓ A18b noite curta e fragmentada pontua abaixo da referência — 69 · Noite com algumas diferenças da referência — 6h00.
+✓ A18c sem estágios NÃO inventa pontuação — pontos=nil · 7h30 de sono. A pontuação precisa dos estágios do sono.
+✓ A18d noite sem registro não pontua nem pede estágios — Sem registro de sono nesta noite.
+✓ A18e nenhuma frase da pontuação julga o sono da pessoa — 6 frases
+✓ A18f o rodapé nega que o número venha do Apple Saúde — Estimativa do Alma a partir dos seus dados. Não vem do Apple Saúde e não é avaliação clínica.
+✓ A18g amostras com estágio viram noite pontuável — total=8.0 despertares=1
+✓ A18h sono sem classificação de estágio não vira pontuação — total=7.5 rem=nil
+✓ A18i 'na cama' vira duração e nunca pontuação — total=7.0
+✓ A18m 'na cama' NÃO infla o total quando há estágios — total=6.0 (esperado 6.0)
+✓ A18j sem amostras não existe noite — nil
+✓ A18k a linha da IA descreve, se declara estimativa e não recomenda — Pontuação de sono: 100/100 (estimativa do Alma pelos estágios da noite, não é medida clínica)
+✓ A18l sem estágios a IA não recebe pontuação nenhuma — nil esperado
+✓ A23a sem produto carregado, NENHUM plano é oferecido — []
+✓ A23b o enum de planos não carrega valor em dinheiro — ["Anual", "Mensal"] ["/ano", "/mês"]
+✓ A23c sem produto, a tela não exibe número algum — 2 textos limpos
+✓ A21a só a origem App Store oferece gestão nativa da Apple — appStore=true legado=false
+✓ A21b o acesso herdado se declara sem cobrança e sem renovação — É um acesso permanente que você ganhou por ter assinado o Corpo & Alma. Não há cobrança nem renovação — e por isso também não há nada para cancelar.
+✓ A21c nenhum texto da gestão do plano promete preço, prazo ou teste — 8 textos
+✓ A22a nenhuma promessa de teste grátis nos textos de assinatura — 11 textos
+✓ A13a sem gravado e sem legado, histórico vazio e não grava — [] gravar=false
+✓ A13b legado sozinho vira o 1º item E pede gravação — [1700000000.0] gravar=true
+✓ A13c histórico gravado tem precedência sobre o legado e não regrava — [111.0, 222.0] gravar=false
+✓ A13d JSON corrompido cai na migração em vez de perder o legado — [1700000000.0] gravar=true
+✓ A14a o UIActivityViewController recebe um completionWithItemsHandler — instalado
+✓ A14b terminado o compartilhamento, o estado do sheet volta a false — isPresented=false
+✓ A14c cancelar o compartilhamento também devolve o estado — isPresented=false
+✓ A24a escuro=.dark, claro=.light, sistema=nil — escuro=Optional(SwiftUI.ColorScheme.dark) claro=Optional(SwiftUI.ColorScheme.light) sistema=nil
+✓ A24b tocar na lua muda o esquema que o app aplica — antes=Optional(SwiftUI.ColorScheme.light) depois=Optional(SwiftUI.ColorScheme.dark)
+✓ A24c ida e volta claro→escuro→claro, com o meio distinto das pontas — antes=Optional(SwiftUI.ColorScheme.light) meio=Optional(SwiftUI.ColorScheme.dark) fim=Optional(SwiftUI.ColorScheme.light) modo=claro
+✓ A24d a escolha persiste na chave única — aparenciaModo=escuro
+✓ A24e de sistema no escuro, alternar leva ao claro — escuro→claro claro→escuro
+✓ A24f appearanceMode=dark vira escuro mesmo com isDarkMode=false — escuro
+✓ A24g sem escolha nenhuma, o app abre claro como sempre abriu — nil→claro system→claro
+✓ A24h isDarkMode=true continua escuro — escuro
+✓ A24i aparenciaModo salvo vence as chaves antigas — sistema
+✓ A24j a deleção total cobre a chave nova da aparência — aparenciaModo, isDarkMode, AlmaAmbientSoundPreference, AlmaAmbientVolume
+✓ A25a a análise passa pela nossa Cloud Function, por HTTPS — https://southamerica-east1-alma-app-7dae6.cloudfunctions.net/analisarFoto
+✓ A25b não há chave de IA embarcada no bundle — nenhuma
+✓ A25c sem consentimento o envio é recusado antes da rede — lançou semConsentimento
+✓ A25d a nota de privacidade não promete o que não cumprimos — sem promessa excessiva; cita 30 dias: true
+✓ A25e o pedido de consentimento explica e oferece a via sem foto — Enviar suas fotos para análise?
+✓ A25f a fábrica separa o caminho com foto do caminho sem foto — semFoto=MockAIPlanService comFoto=NuvemAIPlanService
+✗ A26d o coletor ENXERGA as telas do Corpo (guarda anti-cegueira) — OBSERVADO: início=0 textos, ajustes=1 textos
+✓ A26a a Início do Corpo não expõe mais interruptor de aparência —
+✓ A26b os Ajustes do Corpo não expõem mais Aparência/Tema —
+✓ A26c abrir as telas do Corpo não mexe na aparência do app — antes=claro depois=claro
+✓ A27a instalação nova nasce não autorizada e não busca nada — autorizado=false buscas=0
+✓ A27b com a marca no disco, a abertura fria JÁ nasce autorizada — autorizado=true
+✓ A27c e JÁ dispara a busca na partida, sem esperar toque em Conectar — buscas=1
+✓ A27d autorizar deixa marca no disco para a próxima abertura — marca=true autorizado=true
+✓ A27e ciclo completo: autorizar → fechar → reabrir continua conectado e buscando — autorizado=true buscas=1
+✓ A27f só 'nunca autorizado' pode dizer Desconectado — semDados="Conectado, sem dados hoje" naoConectado="Desconectado"
+✗ A27g autorizado e sem amostra, a tela NÃO acusa Desconectado — OBSERVADO: esperado="Conectado, sem dados hoje" achados=[]
+✓ R0 o catálogo de notificações não está vazio — 16 identificadores catalogados
+✓ R1 todo lembrete agendado tem destino ao ser tocado — nenhum órfão
+✓ R2 cada lembrete leva à tela do que ele pede — 8 rotas conferidas · almoço → Dieta
+✓ R3 o push legado do feed continua indo para o Feed — Optional(Alma_App_Oficial.DestinoDaNotificacao.almaAba(Alma_App_Oficial.AbaDaAlma.feed))
+✓ R4 o destino carimbado no userInfo sobrevive à ida e volta — carimbo=["almaDestino": "corpo:2"] → Optional(Alma_App_Oficial.DestinoDaNotificacao.corpoAba(Alma_App_Oficial.AbaDoCorpo.dieta))
+✓ R5 destino roteado com o app fechado sobrevive até a tela nascer — pendente=Optional(Alma_App_Oficial.DestinoDaNotificacao.corpoAba(Alma_App_Oficial.AbaDoCorpo.dieta)) roteados=1
+✓ R5b o destino é entregue uma vez só — 1ª=Optional(Alma_App_Oficial.DestinoDaNotificacao.corpoAba(Alma_App_Oficial.AbaDoCorpo.dieta)) 2ª=nil
+✓ R5c a aba do Corpo sobrevive à apresentação do módulo — guardada=Optional(Alma_App_Oficial.AbaDoCorpo.dieta) consumida=Optional(Alma_App_Oficial.AbaDoCorpo.dieta)
+✓ R6 os índices das abas batem com as TabViews — alma feed=1 práticas=2 · corpo dieta=2 treino=3
+✓ R7 os únicos prefixos sem rota são os do HabitNotificationManager (morto) — sem rota=["milestone_", "personalized_", "streak_"] · esperado=["milestone_", "personalized_", "streak_"] · total na grade=9
+✓ R7b todo prefixo vivo da grade está roteado — vivos=["addiction_", "daily_", "meal-", "supplement-", "water-", "workout"]
+✓ H1 o caminho de IA não usa texto da tela sem IA — 4 textos próprios, nenhum cita foto ausente
+✓ H1b o filtro do H1 realmente detecta a frase que vazava — detecta=true
+✓ H2 o que a tela mostra é exatamente o que entra na dieta — exibido=520kcal/68P/10C/23G · registrado=520kcal/68P/10C/23G
+✓ H2b os números são os da porção, não os por 100 g — esperado=520 · exibido=520 · registrado=520 · por100=208
+✓ H2c o registro carrega a porção no nome — Prato de teste · 250 g
+✓ H2d exibido e registrado saem da mesma função de escala — escala(208,250)=520 escala(208,100)=208
+═════ RESULTADO ═════
+aprovados: 124
+REPROVADOS (2):
+   ✗ A26d o coletor ENXERGA as telas do Corpo (guarda anti-cegueira)
+   ✗ A27g autorizado e sem amostra, a tela NÃO acusa Desconectado

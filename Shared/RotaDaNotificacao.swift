@@ -39,7 +39,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // O QUE ESTE ARQUIVO PROVA E O QUE NÃO PROVA
 //
-// PROVA (asserções N1–N7 em AuditoriaBloqueadores, em runtime):
+// PROVA (asserções R1–R7 em AuditoriaBloqueadores, em runtime):
 //   • que todo identificador que o app agenda tem destino — e que a lista de
 //     identificadores não está vazia (guarda anti-cegueira, lição do A26d);
 //   • que o mapa identificador → destino é o esperado, um a um;
@@ -51,7 +51,7 @@
 //   • que a aba muda na TELA depois de o destino ser consumido.
 //   Ambas exigem XCUITest, que este projeto não tem (CLAUDE.md, "XCUITest
 //   ausente"). O elo entre o destino consumido e o `selectedTab` da tela é
-//   coberto pelo lint de wiring (N-W1..N-W6 em `_scripts/lint_wiring.py`), que
+//   coberto pelo lint de wiring (R-W1..R-W8 em `_scripts/lint_wiring.py`), que
 //   é verificação estática e fica vermelha se alguém apagar a linha — não é a
 //   mesma coisa que ver a tela mudar, e está declarado como não sendo.
 
@@ -61,7 +61,7 @@ import SwiftUI
 // MARK: - Abas, com nome
 
 /// Abas do Alma. Os valores brutos são os mesmos `tag` do `MainTabView` —
-/// se um dia divergirem, a asserção N6 fica vermelha.
+/// se um dia divergirem, a asserção R6 fica vermelha.
 enum AbaDaAlma: Int, CaseIterable {
     case inicio = 0, feed = 1, praticas = 2, insights = 3, perfil = 4
 }
@@ -91,7 +91,7 @@ enum DestinoDaNotificacao: Equatable {
 /// O catálogo é a FONTE ÚNICA: quem agenda um lembrete carimba o destino a
 /// partir daqui, e quem recebe o toque resolve o destino a partir daqui.
 /// Um identificador novo que não passe por este arquivo é pego pela asserção
-/// N1 (todo agendado tem destino) e pelo lint N-W5.
+/// R1 (todo agendado tem destino) e pelo lint R-W5.
 enum RotaDaNotificacao {
 
     /// Chave carimbada no `userInfo` de cada lembrete local, e que a Cloud
@@ -106,7 +106,7 @@ enum RotaDaNotificacao {
     ///   • `AddictionFreeView`         — addiction_*
     ///
     /// Os prefixos batem com `DonoDoLembrete.prefixos` (GradeDeLembretes) —
-    /// a asserção N7 compara os dois conjuntos.
+    /// a asserção R7 compara os dois conjuntos.
     static let catalogo: [(identificador: String, destino: DestinoDaNotificacao)] = [
         // Água: o copo se registra na Início do Corpo (`waterCard`).
         ("water-9",  .corpoAba(.inicio)),

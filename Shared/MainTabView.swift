@@ -59,7 +59,7 @@ struct MainTabView: View {
     // notifications carrying action=openFeed (see AppDelegate, Build 77).
     //
     // [2026-08-05] Estes números são espelhados por `AbaDaAlma` em
-    // RotaDaNotificacao.swift. A asserção N6 compara os dois: se alguém
+    // RotaDaNotificacao.swift. A asserção R6 compara os dois: se alguém
     // reordenar as abas aqui e esquecer de lá, a notificação passa a levar para
     // a aba errada — que é pior do que não levar a lugar nenhum.
     private enum Tab: Int {

@@ -1213,7 +1213,7 @@ enum AuditoriaBloqueadores {
               "esperado=\"\(hSemDados.rotuloDeConexao)\" "
                 + "achados=\(textosConectado.filter { $0.contains("onectad") || $0.contains("sponív") })")
 
-        // ── N · toque em notificação leva à tela certa ──────────────────────
+        // ── R · toque em notificação leva à tela certa ──────────────────────
         //
         // O que estas asserções cobrem e o que NÃO cobrem está escrito no
         // cabeçalho de RotaDaNotificacao.swift, e repito aqui porque é o tipo
@@ -1223,22 +1223,22 @@ enum AuditoriaBloqueadores {
         // que o projeto não tem. O elo tela↔destino é coberto pelo lint de
         // wiring (N-W1..N-W6), que é estático.
 
-        // N0 · GUARDA ANTI-CEGUEIRA, primeiro de todas (lição do A26d).
-        // Um catálogo vazio faria N1 e N2 passarem verdes para sempre, varrendo
+        // R0 · GUARDA ANTI-CEGUEIRA, primeiro de todas (lição do A26d).
+        // Um catálogo vazio faria R1 e R2 passarem verdes para sempre, varrendo
         // por baixo do tapete exatamente o bug que elas existem para pegar.
-        checa("N0", "o catálogo de notificações não está vazio",
+        checa("R0", "o catálogo de notificações não está vazio",
               RotaDaNotificacao.catalogo.count >= 11,
               "\(RotaDaNotificacao.catalogo.count) identificadores catalogados")
 
-        // N1 · TODO identificador catalogado resolve para um destino.
+        // R1 · TODO identificador catalogado resolve para um destino.
         let semDestino = RotaDaNotificacao.catalogo
             .filter { RotaDaNotificacao.destinoPorIdentificador($0.identificador) == nil }
             .map(\.identificador)
-        checa("N1", "todo lembrete agendado tem destino ao ser tocado",
+        checa("R1", "todo lembrete agendado tem destino ao ser tocado",
               semDestino.isEmpty && !RotaDaNotificacao.catalogo.isEmpty,
               semDestino.isEmpty ? "nenhum órfão" : "SEM DESTINO: \(semDestino)")
 
-        // N2 · o mapa é o esperado, um a um. Mutação alvo: trocar o destino do
+        // R2 · o mapa é o esperado, um a um. Mutação alvo: trocar o destino do
         // almoço de .dieta para qualquer outra aba — era o pedido literal.
         let esperado: [(String, DestinoDaNotificacao)] = [
             ("meal-lunch",       .corpoAba(.dieta)),
@@ -1253,30 +1253,30 @@ enum AuditoriaBloqueadores {
         let errados = esperado.filter {
             RotaDaNotificacao.destinoPorIdentificador($0.0) != $0.1
         }.map(\.0)
-        checa("N2", "cada lembrete leva à tela do que ele pede",
+        checa("R2", "cada lembrete leva à tela do que ele pede",
               errados.isEmpty,
               errados.isEmpty
                 ? "\(esperado.count) rotas conferidas · almoço → Dieta"
                 : "ROTA ERRADA: \(errados)")
 
-        // N3 · o push do feed que já existia continua funcionando. A Cloud
+        // R3 · o push do feed que já existia continua funcionando. A Cloud
         // Function `notifyNewFeedPost` está no ar mandando action=openFeed e
         // não muda de contrato por causa desta refatoração.
         let feed = RotaDaNotificacao.destino(identificador: "qualquer",
                                              userInfo: ["action": "openFeed"])
-        checa("N3", "o push legado do feed continua indo para o Feed",
+        checa("R3", "o push legado do feed continua indo para o Feed",
               feed == .almaAba(.feed), "\(String(describing: feed))")
 
-        // N4 · o carimbo do userInfo vence o identificador, e sobrevive à
+        // R4 · o carimbo do userInfo vence o identificador, e sobrevive à
         // viagem de ida e volta pelo texto (é assim que ele trafega no push).
         let carimbo = RotaDaNotificacao.carimbo(para: "meal-lunch")
         let viaCarimbo = RotaDaNotificacao.destino(identificador: "id-desconhecido",
                                                    userInfo: carimbo)
-        checa("N4", "o destino carimbado no userInfo sobrevive à ida e volta",
+        checa("R4", "o destino carimbado no userInfo sobrevive à ida e volta",
               viaCarimbo == .corpoAba(.dieta) && !carimbo.isEmpty,
               "carimbo=\(carimbo) → \(String(describing: viaCarimbo))")
 
-        // N5 · O CASO FRIO — a asserção que justifica o desenho todo.
+        // R5 · O CASO FRIO — a asserção que justifica o desenho todo.
         // Escreve o destino SEM nenhum observador (é o que acontece quando o
         // delegate roteia durante o launch, antes de existir view) e exige que
         // ele ainda esteja lá quando a primeira tela aparecer.
@@ -1287,52 +1287,182 @@ enum AuditoriaBloqueadores {
         roteador.zerarParaAuditoria()
         roteador.rotear(.corpoAba(.dieta))              // ninguém observando
         let sobreviveu = roteador.pendente              // "a tela nasce agora"
-        checa("N5", "destino roteado com o app fechado sobrevive até a tela nascer",
+        checa("R5", "destino roteado com o app fechado sobrevive até a tela nascer",
               sobreviveu == .corpoAba(.dieta) && roteador.roteados == 1,
               "pendente=\(String(describing: sobreviveu)) roteados=\(roteador.roteados)")
 
-        // N5b · consumir entrega UMA vez e limpa — senão a pessoa que fechar o
+        // R5b · consumir entrega UMA vez e limpa — senão a pessoa que fechar o
         // Corpo à mão seria jogada de volta nele a cada render.
-        let primeira = roteador.consumir { _ in true }
-        let segunda  = roteador.consumir { _ in true }
-        checa("N5b", "o destino é entregue uma vez só",
-              primeira == .corpoAba(.dieta) && segunda == nil,
-              "1ª=\(String(describing: primeira)) 2ª=\(String(describing: segunda))")
+        let primeiraEntrega = roteador.consumir { _ in true }
+        let segundaEntrega  = roteador.consumir { _ in true }
+        checa("R5b", "o destino é entregue uma vez só",
+              primeiraEntrega == .corpoAba(.dieta) && segundaEntrega == nil,
+              "1ª=\(String(describing: primeiraEntrega)) 2ª=\(String(describing: segundaEntrega))")
 
-        // N5c · a aba do Corpo continua guardada DEPOIS de o destino ser
+        // R5c · a aba do Corpo continua guardada DEPOIS de o destino ser
         // consumido pela Início — é o intervalo em que o fullScreenCover está
         // apresentando e o RootTabView ainda não existe.
         let abaGuardada = roteador.abaDoCorpoPendente
         let abaConsumida = roteador.consumirAbaDoCorpo()
-        checa("N5c", "a aba do Corpo sobrevive à apresentação do módulo",
+        checa("R5c", "a aba do Corpo sobrevive à apresentação do módulo",
               abaGuardada == .dieta && abaConsumida == .dieta
                 && roteador.abaDoCorpoPendente == nil,
               "guardada=\(String(describing: abaGuardada)) consumida=\(String(describing: abaConsumida))")
 
-        // N6 · os números das abas em RotaDaNotificacao são os MESMOS `tag` das
+        // R6 · os números das abas em RotaDaNotificacao são os MESMOS `tag` das
         // TabViews. Se alguém reordenar as abas numa das duas pontas, a
         // notificação passa a levar à tela errada — pior que não levar.
-        checa("N6", "os índices das abas batem com as TabViews",
+        checa("R6", "os índices das abas batem com as TabViews",
               AbaDaAlma.feed.rawValue == 1 && AbaDaAlma.praticas.rawValue == 2
                 && AbaDoCorpo.dieta.rawValue == 2 && AbaDoCorpo.treino.rawValue == 3
                 && AbaDaAlma.allCases.count == 5 && AbaDoCorpo.allCases.count == 5,
               "alma feed=\(AbaDaAlma.feed.rawValue) práticas=\(AbaDaAlma.praticas.rawValue) · "
                 + "corpo dieta=\(AbaDoCorpo.dieta.rawValue) treino=\(AbaDoCorpo.treino.rawValue)")
 
-        // N7 · o catálogo cobre todos os prefixos que a GradeDeLembretes sabe
-        // limpar. Se alguém criar uma categoria nova lá e esquecer aqui, a
-        // notificação nasce sem destino e esta asserção acusa.
+        // ═══════════════════════════════════════════════════════════════════
+        // R7 · o catálogo cobre os prefixos que a GradeDeLembretes sabe limpar.
+        //
+        // [05/08] ESTA ASSERÇÃO NASCEU VERMELHA E O ACHADO ERA VERDADEIRO.
+        // `DonoDoLembrete.alma` declara quatro prefixos — `daily_`,
+        // `personalized_`, `streak_`, `milestone_` — e só o primeiro existe.
+        // Os outros três pertencem ao `HabitNotificationManager`, que NÃO está
+        // no `project.pbxproj`, nunca compilou e nunca agendou nada
+        // (ver CLAUDE.md, "OS LEMBRETES DE HÁBITO NÃO EXISTEM").
+        //
+        // Não roteei os três para pintar de verde: rota para notificação que
+        // não existe é código morto, e verde comprado assim é o que este
+        // projeto passou o dia combatendo. A asserção passa a fixar a verdade
+        // ATUAL, com o conjunto exato de órfãos — o que é diferente de afrouxar:
+        //   · prefixo novo sem rota      → VERMELHA (o caso que ela pega);
+        //   · um órfão ganhar rota       → VERMELHA (alguém ligou o arquivo e
+        //                                   tem de passar por aqui de propósito);
+        //   · grade esvaziada            → VERMELHA (anti-cegueira).
+        // ═══════════════════════════════════════════════════════════════════
         let prefixosDaGrade = DonoDoLembrete.allCases.flatMap(\.prefixos)
-        let prefixosSemRota = prefixosDaGrade.filter { prefixo in
+        let prefixosSemRota = Set(prefixosDaGrade.filter { prefixo in
             RotaDaNotificacao.destinoPorIdentificador(prefixo + "0") == nil
-        }
-        checa("N7", "toda categoria da GradeDeLembretes tem rota",
-              prefixosSemRota.isEmpty && !prefixosDaGrade.isEmpty,
-              prefixosSemRota.isEmpty
-                ? "\(prefixosDaGrade.count) prefixos cobertos"
-                : "SEM ROTA: \(prefixosSemRota)")
+        })
+        let orfaosConhecidos: Set<String> = ["personalized_", "streak_", "milestone_"]
+        checa("R7", "os únicos prefixos sem rota são os do HabitNotificationManager (morto)",
+              prefixosSemRota == orfaosConhecidos && !prefixosDaGrade.isEmpty,
+              "sem rota=\(prefixosSemRota.sorted()) · esperado=\(orfaosConhecidos.sorted()) "
+                + "· total na grade=\(prefixosDaGrade.count)")
+
+        // R7b · a outra metade da mesma verdade: os prefixos que SOBRAM depois
+        // dos órfãos são exatamente os que os três agendadores vivos usam.
+        // Se alguém acrescentar categoria em `NotificationManager`,
+        // `LembretesDaAlma` ou `AddictionFreeView` sem passar pelo catálogo,
+        // ela cai fora deste conjunto e a asserção acusa.
+        let prefixosVivos = Set(prefixosDaGrade).subtracting(orfaosConhecidos)
+        let esperadosVivos: Set<String> = ["water-", "meal-", "workout",
+                                           "supplement-", "daily_", "addiction_"]
+        checa("R7b", "todo prefixo vivo da grade está roteado",
+              prefixosVivos == esperadosVivos
+                && prefixosVivos.allSatisfy { RotaDaNotificacao.destinoPorIdentificador($0 + "0") != nil },
+              "vivos=\(prefixosVivos.sorted())")
 
         roteador.zerarParaAuditoria()
+
+        // ── H · a tela e o registro contam a MESMA coisa ────────────────────
+        //
+        // Dois bugs da mesma família, achados em 05/08 na varredura do scan:
+        // a tela dizia uma coisa e o app fazia outra, sem nada acusando.
+        //
+        // Prefixo H (de honestidade) e não C: o C já é do card "Complete seu
+        // perfil" (C1a..C3). Duas asserções com o mesmo id tornam o log
+        // ambíguo — quando uma reprova, não dá para saber qual.
+
+        // H1 · nenhum texto do caminho SEM IA vaza para o resultado COM IA.
+        //
+        // O `MockAIPlanService` escreve para a tela da estimativa por medidas:
+        // "sem análise de fotos", "adicione foto de frente e de lado". Enquanto
+        // ele foi a fonte de reserva do caminho de IA, qualquer campo vazio da
+        // resposta trazia essas frases para uma tela que analisou foto — e sem
+        // banner, porque `isAIGenerated` continuava `true`.
+        //
+        // Mutação alvo: devolver as observações do mock como reserva de novo.
+        let reservaDaIA = AnaliseDeFotoService.observacoesPadraoDaIA
+            + AnaliseDeFotoService.focosPadraoDaIA
+        let vazamento = reservaDaIA.filter { texto in
+            let t = texto.lowercased()
+            return t.contains("sem análise") || t.contains("sem ia")
+                || t.contains("adicione foto") || t.contains("sem uso de fotos")
+        }
+        checa("H1", "o caminho de IA não usa texto da tela sem IA",
+              vazamento.isEmpty && !reservaDaIA.isEmpty,
+              vazamento.isEmpty
+                ? "\(reservaDaIA.count) textos próprios, nenhum cita foto ausente"
+                : "VAZOU: \(vazamento)")
+
+        // H1b · a guarda anti-cegueira do H1. Se `reservaDaIA` ficasse vazia,
+        // H1 passaria verde para sempre sem olhar nada. Aqui provo que o filtro
+        // ENXERGA: aplicado à frase real do mock, ele acusa.
+        let fraseDoMock = ["Para uma análise mais precisa, adicione foto de frente e de lado."]
+        let filtroEnxerga = fraseDoMock.contains { $0.lowercased().contains("adicione foto") }
+        checa("H1b", "o filtro do H1 realmente detecta a frase que vazava",
+              filtroEnxerga, "detecta=\(filtroEnxerga)")
+
+        // ═══════════════════════════════════════════════════════════════════
+        // H2 · O INVARIANTE: o número EXIBIDO e o número REGISTRADO são o mesmo.
+        //
+        // Era isto que ninguém olhava. A tela do scan de comida mostrava os
+        // macros por 100 g debaixo de "Porção estimada na foto: 250 g", e o
+        // botão registrava `grams: 100` fixo. Três números diferentes na mesma
+        // interação, e a contagem do dia — o valor inteiro desta parte do app —
+        // saía errada sem nenhum sinal.
+        //
+        // A asserção compara o que a tela mostra (`macrosDaPorcao`) com o que
+        // sobra em `model.meals` depois do registro. Mutações alvo: voltar
+        // `grams: 100` no botão, ou fazer os tiles lerem `kcalPer100` de novo.
+        // ═══════════════════════════════════════════════════════════════════
+        let modelComida = AppModel(store: UserDefaults(suiteName: "auditoria.alma.comida")!)
+        modelComida.meals = []
+
+        let pratoDaIA = FoodScanResult(
+            name: "Prato de teste", brand: nil,
+            description: "Porção estimada na foto: 250 g",
+            kcalPer100: 208, proteinPer100: 27, carbsPer100: 4, fatPer100: 9,
+            porcaoG: 250
+        )
+        let exibido = pratoDaIA.macrosDaPorcao
+        modelComida.addFood(pratoDaIA.comoFoodItem, grams: pratoDaIA.porcaoG, to: .almoco)
+        let registrado = modelComida.meals.last
+
+        let batem = registrado.map {
+            $0.kcal == exibido.kcal && $0.protein == exibido.proteina
+                && $0.carbs == exibido.carbo && $0.fat == exibido.gordura
+        } ?? false
+
+        checa("H2", "o que a tela mostra é exatamente o que entra na dieta",
+              batem,
+              "exibido=\(exibido.kcal)kcal/\(exibido.proteina)P/\(exibido.carbo)C/\(exibido.gordura)G · "
+                + "registrado=\(registrado.map { "\($0.kcal)kcal/\($0.protein)P/\($0.carbs)C/\($0.fat)G" } ?? "NADA")")
+
+        // H2b · GUARDA ANTI-CEGUEIRA do H2. Se `addFood` não registrasse nada,
+        // ou se `macrosDaPorcao` devolvesse zeros, H2 poderia passar comparando
+        // nada com nada. Aqui exijo que os números sejam os da PORÇÃO e não os
+        // por 100 g — 250 g de 208 kcal/100 g são 520 kcal, não 208.
+        checa("H2b", "os números são os da porção, não os por 100 g",
+              exibido.kcal == 520 && registrado?.kcal == 520
+                && exibido.kcal != pratoDaIA.kcalPer100,
+              "esperado=520 · exibido=\(exibido.kcal) · registrado=\(registrado?.kcal ?? -1) "
+                + "· por100=\(pratoDaIA.kcalPer100)")
+
+        // H2c · a porção também tem de aparecer no NOME do item, senão o
+        // diário mostra "Prato de teste" sem dizer de quanto.
+        checa("H2c", "o registro carrega a porção no nome",
+              registrado?.name.contains("250 g") == true,
+              registrado?.name ?? "NADA")
+
+        // H2d · o elo com a fonte única. Se alguém reescrever a conta em
+        // qualquer uma das duas pontas, ela deixa de bater com esta.
+        checa("H2d", "exibido e registrado saem da mesma função de escala",
+              AppModel.escalarPor100(208, gramas: 250) == exibido.kcal
+                && AppModel.escalarPor100(208, gramas: 100) == 208,
+              "escala(208,250)=\(AppModel.escalarPor100(208, gramas: 250)) "
+                + "escala(208,100)=\(AppModel.escalarPor100(208, gramas: 100))")
+
+        UserDefaults().removePersistentDomain(forName: "auditoria.alma.comida")
 
         UserDefaults().removePersistentDomain(forName: suiteHK)
         UserDefaults().removePersistentDomain(forName: suiteAp)

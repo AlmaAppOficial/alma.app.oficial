@@ -12,9 +12,9 @@
 # Ele NÃO prova que o iOS entrega o toque, nem que a aba muda na tela.
 #
 # A parte que roda de verdade (o mapa identificador→destino e a sobrevivência
-# do destino à partida fria) está nas asserções N0..N7 do
+# do destino à partida fria) está nas asserções R0..R7 do
 # AuditoriaBloqueadores, que rodam no aparelho/simulador em DEBUG. As mutações
-# M-N9 e M-N10 abaixo são as delas, e para ficarem vermelhas precisam de um
+# M-R9 e M-R10 abaixo são as delas, e para ficarem vermelhas precisam de um
 # build — por isso estão marcadas como NÃO EXECUTADAS aqui e listadas ao final
 # como dívida declarada, e não como verde.
 # ═══════════════════════════════════════════════════════════════════════════
@@ -60,37 +60,41 @@ echo "  base: lint verde antes de mutar ✓"
 rm -f /tmp/mutn_base_$$
 echo
 
-mutar "M-N1" "Shared/AlmaApp.swift" \
+mutar "M-R1" "Shared/AlmaApp.swift" \
   's|RotaDaNotificacao\.destino(identificador:|MUTANTE_ROTA(identificador:|' \
   "$LINT" "o delegate volta a tratar só o push do feed"
 
-mutar "M-N2" "Shared/MainTabView.swift" \
+mutar "M-R2" "Shared/MainTabView.swift" \
   's|^        .onAppear { encaminharNotificacaoPendente() }$|        // MUTANTE|' \
   "$LINT" "APP FECHADO: some o onAppear e a partida fria perde o destino"
 
-mutar "M-N3" "Shared/MainTabView.swift" \
+mutar "M-R3" "Shared/MainTabView.swift" \
   's|.onChange(of: roteador.pendente)|.onChange(of: roteador.MUTANTE)|' \
   "$LINT" "APP EM SEGUNDO PLANO: some o onChange"
 
-mutar "M-N4" "Shared/HomeView.swift" \
+mutar "M-R4" "Shared/HomeView.swift" \
   's|^            showChat = true$|            // MUTANTE|' \
   "$LINT" "a Início deixa de abrir o chat pelo destino"
 
-mutar "M-N5" "Shared/Corpo/RootTabView.swift" \
+mutar "M-R5" "Shared/Corpo/RootTabView.swift" \
   's|^        selection = aba.rawValue$|        // MUTANTE|' \
   "$LINT" "o almoço para de chegar na Dieta: o módulo abre sempre na Início"
 
-mutar "M-N6" "Shared/Corpo/NotificationManager.swift" \
+mutar "M-R6" "Shared/Corpo/NotificationManager.swift" \
   's|^        content.userInfo = RotaDaNotificacao.carimbo(para: id)$|        // MUTANTE|' \
   "$LINT" "os lembretes do Corpo saem sem carimbo de destino"
 
-mutar "M-N7" "Shared/LembretesDaAlma.swift" \
+mutar "M-R7" "Shared/LembretesDaAlma.swift" \
   's|^        content.userInfo = RotaDaNotificacao.carimbo(para: id)$|        // MUTANTE|' \
   "$LINT" "os lembretes de meditação saem sem carimbo"
 
-mutar "M-N8" "Shared/AddictionFreeView.swift" \
+mutar "M-R8" "Shared/AddictionFreeView.swift" \
   's|^                content.userInfo = RotaDaNotificacao.carimbo(para: "addiction_\\(msg.hours)")$|                // MUTANTE|' \
   "$LINT" "os marcos de vício saem sem carimbo"
+
+mutar "M-R9" "Alma.App.Oficial.xcodeproj/project.pbxproj" \
+  's|LembretesDaAlma.swift in Sources \*/ = {isa = PBXBuildFile|HabitNotificationManager.swift in Sources */ = {isa = PBXBuildFile|' \
+  "$LINT" "alguém registra o HabitNotificationManager no target sem revisar a dívida"
 
 echo
 echo "═════ RESULTADO ═════"
@@ -102,10 +106,10 @@ fi
 
 echo
 echo "═════ NÃO PROVADO AQUI — dívida declarada, não verde ═════"
-echo "  M-N9  · asserção N5 (destino sobrevive à partida fria): mutação = trocar"
+echo "  M-R9  · asserção R5 (destino sobrevive à partida fria): mutação = trocar"
 echo "          o estado guardado por NotificationCenter.post. Só fica vermelha"
 echo "          rodando o harness em DEBUG no simulador — exige build."
-echo "  M-N10 · asserção N2 (almoço → Dieta): mutação = trocar o destino no"
+echo "  M-R10 · asserção R2 (almoço → Dieta): mutação = trocar o destino no"
 echo "          catálogo. Mesma condição."
 echo "  SEM XCUITEST: nada aqui prova que o iOS chama o delegate ao tocar na"
 echo "  notificação, nem que a aba muda NA TELA. Ver CLAUDE.md, 'XCUITest"

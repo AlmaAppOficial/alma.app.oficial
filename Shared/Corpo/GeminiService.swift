@@ -126,9 +126,21 @@ enum GeminiService {
         let carbs   = (obj["carbsPer100"]  as? Int) ?? (obj["carbsPer100"]  as? Double).map(Int.init) ?? 0
         let fat     = (obj["fatPer100"]    as? Int) ?? (obj["fatPer100"]    as? Double).map(Int.init) ?? 0
 
+        // [2026-08-05] `porcaoG` NÃO tem valor padrão de propósito. Era esse o
+        // bug: uma porção implícita de 100 g que ninguém via, exibida como
+        // outra coisa e registrada como 100 g. Sendo obrigatório, todo ponto
+        // que constrói um resultado é forçado a dizer de quanto ele fala — e
+        // este arquivo, que é código morto mantido só como referência de
+        // prompt (ver cabeçalho), teve de declarar também. Ele lê `porcaoG` do
+        // JSON quando houver e assume 100 g explicitamente quando não houver.
+        let porcao = (obj["porcaoG"] as? Int)
+            ?? (obj["porcaoG"] as? Double).map(Int.init)
+            ?? 100
+
         return FoodScanResult(name: name, brand: brand, description: desc,
                               kcalPer100: kcal, proteinPer100: protein,
-                              carbsPer100: carbs, fatPer100: fat)
+                              carbsPer100: carbs, fatPer100: fat,
+                              porcaoG: max(1, porcao))
     }
 
     // MARK: - Análise corporal
