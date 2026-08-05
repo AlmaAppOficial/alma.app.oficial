@@ -24,6 +24,8 @@ struct BodyScanView: View {
     @State private var showCameraSide   = false
     @State private var showGalleryFront = false
     @State private var showGallerySide  = false
+    /// [2026-08-05] Consentimento por envio — ver `analyze()`.
+    @State private var mostrarConsentimento = false
 
     var body: some View {
         ScrollView {
@@ -64,6 +66,17 @@ struct BodyScanView: View {
         }
         .photosPicker(isPresented: $showGalleryFront, selection: $frontItem, matching: .images)
         .photosPicker(isPresented: $showGallerySide,  selection: $sideItem,  matching: .images)
+        // [2026-08-05] Consentimento A CADA envio, com a alternativa sem foto
+        // sempre visível no mesmo lugar — não escondida atrás de um "não".
+        .confirmationDialog("Enviar fotos para análise?",
+                            isPresented: $mostrarConsentimento,
+                            titleVisibility: .visible) {
+            Button("Enviar fotos para análise") { enviarComFotos() }
+            Button("Gerar só com minhas medidas") { gerarSemFotos() }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text(Self.pedidoDeConsentimento)
+        }
     }
 
     // MARK: Seções
@@ -76,14 +89,36 @@ struct BodyScanView: View {
 
     static var chamadaDaTela: String {
         AIService.isRealAI
-        ? "Adicione 2 fotos e confirme suas medidas. A IA estima seu perfil e monta um plano de alimentação e treino sob medida."
+        ? "Adicione 2 fotos e confirme suas medidas. A IA estima seu perfil corporal a partir das fotos; as metas de calorias e macros são calculadas no seu aparelho."
         : "Confirme suas medidas e o app calcula uma estimativa do seu perfil, com um plano de alimentação e treino. Nesta versão não há análise por IA e as fotos não são usadas."
     }
 
+    /// [2026-08-05] Texto reescrito quando a IA ligou. Duas coisas mudaram e as
+    /// duas importam:
+    ///
+    /// 1. A versão anterior dizia "não são compartilhadas". Com a análise na
+    ///    nuvem isso deixaria de ser verdade — a foto vai para o provedor de IA.
+    /// 2. O texto proposto no doc do gate dizia "apagadas logo depois, nada é
+    ///    guardado". Também seria falso: a OpenAI retém entradas da API por até
+    ///    30 dias para monitoramento de abuso, e Zero Data Retention exige
+    ///    acordo comercial que não temos. Prometer "nada é guardado" seria
+    ///    exatamente a classe de promessa que o projeto proíbe.
+    ///
+    /// O que é verdade e está escrito: o ALMA não guarda a foto (a função
+    /// processa em memória e não persiste nada — ver `analiseDeFoto.ts`), o
+    /// provedor pode reter por até 30 dias por segurança, e não treina com ela.
     static var notaDePrivacidade: String {
         AIService.isRealAI
-        ? "Suas fotos são usadas apenas para gerar sua análise e não são compartilhadas. Esta avaliação é informativa e não substitui um profissional de saúde."
+        ? "A foto é analisada e não fica guardada no Alma. O provedor de IA pode mantê-la por até 30 dias apenas por segurança, e não a usa para treinar modelos. Esta avaliação é uma estimativa informativa e não substitui um profissional de saúde."
         : "Nesta versão nenhuma foto é enviada nem analisada — o resultado vem só das suas medidas. Esta avaliação é informativa e não substitui um profissional de saúde."
+    }
+
+    /// Texto do pedido de consentimento, mostrado A CADA envio.
+    static var pedidoDeConsentimento: String {
+        "Enviar suas fotos para análise?\n\n"
+        + "A foto é analisada e não fica guardada no Alma. O provedor de IA pode "
+        + "mantê-la por até 30 dias apenas por segurança, e não a usa para treinar modelos.\n\n"
+        + "Você pode gerar o resultado só com as suas medidas, sem enviar foto."
     }
 
     private var intro: some View {
@@ -262,7 +297,7 @@ struct BodyScanView: View {
                 ProgressView().scaleEffect(1.4).tint(.white)
                 // [2026-08-03 — B8] Era "Analisando seu corpo com IA…" sobre um
                 // cálculo local por medidas. Sem IA no build, o texto mente.
-                Text(GeminiConfig.isAvailable
+                Text(AIService.isRealAI
                      ? "Analisando suas fotos…"
                      : "Calculando a partir das suas medidas…")
                     .font(.subheadline.weight(.semibold))
@@ -294,7 +329,24 @@ struct BodyScanView: View {
         }
     }
 
-    private func analyze() {
+    /// [2026-08-05] O botão NÃO envia mais direto. Ele abre o pedido de
+    /// consentimento; o envio só acontece se a pessoa tocar em "Enviar fotos".
+    /// O consentimento é por ENVIO — não fica gravado, não vira toggle que a
+    /// pessoa esquece que ligou.
+    private func analyze() { mostrarConsentimento = true }
+
+    /// Caminho com foto — exige o consentimento daquele envio.
+    private func enviarComFotos() {
+        executar(servico: AIService.make(consentimento: true))
+    }
+
+    /// Caminho sem foto — a alternativa que fica sempre visível no pedido.
+    /// Nenhuma imagem sai do aparelho por aqui.
+    private func gerarSemFotos() {
+        executar(servico: AIService.semFoto(), usarFotos: false)
+    }
+
+    private func executar(servico: AIPlanService, usarFotos: Bool = true) {
         analyzing = true
         Task {
             defer { analyzing = false }
@@ -304,14 +356,17 @@ struct BodyScanView: View {
                 ageYears: model.ageYears,
                 bodyFat: model.bodyFat,
                 goal: model.goal.rawValue,
-                frontPhoto: frontData,
-                sidePhoto: sideData
+                frontPhoto: usarFotos ? frontData : nil,
+                sidePhoto:  usarFotos ? sideData  : nil
             )
             do {
-                let r = try await AIService.make().analyze(input)
+                let r = try await servico.analyze(input)
                 result = r
                 showResult = true
             } catch {
+                // [B8] Falha NUNCA vira número. Não há fallback silencioso para
+                // o cálculo local aqui: se a análise por foto falhou, a pessoa
+                // lê o motivo e decide se tenta de novo ou segue sem foto.
                 errorMessage = error.localizedDescription
             }
         }

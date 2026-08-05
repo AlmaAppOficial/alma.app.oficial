@@ -141,8 +141,8 @@ enum AuditoriaBloqueadores {
 
         // ── B8 · não vender IA que não existe ───────────────────────────────
         checa("B8a", "scan de alimento só aparece se a IA existir no build",
-              CorpoAcesso.scanDeAlimentoDisponivel == GeminiConfig.isAvailable,
-              "IA disponível: \(GeminiConfig.isAvailable)")
+              CorpoAcesso.scanDeAlimentoDisponivel == AIService.isRealAI,
+              "IA disponível: \(AIService.isRealAI)")
 
         // ── B9 · exclusão apaga tudo ────────────────────────────────────────
         // Sujeira nas duas pontas que o serviço não olhava antes.
@@ -809,6 +809,208 @@ enum AuditoriaBloqueadores {
               folhaCancelada == false,
               "isPresented=\(folhaCancelada)")
 
+        // ── A24 · aparência: o interruptor tem de estar ligado em alguma coisa ──
+        //
+        // Contexto: no build 91 o modo escuro "passou" em 10 capturas do
+        // simulador e não funcionou no aparelho do Assis. As capturas usavam
+        // `SmokeTestTelas.conferenciaDeAparencia`, que impõe
+        // `.environment(\.colorScheme,)` direto na view — provando que os cards
+        // sabem escurecer, nunca que o BOTÃO muda alguma coisa. O botão da lua
+        // escrevia `appearanceMode`; quem aplicava lia `isDarkMode`. Duas
+        // chaves, nenhuma conversa.
+        //
+        // A24b é a asserção que teria pego aquilo: ela executa a MESMA função
+        // que o botão executa e exige que o valor aplicado mude.
+
+        // A24a · o mapa puro modo → o que vai para .preferredColorScheme
+        checa("A24a", "escuro=.dark, claro=.light, sistema=nil",
+              ModoDeAparencia.escuro.colorScheme == .dark
+                && ModoDeAparencia.claro.colorScheme == .light
+                && ModoDeAparencia.sistema.colorScheme == nil,
+              "escuro=\(String(describing: ModoDeAparencia.escuro.colorScheme)) "
+                + "claro=\(String(describing: ModoDeAparencia.claro.colorScheme)) "
+                + "sistema=\(String(describing: ModoDeAparencia.sistema.colorScheme))")
+
+        // A24b · A ASSERÇÃO DO BUG DO 91.
+        // Chama exatamente o que o botão da lua chama e exige que o esquema
+        // aplicado vire. Se alguém reapontar o botão para outro armazenamento,
+        // ou fizer `alternar` mexer em algo que ninguém aplica, isto fica
+        // vermelho — que foi precisamente o que faltou em agosto.
+        let suiteAp = "auditoria.alma.aparencia"
+        UserDefaults().removePersistentDomain(forName: suiteAp)
+        let storeAp = UserDefaults(suiteName: suiteAp)!
+        let aparencia = AparenciaDoApp(defaults: storeAp)
+        aparencia.modo = .claro
+        let antes = aparencia.colorScheme
+        aparencia.alternar(sistemaEstaEscuro: false)
+        let depois = aparencia.colorScheme
+        checa("A24b", "tocar na lua muda o esquema que o app aplica",
+              antes == .light && depois == .dark && antes != depois,
+              "antes=\(String(describing: antes)) depois=\(String(describing: depois))")
+
+        // A24c · ida e volta completas — e o meio do caminho tem de ser OUTRA coisa.
+        //
+        // [2026-08-05] A primeira versão desta asserção olhava só o estado
+        // final (`colorScheme == .light`) e passou VERDE com um bug dentro: sob
+        // a mutação que fazia `.escuro` mapear para `.light`, ida e volta
+        // terminavam as duas no claro, e ela não via diferença nenhuma. Existia,
+        // rodava e não protegia nada — exatamente o furo que o A18i teve em
+        // 04/08. Agora ela exige que o meio seja DISTINTO das duas pontas, que
+        // é o que "alternar" significa.
+        let meio = depois
+        aparencia.alternar(sistemaEstaEscuro: false)
+        let fim = aparencia.colorScheme
+        checa("A24c", "ida e volta claro→escuro→claro, com o meio distinto das pontas",
+              antes == .light && meio == .dark && fim == .light
+                && meio != antes && meio != fim
+                && aparencia.modo == .claro,
+              "antes=\(String(describing: antes)) meio=\(String(describing: meio)) "
+                + "fim=\(String(describing: fim)) modo=\(aparencia.modo.rawValue)")
+
+        // A24d · o que ficou no disco é o que está na tela.
+        // Mutação alvo: apagar o `defaults.set` do didSet — a tela mudaria e a
+        // escolha se perderia ao reabrir o app, que é um bug invisível em teste
+        // de sessão única.
+        aparencia.modo = .escuro
+        checa("A24d", "a escolha persiste na chave única",
+              storeAp.string(forKey: AparenciaDoApp.chave) == "escuro",
+              "aparenciaModo=\(storeAp.string(forKey: AparenciaDoApp.chave) ?? "nil")")
+
+        // A24e · saindo do modo Sistema, a lua vai para o OPOSTO do que se vê
+        checa("A24e", "de sistema no escuro, alternar leva ao claro",
+              AparenciaDoApp.proximoModo(de: .sistema, sistemaEstaEscuro: true) == .claro
+                && AparenciaDoApp.proximoModo(de: .sistema, sistemaEstaEscuro: false) == .escuro,
+              "escuro→\(AparenciaDoApp.proximoModo(de: .sistema, sistemaEstaEscuro: true)) "
+                + "claro→\(AparenciaDoApp.proximoModo(de: .sistema, sistemaEstaEscuro: false))")
+
+        // A24f · migração: quem PEDIU escuro pela lua e nunca recebeu, recebe agora
+        checa("A24f", "appearanceMode=dark vira escuro mesmo com isDarkMode=false",
+              AparenciaDoApp.modoMigrado(aparenciaModo: nil,
+                                         isDarkMode: false,
+                                         appearanceMode: "dark") == .escuro,
+              "\(AparenciaDoApp.modoMigrado(aparenciaModo: nil, isDarkMode: false, appearanceMode: "dark"))")
+
+        // A24g · migração: instalação intocada continua clara.
+        // "system" é o VALOR PADRÃO do appearanceMode — tratá-lo como escolha
+        // faria o app abrir escuro para quem nunca pediu nada.
+        checa("A24g", "sem escolha nenhuma, o app abre claro como sempre abriu",
+              AparenciaDoApp.modoMigrado(aparenciaModo: nil, isDarkMode: false, appearanceMode: nil) == .claro
+                && AparenciaDoApp.modoMigrado(aparenciaModo: nil, isDarkMode: false, appearanceMode: "system") == .claro,
+              "nil→\(AparenciaDoApp.modoMigrado(aparenciaModo: nil, isDarkMode: false, appearanceMode: nil)) "
+                + "system→\(AparenciaDoApp.modoMigrado(aparenciaModo: nil, isDarkMode: false, appearanceMode: "system"))")
+
+        // A24h · migração: quem já estava no escuro não é jogado para o claro
+        checa("A24h", "isDarkMode=true continua escuro",
+              AparenciaDoApp.modoMigrado(aparenciaModo: nil, isDarkMode: true, appearanceMode: nil) == .escuro,
+              "\(AparenciaDoApp.modoMigrado(aparenciaModo: nil, isDarkMode: true, appearanceMode: nil))")
+
+        // A24i · a chave nova manda em cima de qualquer legado
+        checa("A24i", "aparenciaModo salvo vence as chaves antigas",
+              AparenciaDoApp.modoMigrado(aparenciaModo: "sistema",
+                                         isDarkMode: true,
+                                         appearanceMode: "dark") == .sistema,
+              "\(AparenciaDoApp.modoMigrado(aparenciaModo: "sistema", isDarkMode: true, appearanceMode: "dark"))")
+
+        // A24j · os dois caminhos de exclusão de conta têm de terminar igual.
+        // O caminho normal apaga o domínio inteiro (leva a aparência junto); o
+        // fallback enumera chaves. Se a chave nova não estiver na lista do
+        // fallback, a mesma ação deixa o app em dois estados diferentes.
+        checa("A24j", "a deleção total cobre a chave nova da aparência",
+              LocalDataCleanupService.chavesDeUINaDelecaoTotal.contains(AparenciaDoApp.chave),
+              LocalDataCleanupService.chavesDeUINaDelecaoTotal.joined(separator: ", "))
+
+        // ── A25 · scan por IA: a chave fora do app, consentimento por envio ──
+        //
+        // A IA do scan ligou em 05/08. O risco que estas asserções vigiam não é
+        // "a IA funciona" — é o app voltar a mentir sobre o que faz com a foto.
+
+        // A25a · o endpoint é o NOSSO servidor, por HTTPS.
+        // Se alguém reapontar para o provedor direto, isto acusa.
+        let url = AnaliseDeFotoService.endpoint
+        checa("A25a", "a análise passa pela nossa Cloud Function, por HTTPS",
+              url.scheme == "https"
+                && url.host?.contains("southamerica-east1-alma-app-7dae6") == true
+                && url.lastPathComponent == "analisarFoto",
+              url.absoluteString)
+
+        // A25b · NENHUMA chave de IA no bundle.
+        // Foi exatamente assim que a versão antiga vazava cota: key no plist,
+        // qualquer um descompacta o IPA. O gate do doc dizia "não religar como
+        // está" — esta asserção é esse gate virando teste.
+        var chavesNoBundle: [String] = []
+        if let p = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let d = NSDictionary(contentsOfFile: p) {
+            for k in d.allKeys.compactMap({ $0 as? String })
+            where k.uppercased().contains("GEMINI") || k.uppercased().contains("OPENAI") {
+                chavesNoBundle.append(k)
+            }
+        }
+        checa("A25b", "não há chave de IA embarcada no bundle",
+              chavesNoBundle.isEmpty,
+              chavesNoBundle.isEmpty ? "nenhuma" : chavesNoBundle.joined(separator: ", "))
+
+        // A25c · SEM CONSENTIMENTO NÃO SAI FOTO — exercitando o caminho real.
+        //
+        // Não basta assertar um ajudante puro: isso provaria que a função existe,
+        // não que o serviço a usa. Aqui o `NuvemAIPlanService` é chamado de
+        // verdade, com consentimento falso, e tem de LANÇAR antes de tocar na
+        // rede. (Com `consentimento: false` ele sai na primeira linha, então não
+        // há trabalho de main actor e o semáforo não trava.)
+        let entradaFalsa = ScanInput(weightKg: 70, heightCm: 175, ageYears: 30,
+                                     bodyFat: 20, goal: "Manter",
+                                     frontPhoto: Data([0xFF, 0xD8, 0xFF]),
+                                     sidePhoto: Data([0xFF, 0xD8, 0xFF]))
+        var observadoConsentimento = "não respondeu em 5 s"
+        var recusouSemConsentimento = false
+        let sem = DispatchSemaphore(value: 0)
+        Task.detached {
+            do {
+                _ = try await NuvemAIPlanService(consentimento: false).analyze(entradaFalsa)
+                observadoConsentimento = "DEVOLVEU RESULTADO sem consentimento"
+            } catch let e as ErroDaAnalise {
+                recusouSemConsentimento = (e == .semConsentimento)
+                observadoConsentimento = "lançou \(e)"
+            } catch {
+                observadoConsentimento = "lançou outro erro: \(error)"
+            }
+            sem.signal()
+        }
+        _ = sem.wait(timeout: .now() + 5)
+        checa("A25c", "sem consentimento o envio é recusado antes da rede",
+              recusouSemConsentimento, observadoConsentimento)
+
+        // A25d · a copy diz a verdade sobre a retenção.
+        // Duas armadilhas ao mesmo tempo: prometer o que não cumprimos
+        // ("nada é guardado" — a OpenAI retém até 30 dias) e esconder o envio
+        // ("apenas localmente" — a foto vai para a nuvem).
+        let nota = BodyScanView.notaDePrivacidade.lowercased()
+        let notaComida = FoodScanView.chamadaDaTela.lowercased()
+        let prometeDemais = ["nada é guardado", "apagadas logo", "apenas localmente",
+                             "não são compartilhadas", "só no seu aparelho"]
+            .filter { nota.contains($0) || notaComida.contains($0) }
+        checa("A25d", "a nota de privacidade não promete o que não cumprimos",
+              prometeDemais.isEmpty && nota.contains("30 dias"),
+              prometeDemais.isEmpty ? "sem promessa excessiva; cita 30 dias: \(nota.contains("30 dias"))"
+                                    : "PROMETE: \(prometeDemais.joined(separator: ", "))")
+
+        // A25e · o pedido de consentimento existe, é explícito e oferece a saída
+        // sem foto. Sem a alternativa, "consentir" vira o único caminho.
+        let pedido = BodyScanView.pedidoDeConsentimento.lowercased()
+        checa("A25e", "o pedido de consentimento explica e oferece a via sem foto",
+              pedido.contains("enviar") && pedido.contains("30 dias")
+                && (pedido.contains("sem enviar foto") || pedido.contains("só com as suas medidas")
+                    || pedido.contains("suas medidas")),
+              BodyScanView.pedidoDeConsentimento.prefix(90) + "…")
+
+        // A25f · resultado de IA e estimativa local continuam distinguíveis.
+        // Foi a confusão dos dois que gerou o B8 original.
+        let localSemFoto = AIService.semFoto()
+        checa("A25f", "a fábrica separa o caminho com foto do caminho sem foto",
+              localSemFoto is MockAIPlanService
+                && AIService.make(consentimento: true) is NuvemAIPlanService,
+              "semFoto=\(type(of: localSemFoto)) comFoto=\(type(of: AIService.make(consentimento: true)))")
+
+        UserDefaults().removePersistentDomain(forName: suiteAp)
         UserDefaults().removePersistentDomain(forName: suite)
 
         log("═════ RESULTADO ═════")

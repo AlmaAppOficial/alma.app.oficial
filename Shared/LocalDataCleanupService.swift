@@ -275,8 +275,24 @@ enum LocalDataCleanupService {
     /// Fallback: remove chaves conhecidas individualmente (usado se bundleIdentifier for nulo).
     private static func removeAllKnownKeys() {
         clearUserData(uid: nil)
-        // Preferências de UI — incluídas apenas no fallback de deleção total
-        let uiKeys = ["isDarkMode", "AlmaAmbientSoundPreference", "AlmaAmbientVolume"]
-        uiKeys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        chavesDeUINaDelecaoTotal.forEach { UserDefaults.standard.removeObject(forKey: $0) }
     }
+
+    /// Preferências de UI apagadas **só na deleção total**.
+    ///
+    /// Este fallback existe para quando `bundleIdentifier` é nulo e não dá para
+    /// usar `removePersistentDomain`. O caminho normal apaga o domínio inteiro
+    /// — inclusive a aparência. Logo, para os dois caminhos terminarem no mesmo
+    /// estado, a lista aqui precisa cobrir as mesmas preferências.
+    ///
+    /// [2026-08-05] "aparenciaModo" entrou junto com a fonte única de aparência
+    /// (`AparenciaDoApp`). Sem ela, excluir a conta pelo caminho normal zerava o
+    /// tema e pelo fallback não — a mesma ação deixando o app em dois estados
+    /// diferentes. A asserção A24j prende isso.
+    static let chavesDeUINaDelecaoTotal = [
+        AparenciaDoApp.chave,               // "aparenciaModo"
+        AparenciaDoApp.chaveLegadaAlma,     // "isDarkMode" — instalações antigas
+        "AlmaAmbientSoundPreference",
+        "AlmaAmbientVolume"
+    ]
 }

@@ -16,6 +16,8 @@ struct SettingsView: View {
     // que a gestão do plano usa para restaurar compras.
     @EnvironmentObject var access: AccessManager
     @EnvironmentObject var storeAlma: StoreKitManager
+    /// [2026-08-05] Fonte única de aparência — ver AparenciaDoApp.swift.
+    @ObservedObject private var aparencia = AparenciaDoApp.shared
     // [Fusão] auth removido — a conta é do Alma.
     @Environment(\.dismiss) private var dismiss
 
@@ -108,11 +110,15 @@ struct SettingsView: View {
                 // o usuário já está nele.
 
                 // Aparência
+                // [2026-08-05] Este picker escrevia `model.appearanceMode`, a
+                // mesma chave morta da lua: mudava a seleção e não mudava a
+                // tela. Agora escreve a fonte única, e é a mesma coisa que o
+                // toggle do Perfil do Alma controla.
                 Section("Aparência") {
-                    Picker(selection: $model.appearanceMode) {
-                        Text("Sistema").tag("system")
-                        Text("Claro").tag("light")
-                        Text("Escuro").tag("dark")
+                    Picker(selection: $aparencia.modo) {
+                        ForEach(ModoDeAparencia.allCases, id: \.self) { modo in
+                            Text(modo.rotulo).tag(modo)
+                        }
                     } label: {
                         Label("Tema", systemImage: "circle.lefthalf.filled")
                     }

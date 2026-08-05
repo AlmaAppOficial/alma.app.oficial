@@ -47,11 +47,15 @@ enum CorpoAcesso {
     /// inclusive para quem acabou de assinar por causa dele. Oferecer um botão
     /// que só sabe falhar é pior do que não oferecer: enquanto a IA não estiver
     /// ligada, o recurso não aparece.
-    static var scanDeAlimentoDisponivel: Bool { GeminiConfig.isAvailable }
+    /// [2026-08-05] LIGADO. A análise saiu da chave no bundle e passou para a
+    /// Cloud Function `analisarFoto`, então o recurso existe de verdade e o
+    /// botão volta a aparecer. Falha de rede vira mensagem honesta, não um
+    /// botão que só sabe falhar.
+    static var scanDeAlimentoDisponivel: Bool { AIService.isRealAI }
 
-    /// O scan CORPORAL continua existindo sem IA: ele calcula a partir das
-    /// medidas informadas. O que mudou é que ele não se anuncia mais como IA.
-    static var scanCorporalUsaIA: Bool { GeminiConfig.isAvailable }
+    /// O scan CORPORAL sempre existiu sem IA (calculando pelas medidas) e agora
+    /// também analisa foto. As duas rotas continuam, e a tela diz qual usou.
+    static var scanCorporalUsaIA: Bool { AIService.isRealAI }
 
     /// Recursos que consomem IA paga por uso.
     static func podeUsarIA(_ model: AppModel) -> Bool {

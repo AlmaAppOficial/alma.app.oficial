@@ -44,7 +44,14 @@ struct CorpoModuleView: View {
     ///
     /// Aplicar aqui é idempotente: se o `fullScreenCover` já herdasse a
     /// preferência da raiz, esta linha não muda nada; como não herdava, corrige.
-    @AppStorage("isDarkMode") private var isDarkMode = false
+    ///
+    /// [2026-08-05] Metade do conserto acima estava certa e metade faltava. O
+    /// LEITOR passou a aplicar a preferência aqui dentro — mas a lua da Início
+    /// do Corpo continuou ESCREVENDO em `appearanceMode`, uma chave que este
+    /// `@AppStorage("isDarkMode")` não lia. Resultado no aparelho do Assis:
+    /// tocar na lua trocava o ícone e não trocava a aparência. Agora as duas
+    /// pontas passam por `AparenciaDoApp.shared`.
+    @ObservedObject private var aparencia = AparenciaDoApp.shared
 
     /// [Fusão 2026-08-02] Módulo portado: as 5 abas reais do Corpo & Alma
     /// (Início, Saúde, Dieta, Treino, Insights) rodam dentro do Alma.
@@ -60,7 +67,7 @@ struct CorpoModuleView: View {
         // Início do Alma.
         conteudo
             // Uma fonte de verdade só para aparência, em todo o app.
-            .preferredColorScheme(isDarkMode ? .dark : .light)
+            .preferredColorScheme(aparencia.colorScheme)
             .task {
                 #if os(iOS)
                 // [2026-08-04 — Watch] Enquanto o Corpo está aberto, a ponte

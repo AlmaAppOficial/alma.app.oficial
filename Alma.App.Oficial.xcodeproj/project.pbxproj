@@ -130,6 +130,8 @@
 		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
+		BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */; };
+		BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */; };
 		2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22125E08D23CEE6A3878453B /* TestePersistencia.swift */; };
 		155C4512DD68000000000000 /* GestaoDoPlanoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */; };
 		AA0804DIT100000000000000A /* AcumuladorDeDitado.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804DIT10000000000002B /* AcumuladorDeDitado.swift */; };
@@ -386,6 +388,8 @@
 		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
+		477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AnaliseDeFotoService.swift"; sourceTree = "<group>"; };
+		DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AparenciaDoApp.swift"; sourceTree = "<group>"; };
 		22125E08D23CEE6A3878453B /* TestePersistencia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TestePersistencia.swift"; sourceTree = "<group>"; };
 		B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GestaoDoPlanoView.swift; sourceTree = "<group>"; };
 		AA0804DIT10000000000002B /* AcumuladorDeDitado.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AcumuladorDeDitado.swift"; sourceTree = "<group>"; };
@@ -611,6 +615,8 @@
 				DD015000DD015000DD015000 /* HealthContextBuilder.swift */,
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
+				477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */,
+				DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */,
 				22125E08D23CEE6A3878453B /* TestePersistencia.swift */,
 				B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */,
 				AA0804DIT10000000000002B /* AcumuladorDeDitado.swift */,
@@ -1121,6 +1127,8 @@
 				DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */,
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
+				BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */,
+				BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */,
 				2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */,
 				155C4512DD68000000000000 /* GestaoDoPlanoView.swift in Sources */,
 				AA0804DIT100000000000000A /* AcumuladorDeDitado.swift in Sources */,
@@ -1441,7 +1449,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1475,7 +1483,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1511,7 +1519,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1540,7 +1548,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1565,7 +1573,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -1584,7 +1592,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -1604,7 +1612,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1623,7 +1631,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1644,7 +1652,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1674,7 +1682,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1706,7 +1714,7 @@
 				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1744,7 +1752,7 @@
 				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;

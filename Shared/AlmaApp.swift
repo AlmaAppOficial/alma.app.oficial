@@ -201,7 +201,9 @@ extension Notification.Name {
 @main
 struct AlmaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @AppStorage("isDarkMode") private var isDarkMode = false
+    /// [2026-08-05] Fonte única de aparência. Antes era `@AppStorage("isDarkMode")`,
+    /// que a lua do Corpo não escrevia — ver o cabeçalho de AparenciaDoApp.swift.
+    @ObservedObject private var aparencia = AparenciaDoApp.shared
 
     var body: some Scene {
         WindowGroup {
@@ -212,7 +214,7 @@ struct AlmaApp: App {
                 // aqui. Sem isto, o servidor apagava a conta e o aparelho
                 // ficava com peso, alergias, condições de saúde e humor.
                 .task { LocalDataCleanupService.retomarLimpezaPendenteSeNecessario() }
-                .preferredColorScheme(isDarkMode ? .dark : .light)
+                .preferredColorScheme(aparencia.colorScheme)
                 // [2026-08-04 — achado na conferência visual] A Dieta exibia
                 // "de 2 368 kcal consumidas": `Text("\(inteiro)")` no SwiftUI
                 // formata pelo locale do APARELHO, e o separador de milhar em

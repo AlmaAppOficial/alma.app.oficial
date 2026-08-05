@@ -52,7 +52,7 @@ struct MainTabView: View {
     @ObservedObject private var audio = AudioManager.shared
     @ObservedObject private var tabVisibility = TabVisibilityState.shared
     @ObservedObject private var paywallManager = PaywallTriggerManager.shared
-    @AppStorage("isDarkMode") private var isDarkMode = false
+    @ObservedObject private var aparencia = AparenciaDoApp.shared
 
     // Tab tag values — Feed = 1, used as the deep-link target for FCM push
     // notifications carrying action=openFeed (see AppDelegate, Build 77).
@@ -112,7 +112,7 @@ struct MainTabView: View {
         }
         .animation(.easeInOut(duration: 0.25), value: audio.isPlaying)
         .animation(.easeInOut(duration: 0.25), value: tabVisibility.hideMiniPlayer)
-        .preferredColorScheme(isDarkMode ? .dark : .light)
+        .preferredColorScheme(aparencia.colorScheme)
         .onReceive(NotificationCenter.default.publisher(for: .openFeedTab)) { _ in
             selectedTab = .feed
         }

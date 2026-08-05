@@ -1379,3 +1379,9 @@ export const notifyNewFeedPost = onDocumentCreated(
 // ─── Billing Android ──────────────────────────────────────────────────────────
 export * from './billing';
 export { appleNotifications } from './appleNotifications';
+
+// ─── Análise de fotos por IA (corpo e comida) ─────────────────────────────────
+// [2026-08-05] Substitui a chamada direta ao Gemini com chave no bundle. A
+// chave agora vive só no Secret Manager e a imagem nunca é persistida —
+// ver o cabeçalho de analiseDeFoto.ts.
+export { analisarFoto } from './analiseDeFoto';

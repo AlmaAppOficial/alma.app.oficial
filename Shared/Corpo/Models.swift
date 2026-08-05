@@ -264,16 +264,21 @@ final class AppModel: ObservableObject {
     /// Hora do lembrete de suplementos — a maioria toma junto do café.
     @Published var supplementHour: Int { didSet { store.set(supplementHour, forKey: "supplementHour") } }
 
-    // Aparência: "system" | "light" | "dark"
-    @Published var appearanceMode: String { didSet { store.set(appearanceMode, forKey: "appearanceMode") } }
-
-    var colorScheme: ColorScheme? {
-        switch appearanceMode {
-        case "light": return .light
-        case "dark": return .dark
-        default: return nil
-        }
-    }
+    // ── Aparência — REMOVIDA DAQUI em 2026-08-05 ────────────────────────────
+    // Havia aqui `appearanceMode` ("system"/"light"/"dark") e `colorScheme`.
+    // Eram o SEGUNDO armazenamento de aparência do app, herdado do Corpo &
+    // Alma, e ninguém os aplicava: varrendo o projeto, `model.colorScheme`
+    // aparecia em exatamente duas linhas do CorpoHomeView — as duas decidindo
+    // qual ÍCONE desenhar no botão da lua. A pessoa tocava, o desenho virava
+    // de lua para sol, e a aparência do app não mudava. Foi o bug que o Assis
+    // pegou no aparelho no build 91 enquanto o simulador "provava" o contrário.
+    //
+    // A fonte única agora é `AparenciaDoApp.shared` (Shared/AparenciaDoApp.swift).
+    // A chave antiga "appearanceMode" continua no disco e é lida UMA vez pela
+    // migração — por isso quem tinha pedido escuro pela lua finalmente recebe.
+    //
+    // NÃO reintroduza um estado de aparência aqui: a asserção A24d reprova o
+    // build se aparecer um segundo armazenamento.
 
     // Plano gerado pela IA (scan corporal)
     @Published var scanResult: ScanResult? { didSet {
@@ -388,7 +393,8 @@ final class AppModel: ObservableObject {
         notifySupplements = store.bool(forKey: "notifySupplements")
         let horaSuplemento = store.integer(forKey: "supplementHour")
         supplementHour = horaSuplemento == 0 ? 9 : horaSuplemento
-        appearanceMode = store.string(forKey: "appearanceMode") ?? "system"
+        // `appearanceMode` saiu daqui em 2026-08-05 — ver o bloco de tombstone
+        // acima. Quem lê a chave antiga agora é `AparenciaDoApp.modoMigrado`.
         if let d = store.data(forKey: "scanResult") {
             scanResult = try? JSONDecoder().decode(ScanResult.self, from: d)
         }

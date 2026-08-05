@@ -34,6 +34,8 @@ struct FoodScanView: View {
     @State private var mealType: MealType = .almoco
     @State private var showCamera = false
     @State private var showGallery = false
+    /// [2026-08-05] Consentimento por envio.
+    @State private var mostrarConsentimento = false
 
     var body: some View {
         NavigationStack {
@@ -74,6 +76,14 @@ struct FoodScanView: View {
                 .ignoresSafeArea()
             }
             .photosPicker(isPresented: $showGallery, selection: $photoItem, matching: .images)
+            .confirmationDialog("Enviar foto para análise?",
+                                isPresented: $mostrarConsentimento,
+                                titleVisibility: .visible) {
+                Button("Enviar foto para análise") { enviarParaAnalise() }
+                Button("Cancelar", role: .cancel) {}
+            } message: {
+                Text(Self.pedidoDeConsentimento)
+            }
         }
     }
 
@@ -81,14 +91,21 @@ struct FoodScanView: View {
 
     /// [2026-08-04] Estáticos para o harness assertar o MESMO texto exibido.
     static var tituloDaTela: String {
-        GeminiConfig.isAvailable ? "Scan de comida com IA"
-                                 : "Scan de comida — indisponível nesta versão"
+        AIService.isRealAI ? "Scan de comida com IA"
+                           : "Scan de comida — indisponível nesta versão"
     }
 
     static var chamadaDaTela: String {
-        GeminiConfig.isAvailable
-        ? "Tire uma foto do seu prato e a IA estima os macronutrientes em segundos."
+        AIService.isRealAI
+        ? "Tire uma foto do seu prato e a IA estima os macronutrientes. É uma estimativa a partir da imagem — confira a porção antes de adicionar."
         : "A leitura do prato por foto não está disponível nesta versão. Registre o alimento pela busca ou pelo código de barras — o resultado é o mesmo, sem chute."
+    }
+
+    /// Mesmo texto do scan corporal — a promessa é a mesma nos dois envios.
+    static var pedidoDeConsentimento: String {
+        "Enviar esta foto para análise?\n\n"
+        + "A foto é analisada e não fica guardada no Alma. O provedor de IA pode "
+        + "mantê-la por até 30 dias apenas por segurança, e não a usa para treinar modelos."
     }
 
     private var intro: some View {
@@ -271,7 +288,12 @@ struct FoodScanView: View {
     }
 
     private var privacyNote: some View {
-        Text("Esta análise é uma estimativa e não substitui orientação profissional. As fotos são usadas apenas localmente.")
+        // [2026-08-05] Dizia "As fotos são usadas apenas localmente" — frase que
+        // deixou de ser verdade no minuto em que a análise foi para a nuvem.
+        // Era incondicional, então mentiria em silêncio.
+        Text(AIService.isRealAI
+             ? "Esta análise é uma estimativa e não substitui orientação profissional. A foto é analisada e não fica guardada no Alma; o provedor de IA pode mantê-la por até 30 dias apenas por segurança, e não a usa para treinar modelos."
+             : "Esta análise é uma estimativa e não substitui orientação profissional. As fotos são usadas apenas localmente.")
             .font(.caption2)
             .foregroundStyle(Theme.inkSoft)
     }
@@ -306,28 +328,38 @@ struct FoodScanView: View {
 
     // [F2] Honestidade: sem IA disponível ou com erro, o app mostra ERRO —
     // nunca um "resultado" inventado que poderia ser adicionado à dieta.
+    /// [2026-08-05] O botão abre o consentimento; o envio é o passo seguinte.
     private func analyze() {
+        guard photoData != nil else { return }
+        mostrarConsentimento = true
+    }
+
+    /// Envio de verdade, já com o consentimento daquele envio.
+    private func enviarParaAnalise() {
         guard let imageData = photoData else { return }
         analyzing = true
         errorMessage = nil
         Task {
             defer { analyzing = false }
             do {
-                guard GeminiConfig.isAvailable else { throw GeminiError.missingKey }
-                result = try await GeminiService.analyzeFood(imageData: imageData)
-            } catch let e as GeminiError {
-                result = nil
-                switch e {
-                case .missingKey:
-                    errorMessage = "A análise por IA não está disponível nesta versão. Adicione o alimento manualmente na aba Dieta."
-                case .badResponse:
-                    errorMessage = "O serviço de análise respondeu com erro. Verifique a conexão e tente novamente."
-                case .parsingFailed:
-                    errorMessage = "Não foi possível interpretar a análise. Tente uma foto mais clara do alimento."
-                }
+                let prato = try await AnaliseDeFotoService.analisarPrato(
+                    foto: imageData, consentimento: true)
+                result = FoodScanResult(
+                    name: prato.nome,
+                    brand: nil,
+                    // A porção que a IA enxergou no prato. Aparece para a pessoa
+                    // conferir antes de somar às calorias do dia.
+                    description: "Porção estimada na foto: \(Int(prato.porcaoG.rounded())) g",
+                    kcalPer100: Int(prato.kcalPor100.rounded()),
+                    proteinPer100: Int(prato.proteinaPor100.rounded()),
+                    carbsPer100: Int(prato.carboPor100.rounded()),
+                    fatPer100: Int(prato.gorduraPor100.rounded())
+                )
             } catch {
+                // [F2/B8] Erro é erro. Nunca um "resultado" inventado que
+                // poderia acabar somado às calorias do dia.
                 result = nil
-                errorMessage = "Sem conexão com o serviço de análise. Verifique a internet e tente novamente."
+                errorMessage = error.localizedDescription
             }
         }
     }

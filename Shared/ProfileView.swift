@@ -5,7 +5,10 @@ import UserNotifications
 // MARK: - ProfileView
 struct ProfileView: View {
 
-    @AppStorage("isDarkMode") private var isDarkMode = false
+    /// [2026-08-05] Fonte única — ver o cabeçalho de AparenciaDoApp.swift.
+    @ObservedObject private var aparencia = AparenciaDoApp.shared
+    /// Usado só para o toggle refletir a verdade quando o modo é `.sistema`.
+    @Environment(\.colorScheme) private var esquemaAtual
     @AppStorage("feedNotificationsEnabled") private var feedNotificationsEnabled = true
     @State private var showLogoutAlert = false
     @State private var showDeleteAccountSheet = false
@@ -412,7 +415,13 @@ struct ProfileView: View {
                 .font(.body)
                 .foregroundColor(CalmTheme.textPrimary)
             Spacer()
-            Toggle("", isOn: $isDarkMode)
+            Toggle("", isOn: Binding(
+                // Com o modo em `.sistema` o toggle mostra o que está na tela,
+                // não um `false` que mentiria para quem está vendo escuro.
+                get: { aparencia.modo == .escuro
+                       || (aparencia.modo == .sistema && esquemaAtual == .dark) },
+                set: { aparencia.modo = $0 ? .escuro : .claro }
+            ))
                 .labelsHidden()
                 .tint(CalmTheme.primary)
         }

@@ -19,8 +19,20 @@ struct CorpoHomeView: View {
 
     @EnvironmentObject var model: AppModel
     @EnvironmentObject var health: HealthManager
+    /// [2026-08-05] O botão da lua escrevia `model.appearanceMode`, que nenhum
+    /// `.preferredColorScheme` do app lia — só o ícone daqui consultava. Por
+    /// isso, no aparelho, tocar na lua trocava o desenho e não trocava a
+    /// aparência. Agora escreve e lê a fonte única.
+    @ObservedObject private var aparencia = AparenciaDoApp.shared
+    /// Necessário para o modo `.sistema`: sem isto o ícone não sabe se o
+    /// aparelho está claro ou escuro.
+    @Environment(\.colorScheme) private var esquemaAtual
     @State private var showPaywall = false
     @State private var showSettings = false
+
+    /// Verdadeiro quando a tela está escura AGORA, seja por escolha explícita
+    /// ou porque o aparelho está no escuro e o modo é `.sistema`.
+    private var estaEscuroAgora: Bool { esquemaAtual == .dark }
 
     private let columns = [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
 
@@ -53,9 +65,11 @@ struct CorpoHomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        withAnimation { model.appearanceMode = (model.colorScheme == .dark) ? "light" : "dark" }
+                        withAnimation {
+                            aparencia.alternar(sistemaEstaEscuro: estaEscuroAgora)
+                        }
                     } label: {
-                        Image(systemName: model.colorScheme == .dark ? "sun.max.fill" : "moon.fill")
+                        Image(systemName: estaEscuroAgora ? "sun.max.fill" : "moon.fill")
                     }
                     .accessibilityLabel("Alternar modo claro/escuro")
                 }

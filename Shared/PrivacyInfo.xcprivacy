@@ -151,6 +151,33 @@
 				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
 			</array>
 		</dict>
+		<!--
+		    Photos or Videos — [2026-08-05, autorizado pelo Assis]
+		    Acrescentado no dia em que a análise de foto por IA ligou.
+
+		    O que acontece de fato: a pessoa escolhe enviar (consentimento POR
+		    ENVIO, com a alternativa "só com minhas medidas" no mesmo diálogo);
+		    a foto vai para a nossa Cloud Function `analisarFoto`, que a repassa
+		    ao provedor de IA e NÃO a persiste — nem em Storage, nem em
+		    Firestore, nem em disco. O que fica gravado é um recibo com tipo,
+		    data e se deu certo. Nenhuma imagem.
+
+		    Linked = true porque o envio é autenticado (Firebase ID token), então
+		    é atribuível à conta. Tracking = false: nada disso alimenta
+		    publicidade nem sai para terceiros além do provedor que processa.
+		-->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypePhotosorVideos</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
 		<dict>
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeFitness</string>

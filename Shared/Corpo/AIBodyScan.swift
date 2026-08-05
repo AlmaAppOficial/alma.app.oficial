@@ -85,30 +85,49 @@ protocol AIPlanService {
     func analyze(_ input: ScanInput) async throws -> ScanResult
 }
 
-/// Fábrica: Gemini (se API key configurada) → backend remoto → estimativa local.
+/// Fábrica do serviço de análise.
+///
+/// [2026-08-05] A IA do scan LIGOU, por decisão do Assis, e por um caminho
+/// diferente do antigo: Cloud Function `analisarFoto` (a chave mora no Secret
+/// Manager, nunca no bundle). Ver `AnaliseDeFotoService`.
+///
+/// O que mudou nesta fábrica:
+///   • `GeminiConfig` saiu de cena — não há mais chave embarcada para consultar;
+///   • `isRealAI` agora é uma verdade DO BUILD, não de um plist: esta versão
+///     do app tem análise por foto, ponto. Falha de rede, sessão expirada ou
+///     foto ilegível são erros em tempo de execução, tratados com mensagem
+///     honesta — não fazem o app voltar a fingir que nunca teve IA;
+///   • o caminho sem foto continua existindo e continua rotulado como
+///     estimativa por medidas (`MockAIPlanService`), porque a pessoa pode
+///     escolher não enviar foto nenhuma.
 enum AIService {
-    /// URL do backend remoto (Firebase Function). Opcional — Gemini tem prioridade.
-    static let endpoint: URL? = nil
+    /// Endpoint real, para quem procurar por ele aqui.
+    static var endpoint: URL { AnaliseDeFotoService.endpoint }
 
-    /// [F1] true quando há IA de verdade disponível. Sem IA, a UI precisa
-    /// rotular o resultado como "Estimativa por medidas" — nunca fingir análise.
-    static var isRealAI: Bool { GeminiConfig.isAvailable || endpoint != nil }
+    /// [F1] true = este build analisa foto de verdade. As asserções B8b/B8c
+    /// exigem que a copy diga isso — e só diga enquanto for verdade.
+    static var isRealAI: Bool { true }
 
-    static func make() -> AIPlanService {
-        if GeminiConfig.isAvailable { return GeminiAIPlanService() }
-        if let endpoint { return RemoteAIPlanService(endpoint: endpoint) }
-        return MockAIPlanService()
+    /// - Parameter consentimento: autorização DAQUELE envio, dada na tela.
+    ///   Sem ela o serviço recusa antes de tocar na rede.
+    static func make(consentimento: Bool) -> AIPlanService {
+        NuvemAIPlanService(consentimento: consentimento)
     }
+
+    /// Caminho explícito de quem optou por não enviar foto.
+    static func semFoto() -> AIPlanService { MockAIPlanService() }
 }
 
 // MARK: - Gemini AI Plan Service
 
 /// Chama o Gemini Vision diretamente para análise corporal real por foto.
-struct GeminiAIPlanService: AIPlanService {
-    func analyze(_ input: ScanInput) async throws -> ScanResult {
-        try await GeminiService.analyzeBody(input: input)
-    }
-}
+// [2026-08-05] `GeminiAIPlanService` REMOVIDO. Ele chamava
+// `GeminiService.analyzeBody`, que mandava as fotos direto para o provedor com
+// a chave tirada do bundle. Quem faz esse trabalho agora é `NuvemAIPlanService`
+// (Shared/Corpo/AnaliseDeFotoService.swift), passando pela Cloud Function.
+//
+// O arquivo `GeminiService.swift` continua no repo mas não é mais chamado por
+// ninguém — mantido só como referência do formato de prompt até a limpeza.
 
 // MARK: - Backend real (produção)
 
