@@ -26,6 +26,11 @@ struct HomeView: View {
     /// conferências visuais de 03/08 e 04/08 fotografaram a tela errada duas
     /// vezes. Quem liga a flag agora é só o `.task`.
     @State private var showCorpoModule = false
+    /// [2026-08-05] Empilhamento programático do Livre de Vícios. O card usa
+    /// `NavigationLink`, que só responde a toque; o marco que chega por
+    /// notificação precisa de um destino que se abra por estado.
+    @State private var showLivreDeVicios = false
+    @ObservedObject private var roteador = RoteadorDeNotificacao.shared
 
     @ObservedObject private var streakManager = StreakManager.shared
     @ObservedObject private var perfil = UserProfileStore.shared
@@ -151,6 +156,19 @@ struct HomeView: View {
             CorpoModuleView()
                 .environmentObject(access)
                 .environmentObject(store)
+        }
+        // [2026-08-05] Segunda etapa do encaminhamento por notificação. A
+        // MainTabView já trouxe a pessoa para a aba Início e deixou o destino
+        // pendente de propósito, porque chat, Corpo e Livre de Vícios não são
+        // abas — são telas empilhadas ou apresentadas A PARTIR daqui.
+        //
+        // As duas chamadas cobrem os dois caminhos do iOS: `onAppear` é a
+        // partida fria (a Início nasce e encontra o destino esperando) e
+        // `onChange` é o app já vivo. Ver RotaDaNotificacao.swift.
+        .onAppear { encaminharNotificacaoPendente() }
+        .onChange(of: roteador.pendente) { _ in encaminharNotificacaoPendente() }
+        .navigationDestination(isPresented: $showLivreDeVicios) {
+            AddictionFreeView()
         }
         // [2026-08-02] O card "Complete seu perfil" reabre o MESMO onboarding
         // da primeira abertura (OnboardingBiometricsView), agora com nome,
@@ -378,6 +396,36 @@ struct HomeView: View {
         }
         .navigationDestination(isPresented: $navigateToPraticas) {
             PraticasView()
+        }
+    }
+
+    // MARK: - Encaminhamento por notificação
+
+    /// Cumpre os destinos que nascem desta tela. Aba do Alma não é tratada aqui
+    /// — quem trata é a `MainTabView`, e por isso o predicado do `consumir`
+    /// exclui `.almaAba`: duas telas consumindo o mesmo pendente fariam uma
+    /// roubar o destino da outra.
+    private func encaminharNotificacaoPendente() {
+        let destino = roteador.consumir { d in
+            switch d {
+            case .almaAba:                                     return false
+            case .corpoAba, .conversarComAlma, .livreDeVicios:  return true
+            }
+        }
+        guard let destino else { return }
+
+        switch destino {
+        case .corpoAba:
+            // A aba fica guardada em `abaDoCorpoPendente`: o `RootTabView` só
+            // existe depois deste `fullScreenCover` apresentar, e é ele quem
+            // consome. Ver o comentário do roteador.
+            showCorpoModule = true
+        case .conversarComAlma:
+            showChat = true
+        case .livreDeVicios:
+            showLivreDeVicios = true
+        case .almaAba:
+            break
         }
     }
 

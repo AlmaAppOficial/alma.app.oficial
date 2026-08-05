@@ -20,6 +20,11 @@ struct RootTabView: View {
     @State private var selection = 0
     #endif
 
+    /// [2026-08-05] Terceira e última etapa do encaminhamento por notificação.
+    /// A Início do Alma apresentou este módulo; a aba pedida ficou guardada no
+    /// roteador porque esta view ainda não existia no momento do toque.
+    @ObservedObject private var roteador = RoteadorDeNotificacao.shared
+
     var body: some View {
         TabView(selection: $selection) {
             CorpoHomeView()
@@ -42,6 +47,17 @@ struct RootTabView: View {
                 .tabItem { Label("Insights", systemImage: "sparkles") }
                 .tag(4)
         }
+        // `onAppear` é o caso que importa aqui: quando a notificação de almoço
+        // apresenta o módulo, esta view NASCE já com a aba pendente esperando.
+        // `onChange` cobre o módulo já aberto (a pessoa está no Corpo, chega a
+        // notificação de treino, toca — a aba troca sem fechar nada).
+        .onAppear { aplicarAbaPendente() }
+        .onChange(of: roteador.abaDoCorpoPendente) { _ in aplicarAbaPendente() }
+    }
+
+    private func aplicarAbaPendente() {
+        guard let aba = roteador.consumirAbaDoCorpo() else { return }
+        selection = aba.rawValue
     }
 }
 

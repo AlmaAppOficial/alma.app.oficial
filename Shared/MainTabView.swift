@@ -53,9 +53,15 @@ struct MainTabView: View {
     @ObservedObject private var tabVisibility = TabVisibilityState.shared
     @ObservedObject private var paywallManager = PaywallTriggerManager.shared
     @ObservedObject private var aparencia = AparenciaDoApp.shared
+    @ObservedObject private var roteador = RoteadorDeNotificacao.shared
 
     // Tab tag values — Feed = 1, used as the deep-link target for FCM push
     // notifications carrying action=openFeed (see AppDelegate, Build 77).
+    //
+    // [2026-08-05] Estes números são espelhados por `AbaDaAlma` em
+    // RotaDaNotificacao.swift. A asserção N6 compara os dois: se alguém
+    // reordenar as abas aqui e esquecer de lá, a notificação passa a levar para
+    // a aba errada — que é pior do que não levar a lugar nenhum.
     private enum Tab: Int {
         case home = 0, feed = 1, praticas = 2, insights = 3, profile = 4
     }
@@ -116,6 +122,17 @@ struct MainTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .openFeedTab)) { _ in
             selectedTab = .feed
         }
+        // [2026-08-05] Encaminhamento por toque em notificação.
+        //
+        // AS DUAS CHAMADAS SÃO OBRIGATÓRIAS E COBREM CASOS DIFERENTES:
+        //   • `onAppear`  → APP FECHADO. O delegate já roteou durante o launch,
+        //     antes desta view existir. Ela nasce e encontra o destino esperando.
+        //   • `onChange`  → APP VIVO (primeiro/segundo plano). Esta view já
+        //     existe e o destino chega depois.
+        // Apagar qualquer uma das duas quebra metade dos caminhos — e é sempre
+        // a metade fria que passa despercebida.
+        .onAppear { encaminharNotificacaoPendente() }
+        .onChange(of: roteador.pendente) { _ in encaminharNotificacaoPendente() }
         // [2026-08-04 — Watch] Handoff do relógio: o áudio já foi disparado
         // pelo WatchBridge (toca até com o app em background); aqui só levamos
         // a pessoa para a aba de Práticas quando o app está aberto.
@@ -126,6 +143,24 @@ struct MainTabView: View {
             Task { await PaywallTriggerManager.shared.dismissPaywall() }
         }) {
             PremiumWallView()
+        }
+    }
+
+    /// Cumpre o que esta tela sabe cumprir e deixa o resto pendente.
+    ///
+    /// Aba do Alma → resolve aqui e limpa. Chat, Corpo e Livre de Vícios vivem
+    /// empilhados na Início: esta view só troca para a aba Início e NÃO limpa o
+    /// pendente — a `HomeView` termina o trabalho quando aparecer. É por isso
+    /// que o `consumir` recebe um predicado em vez de esvaziar sempre.
+    private func encaminharNotificacaoPendente() {
+        guard let pendente = roteador.pendente else { return }
+
+        switch pendente {
+        case .almaAba(let aba):
+            _ = roteador.consumir { if case .almaAba = $0 { return true } else { return false } }
+            selectedTab = Tab(rawValue: aba.rawValue) ?? .home
+        case .corpoAba, .conversarComAlma, .livreDeVicios:
+            selectedTab = .home
         }
     }
 }

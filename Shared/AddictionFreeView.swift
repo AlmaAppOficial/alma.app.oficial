@@ -398,6 +398,9 @@ struct AddictionFreeView: View {
                 content.title = "Alma — Livre de Vícios"
                 content.body = msg.msg
                 content.sound = .default
+                // [2026-08-05] Tocar no marco leva ao contador que o gerou, e
+                // não à Início. Ver RotaDaNotificacao.swift.
+                content.userInfo = RotaDaNotificacao.carimbo(para: "addiction_\(msg.hours)")
 
                 let trigger = UNTimeIntervalNotificationTrigger(
                     timeInterval: Double(msg.hours * 3600),

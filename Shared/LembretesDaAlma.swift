@@ -70,6 +70,9 @@ enum LembretesDaAlma {
         // [2026-08-04 — Watch] Espelhado no relógio, este lembrete ganha a
         // interface do Alma (NotificationController do target AlmaWatch).
         content.categoryIdentifier = "ALMA_LEMBRETE"
+        // [2026-08-05] Tocar leva às Práticas — que é o que estes dois textos
+        // pedem ("respirar", "cinco minutos para você"). Ver RotaDaNotificacao.
+        content.userInfo = RotaDaNotificacao.carimbo(para: id)
 
         var quando = DateComponents()
         quando.hour = hora

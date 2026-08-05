@@ -1213,6 +1213,127 @@ enum AuditoriaBloqueadores {
               "esperado=\"\(hSemDados.rotuloDeConexao)\" "
                 + "achados=\(textosConectado.filter { $0.contains("onectad") || $0.contains("sponív") })")
 
+        // ── N · toque em notificação leva à tela certa ──────────────────────
+        //
+        // O que estas asserções cobrem e o que NÃO cobrem está escrito no
+        // cabeçalho de RotaDaNotificacao.swift, e repito aqui porque é o tipo
+        // de coisa que se perde: elas provam o MAPA (identificador → destino) e
+        // a SOBREVIVÊNCIA do destino à partida fria. Elas NÃO provam que o iOS
+        // chama o delegate, nem que a aba muda na tela — isso exige XCUITest,
+        // que o projeto não tem. O elo tela↔destino é coberto pelo lint de
+        // wiring (N-W1..N-W6), que é estático.
+
+        // N0 · GUARDA ANTI-CEGUEIRA, primeiro de todas (lição do A26d).
+        // Um catálogo vazio faria N1 e N2 passarem verdes para sempre, varrendo
+        // por baixo do tapete exatamente o bug que elas existem para pegar.
+        checa("N0", "o catálogo de notificações não está vazio",
+              RotaDaNotificacao.catalogo.count >= 11,
+              "\(RotaDaNotificacao.catalogo.count) identificadores catalogados")
+
+        // N1 · TODO identificador catalogado resolve para um destino.
+        let semDestino = RotaDaNotificacao.catalogo
+            .filter { RotaDaNotificacao.destinoPorIdentificador($0.identificador) == nil }
+            .map(\.identificador)
+        checa("N1", "todo lembrete agendado tem destino ao ser tocado",
+              semDestino.isEmpty && !RotaDaNotificacao.catalogo.isEmpty,
+              semDestino.isEmpty ? "nenhum órfão" : "SEM DESTINO: \(semDestino)")
+
+        // N2 · o mapa é o esperado, um a um. Mutação alvo: trocar o destino do
+        // almoço de .dieta para qualquer outra aba — era o pedido literal.
+        let esperado: [(String, DestinoDaNotificacao)] = [
+            ("meal-lunch",       .corpoAba(.dieta)),
+            ("meal-breakfast",   .corpoAba(.dieta)),
+            ("meal-dinner",      .corpoAba(.dieta)),
+            ("water-13",         .corpoAba(.inicio)),
+            ("workout",          .corpoAba(.treino)),
+            ("supplement-daily", .corpoAba(.dieta)),
+            ("daily_morning",    .almaAba(.praticas)),
+            ("addiction_168",    .livreDeVicios),
+        ]
+        let errados = esperado.filter {
+            RotaDaNotificacao.destinoPorIdentificador($0.0) != $0.1
+        }.map(\.0)
+        checa("N2", "cada lembrete leva à tela do que ele pede",
+              errados.isEmpty,
+              errados.isEmpty
+                ? "\(esperado.count) rotas conferidas · almoço → Dieta"
+                : "ROTA ERRADA: \(errados)")
+
+        // N3 · o push do feed que já existia continua funcionando. A Cloud
+        // Function `notifyNewFeedPost` está no ar mandando action=openFeed e
+        // não muda de contrato por causa desta refatoração.
+        let feed = RotaDaNotificacao.destino(identificador: "qualquer",
+                                             userInfo: ["action": "openFeed"])
+        checa("N3", "o push legado do feed continua indo para o Feed",
+              feed == .almaAba(.feed), "\(String(describing: feed))")
+
+        // N4 · o carimbo do userInfo vence o identificador, e sobrevive à
+        // viagem de ida e volta pelo texto (é assim que ele trafega no push).
+        let carimbo = RotaDaNotificacao.carimbo(para: "meal-lunch")
+        let viaCarimbo = RotaDaNotificacao.destino(identificador: "id-desconhecido",
+                                                   userInfo: carimbo)
+        checa("N4", "o destino carimbado no userInfo sobrevive à ida e volta",
+              viaCarimbo == .corpoAba(.dieta) && !carimbo.isEmpty,
+              "carimbo=\(carimbo) → \(String(describing: viaCarimbo))")
+
+        // N5 · O CASO FRIO — a asserção que justifica o desenho todo.
+        // Escreve o destino SEM nenhum observador (é o que acontece quando o
+        // delegate roteia durante o launch, antes de existir view) e exige que
+        // ele ainda esteja lá quando a primeira tela aparecer.
+        // Mutação alvo: trocar o estado guardado por um evento
+        // (NotificationCenter.post / PassthroughSubject) — o destino some e
+        // esta asserção fica vermelha, que é o bug que ninguém testa.
+        let roteador = RoteadorDeNotificacao.shared
+        roteador.zerarParaAuditoria()
+        roteador.rotear(.corpoAba(.dieta))              // ninguém observando
+        let sobreviveu = roteador.pendente              // "a tela nasce agora"
+        checa("N5", "destino roteado com o app fechado sobrevive até a tela nascer",
+              sobreviveu == .corpoAba(.dieta) && roteador.roteados == 1,
+              "pendente=\(String(describing: sobreviveu)) roteados=\(roteador.roteados)")
+
+        // N5b · consumir entrega UMA vez e limpa — senão a pessoa que fechar o
+        // Corpo à mão seria jogada de volta nele a cada render.
+        let primeira = roteador.consumir { _ in true }
+        let segunda  = roteador.consumir { _ in true }
+        checa("N5b", "o destino é entregue uma vez só",
+              primeira == .corpoAba(.dieta) && segunda == nil,
+              "1ª=\(String(describing: primeira)) 2ª=\(String(describing: segunda))")
+
+        // N5c · a aba do Corpo continua guardada DEPOIS de o destino ser
+        // consumido pela Início — é o intervalo em que o fullScreenCover está
+        // apresentando e o RootTabView ainda não existe.
+        let abaGuardada = roteador.abaDoCorpoPendente
+        let abaConsumida = roteador.consumirAbaDoCorpo()
+        checa("N5c", "a aba do Corpo sobrevive à apresentação do módulo",
+              abaGuardada == .dieta && abaConsumida == .dieta
+                && roteador.abaDoCorpoPendente == nil,
+              "guardada=\(String(describing: abaGuardada)) consumida=\(String(describing: abaConsumida))")
+
+        // N6 · os números das abas em RotaDaNotificacao são os MESMOS `tag` das
+        // TabViews. Se alguém reordenar as abas numa das duas pontas, a
+        // notificação passa a levar à tela errada — pior que não levar.
+        checa("N6", "os índices das abas batem com as TabViews",
+              AbaDaAlma.feed.rawValue == 1 && AbaDaAlma.praticas.rawValue == 2
+                && AbaDoCorpo.dieta.rawValue == 2 && AbaDoCorpo.treino.rawValue == 3
+                && AbaDaAlma.allCases.count == 5 && AbaDoCorpo.allCases.count == 5,
+              "alma feed=\(AbaDaAlma.feed.rawValue) práticas=\(AbaDaAlma.praticas.rawValue) · "
+                + "corpo dieta=\(AbaDoCorpo.dieta.rawValue) treino=\(AbaDoCorpo.treino.rawValue)")
+
+        // N7 · o catálogo cobre todos os prefixos que a GradeDeLembretes sabe
+        // limpar. Se alguém criar uma categoria nova lá e esquecer aqui, a
+        // notificação nasce sem destino e esta asserção acusa.
+        let prefixosDaGrade = DonoDoLembrete.allCases.flatMap(\.prefixos)
+        let prefixosSemRota = prefixosDaGrade.filter { prefixo in
+            RotaDaNotificacao.destinoPorIdentificador(prefixo + "0") == nil
+        }
+        checa("N7", "toda categoria da GradeDeLembretes tem rota",
+              prefixosSemRota.isEmpty && !prefixosDaGrade.isEmpty,
+              prefixosSemRota.isEmpty
+                ? "\(prefixosDaGrade.count) prefixos cobertos"
+                : "SEM ROTA: \(prefixosSemRota)")
+
+        roteador.zerarParaAuditoria()
+
         UserDefaults().removePersistentDomain(forName: suiteHK)
         UserDefaults().removePersistentDomain(forName: suiteAp)
         UserDefaults().removePersistentDomain(forName: suite)

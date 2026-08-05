@@ -70,6 +70,13 @@ final class NotificationManager: ObservableObject {
         // [2026-08-04 — Watch] Mesma categoria dos lembretes da Alma: no
         // relógio, a notificação aparece com a interface da marca.
         content.categoryIdentifier = "ALMA_LEMBRETE"
+        // [2026-08-05] Carimbo do destino: tocar neste lembrete leva à tela
+        // que ele pede (refeição → Dieta, água → Início do Corpo, treino →
+        // Treino). Ver RotaDaNotificacao.swift. O carimbo é explícito, mas o
+        // roteamento por identificador continua existindo como reserva — um
+        // lembrete `repeats: true` agendado por um build anterior dispara
+        // depois da atualização com o userInfo vazio daquele build.
+        content.userInfo = RotaDaNotificacao.carimbo(para: id)
 
         var comps = DateComponents()
         comps.hour = hour

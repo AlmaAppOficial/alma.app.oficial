@@ -82,6 +82,71 @@ REGRAS = [
         "precisa": r"temLimpezaPendente",
         "mutacao": "remover a guarda antes do setData do fcmToken",
     },
+    # ── N-W · encaminhamento por toque em notificação (2026-08-05) ──────────
+    #
+    # Por que estas regras existem sendo estáticas: as asserções N1..N7 do
+    # harness provam o MAPA (identificador → destino) em runtime, mas não
+    # conseguem provar que a TELA obedece ao destino — isso precisaria de
+    # XCUITest, ausente no projeto. Cada regra abaixo cobre um elo que o
+    # runtime não enxerga, e fica vermelha sob a mutação declarada.
+    {
+        "id": "N-W1",
+        "desc": "o toque em notificação atravessa a rota (não só o openFeed)",
+        "arquivo": "Shared/AlmaApp.swift",
+        "precisa": r"RotaDaNotificacao\.destino\(identificador:",
+        "mutacao": "voltar o delegate a tratar apenas action == openFeed",
+    },
+    {
+        "id": "N-W2",
+        "desc": "a Alma encaminha o destino pendente ao NASCER (app fechado)",
+        "arquivo": "Shared/MainTabView.swift",
+        "precisa": r"\.onAppear\s*\{\s*encaminharNotificacaoPendente\(\)\s*\}",
+        "mutacao": "remover o .onAppear e deixar só o .onChange — quebra a "
+                   "partida fria, que é o caminho que ninguém testa",
+    },
+    {
+        "id": "N-W3",
+        "desc": "a Alma encaminha o destino que chega com o app vivo",
+        "arquivo": "Shared/MainTabView.swift",
+        "precisa": r"onChange\(of:\s*roteador\.pendente\)",
+        "mutacao": "remover o .onChange — quebra o app em segundo plano",
+    },
+    {
+        "id": "N-W4",
+        "desc": "a Início abre Corpo/chat/vícios a partir do destino",
+        "arquivo": "Shared/HomeView.swift",
+        "precisa": r"case \.conversarComAlma:\s*\n\s*showChat = true",
+        "mutacao": "apagar o ramo do chat do encaminhamento da Início",
+    },
+    {
+        "id": "N-W5",
+        "desc": "o RootTabView aplica a aba pedida pela notificação",
+        "arquivo": "Shared/Corpo/RootTabView.swift",
+        "precisa": r"selection = aba\.rawValue",
+        "mutacao": "comentar a atribuição — o módulo abre sempre na Início e a "
+                   "notificação de almoço deixa de chegar na Dieta",
+    },
+    {
+        "id": "N-W6",
+        "desc": "os lembretes do Corpo carimbam o destino ao serem agendados",
+        "arquivo": "Shared/Corpo/NotificationManager.swift",
+        "precisa": r"content\.userInfo = RotaDaNotificacao\.carimbo\(para: id\)",
+        "mutacao": "remover o carimbo — sobra só o roteamento por prefixo",
+    },
+    {
+        "id": "N-W7",
+        "desc": "os lembretes da Alma carimbam o destino",
+        "arquivo": "Shared/LembretesDaAlma.swift",
+        "precisa": r"content\.userInfo = RotaDaNotificacao\.carimbo\(para: id\)",
+        "mutacao": "remover o carimbo dos lembretes de meditação",
+    },
+    {
+        "id": "N-W8",
+        "desc": "os marcos de vício carimbam o destino",
+        "arquivo": "Shared/AddictionFreeView.swift",
+        "precisa": r"content\.userInfo = RotaDaNotificacao\.carimbo",
+        "mutacao": "remover o carimbo dos marcos",
+    },
 ]
 
 

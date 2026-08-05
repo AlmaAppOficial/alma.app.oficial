@@ -127,15 +127,33 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         completionHandler([.banner, .badge, .sound])
     }
 
+    /// [2026-08-05] Toque em QUALQUER notificação leva à tela correspondente.
+    ///
+    /// Antes daqui só passava o push do feed (`action == "openFeed"`): os onze
+    /// lembretes locais abriam o app na tela padrão. Ver o cabeçalho de
+    /// `RotaDaNotificacao.swift` para o porquê de "às vezes leva" ser pior que
+    /// "nunca leva".
+    ///
+    /// ESTE MÉTODO É O CAMINHO DOS DOIS CASOS DO iOS — app vivo e app fechado.
+    /// Na partida fria ele dispara antes de existir qualquer view, e é por isso
+    /// que o destino vai para um ESTADO guardado (`RoteadorDeNotificacao`) em
+    /// vez de um evento: evento emitido aqui, com o app fechado, não teria
+    /// ninguém escutando e sumiria em silêncio.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
+        let identificador = response.notification.request.identifier
 
-        if let action = userInfo["action"] as? String, action == "openFeed" {
-            NotificationCenter.default.post(name: .openFeedTab, object: nil)
+        if let destino = RotaDaNotificacao.destino(identificador: identificador,
+                                                   userInfo: userInfo) {
+            // `@Published` só pode ser tocado na fila principal — o delegate do
+            // UNUserNotificationCenter não garante isso.
+            DispatchQueue.main.async {
+                RoteadorDeNotificacao.shared.rotear(destino)
+            }
         }
 
         completionHandler()
