@@ -15,7 +15,31 @@ import HealthKit
 
 @MainActor
 final class HealthManager: ObservableObject {
-    @Published var isAuthorized = false
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // [2026-08-05 — build 93] O BUG DA ABERTURA FRIA
+    //
+    // `isAuthorized` era estado só de memória, nascia `false` e só virava
+    // `true` dentro do callback de `requestAuthorization`. `refresh()` só era
+    // chamado ali dentro, no `if success`. Consequência: TODA abertura do app
+    // começava "não autorizada" e não buscava nada. A pessoa que já tinha
+    // concedido a permissão semanas atrás via, toda vez que abria o Corpo:
+    // "Desconectado" no card do relógio, "Desconectado" nos ajustes, e
+    // passos/calorias/sono zerados — até tocar de novo em "Conectar".
+    //
+    // O conserto tem três pernas:
+    //   1. quando a autorização acontece, uma marca vai para o disco;
+    //   2. na inicialização, se a marca existe, já nascemos autorizados e
+    //      buscamos os dados na hora, sem esperar toque nenhum;
+    //   3. qualquer leitura que volte COM dado liga a marca — porque dado no
+    //      HealthKit é prova de autorização, e cobre quem já tinha concedido
+    //      antes desta versão existir (a marca não estaria no disco para eles).
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Marca de "esta instalação já obteve autorização de leitura".
+    static let chaveAutorizado = "corpo.saude.autorizado"
+
+    @Published var isAuthorized: Bool
     @Published var steps: Double?
     @Published var restingHeartRate: Double?
     @Published var sleepHours: Double?
@@ -32,6 +56,30 @@ final class HealthManager: ObservableObject {
     private let store = HKHealthStore()
     #endif
 
+    private let defaults: UserDefaults
+
+    /// Quantas vezes `refresh()` foi chamado. Existe para a asserção A27c
+    /// poder provar o ELO "marca no disco → busca na partida" — que é
+    /// exatamente o elo que faltava e produziu o bug. Sem isto, a asserção só
+    /// conseguiria provar a peça (`isAuthorized` certo) e ficaria cega para
+    /// alguém apagar a chamada de `refresh()` do init.
+    private(set) var buscasDisparadas = 0
+
+    /// Perna 2 do conserto: a marca do disco decide como nascemos, e se ela
+    /// existe a busca sai na frente — sem esperar toque em "Conectar".
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        self.isAuthorized = defaults.bool(forKey: Self.chaveAutorizado)
+        if self.isAuthorized { refresh() }
+    }
+
+    /// Perna 1 e 3: liga a marca e a persiste. Só LIGA, nunca desliga — ver
+    /// `requestAuthorization` para o porquê.
+    func marcarAutorizado() {
+        if !isAuthorized { isAuthorized = true }
+        defaults.set(true, forKey: Self.chaveAutorizado)
+    }
+
     /// HealthKit disponível neste dispositivo?
     var isAvailable: Bool {
         #if canImport(HealthKit)
@@ -44,6 +92,64 @@ final class HealthManager: ObservableObject {
     /// Heurística simples: se já temos FC/sono via Saúde, há um relógio alimentando os dados.
     var watchConnected: Bool {
         isAuthorized && (restingHeartRate != nil || sleepHours != nil)
+    }
+
+    // MARK: - Como a tela pode falar sobre a conexão
+    //
+    // [2026-08-05 — build 93] REGRA DE PRODUTO: consulta vazia NÃO é
+    // desconexão. Para tipos de LEITURA o HealthKit se recusa, por projeto, a
+    // dizer se houve concessão — `authorizationStatus(for:)` devolve
+    // `.sharingDenied` tanto para "a pessoa negou" quanto para "a pessoa
+    // permitiu e não há amostra". Isso é deliberado da Apple: revelar a
+    // diferença já vazaria informação de saúde (não ter dado de sono é um
+    // dado sobre você).
+    //
+    // Logo, escrever "Desconectado" porque a consulta voltou vazia é o app
+    // afirmar uma coisa que ele não tem como saber — e é a afirmação errada
+    // com mais frequência, porque o caso comum é justamente "autorizado, sem
+    // amostra hoje". "Desconectado" fica reservado para o único caso em que
+    // temos certeza: nunca obtivemos autorização nesta instalação.
+
+    enum EstadoDaSaude: Equatable {
+        case indisponivel        // aparelho sem HealthKit
+        case naoConectado        // nunca autorizamos aqui — é o único "Desconectado" honesto
+        case conectadoSemDados   // autorizado, nenhuma amostra veio
+        case conectadoComDados
+    }
+
+    /// Alguma das leituras voltou com valor?
+    var temAlgumDado: Bool {
+        steps != nil || restingHeartRate != nil || sleepHours != nil
+            || bodyMass != nil || oxygen != nil || hrv != nil || activeCalories != nil
+    }
+
+    var estado: EstadoDaSaude {
+        guard isAvailable else { return .indisponivel }
+        guard isAuthorized else { return .naoConectado }
+        return temAlgumDado ? .conectadoComDados : .conectadoSemDados
+    }
+
+    /// Mapa PURO estado → texto. Puro de propósito: a asserção A27e percorre
+    /// os quatro casos sem depender de haver HealthKit no aparelho onde o
+    /// harness roda, que é como uma asserção fica verde sem provar nada.
+    static func rotulo(para estado: EstadoDaSaude) -> String {
+        switch estado {
+        case .indisponivel:      return "Indisponível neste aparelho"
+        case .naoConectado:      return "Desconectado"
+        case .conectadoSemDados: return "Conectado, sem dados hoje"
+        case .conectadoComDados: return "Conectado"
+        }
+    }
+
+    /// O texto que as telas mostram.
+    var rotuloDeConexao: String { Self.rotulo(para: estado) }
+
+    /// Rótulo do card do Apple Watch. Mesma regra, aplicada ao relógio: não
+    /// ter batimento nem sono hoje não prova que o relógio saiu do pulso.
+    var rotuloDoRelogio: String {
+        guard isAvailable else { return "Indisponível neste aparelho" }
+        guard isAuthorized else { return "Desconectado" }
+        return watchConnected ? "Conectado" : "Sem dados hoje"
     }
 
     // MARK: - Autorização
@@ -66,8 +172,16 @@ final class HealthManager: ObservableObject {
 
         store.requestAuthorization(toShare: [], read: read) { [weak self] success, _ in
             Task { @MainActor in
-                self?.isAuthorized = success
-                if success { self?.refresh() }
+                guard let self else { return }
+                // `success` diz que a FOLHA foi apresentada sem erro — não que
+                // a pessoa concedeu. Por isso ele só liga a marca, nunca a
+                // desliga: desligar em `success == false` apagaria a
+                // autorização real de quem só teve um erro de apresentação.
+                if success { self.marcarAutorizado() }
+                // E buscamos sempre. Se não havia autorização, as consultas
+                // voltam vazias e nada muda; se havia, os dados chegam mesmo
+                // que `success` tenha vindo falso.
+                self.refresh()
             }
         }
         #endif
@@ -76,6 +190,10 @@ final class HealthManager: ObservableObject {
     // MARK: - Leitura
 
     func refresh() {
+        // Contado ANTES de qualquer guarda: o que a A27c precisa provar é que
+        // a partida PEDIU a busca. Se o aparelho não tem HealthKit, o pedido
+        // continua tendo sido feito — e é o pedido que sumia.
+        buscasDisparadas += 1
         #if canImport(HealthKit)
         guard isAvailable else { return }
         readStepsToday()
@@ -103,7 +221,11 @@ final class HealthManager: ObservableObject {
         let predicate = HKQuery.predicateForSamples(withStart: start, end: Date())
         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .cumulativeSum) { [weak self] _, result, _ in
             let value = result?.sumQuantity()?.doubleValue(for: .count())
-            Task { @MainActor in self?.steps = value }
+            Task { @MainActor in
+                self?.steps = value
+                // Perna 3: dado que chega É prova de autorização.
+                if value != nil { self?.marcarAutorizado() }
+            }
         }
         store.execute(query)
     }
@@ -111,9 +233,12 @@ final class HealthManager: ObservableObject {
     private func readMostRecentQuantity(_ id: HKQuantityTypeIdentifier, unit: HKUnit, completion: @escaping (Double?) -> Void) {
         guard let type = HKObjectType.quantityType(forIdentifier: id) else { return }
         let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-        let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sort]) { _, samples, _ in
+        let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sort]) { [weak self] _, samples, _ in
             let value = (samples?.first as? HKQuantitySample)?.quantity.doubleValue(for: unit)
-            Task { @MainActor in completion(value) }
+            Task { @MainActor in
+                completion(value)
+                if value != nil { self?.marcarAutorizado() }
+            }
         }
         store.execute(query)
     }
@@ -124,7 +249,10 @@ final class HealthManager: ObservableObject {
         let predicate = HKQuery.predicateForSamples(withStart: start, end: Date())
         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .cumulativeSum) { [weak self] _, result, _ in
             let value = result?.sumQuantity()?.doubleValue(for: .kilocalorie())
-            Task { @MainActor in self?.activeCalories = value }
+            Task { @MainActor in
+                self?.activeCalories = value
+                if value != nil { self?.marcarAutorizado() }
+            }
         }
         store.execute(query)
     }
@@ -145,6 +273,8 @@ final class HealthManager: ObservableObject {
                 self?.noiteDeSono = noite
                 // A duração exibida continua vindo da mesma soma de sempre.
                 self?.sleepHours = (noite?.totalDormido).flatMap { $0 > 0 ? $0 : nil }
+                // Amostra de sono, mesmo sem estágios, é prova de autorização.
+                if !brutas.isEmpty { self?.marcarAutorizado() }
             }
         }
         store.execute(query)

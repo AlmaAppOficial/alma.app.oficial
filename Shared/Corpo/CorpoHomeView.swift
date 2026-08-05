@@ -19,20 +19,16 @@ struct CorpoHomeView: View {
 
     @EnvironmentObject var model: AppModel
     @EnvironmentObject var health: HealthManager
-    /// [2026-08-05] O botão da lua escrevia `model.appearanceMode`, que nenhum
-    /// `.preferredColorScheme` do app lia — só o ícone daqui consultava. Por
-    /// isso, no aparelho, tocar na lua trocava o desenho e não trocava a
-    /// aparência. Agora escreve e lê a fonte única.
-    @ObservedObject private var aparencia = AparenciaDoApp.shared
-    /// Necessário para o modo `.sistema`: sem isto o ícone não sabe se o
-    /// aparelho está claro ou escuro.
-    @Environment(\.colorScheme) private var esquemaAtual
+    // [2026-08-05 — build 93] O botão da lua SAIU daqui, junto com
+    // `aparencia`, `esquemaAtual` e `estaEscuroAgora`, que só existiam para
+    // ele. Motivo em Shared/AparenciaDoApp.swift (seção "dívida conhecida"):
+    // dentro do `fullScreenCover` do módulo Corpo a troca de aparência não
+    // chegava à tela, nos dois sentidos, mesmo com escritor e leitor certos.
+    // Um botão que não faz nada é pior que botão nenhum — e é risco de
+    // Guideline 2.1 na revisão. A aparência agora tem UM lugar só no app:
+    // Alma › Perfil › Modo escuro.
     @State private var showPaywall = false
     @State private var showSettings = false
-
-    /// Verdadeiro quando a tela está escura AGORA, seja por escolha explícita
-    /// ou porque o aparelho está no escuro e o modo é `.sistema`.
-    private var estaEscuroAgora: Bool { esquemaAtual == .dark }
 
     private let columns = [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
 
@@ -63,16 +59,9 @@ struct CorpoHomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .almaBackButton()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        withAnimation {
-                            aparencia.alternar(sistemaEstaEscuro: estaEscuroAgora)
-                        }
-                    } label: {
-                        Image(systemName: estaEscuroAgora ? "sun.max.fill" : "moon.fill")
-                    }
-                    .accessibilityLabel("Alternar modo claro/escuro")
-                }
+                // [2026-08-05 — build 93] `topBarLeading` com o botão da lua
+                // REMOVIDO. Ver o comentário nas propriedades acima. A asserção
+                // A26a reprova se ele voltar.
                 // [2026-08-02] Botão que abria `alma://` REMOVIDO — mesma classe
                 // do bug do Safari: dentro do app fundido não há app externo
                 // para abrir. O caminho de volta é o .almaBackButton() acima,
@@ -158,11 +147,10 @@ struct CorpoHomeView: View {
                     .font(.headline)
                     .foregroundStyle(Theme.ink)
                 Spacer()
-                if health.watchConnected {
-                    Pill(text: "Conectado", tint: Theme.primary)
-                } else {
-                    Pill(text: "Desconectado", tint: Theme.inkSoft)
-                }
+                // [2026-08-05 — build 93] O rótulo vem do HealthManager, que
+                // é onde a regra mora: consulta vazia não vira "Desconectado".
+                Pill(text: health.rotuloDoRelogio,
+                     tint: health.watchConnected ? Theme.primary : Theme.inkSoft)
             }
             if health.isAuthorized {
                 HStack(spacing: 0) {

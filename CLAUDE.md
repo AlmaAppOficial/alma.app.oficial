@@ -41,6 +41,30 @@ Submissão à Apple está PAUSADA até refatoração completa.
 
 - Migrar Cloud Functions de Node 20 para Node 22 antes de 30/10/2026
 - Atualizar firebase-functions package (warning de versão antiga ao deployar)
+- **Fronteira do `fullScreenCover` × `preferredColorScheme`** (aberta em
+  05/08/2026, build 93). Mudança de aparência feita COM o módulo Corpo em tela
+  não chega à tela, nos dois sentidos, mesmo com escritor e leitor corretos.
+  Contornado no 93 removendo os controles de aparência de dentro do Corpo.
+  Diagnóstico completo, o que está provado, as duas hipóteses que sobraram e o
+  experimento que as separa: cabeçalho de `Shared/AparenciaDoApp.swift`, seção
+  "DÍVIDA CONHECIDA". Não bloqueia Apple. Custa uma tarde com calma.
+
+## Lição de método (05/08/2026) — asserção prova a peça, não o elo
+
+Dois bugs no mesmo dia com a mesma forma: a auditoria estava verde e a tela
+estava quebrada.
+
+- Modo escuro: `A24b` chamava `alternar()` e exigia que o esquema virasse.
+  Virava — no modelo. Na tela do aparelho o botão não fazia nada, porque
+  nenhuma asserção jamais olhou uma tela.
+- HealthKit: nada verificava se a abertura fria buscava dado. "Toda abertura
+  começa desconectada" viveu meses invisível.
+
+Contramedida adotada: `AuditoriaBloqueadores.textosDaTela(_:)` hospeda a view
+numa `UIWindow` real e devolve o texto que a tela expõe de fato. **Toda
+asserção de AUSÊNCIA feita com ele exige uma guarda anti-cegueira ao lado**
+(ver `A26d`): um coletor que não enxerga nada faz qualquer asserção de ausência
+passar para sempre — o pior tipo de verde.
 
 ---
 

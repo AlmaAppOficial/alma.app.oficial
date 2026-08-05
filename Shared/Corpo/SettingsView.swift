@@ -16,8 +16,8 @@ struct SettingsView: View {
     // que a gestão do plano usa para restaurar compras.
     @EnvironmentObject var access: AccessManager
     @EnvironmentObject var storeAlma: StoreKitManager
-    /// [2026-08-05] Fonte única de aparência — ver AparenciaDoApp.swift.
-    @ObservedObject private var aparencia = AparenciaDoApp.shared
+    // [2026-08-05 — build 93] `aparencia` saiu daqui junto com a seção
+    // "Aparência". Ver o comentário no lugar dela, mais abaixo.
     // [Fusão] auth removido — a conta é do Alma.
     @Environment(\.dismiss) private var dismiss
 
@@ -86,12 +86,12 @@ struct SettingsView: View {
                     HStack {
                         Label("Apple Watch", systemImage: "applewatch")
                         Spacer()
-                        Text(health.watchConnected ? "Conectado" : "—").foregroundStyle(.secondary)
+                        Text(health.rotuloDoRelogio).foregroundStyle(.secondary)
                     }
                     HStack {
                         Label("App Saúde", systemImage: "heart.fill")
                         Spacer()
-                        Text(health.isAuthorized ? "Conectado" : "Desconectado").foregroundStyle(.secondary)
+                        Text(health.rotuloDeConexao).foregroundStyle(.secondary)
                     }
                     if !health.isAuthorized {
                         Button { health.requestAuthorization() } label: {
@@ -109,20 +109,14 @@ struct SettingsView: View {
                 // fundido a pergunta não faz sentido — a conta É a do Alma, e
                 // o usuário já está nele.
 
-                // Aparência
-                // [2026-08-05] Este picker escrevia `model.appearanceMode`, a
-                // mesma chave morta da lua: mudava a seleção e não mudava a
-                // tela. Agora escreve a fonte única, e é a mesma coisa que o
-                // toggle do Perfil do Alma controla.
-                Section("Aparência") {
-                    Picker(selection: $aparencia.modo) {
-                        ForEach(ModoDeAparencia.allCases, id: \.self) { modo in
-                            Text(modo.rotulo).tag(modo)
-                        }
-                    } label: {
-                        Label("Tema", systemImage: "circle.lefthalf.filled")
-                    }
-                }
+                // [2026-08-05 — build 93] Seção "Aparência" REMOVIDA.
+                // O picker escrevia a fonte única corretamente, mas dentro do
+                // `fullScreenCover` do módulo Corpo a mudança não chegava à
+                // tela — a seleção mexia e nada acontecia, nos dois sentidos.
+                // Causa raiz registrada como dívida em AparenciaDoApp.swift.
+                // Enquanto ela não for resolvida, a aparência tem UM lugar só:
+                // Alma › Perfil › Modo escuro. A asserção A26b reprova se um
+                // escritor de aparência voltar para dentro de Shared/Corpo/.
 
                 secaoSobre
 

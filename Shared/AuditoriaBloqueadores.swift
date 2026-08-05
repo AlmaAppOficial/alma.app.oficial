@@ -33,6 +33,70 @@ enum AuditoriaBloqueadores {
         }
     }
 
+    /// [2026-08-05 — build 93] Hospeda a view numa UIWindow real e devolve TODO
+    /// texto que a tela expõe — rótulo de acessibilidade, texto de UILabel e
+    /// título de UIButton. É o que separa "a peça está certa" de "a TELA está
+    /// certa". As asserções que faltaram em agosto olhavam só a peça.
+    ///
+    /// Quem usa isto tem obrigação de acompanhar com uma guarda anti-cegueira
+    /// (ver A26d): um coletor que não enxerga nada faz toda asserção de
+    /// AUSÊNCIA passar para sempre, que é a pior espécie de teste verde.
+    private static func textosDaTela(_ view: AnyView) -> [String] {
+        let quadro = CGRect(x: 0, y: 0, width: 393, height: 852)
+        let host = UIHostingController(rootView: view)
+        host.view.frame = quadro
+
+        let janela = UIWindow(frame: quadro)
+        janela.rootViewController = host
+        janela.isHidden = false
+        janela.layoutIfNeeded()
+        host.view.setNeedsLayout()
+        host.view.layoutIfNeeded()
+        // A barra de navegação e os itens de toolbar só materializam depois de
+        // uma volta do run loop.
+        RunLoop.current.run(until: Date().addingTimeInterval(0.60))
+
+        // [2026-08-05] A PRIMEIRA versão disto varria só `subviews` procurando
+        // UILabel/UIButton e voltou com "início=0 textos" — A26d acusou na
+        // primeira execução, antes de qualquer mutação. O motivo: SwiftUI NÃO
+        // constrói UILabel. Ele desenha o texto direto e expõe o conteúdo pela
+        // ÁRVORE DE ACESSIBILIDADE. Varrer subviews numa tela SwiftUI é
+        // exatamente o instrumento cego que A26d existe para denunciar — e a
+        // guarda funcionou contra a própria autora.
+        var achados: [String] = []
+        var vistos = Set<ObjectIdentifier>()
+
+        func varrer(_ no: Any, _ nivel: Int) {
+            guard nivel < 14 else { return }
+            guard let obj = no as? NSObject else { return }
+            if vistos.contains(ObjectIdentifier(obj)) { return }
+            vistos.insert(ObjectIdentifier(obj))
+
+            if let r = obj.accessibilityLabel, !r.isEmpty { achados.append(r) }
+            if let v = obj.accessibilityValue, !v.isEmpty { achados.append(v) }
+            if let t = (obj as? UILabel)?.text, !t.isEmpty { achados.append(t) }
+            if let b = obj as? UIButton, let t = b.title(for: .normal), !t.isEmpty { achados.append(t) }
+
+            // Container de acessibilidade: é por aqui que o texto do SwiftUI sai.
+            if let filhos = obj.accessibilityElements {
+                filhos.forEach { varrer($0, nivel + 1) }
+            } else {
+                let n = obj.accessibilityElementCount()
+                if n > 0 && n != NSNotFound {
+                    for i in 0..<n {
+                        if let f = obj.accessibilityElement(at: i) { varrer(f, nivel + 1) }
+                    }
+                }
+            }
+            if let v = obj as? UIView { v.subviews.forEach { varrer($0, nivel + 1) } }
+        }
+        varrer(host.view, 0)
+
+        janela.isHidden = true
+        janela.rootViewController = nil
+        return achados
+    }
+
     static func executar() {
         guard ligado else { return }
         aprovados = 0
@@ -1010,6 +1074,146 @@ enum AuditoriaBloqueadores {
                 && AIService.make(consentimento: true) is NuvemAIPlanService,
               "semFoto=\(type(of: localSemFoto)) comFoto=\(type(of: AIService.make(consentimento: true)))")
 
+        // ══════════════════════════════════════════════════════════════════
+        // A26 e A27 · [2026-08-05 — build 93] AS DUAS FALHAS DE HOJE SÃO A
+        // MESMA FALHA
+        //
+        // A24b jurava que o botão da lua funcionava: ela chamava `alternar` e
+        // exigia que o esquema virasse. Virava mesmo — no MODELO. Na tela do
+        // aparelho o botão não fazia nada. O HealthKit repetiu o padrão: nada
+        // no harness olhava se a abertura fria buscava dado, então "toda
+        // abertura começa desconectada" passou meses invisível.
+        //
+        // Em ambos os casos a asserção provava A PEÇA e ninguém provava O ELO
+        // entre a tela e a regra. As de baixo olham a tela renderizada de
+        // verdade — e A26d existe para provar que o coletor não está cego,
+        // porque uma asserção que não enxerga nada fica verde para sempre.
+        //
+        // ⚠️ ESTADO CONHECIDO NO BUILD 93: A26d e A27g estão VERMELHAS de
+        // propósito, e o vermelho é honesto. `textosDaTela` volta com 0 textos
+        // porque o SwiftUI não constrói UILabel e só monta a árvore de
+        // acessibilidade quando há tecnologia assistiva ativa — fora de um
+        // XCUITest, o coletor não enxerga. A26d apanhou isso na PRIMEIRA
+        // execução, antes de qualquer mutação, que é exatamente o serviço dela.
+        //
+        // Não foram apagadas de propósito: A26a e A26b passam VERDES hoje sem
+        // provar nada, e apagar A26d devolveria o app ao estado de agosto —
+        // verde bonito, cego por dentro. O vermelho é o lembrete de que o elo
+        // ainda não está coberto. Decisão de como cobrir (alvo de UI test ou
+        // checagem de fonte em build phase) está com o Assis.
+        // ══════════════════════════════════════════════════════════════════
+
+        let modelC = AppModel(store: store)
+        let healthC = HealthManager(defaults: store)
+        let storeC = StoreManager()
+        let accessC = AccessManager()
+        let storeAlmaC = StoreKitManager()
+        let hkC = HealthKitManager()
+
+        func comAmbiente<V: View>(_ v: V) -> AnyView {
+            AnyView(v
+                .environment(\.locale, Locale(identifier: "pt_BR"))
+                .environmentObject(modelC)
+                .environmentObject(healthC)
+                .environmentObject(storeC)
+                .environmentObject(accessC)
+                .environmentObject(storeAlmaC)
+                .environmentObject(hkC))
+        }
+
+        // ── A26 · o módulo Corpo não tem mais interruptor de aparência ──────
+        let modoAntes = AparenciaDoApp.shared.modo
+        let textosInicio = textosDaTela(comAmbiente(CorpoHomeView()))
+        let textosAjustes = textosDaTela(comAmbiente(SettingsView()))
+
+        // A26d vem primeiro de propósito: sem ela, A26a e A26b não valem nada.
+        // Mutação alvo: um coletor que devolve lista vazia — o modo exato de
+        // "asserção verde que não prova coisa nenhuma" que produziu as 10
+        // capturas certas sobre a coisa errada em 04/08.
+        checa("A26d", "o coletor ENXERGA as telas do Corpo (guarda anti-cegueira)",
+              textosInicio.contains(where: { $0.contains("Apple Watch") })
+                && textosAjustes.contains(where: { $0.contains("Assinatura") || $0.contains("Saúde e dispositivos") }),
+              "início=\(textosInicio.count) textos, ajustes=\(textosAjustes.count) textos")
+
+        checa("A26a", "a Início do Corpo não expõe mais interruptor de aparência",
+              !textosInicio.contains(where: { $0.localizedCaseInsensitiveContains("claro/escuro") }),
+              textosInicio.filter { $0.localizedCaseInsensitiveContains("claro") }.joined(separator: " | "))
+
+        checa("A26b", "os Ajustes do Corpo não expõem mais Aparência/Tema",
+              !textosAjustes.contains(where: {
+                  $0.localizedCaseInsensitiveContains("aparência") || $0 == "Tema"
+              }),
+              textosAjustes.filter { $0.localizedCaseInsensitiveContains("apar") || $0 == "Tema" }.joined(separator: " | "))
+
+        checa("A26c", "abrir as telas do Corpo não mexe na aparência do app",
+              AparenciaDoApp.shared.modo == modoAntes,
+              "antes=\(modoAntes.rawValue) depois=\(AparenciaDoApp.shared.modo.rawValue)")
+
+        // ── A27 · HealthKit: a autorização sobrevive a fechar o app ─────────
+        let suiteHK = "auditoria.alma.saude"
+        UserDefaults().removePersistentDomain(forName: suiteHK)
+        let hkStore = UserDefaults(suiteName: suiteHK)!
+
+        let frio = HealthManager(defaults: hkStore)
+        checa("A27a", "instalação nova nasce não autorizada e não busca nada",
+              frio.isAuthorized == false && frio.buscasDisparadas == 0,
+              "autorizado=\(frio.isAuthorized) buscas=\(frio.buscasDisparadas)")
+
+        hkStore.set(true, forKey: HealthManager.chaveAutorizado)
+        let quente = HealthManager(defaults: hkStore)
+        checa("A27b", "com a marca no disco, a abertura fria JÁ nasce autorizada",
+              quente.isAuthorized,
+              "autorizado=\(quente.isAuthorized)")
+
+        // A ASSERÇÃO DO BUG. Mutação alvo: apagar o `if isAuthorized { refresh() }`
+        // do init — era exatamente esse o estado do build 92, e nada acusava.
+        checa("A27c", "e JÁ dispara a busca na partida, sem esperar toque em Conectar",
+              quente.buscasDisparadas == 1,
+              "buscas=\(quente.buscasDisparadas)")
+
+        UserDefaults().removePersistentDomain(forName: suiteHK)
+        let recemAutorizado = HealthManager(defaults: hkStore)
+        recemAutorizado.marcarAutorizado()
+        checa("A27d", "autorizar deixa marca no disco para a próxima abertura",
+              hkStore.bool(forKey: HealthManager.chaveAutorizado) && recemAutorizado.isAuthorized,
+              "marca=\(hkStore.bool(forKey: HealthManager.chaveAutorizado)) autorizado=\(recemAutorizado.isAuthorized)")
+
+        let proximaAbertura = HealthManager(defaults: hkStore)
+        checa("A27e", "ciclo completo: autorizar → fechar → reabrir continua conectado e buscando",
+              proximaAbertura.isAuthorized && proximaAbertura.buscasDisparadas == 1,
+              "autorizado=\(proximaAbertura.isAuthorized) buscas=\(proximaAbertura.buscasDisparadas)")
+
+        // A27f · a regra de produto, no mapa puro — vale em qualquer aparelho,
+        // com ou sem HealthKit. Consulta vazia NÃO é desconexão.
+        checa("A27f", "só 'nunca autorizado' pode dizer Desconectado",
+              HealthManager.rotulo(para: .naoConectado) == "Desconectado"
+                && HealthManager.rotulo(para: .conectadoSemDados) != "Desconectado"
+                && HealthManager.rotulo(para: .conectadoComDados) != "Desconectado"
+                && HealthManager.rotulo(para: .indisponivel) != "Desconectado"
+                && HealthManager.rotulo(para: .conectadoSemDados).localizedCaseInsensitiveContains("sem dados"),
+              "semDados=\"\(HealthManager.rotulo(para: .conectadoSemDados))\" "
+                + "naoConectado=\"\(HealthManager.rotulo(para: .naoConectado))\"")
+
+        // A27g · O ELO. A tela tem de FALAR pelo rótulo do manager, não por um
+        // literal próprio. Mutação alvo: devolver "Desconectado" literal no
+        // SettingsView — a regra continuaria certa no manager e a tela mentiria.
+        let hSemDados = HealthManager(defaults: hkStore)
+        hSemDados.marcarAutorizado()
+        let textosConectado = textosDaTela(AnyView(SettingsView()
+            .environment(\.locale, Locale(identifier: "pt_BR"))
+            .environmentObject(modelC)
+            .environmentObject(hSemDados)
+            .environmentObject(storeC)
+            .environmentObject(accessC)
+            .environmentObject(storeAlmaC)
+            .environmentObject(hkC)))
+        checa("A27g", "autorizado e sem amostra, a tela NÃO acusa Desconectado",
+              textosConectado.contains(hSemDados.rotuloDeConexao)
+                && !textosConectado.contains("Desconectado"),
+              "esperado=\"\(hSemDados.rotuloDeConexao)\" "
+                + "achados=\(textosConectado.filter { $0.contains("onectad") || $0.contains("sponív") })")
+
+        UserDefaults().removePersistentDomain(forName: suiteHK)
         UserDefaults().removePersistentDomain(forName: suiteAp)
         UserDefaults().removePersistentDomain(forName: suite)
 

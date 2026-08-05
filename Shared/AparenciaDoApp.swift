@@ -39,6 +39,57 @@
 // `AparenciaDoApp.shared`; todo leitor aplica `aparencia.colorScheme`.
 // Se alguém criar um segundo armazenamento, a asserção A24d reprova.
 // ═══════════════════════════════════════════════════════════════════════════
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// DÍVIDA CONHECIDA — A FRONTEIRA DO fullScreenCover [2026-08-05, build 93]
+//
+// O conserto acima ficou provado NO MODELO e continuou quebrado NA TELA,
+// dentro do módulo Corpo. Sintoma do Assis, no aparelho, com o build 92:
+// "entro no corpo e mudo de escuro pra claro não acontece nada, e de claro
+// pra escuro também". Nas Configurações do Alma funcionava.
+//
+// O QUE FOI PROVADO POR LEITURA (build 92, commit a2cf65d):
+//   · o Corpo é apresentado por `.fullScreenCover` — HomeView.swift:150-151 e
+//     CorpoAlmaBannerView.swift:59-60. É uma CENA DE APRESENTAÇÃO separada.
+//   · o leitor JÁ existe lá dentro: CorpoModuleView.swift:54 observa o
+//     singleton e :70 aplica `.preferredColorScheme`.
+//   · os escritores estavam certos, e os seis pontos do app usavam a MESMA
+//     instância (`static let shared`), arquivo único, um alvo só no pbxproj.
+//   · nenhuma hipótese secundária sobrevive: a migração só roda no `init`;
+//     `appearanceMode` está aposentado; o tema do Corpo é dinâmico de verdade
+//     (Corpo/CorpoTheme.swift:43-47).
+//   · a teoria de "o Assis está num build velho" está MORTA: a2cf65d é um
+//     commit só com o conserto da aparência E o scan de comida por IA.
+//
+// O QUE FALTA PROVAR — duas candidatas, ambas de runtime, que a leitura de
+// código não separa:
+//   (a) um `fullScreenCover` JÁ APRESENTADO não re-aplica
+//       `preferredColorScheme` quando o valor muda com ele em tela (a
+//       preferência valeria só no instante da apresentação);
+//   (b) o override de nível de janela vindo de AlmaApp.swift:217
+//       (raiz do WindowGroup → UIWindow.overrideUserInterfaceStyle) tem
+//       precedência sobre o do cover.
+//
+// EXPERIMENTO QUE SEPARA AS DUAS: com o Corpo aberto, alternar a aparência e
+// registrar (1) `AparenciaDoApp.shared.modo` e (2) o
+// `userInterfaceStyle` do host do cover. Se o modo vira e o trait não vira,
+// é a fronteira; e (a) vs (b) se decide olhando se o Alma ATRÁS do cover
+// mudou junto — mudou = (a), não mudou = (b).
+//
+// DECISÃO DO BUILD 93: não consertar às pressas. Os controles de aparência
+// SAÍRAM do módulo Corpo (ver Corpo/CorpoHomeView.swift e Corpo/SettingsView.swift)
+// e a aparência passou a ter um lugar só: Alma › Perfil › Modo escuro. Isso
+// faz o sintoma desaparecer de verdade, porque `CorpoModuleView` é construído
+// a cada apresentação e lê o modo corrente ao abrir — a falha só existia para
+// mudanças feitas COM o cover em tela.
+//
+// O QUE ISSO NÃO RESOLVE: qualquer controle futuro dentro do cover que precise
+// mudar estado global e ver a tela reagir na hora vai bater na mesma parede.
+// Quando for resolver, o conserto candidato é dirigir
+// `overrideUserInterfaceStyle` na janela a partir do `didSet` do `modo`, que
+// cobre (a) e (b) de uma vez — e aí as asserções A26a/A26b podem ser
+// afrouxadas para permitir os controles de volta.
+// ═══════════════════════════════════════════════════════════════════════════
 
 import SwiftUI
 
