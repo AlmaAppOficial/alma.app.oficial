@@ -18,6 +18,7 @@ import { readFile } from 'node:fs/promises';
 import { eventoDeNotificacao, eventoDeTransacao } from './lib/appleEvento.js';
 import { aplicarEvento, reprocessarPendentes, vincularEAplicar } from './lib/entitlementApply.js';
 import { ehAssinante } from './lib/entitlementLeitura.js';
+import { apurarPendencias } from './lib/alertaEntitlement.js';
 
 if (!process.env.FIRESTORE_EMULATOR_HOST) {
   console.error('✗✗ FIRESTORE_EMULATOR_HOST não está definido — este teste NÃO pode rodar contra dado real.');
@@ -332,6 +333,36 @@ console.log('\n— a JANELA: assina antes do build novo existir —');
   const pend = (await db.doc(`apple_notifications/uuid-janela-${n}`).get()).data();
   checa('C24', 'e a notificação que ficou esperando é resolvida, não abandonada',
     pend.processada === true, `processada=${pend.processada} · ${pend.resultado}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n— o alerta: descobrir que alguém pagou e não recebeu —');
+
+{
+  // Três notificações do mesmo tipo, idades diferentes. Só a velha e ainda
+  // pendente pode disparar o alerta: se a recente entrar, o alerta grita todo
+  // dia sem motivo e a gente aprende a ignorá-lo — que é o mesmo que não ter.
+  const base = novoCaso();
+  const evPara = (tx, sd) => eventoDeNotificacao(
+    notif('SUBSCRIBED', 'INITIAL_BUY', sd),
+    { originalTransactionId: tx, productId: MENSAL, expiresDate: FUTURO }, null);
+
+  const txVelha = `${base.tx}v`;
+  const txNova = `${base.tx}n`;
+  const txFeita = `${base.tx}f`;
+
+  await notificacaoPendente(`al-velha-${n}`, evPara(txVelha, AGORA), AGORA - 5 * DIA);
+  await notificacaoPendente(`al-nova-${n}`, evPara(txNova, AGORA), AGORA - 2 * 3600_000);
+  await notificacaoPendente(`al-feita-${n}`, evPara(txFeita, AGORA), AGORA - 9 * DIA);
+  await db.doc(`apple_notifications/al-feita-${n}`).update({ processada: true });
+
+  const r = await apurarPendencias(db, AGORA, 3);
+  checa('C25', 'pendência ANTIGA entra no alerta',
+    r.transacoes.includes(txVelha), r.transacoes.join(',') || '(nenhuma)');
+  checa('C26', 'pendência RECENTE não entra (senão o alerta vira ruído diário)',
+    !r.transacoes.includes(txNova), `${r.total} no total`);
+  checa('C27', 'notificação já resolvida não entra, por mais velha que seja',
+    !r.transacoes.includes(txFeita), `${r.total} no total`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -106,6 +106,21 @@ MUTACOES = [
         "exigência de vínculo antes de gravar entitlement para alguém",
         "const uid = await uidDaTransacao(db, tx) ?? 'uid-inventado';",
     ),
+    # O alerta serve para gritar quando alguém pagou e não recebeu. Se o corte
+    # de tempo sumir, ele passa a acusar TODA pendência — inclusive a de dois
+    # minutos atrás, que é normal — e vira ruído diário. Alerta que grita sem
+    # motivo é alerta que se aprende a ignorar, o que é o mesmo que não ter.
+    # Mutado o SINAL do corte, não a cláusula: tirar o `.where` deixa a variável
+    # `corte` órfã e o arquivo não compila (mesma lição de M5). Empurrar o corte
+    # para o futuro faz toda pendência entrar, que é exatamente o defeito temido.
+    (
+        "M8",
+        "alertaEntitlement.ts",
+        "const corte = admin.firestore.Timestamp.fromMillis(agoraMs - dias * DIA_MS);",
+        "C26",
+        "corte de tempo que impede o alerta de virar ruído diário",
+        "const corte = admin.firestore.Timestamp.fromMillis(agoraMs + dias * DIA_MS);",
+    ),
 ]
 
 

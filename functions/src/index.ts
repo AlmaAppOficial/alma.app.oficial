@@ -1413,6 +1413,10 @@ export { appleNotifications } from './appleNotifications';
 // em produção. `lib/index.js` provava: nenhuma menção a entitlement.
 export { vincularAssinatura } from './entitlementApply';
 
+// [2026-08-06] Alerta diário: assinante pagando e não recebendo era um estado
+// INVISÍVEL — só se descobria por reclamação. Agora grita no log e no Firestore.
+export { alertaEntitlementPendente } from './alertaEntitlement';
+
 // ─── Análise de fotos por IA (corpo e comida) ─────────────────────────────────
 // [2026-08-05] Substitui a chamada direta ao Gemini com chave no bundle. A
 // chave agora vive só no Secret Manager e a imagem nunca é persistida —

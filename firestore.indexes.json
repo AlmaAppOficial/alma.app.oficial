@@ -16,6 +16,15 @@
                             { "fieldPath": "processada", "order": "ASCENDING" },
                             { "fieldPath": "recebidaEm", "order": "ASCENDING" }
                   ]
+          },
+          {
+                  "//": "[2026-08-06] Exigido por apurarPendencias (alertaEntitlement.ts): notificações não processadas há mais de N dias. É o alerta de 'alguém pagou e não recebeu' — se a consulta falhar, o alerta fica mudo, que é exatamente o estado que ele existe para acabar.",
+                  "collectionGroup": "apple_notifications",
+                  "queryScope": "COLLECTION",
+                  "fields": [
+                            { "fieldPath": "processada", "order": "ASCENDING" },
+                            { "fieldPath": "recebidaEm", "order": "ASCENDING" }
+                  ]
           }
     ],
     "fieldOverrides": []
