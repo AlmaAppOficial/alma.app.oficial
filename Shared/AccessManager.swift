@@ -150,6 +150,11 @@ class AccessManager: ObservableObject {
         ) { [weak self] _ in
             Task { @MainActor in
                 await self?.refresh()
+                // [2026-08-06] `forcado: true` porque acabou de comprar ou
+                // restaurar: a pessoa está olhando para a tela esperando o
+                // acesso destravar. O limite de uma sincronização por dia existe
+                // para a abertura rotineira do app, não para este momento.
+                await AlmaEntitlementBridge.sincronizar(forcado: true)
             }
         }
     }
@@ -173,6 +178,23 @@ class AccessManager: ObservableObject {
         if await checkStoreKitEntitlement() {
             isPremium = true
             origemApurada = .appStore
+
+            // [2026-08-06] Conta ao SERVIDOR que esta compra é desta conta.
+            //
+            // Este é o ponto exato onde o app sabe as duas metades ao mesmo
+            // tempo: quem é o usuário (o `user` autenticado) e qual é a compra
+            // (o StoreKit acabou de confirmá-la). A Apple nunca junta as duas
+            // por conta própria — sem esta linha, o servidor recebe as
+            // notificações de assinatura e não tem a quem atribuí-las, e o
+            // assinante leva o limite do plano grátis no chat que ele pagou.
+            //
+            // Roda solto (`Task`) porque o gate local NÃO depende dela: se a
+            // rede falhar, o acesso no aparelho continua valendo e a próxima
+            // abertura tenta de novo. Bloquear a UI por isso seria trocar um
+            // problema de servidor por uma tela travada.
+            Task.detached(priority: .utility) {
+                await AlmaEntitlementBridge.sincronizar()
+            }
         } else {
             // 2. Fallback: Firebase Custom Claims (subscritores web / Stripe)
             await checkFirebaseClaims(user: user)

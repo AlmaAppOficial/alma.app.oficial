@@ -129,6 +129,7 @@
 		DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD013000DD013000DD013000 /* CycleCalculator.swift */; };
 		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
+		3C05FAB203B1000000000000 /* AlmaEntitlementBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
 		BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */; };
 		BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */; };
@@ -388,6 +389,7 @@
 		DD013000DD013000DD013000 /* CycleCalculator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CycleCalculator.swift; sourceTree = "<group>"; };
 		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
+		EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Shared/AlmaEntitlementBridge.swift"; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
 		477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AnaliseDeFotoService.swift"; sourceTree = "<group>"; };
 		DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AparenciaDoApp.swift"; sourceTree = "<group>"; };
@@ -616,6 +618,7 @@
 				DD013000DD013000DD013000 /* CycleCalculator.swift */,
 				DD015000DD015000DD015000 /* HealthContextBuilder.swift */,
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
+				EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
 				477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */,
 				DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */,
@@ -1129,6 +1132,7 @@
 				DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */,
 				DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */,
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
+				3C05FAB203B1000000000000 /* AlmaEntitlementBridge.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
 				BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */,
 				BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */,
