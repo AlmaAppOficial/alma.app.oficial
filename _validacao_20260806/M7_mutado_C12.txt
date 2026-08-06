@@ -8,8 +8,8 @@ OBSERVADO: C12 vermelho
 ═══ CICLO DO ENTITLEMENT — emulador ═══
 
 — conversão do payload da Apple (o cano que não existia) —
-  ✓ T1 notificação junta transação E tolerância do RenewalInfo — tx=tx1 tolerância=1788609492439
-  ✓ T2 notificação carrega o signedDate (guarda de ordem depende dele) — 1786017492439
+  ✓ T1 notificação junta transação E tolerância do RenewalInfo — tx=tx1 tolerância=1788610111314
+  ✓ T2 notificação carrega o signedDate (guarda de ordem depende dele) — 1786018111314
   ✓ T3 transação com data futura vira evento de acesso — SUBSCRIBED
   ✓ T4 transação vencida vira EXPIRED — EXPIRED
   ✓ T5 transação reembolsada vira REVOKE mesmo com data futura — REVOKE
@@ -17,14 +17,14 @@ OBSERVADO: C12 vermelho
 — a pergunta que o chat faz: ehAssinante —
   ✓ C1 uid sem entitlement NÃO é assinante — false
   ✓ C2 compra verificada + vínculo → É ASSINANTE — true
-  ✓ C3 documento ficou active:true com data já vencida (a armadilha) — active=true expira=2026-08-01T11:58:12.439Z
+  ✓ C3 documento ficou active:true com data já vencida (a armadilha) — active=true expira=2026-08-01T12:08:31.314Z
   ✓ C4 DEPOIS DE EXPIRAR não é mais assinante, mesmo com active:true — false
   ✓ C5 EXPIRED corta o acesso — false
   ✓ C6 quem CANCELOU continua assinante até o fim do período pago — true
   ✓ C7 upgrade troca o produto e mantém acesso — true com.almaapp.app.premium_annual
 
 — reentrega e ordem (o que a Apple faz de verdade) —
-  ✓ C8 aplicar o MESMO evento 3× não corrompe o estado — active=true expira=1788609492439
+  ✓ C8 aplicar o MESMO evento 3× não corrompe o estado — active=true expira=1788610111314
   ✓ C9 reembolso corta mesmo com data de expiração no futuro — false
   ✓ C10 RENOVAÇÃO ANTIGA reentregue DEPOIS do reembolso NÃO devolve acesso — false
   ✓ C11 reembolso ATRASADO vence a guarda de ordem e corta — false
@@ -37,14 +37,19 @@ OBSERVADO: C12 vermelho
   ✓ C16 a notificação aplicada é marcada como processada — processada=true
 
 — caminho B2: o app manda a compra assinada —
-  ✓ C17 transação assinada concede acesso NA HORA, sem esperar webhook — ok=true ativo=true SUBSCRIBED até 2026-09-05T11:58:12.439Z
-  ✓ C18 e o vínculo transação→uid fica gravado — uid-mshgp907wpz20-10
+  ✓ C17 transação assinada concede acesso NA HORA, sem esperar webhook — ok=true ativo=true SUBSCRIBED até 2026-09-05T12:08:31.314Z
+  ✓ C18 e o vínculo transação→uid fica gravado — uid-mshh2ij6kksau-10
   ✓ C19 produto fora da lista de assinaturas NÃO concede Premium — ok=false produto fora da lista de assinaturas: com.almaapp.app.qualquer_outra_coisa
 
 — a JANELA: assina antes do build novo existir —
   ✗ C22 JANELA REAL: pagou, servidor recebeu, e ela NÃO é assinante ainda — OBSERVADO: pendente=false assinante=false
   ✓ C23 ao atualizar o app, o acesso aparece sem ninguém mexer à mão — true
-  ✓ C24 e a notificação que ficou esperando é resolvida, não abandonada — processada=true · evento de 2026-08-06T11:58:12.439Z é mais antigo que o último aplicado — ignorado
+  ✓ C24 e a notificação que ficou esperando é resolvida, não abandonada — processada=true · evento de 2026-08-06T12:08:31.314Z é mais antigo que o último aplicado — ignorado
+
+— o alerta: descobrir que alguém pagou e não recebeu —
+  ✓ C25 pendência ANTIGA entra no alerta — 9mshh2ij6kksau13v
+  ✓ C26 pendência RECENTE não entra (senão o alerta vira ruído diário) — 1 no total
+  ✓ C27 notificação já resolvida não entra, por mais velha que seja — 1 no total
 
 — o bug original: código vivo no repo, morto em produção —
   ✓ C20 vincularAssinatura está EXPORTADO no index compilado — presente
@@ -54,7 +59,7 @@ OBSERVADO: C12 vermelho
   ✓ detector vivo — o canário foi acusado como esperado
 
 ═══ RESULTADO ═══
-aprovados: 27
+aprovados: 30
 REPROVADOS (2):
    ✗ C12 sem vínculo a notificação fica PENDENTE, não é perdida nem aplicada — OBSERVADO: aplicado=true pendente=false
    ✗ C22 JANELA REAL: pagou, servidor recebeu, e ela NÃO é assinante ainda — OBSERVADO: pendente=false assinante=false

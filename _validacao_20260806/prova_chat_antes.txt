@@ -1,0 +1,8 @@
+═══ PROVA DO CHAT (antes) — 2026-08-06T12:10:53Z ═══
+endpoint: https://southamerica-east1-alma-app-7dae6.cloudfunctions.net/chat
+✓ ID token obtido (usuário descartável)
+HTTP: 200
+pergunta: Oi Alma, responda so com a palavra FUNCIONANDO, por favor.
+resposta: Oi! FUNCIONANDO.
+✓ CHAT RESPONDE — HTTP 200 com 16 caracteres de resposta
+usuário de teste apagado

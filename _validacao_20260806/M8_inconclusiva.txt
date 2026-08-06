@@ -1,0 +1,5 @@
+
+> alma-functions@1.1.0 build
+> tsc
+
+src/alertaEntitlement.ts(60,9): error TS6133: 'corte' is declared but its value is never read.

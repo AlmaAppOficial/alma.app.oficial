@@ -1,12 +1,6 @@
 {
+    "//": "[2026-08-06] O índice de `messages` (campo único `createdAt DESC`) foi REMOVIDO daqui. Ele tornava o arquivo inteiro impossível de implantar: o Firestore recusa com 400 'this index is not necessary, configure using single field index controls', porque índice de campo único já é criado automaticamente. Descoberto ao tentar subir os índices do entitlement — `firebase firestore:indexes` mostrava a produção VAZIA, ou seja, este arquivo nunca tinha sido implantado com sucesso. Nada se perde: a consulta de `messages` continua funcionando pelo índice automático.",
     "indexes": [
-          {
-                  "collectionGroup": "messages",
-                  "queryScope": "COLLECTION",
-                  "fields": [
-                            { "fieldPath": "createdAt", "order": "DESCENDING" }
-                  ]
-          },
           {
                   "//": "[2026-08-06] Exigido por reprocessarPendentes (entitlementApply.ts): as notificações da Apple que chegaram antes do vínculo transação→uid são buscadas por transação + pendência, em ordem de chegada. Sem este índice a consulta falha em produção com FAILED_PRECONDITION — e falha justamente no momento em que um assinante novo acaba de vincular a compra.",
                   "collectionGroup": "apple_notifications",

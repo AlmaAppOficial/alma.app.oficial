@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // rate_limits: só a Cloud Function (admin SDK) pode escrever
+    match /rate_limits/{uid} {
+      allow read, write: if false;
+    }
+
+    // [2026-08-04] entitlements: a VERDADE sobre quem é assinante.
+    //
+    // Existe porque `users/{uid}` é gravável pelo dono (regra abaixo) e o app
+    // grava premium lá (LegacyEntitlementStore.swift:67). Se a Cloud Function
+    // lesse o premium daquele documento, qualquer pessoa se autoconcederia
+    // assinatura editando o próprio doc — furo de receita.
+    //
+    // Aqui o cliente LÊ o próprio estado (para a UI) e NUNCA escreve. Só o
+    // Admin SDK escreve, a partir das App Store Server Notifications V2.
+    match /entitlements/{uid} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // config/limites: lido pela Cloud Function (Admin SDK). Cliente não toca.
+    match /config/{doc} {
+      allow read, write: if false;
+    }
+
+    // cada utilizador só acede aos seus próprios dados
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+
+      // moods do utilizador
+      match /moods/{moodId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+      }
+
+      // chat do utilizador (legacy)
+      match /chat/{messageId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+      }
+
+      // consentimentos de saúde (leitura e escrita pelo próprio utilizador)
+      match /consents/{consentId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+      }
+
+      // histórico de mensagens (escrito pela Cloud Function via admin SDK;
+      // leitura permitida ao próprio utilizador)
+      match /messages/{messageId} {
+        allow read: if request.auth != null
+                    && request.auth.uid == userId;
+        allow write: if false;
+      }
+
+      // memória contextual (escrita pela Cloud Function via admin SDK)
+      match /memory/{docId} {
+        allow read: if request.auth != null
+                    && request.auth.uid == userId;
+        allow write: if false;
+      }
+    }
+
+    // ─── Feed social ─────────────────────────────────────────────────────────
+    // feed_posts: conteúdo editorial/curado publicado pela equipa Alma.
+    //   - Leitura: qualquer utilizador autenticado.
+    //   - Escrita: apenas via Admin SDK (Cloud Function / Firebase Console).
+    match /feed_posts/{postId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // user_interactions: likes, favoritos, conclusões por utilizador.
+    //   - O próprio utilizador lê e escreve os seus próprios documentos.
+    match /user_interactions/{userId}/posts/{postId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // ─── Fallback: qualquer outro path é proibido por omissão ────────────────
+    // (regra implícita do Firestore — mantida explícita aqui como defesa em profundidade)
+  }
+}
