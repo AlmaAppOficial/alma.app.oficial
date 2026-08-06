@@ -68,17 +68,46 @@ Submissão à Apple está PAUSADA até refatoração completa.
   **Limitação do hook:** `.git/hooks/` não é versionado. Depois de um clone
   novo, rodar `_scripts/instalar_hook_a26.sh` para reinstalar.
 
-- **PRIORIDADE — preço morto e errado em arquivo compilado.** `Shared/PaywallView.swift`
-  e `Shared/DynamicPricingManager.swift` não são alcançados por nenhuma tela
-  (`PaywallView(` só aparece nos próprios `#Preview`, linhas 352 e 359; o
-  `DynamicPricingManager` só é referenciado de `PaywallView.swift:312`), **mas
-  os dois estão no target e viajam dentro do IPA**. Carregam `R$ 24,99`
-  (`PaywallView:338,341`; `DynamicPricingManager:200,203,310,313`) e
-  `"Apenas R$ 399 para sempre"` (`DynamicPricingManager:284,285`) — valores que
-  NÃO existem no App Store Connect. O preço real do BRA é R$ 24,90 hoje e
-  R$ 49,90 a partir de 06/08/2026. É mina terrestre: no dia em que alguém
-  religar aquela tela, o app volta a anunciar preço errado. Conserto: tirar os
-  dois do target (ou apagar). Não mexer junto de um build que vai para revisão.
+- ~~**PRIORIDADE — preço morto e errado em arquivo compilado.**~~ **RESOLVIDO em
+  06/08/2026** — e com uma correção de fato importante, porque esta entrada
+  estava errada.
+
+  **O que esta entrada afirmava:** que `Shared/PaywallView.swift` e
+  `Shared/DynamicPricingManager.swift` "estão no target e viajam dentro do IPA".
+  **Falso.** Os dois nunca entraram em build. Verificado em 06/08 no
+  `project.pbxproj`: zero `PBXFileReference`, zero `PBXBuildFile`, ausentes das
+  **6** `PBXSourcesBuildPhase` do projeto. O único
+  `PBXFileSystemSynchronizedRootGroup` (que compilaria uma pasta inteira sem
+  listar arquivo por arquivo) é `AlmaComplication`, não `Shared/`. Os cabeçalhos
+  dos próprios arquivos, escritos em 04/08, já diziam isso — quem divergia da
+  realidade era este documento. O grep que sustentava o engano casava
+  `PaywallView.swift` dentro de `CorpoPaywallView.swift`: 4 falsos positivos.
+
+  Vale a régua deste mesmo arquivo: *documento que mente custa mais caro que
+  documento ausente*. Aqui o documento mentia para cima — inventava um risco de
+  IPA que não existia — e por isso ninguém foi enganado para o lado perigoso.
+  O modo de falha inverso é o que mataria.
+
+  **O que era risco de verdade:** os arquivos continuavam no repositório com
+  `R$ 24,99` (2×), `R$ 14,99`, `R$ 12,49` e `"Apenas R$ 399 para sempre"`, mais
+  um motor de preço dinâmico por perfil de usuário — pontuação de urgência que
+  sobe com humor "ansioso"/"estressado" e entre 22h e 4h, servindo mensagem
+  "mais agressiva". Além do preço errado, isso é Guideline 3.1.2 (o valor
+  exibido tem de ser o mesmo para todo mundo no mesmo território) e é padrão
+  escuro contra usuário vulnerável. A mina era religar aquilo, não embarcá-lo.
+
+  **Conserto:** os dois arquivos foram apagados (`git rm`). O histórico fica no
+  git; o pbxproj não precisou de uma linha de mudança, o que confirma que eles
+  não estavam no build. Preço continua vindo só do StoreKit
+  (`Product.displayPrice`).
+
+  **Guarda:** `_scripts/check_precos_vivos.py` varre apenas os arquivos que
+  entram de fato numa `PBXSourcesBuildPhase` e reprova preço escrito à mão.
+  Provado por mutação em 06/08: 8 violações injetadas em arquivo vivo → 8
+  vermelhas; 2 injetadas em arquivo órfão → seguem verdes (o escopo "vivo" é
+  real, não decorativo); 4 tentativas de cegar o coletor → 4 saídas `CEGO`
+  (exit 2), nenhuma verde. Uma cegueira foi encontrada e corrigida no caminho:
+  a regex via `price: 24.99,` mas **não** via `let price: Double = 24.99`.
 
 - **XCUITest ausente.** Nenhuma asserção do projeto consegue ler a tela de
   verdade. `AuditoriaBloqueadores.textosDaTela` foi a tentativa e falhou por
