@@ -547,6 +547,31 @@ enum AuditoriaBloqueadores {
               prometeVolume("Conversas ilimitadas com a Alma"),
               prometeVolume("Conversas ilimitadas com a Alma") ? "acusou" : "DETECTOR CEGO")
 
+        // ── A27 · recurso pago sempre RESPONDE ao toque ──────────────────────
+        //
+        // [2026-08-06] Em `TreinoView`, "montar treino" e o mapa muscular eram
+        // `if model.hasPremiumAccess { ... }` SEM `else`. Para quem não assina,
+        // o botão engolia o toque: nada abria, nada era oferecido. O gate
+        // funcionava e o convite não existia — a pior combinação, porque a
+        // pessoa disposta a pagar batia numa porta que não se anunciava porta.
+        //
+        // A correção não foi só acrescentar o `else`: a decisão virou
+        // `CorpoAcesso.acaoAoTocarRecursoPago`, um enum de duas opções e
+        // nenhuma delas "nada". Esta asserção vigia a regra; o tipo vigia o
+        // esquecimento, transformando-o em erro de compilação.
+        let semPremium = CorpoAcesso.acaoAoTocarRecursoPago(temPremium: false)
+        let comPremium = CorpoAcesso.acaoAoTocarRecursoPago(temPremium: true)
+        checa("A27a", "sem assinatura, tocar recurso pago OFERECE o Premium",
+              semPremium == .oferecerPremium, "\(semPremium)")
+        checa("A27b", "com assinatura, tocar recurso pago ABRE o recurso",
+              comPremium == .abrir, "\(comPremium)")
+
+        // Canário: se as duas respostas fossem iguais, A27a/A27b poderiam estar
+        // verdes com a função devolvendo sempre a mesma coisa.
+        checa("A27c", "canário — a decisão realmente depende da assinatura",
+              semPremium != comPremium,
+              semPremium != comPremium ? "distingue" : "DETECTOR CEGO: mesma resposta para os dois")
+
         // ── A20 · ditado: duas rodadas de fala com pausa no meio ────────────
         //
         // [2026-08-04] ESTE é o caminho onde o bug vive e que nenhum teste meu

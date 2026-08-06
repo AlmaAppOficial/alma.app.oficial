@@ -63,7 +63,13 @@ struct TreinoView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        if model.hasPremiumAccess { showBuilder = true }
+                        // [2026-08-06] Era `if hasPremiumAccess { showBuilder = true }`
+                        // sem `else`: para quem não assina, o botão não fazia nada.
+                        // Ver `CorpoAcesso.AcaoAoTocar`.
+                        switch CorpoAcesso.acaoAoTocarRecursoPago(temPremium: model.hasPremiumAccess) {
+                        case .abrir:          showBuilder = true
+                        case .oferecerPremium: showPaywall = true
+                        }
                     } label: { Image(systemName: "plus") }
                 }
             }
@@ -122,7 +128,10 @@ struct TreinoView: View {
     // Entrada da Biblioteca 2.0 — mapa muscular (gate premium igual ao builder)
     private var muscleMapEntryCard: some View {
         Button {
-            if model.hasPremiumAccess { showMuscleMap = true }
+            switch CorpoAcesso.acaoAoTocarRecursoPago(temPremium: model.hasPremiumAccess) {
+            case .abrir:          showMuscleMap = true
+            case .oferecerPremium: showPaywall = true
+            }
         } label: {
             MuscleMapCard()
         }
@@ -132,7 +141,10 @@ struct TreinoView: View {
     // Botão de montar treino próprio
     private var buildOwnCard: some View {
         Button {
-            if model.hasPremiumAccess { showBuilder = true }
+            switch CorpoAcesso.acaoAoTocarRecursoPago(temPremium: model.hasPremiumAccess) {
+            case .abrir:          showBuilder = true
+            case .oferecerPremium: showPaywall = true
+            }
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: "slider.horizontal.2.square")

@@ -70,4 +70,32 @@ enum CorpoAcesso {
     /// Texto do convite quando um recurso pago é tocado. Explica o limite sem
     /// culpar a pessoa por não ter assinado.
     static let convitePremium = "Este recurso usa inteligência artificial e faz parte do plano completo."
+
+    // MARK: - O que acontece quando alguém toca um recurso pago
+    //
+    // [2026-08-06] Este enum existe para tornar um bug IMPOSSÍVEL DE ESCREVER.
+    //
+    // O bug real: em `TreinoView` o gate era `if model.hasPremiumAccess {
+    // showBuilder = true }` — sem `else`. Quem não assinava tocava "montar
+    // treino" ou o mapa muscular e NADA ACONTECIA. O botão engolia o toque.
+    //
+    // O gate funcionava e o convite não existia, o que é a pior combinação
+    // possível: a pessoa disposta a pagar batia numa porta que não abre e nem
+    // dizia que era uma porta. Perda de receita direta, e a Apple tem histórico
+    // de reprovar controle que não responde (Guideline 2.1).
+    //
+    // O `if` sem `else` é fácil de escrever e invisível na revisão. Um enum de
+    // DUAS opções, nenhuma delas "nada", torna o esquecimento um erro de
+    // compilação em vez de um botão morto em produção.
+    enum AcaoAoTocar: Equatable {
+        /// Tem acesso: abre o recurso.
+        case abrir
+        /// Não tem: mostra o paywall. NUNCA ignorar o toque.
+        case oferecerPremium
+    }
+
+    /// Decisão pura — testável sem renderizar tela. Ver asserção A27.
+    static func acaoAoTocarRecursoPago(temPremium: Bool) -> AcaoAoTocar {
+        temPremium ? .abrir : .oferecerPremium
+    }
 }
