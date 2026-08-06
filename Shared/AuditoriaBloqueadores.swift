@@ -492,7 +492,15 @@ enum AuditoriaBloqueadores {
         // A frase é copiada da tela; se a tela mudar e esta lista não, o teste
         // deixa de proteger — por isso cada item cita arquivo:linha.
         let copiaDeTelas = [
-            "Acompanhe sono, passos, peso e alimentação",              // SubscriptionView:76
+            // [2026-08-06] Era "Acompanhe sono, passos, peso e alimentação".
+            // Saiu do paywall por prometer como pago o que é grátis — ver o
+            // comentário em SubscriptionView. As linhas novas entram aqui
+            // porque esta lista é o que impede a copy de voltar a mentir.
+            "Converse com a Alma",                                     // SubscriptionView
+            "Escaneie comida e corpo por foto",                        // SubscriptionView
+            "Monte seus treinos e veja o mapa muscular",               // SubscriptionView
+            "Meditações do dia 4 ao 30 e os sons para dormir",         // SubscriptionView
+            "Insights e diário emocional completo",                    // SubscriptionView
             "Um dia de cada vez",                                      // TreinoView:26
             "Uma pausa de respiração e aterramento para quando a ansiedade aperta", // MoodRouter:281
             "As meditações guiadas e os sons são criados para apoiar momentos de pausa e descanso.", // ProfileView:507

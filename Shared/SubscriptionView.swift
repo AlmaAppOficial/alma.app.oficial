@@ -100,10 +100,82 @@ struct PremiumWallView: View {
                                // capacidade médica que o app não tem e não quer
                                // ter. A copy nova nomeia o que existe: a pessoa
                                // acompanha os próprios números.
-                               text: "Acompanhe sono, passos, peso e alimentação")
+                               //
+                               // [2026-08-06] Trocada de novo, e desta vez o
+                               // problema não era o adjetivo — era o FATO. Esta
+                               // é uma tela de PAYWALL: cada linha promete algo
+                               // que se ganha PAGANDO. Registrar peso e comida
+                               // não está atrás de gate nenhum (varri
+                               // `DietaView.swift` e as telas de peso: o único
+                               // `showPaywall` do módulo é o de escanear por
+                               // foto, `DietaView:45,51`). Sono e passos vêm do
+                               // HealthKit, que é capacidade nativa e nunca foi
+                               // bloqueada — anunciá-la como benefício pago é o
+                               // mesmo erro de Guideline 4.10 que já tinha
+                               // derrubado "Apple Watch" do banner do Corpo em
+                               // 28/07. Estávamos cobrando, na promessa, por
+                               // quatro coisas que a pessoa já tem de graça.
+                               //
+                               // A copy nova nomeia o que É premium ali: os dois
+                               // scans por foto, que consomem IA paga
+                               // (`CorpoAcesso.podeUsarIA`, acionado em
+                               // `DietaView:50` e `SaudeView:138`).
+                               text: "Escaneie comida e corpo por foto")
+                    featureRow(icon: "figure.strengthtraining.traditional",
+                               // [2026-08-06] Linha NOVA. Dois recursos pagos
+                               // que o paywall nunca mencionou — a pessoa
+                               // pagava e não sabia que tinha.
+                               //
+                               // Verificado na fonte, não na régua: o
+                               // `CorpoAcesso.swift` DIZ que montar treino e
+                               // mapa muscular são pagos, mas quem gateia de
+                               // fato é `model.hasPremiumAccess` direto em
+                               // `TreinoView:66` (builder), `:125` (mapa) e
+                               // `:135` (builder pelo card). O `showPaywall`
+                               // declarado em `TreinoView:14` e o sheet em
+                               // `:71` são código morto — nada os aciona. O
+                               // gate existe; o convite para assinar é que não
+                               // aparece (o botão só não responde). Isso é
+                               // outra dívida, anotada e não corrigida aqui.
+                               //
+                               // Executar um treino do catálogo e ver o detalhe
+                               // dos exercícios continuam GRÁTIS — por isso a
+                               // frase fala em "montar", não em "treinar".
+                               text: "Monte seus treinos e veja o mapa muscular")
                     featureRow(icon: "music.note",
-                               text: "Sons binaurais e meditações guiadas")
+                               // [2026-08-06] Era "Sons binaurais e meditações
+                               // guiadas". "Binaurais" era FALSO — verificado
+                               // por enumeração, não por grep vazio: o catálogo
+                               // tem 8 `SoundItem` e os 8 são
+                               // `audioType: .bundled` (mp3 do bundle). O caso
+                               // `.binaural(frequencyHz:)` do enum ainda existe
+                               // e `AudioManager.playBinaural` também, mas
+                               // NINGUÉM os constrói — as três ocorrências de
+                               // `.binaural(` no app são `case` de switch, zero
+                               // são instanciação. É resíduo morto da migração
+                               // do Build 77, que trocou tons sintéticos por
+                               // mp3 justamente porque frequências abaixo de
+                               // 20 Hz são inaudíveis. O código ficou; a
+                               // promessa na loja sobreviveu ao recurso.
+                               //
+                               // Os NÚMEROS são o gate real, enumerado: o
+                               // catálogo tem 30 meditações (`day:` vai de 1 a
+                               // 30) e os dias 1–3 são grátis — o dia 4 em
+                               // diante exige assinatura (`PraticasView:408`,
+                               // `:411`). Dos 8 sons, 1 é grátis ("Água
+                               // Corrente") e 7 são pagos (`PraticasView:446`).
+                               // Dizer o número é mais honesto e vende melhor
+                               // que "completas": a pessoa sabe o tamanho do
+                               // que está comprando.
+                               text: "Meditações do dia 4 ao 30 e os sons para dormir")
                     featureRow(icon: "chart.line.uptrend.xyaxis",
+                               // [2026-08-06] Mantida — e conferida, porque
+                               // nesta tela nenhuma linha passa sem conferência.
+                               // O gate existe nas duas pontas: `InsightsView:54`
+                               // no Alma e `CorpoInsightsView:27`
+                               // (`podeVerAnalisesAvancadas`) no Corpo. O
+                               // registro é livre; ler a evolução ao longo do
+                               // tempo é o que se paga.
                                text: "Insights e diário emocional completo")
                 }
                 .padding(.horizontal, 40)
