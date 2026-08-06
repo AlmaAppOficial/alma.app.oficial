@@ -1,0 +1,28 @@
+═════ 1 · estado antes ═════
+  MARKETING_VERSION = 2.0;       → 12
+  CURRENT_PROJECT_VERSION = 93;  → 12
+
+═════ 2 · bump ═════
+  MARKETING_VERSION = 2.0.1;     → 12
+  CURRENT_PROJECT_VERSION = 94;  → 12
+  sobrou de 2.0 puro:            → 0
+  sobrou de 93:                  → 0
+
+═════ 3 · SÓ A VERSÃO MUDOU? (a conferência que justifica o script) ═════
+ Alma.App.Oficial.xcodeproj/project.pbxproj | 48 +++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
+  --- linhas alteradas que NÃO são de versão ---
+  (nenhuma — bom)
+
+═════ 4 · commit por caminho explícito ═════
+GUARDA A26: ok — nenhum controle de aparencia em Shared/Corpo
+[feat/build84-chat-e-ciclos 96c4b5d] 2.0.1 (build 94)
+ 1 file changed, 24 insertions(+), 24 deletions(-)
+  commit do bump feito ✓
+
+═════ 5 · resultado ═════
+96c4b5d 2.0.1 (build 94)
+9ba23fc A porção deixa de ser um decreto da IA, e o alimento personalizado para de trocar de unidade
+6738d81 Harness volta a compilar: nome repetido e id repetido, os dois de hoje
+b1ddf55 indices: tira o indice invalido que impedia QUALQUER indice de subir
+exit=0

@@ -1,0 +1,14 @@
+CONSULTA EM 2026-08-06T15:04:46.560Z
+======================================================================
+
+▸ com.almaapp.app.premium_monthly
+   nome=Alma Premium Mensal · período=ONE_MONTH · estado=APPROVED
+   OFERTA INTRODUTÓRIA: 175 registro(s) · 175 valendo hoje (2026-08-06)
+   tipo=FREE_TRIAL · duração=ONE_WEEK · ciclos=1
+   início=2026-04-03 · fim=(sem fim marcado)
+   territórios com oferta valendo: 175
+   Brasil (BRA) na lista: SIM
+   EUA (USA) na lista: SIM
+
+======================================================================
+Nada foi gravado. Consulta somente de leitura.

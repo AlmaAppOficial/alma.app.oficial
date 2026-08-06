@@ -1,0 +1,35 @@
+=== QUANDO O XCODE FOI INSTALADO/ATUALIZADO ===
+drwxr-xr-x@ 3 root  wheel  96 Aug  5 18:44 /Applications/Xcode.app
+  versao: Xcode 26.6
+  selecionado: /Applications/Xcode.app/Contents/Developer
+
+=== PLATAFORMAS REALMENTE INSTALADAS (nao so o stub do SDK) ===
+  (nenhuma em /Library)
+  --- runtimes baixados pelo Xcode 26 ---
+  (nenhuma no ~)
+
+=== O ARCHIVE DO BUILD 93 (que funcionou em 05/08) ===
+
+=== outros schemes veem destino? ===
+--- Alma Watch App ---
+	Ineligible destinations for the "Alma Watch App" scheme:
+		{ platform:watchOS, id:dvtdevice-DVTiOSDevicePlaceholder-watchos:placeholder, name:Any watchOS Device, error:watchOS 26.5 is not installed. Please download and install the platform from Xcode > Settings > Components. }
+
+=== ESPACO EM DISCO (o download da plataforma e grande) ===
+/dev/disk3s1s1   228Gi    12Gi    64Gi    16%    459k  675M    0%   /
+
+=== O QUE DA PARA BAIXAR PELA LINHA DE COMANDO ===
+2026-08-06 15:56:31.325 xcodebuild[22544:762191] Writing error result bundle to /var/folders/7t/7070_bbd2wd05t5rp_wd31ww0000gn/T/ResultBundle_2026-06-08_15-56-0031.xcresult
+xcodebuild: error: invalid option '-showComponentCompatibility'
+
+Usage: xcodebuild [-project <projectname>] [[-target <targetname>]...|-alltargets] [-configuration <configurationname>] [-arch <architecture>]... [-sdk [<sdkname>|<sdkpath>]] [-showBuildSettings [-json]] [<buildsetting>=<value>]... [<buildaction>]...
+       xcodebuild [-project <projectname>] -scheme <schemeName> [-destination <destinationspecifier>]... [-configuration <configurationname>] [-arch <architecture>]... [-sdk [<sdkname>|<sdkpath>]] [-showBuildSettings [-json]] [-showdestinations] [<buildsetting>=<value>]... [<buildaction>]...
+       xcodebuild -workspace <workspacename> -scheme <schemeName> [-destination <destinationspecifier>]... [-configuration <configurationname>] [-arch <architecture>]... [-sdk [<sdkname>|<sdkpath>]] [-showBuildSettings] [-showdestinations] [<buildsetting>=<value>]... [<buildaction>]...
+       xcodebuild -version [-sdk [<sdkfullpath>|<sdkname>] [-json] [<infoitem>] ]
+       xcodebuild -list [[-project <projectname>]|[-workspace <workspacename>]] [-json]
+       xcodebuild -showsdks [-json]
+       xcodebuild -exportArchive -archivePath <xcarchivepath> [-exportPath <destinationpath>] -exportOptionsPlist <plistpath>
+       xcodebuild -exportNotarizedApp -archivePath <xcarchivepath> -exportPath <destinationpath>
+       xcodebuild -exportLocalizations -localizationPath <path> -project <projectname> [-defaultLanguage <language>] [-exportLanguage <targetlanguage>... [-includeScreenshots]]
+
+=== archives existentes (build 93 saiu daqui?) ===

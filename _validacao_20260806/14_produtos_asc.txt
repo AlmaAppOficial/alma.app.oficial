@@ -1,0 +1,4 @@
+grupos: 1
+ grupo: Alma Premium 22008487
+   - com.almaapp.app.premium_monthly | estado= APPROVED | período= ONE_MONTH
+IAP nao-assinatura: (nenhum)

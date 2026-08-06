@@ -1,0 +1,15 @@
+=== -showdestinations COMPLETO (scheme iOS) ===
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme "Alma.App.Oficial (iOS)" -showdestinations
+
+
+
+
+
+
+	Ineligible destinations for the "Alma.App.Oficial (iOS)" scheme:
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device, error:iOS 26.5 is not installed. Please download and install the platform from Xcode > Settings > Components. }
+
+=== estado do simulador ===
+    iPhone 17 Pro Max (FB0A3E45-AE25-4F33-A506-5DCBAB0853E7) (Shutdown) 
+    iPad Pro 13-inch (M5) (16GB) (A4748D13-3A7E-4488-B391-4A871DCA6504) (Shutdown) 

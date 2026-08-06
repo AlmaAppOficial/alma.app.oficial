@@ -1,0 +1,46 @@
+=== LOCK REMOVIDO — git responde? ===
+ M CLAUDE.md
+ M Shared/AuditoriaBloqueadores.swift
+ M Shared/Corpo/AddFoodView.swift
+ M Shared/Corpo/FoodScanView.swift
+ M Shared/Corpo/MealDetailView.swift
+ M _scripts/lint_wiring.py
+?? .fuse_hidden0000000600000001
+?? .fuse_hidden0000000600000002
+git status exit=0
+
+=== RODANDO O SCRIPT DE COMMIT ===
+═════ 0 · limpeza do lixo que o sandbox deixou no .git ═════
+  .git/index.lock e .git/_teste_escrita removidos (se existiam) ✓
+
+═════ 1 · confere que estamos no lugar certo ═════
+  branch: feat/build84-chat-e-ciclos ✓
+
+═════ 2 · COMMIT 1 — reparo do 4944881 (build Debug de volta) ═════
+  patch do reparo aplicado ✓
+GUARDA A26: ok — nenhum controle de aparencia em Shared/Corpo
+[feat/build84-chat-e-ciclos 6738d81] Harness volta a compilar: nome repetido e id repetido, os dois de hoje
+ 1 file changed, 19 insertions(+), 11 deletions(-)
+  commit 1 feito ✓
+
+═════ 3 · COMMIT 2 — porção editável + unidade do alimento personalizado ═════
+GUARDA A26: ok — nenhum controle de aparencia em Shared/Corpo
+[feat/build84-chat-e-ciclos 9ba23fc] A porção deixa de ser um decreto da IA, e o alimento personalizado para de trocar de unidade
+ 14 files changed, 1269 insertions(+), 28 deletions(-)
+ create mode 100755 _scripts/commitar_porcao_editavel.sh
+ create mode 100755 _scripts/mutacao_porcao_editavel.sh
+ create mode 100644 _validacao_20260806/00_plano_porcao_editavel.md
+ create mode 100644 _validacao_20260806/01_mutacao_porcao_editavel.txt
+ create mode 100644 _validacao_20260806/02_aritmetica_das_assercoes.txt
+ create mode 100644 _validacao_20260806/03_integridade_do_harness.txt
+ create mode 100644 _validacao_20260806/04_entrega_e_o_que_falta_para_o_build.md
+ create mode 100644 _validacao_20260806/reparo_4944881.patch
+  commit 2 feito ✓
+
+═════ 4 · resultado ═════
+9ba23fc A porção deixa de ser um decreto da IA, e o alimento personalizado para de trocar de unidade
+6738d81 Harness volta a compilar: nome repetido e id repetido, os dois de hoje
+b1ddf55 indices: tira o indice invalido que impedia QUALQUER indice de subir
+
+NADA foi enviado. Para virar build, ver o relatório do dia.
+script exit=0

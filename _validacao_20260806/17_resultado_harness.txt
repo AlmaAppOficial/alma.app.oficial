@@ -1,0 +1,28 @@
+=== RESULTADO FINAL ===
+═════ RESULTADO ═════
+aprovados: 135
+REPROVADOS (2):
+   ✗ A26d o coletor ENXERGA as telas do Corpo (guarda anti-cegueira)
+   ✗ A27g autorizado e sem amostra, a tela NÃO acusa Desconectado
+
+=== TODAS AS REPROVADAS ===
+✗ A26d o coletor ENXERGA as telas do Corpo (guarda anti-cegueira) — OBSERVADO: início=0 textos, ajustes=1 textos
+✗ A27g autorizado e sem amostra, a tela NÃO acusa Desconectado — OBSERVADO: esperado="Conectado, sem dados hoje" achados=[]
+REPROVADOS (2):
+   ✗ A26d o coletor ENXERGA as telas do Corpo (guarda anti-cegueira)
+   ✗ A27g autorizado e sem amostra, a tela NÃO acusa Desconectado
+
+=== AS ASSERCOES E (as minhas) ===
+✓ E0 o comparador acusa um registro feito com a estimativa, não com o ajuste — estimativa=520kcal vs ajuste=936kcal · ✓ comparador vivo
+✓ E1 com a porção ajustada, o que a tela mostra é o que entra na dieta — exibido=936kcal/122P/18C/41G · registrado=936kcal/122P/18C/41G
+✓ E1b o ajuste realmente muda o número — não é a estimativa disfarçada — ajustado=936 (esperado 936) · estimado=520
+✓ E2 o rótulo do botão carrega a mesma porção que foi registrada — botão=450 · diário=450 · esperado=450 · frases: "Adicionar 450 g à Almoço" / "Prato de teste · 450 g"
+✓ E2b o extrator do E2 distingue frases com números diferentes — 250→250 · sem número→nil
+✓ E3 macrosDaPorcao continua sendo a escala da porção estimada — estimativa=520kcal · parametrizada=520kcal · ajustada=936kcal
+✓ E4 macros por porção são convertidos para 100 g antes de virar catálogo — 600 kcal em 350 g → 171 kcal/100 g (esperado 171)
+✓ E4b a conversão é identidade em 100 g e deixa de ser cópia fora dele — em100g=600 (esperado 600) · em350g=171 (não pode ser 600)
+
+=== AS P1 (reparo do 4944881) ===
+✓ P1a sem assinatura, tocar recurso pago OFERECE o Premium — oferecerPremium
+✓ P1b com assinatura, tocar recurso pago ABRE o recurso — abrir
+✓ P1c canário — a decisão realmente depende da assinatura — distingue

@@ -1,0 +1,41 @@
+simulador escolhido: FB0A3E45-AE25-4F33-A506-5DCBAB0853E7
+
+=== exit code ===
+70
+
+=== linhas do log ===
+      35
+
+=== ERROS (error:) ===
+31:xcodebuild: error: Unable to find a destination matching the provided destination specifier:
+35:		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device, error:iOS 26.5 is not installed. Please download and install the platform from Xcode > Settings > Components. }
+
+=== quantos erros ao todo ===
+2
+
+=== ultimas 25 linhas do log ===
+  AppCheck: https://github.com/google/app-check.git @ 11.3.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 1.7.6
+  Facebook: https://github.com/facebook/facebook-ios-sdk @ 18.1.0
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.0
+  SwiftProtobuf: https://github.com/apple/swift-protobuf.git @ 1.38.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 11.15.0
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.2
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.0
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 2.3.0
+  Firebase: https://github.com/firebase/firebase-ios-sdk @ 11.15.0
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 4.1.1
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  Promises: https://github.com/google/promises.git @ 2.4.0
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS @ 7.1.0
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+
+2026-08-06 15:52:55.444 xcodebuild[21889:757363] Writing error result bundle to /var/folders/7t/7070_bbd2wd05t5rp_wd31ww0000gn/T/ResultBundle_2026-06-08_15-52-0055.xcresult
+xcodebuild: error: Unable to find a destination matching the provided destination specifier:
+		{ platform:iOS Simulator, id:FB0A3E45-AE25-4F33-A506-5DCBAB0853E7 }
+
+	Ineligible destinations for the "Alma.App.Oficial (iOS)" scheme:
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device, error:iOS 26.5 is not installed. Please download and install the platform from Xcode > Settings > Components. }

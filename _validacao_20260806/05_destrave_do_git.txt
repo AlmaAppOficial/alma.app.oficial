@@ -1,0 +1,22 @@
+MAQUINA: unknowna27a3209fa65.lan · macOS 26.5 · 2026-08-06 15:51:11
+
+=== 1 · PROCESSOS VIVOS NO MAC (excluindo esta propria checagem) ===
+  git: 0 processo(s)
+  xcodebuild: 0 processo(s)
+  Xcode: 0 processo(s)
+  Android Studio: 0 processo(s)
+  gradle: 0 processo(s)
+
+=== 2 · O LOCK ===
+-rw-r--r--  1 almaappoficial  staff  0 Aug  6 15:44 /Users/almaappoficial/Desktop/ALMA/alma.app.oficial-main/.git/_teste_escrita
+-rw-r--r--  1 almaappoficial  staff  0 Aug  6 15:19 /Users/almaappoficial/Desktop/ALMA/alma.app.oficial-main/.git/index.lock
+  tamanho do index.lock:        0 bytes (0 = inofensivo)
+
+=== 3 · git fsck (integridade do repositorio) ===
+dangling blob c8c105ea02b766a0c000d00fdfbbea74cc8d31ac
+dangling blob 5504ebbed9c4c2a842a58344105e3c8d614b76e7
+dangling blob 413219ad732f29498d5268b79d612c6ae8ac2973
+dangling commit 5316fe611b53f38f6a68e6cef24b506d2185763d
+dangling commit b79e4f83d5587bd32486019fcbeddd5c0e7f916c
+dangling commit 3d3fc138e311d36e70b01e48776e6a3fdae81ede
+  fsck exit=0

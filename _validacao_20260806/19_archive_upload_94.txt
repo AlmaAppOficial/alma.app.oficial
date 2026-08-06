@@ -1,0 +1,86 @@
+=== SAIDA COMPLETA DO ARCHIVE/EXPORT/UPLOAD ===
+=== DISCO ANTES ===
+/dev/disk3s5    245G    169G     46G    79%    1.4M  449M    0%   /System/Volumes/Data
+=== 1. ARCHIVE ===
+ARCHIVE_EXIT:0
+** ARCHIVE SUCCEEDED **
+=== CONTEUDO DO ARCHIVE (iPhone + Watch) ===
+/tmp/alma94.xcarchive/Products/Applications/Alma.App.Oficial.app
+/tmp/alma94.xcarchive/Products/Applications/Alma.App.Oficial.app/Watch/Alma Watch App.app
+=== VERSOES (tem de dizer 2.0.1 (94) em todos) ===
+firebase-ios-sdk.FirebaseCore.resources  ()
+facebook-ios-sdk.FacebookAEM.resources  ()
+grpc-binary.grpcppWrapper.resources  ()
+gtm-session-fetcher.GTMSessionFetcherCore.resources  ()
+leveldb.leveldb.resources  ()
+googlesignin-ios.GoogleSignIn.resources  ()
+=== 2. EXPORT ===
+EXPORT_EXIT:0
+** EXPORT SUCCEEDED **
+IPA: /tmp/alma94_ipa/Alma.App.Oficial.ipa
+-rw-r--r--@ 1 almaappoficial  wheel   348M Aug  6 16:17 /tmp/alma94_ipa/Alma.App.Oficial.ipa
+=== 3. VALIDATE (antes de subir) ===
+VALIDATE_EXIT:0
+Running altool at path '/Applications/Xcode.app/Contents/SharedFrameworks/ContentDelivery.framework/Resources/altool'...
+
+2026-08-06 16:19:42.123  INFO: [ContentDelivery.Uploader.9FD078A00] 
+==========================================
+VERIFY SUCCEEDED with no errors
+==========================================
+No errors validating archive at '/tmp/alma94_ipa/Alma.App.Oficial.ipa'.
+=== 4. UPLOAD PARA O TESTFLIGHT ===
+UPLOAD_EXIT:0
+Running altool at path '/Applications/Xcode.app/Contents/SharedFrameworks/ContentDelivery.framework/Resources/altool'...
+
+2026-08-06 16:21:36.058  INFO: [ContentDelivery.Uploader.C95078A00] 
+==========================================
+UPLOAD SUCCEEDED with no errors
+Delivery UUID: 0c662fca-5ae9-4238-a234-8fd9272598e4
+Transferred 364461214 bytes in 19.320 seconds (18.9MB/s, 150.914Mbps)
+==========================================
+No errors uploading archive at '/tmp/alma94_ipa/Alma.App.Oficial.ipa'.
+=== DISCO DEPOIS ===
+/dev/disk3s5    245G    170G     44G    80%    1.4M  426M    0%   /System/Volumes/Data
+FIM_94 — NADA foi enviado para revisao.
+
+=== VALIDATE (log) ===
+Running altool at path '/Applications/Xcode.app/Contents/SharedFrameworks/ContentDelivery.framework/Resources/altool'...
+
+2026-08-06 16:19:42.123  INFO: [ContentDelivery.Uploader.9FD078A00] 
+==========================================
+VERIFY SUCCEEDED with no errors
+==========================================
+No errors validating archive at '/tmp/alma94_ipa/Alma.App.Oficial.ipa'.
+
+=== UPLOAD (log) ===
+Running altool at path '/Applications/Xcode.app/Contents/SharedFrameworks/ContentDelivery.framework/Resources/altool'...
+
+2026-08-06 16:21:36.058  INFO: [ContentDelivery.Uploader.C95078A00] 
+==========================================
+UPLOAD SUCCEEDED with no errors
+Delivery UUID: 0c662fca-5ae9-4238-a234-8fd9272598e4
+Transferred 364461214 bytes in 19.320 seconds (18.9MB/s, 150.914Mbps)
+==========================================
+No errors uploading archive at '/tmp/alma94_ipa/Alma.App.Oficial.ipa'.
+build 94 | processamento= VALID | expirado= false | uploaded= 2026-08-06T08:22:56-07:00
+build 93 | processamento= VALID | expirado= false | uploaded= 2026-08-05T01:02:44-07:00
+build 92 | processamento= VALID | expirado= false | uploaded= 2026-08-05T00:00:45-07:00
+build 91 | processamento= VALID | expirado= false | uploaded= 2026-08-04T12:33:51-07:00
+build 90 | processamento= VALID | expirado= false | uploaded= 2026-08-04T09:28:23-07:00
+
+=== ESTADO NO APP STORE CONNECT (consultado apos o upload) ===
+build 94 | processamento= VALID | expirado= false | uploaded= 2026-08-06T08:22:56-07:00
+build 93 | processamento= VALID | expirado= false | uploaded= 2026-08-05T01:02:44-07:00
+build 92 | processamento= VALID | expirado= false | uploaded= 2026-08-05T00:00:45-07:00
+build 91 | processamento= VALID | expirado= false | uploaded= 2026-08-04T12:33:51-07:00
+build 90 | processamento= VALID | expirado= false | uploaded= 2026-08-04T09:28:23-07:00
+
+=== VERSOES DENTRO DO ARCHIVE ===
+--- /tmp/alma94.xcarchive/Products/Applications/Alma.App.Oficial.app/Info.plist
+  bundle: com.almaapp.app
+  versao: 2.0.1
+  build:  94
+--- /tmp/alma94.xcarchive/Products/Applications/Alma.App.Oficial.app/Watch/Alma Watch App.app/Info.plist
+  bundle: com.almaapp.app.watchkitapp
+  versao: 2.0.1
+  build:  94

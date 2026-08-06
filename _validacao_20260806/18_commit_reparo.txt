@@ -1,0 +1,4 @@
+GUARDA A26: ok — nenhum controle de aparencia em Shared/Corpo
+[feat/build84-chat-e-ciclos 66cb823] A ponte do entitlement finalmente compila: caminho dobrado e JWS do envelope
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+66cb823 A ponte do entitlement finalmente compila: caminho dobrado e JWS do envelope
