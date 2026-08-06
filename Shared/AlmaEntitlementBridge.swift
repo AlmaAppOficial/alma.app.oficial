@@ -74,7 +74,14 @@ enum AlmaEntitlementBridge {
             let chave = prefixoUltimoEnvio + String(transacao.originalID)
             if !forcado, sincronizadaRecentemente(chave: chave) { continue }
 
-            if await enviar(jws: transacao.jwsRepresentation, user: user) {
+            // [2026-08-06] Era `transacao.jwsRepresentation`, que não compila:
+            // o JWS é do ENVELOPE, não do conteúdo. `VerificationResult` é quem
+            // guarda a representação assinada; `Transaction` é o que sobra
+            // depois de abrir o envelope, e um payload já aberto não teria como
+            // provar nada ao servidor. Como o servidor verifica a assinatura
+            // (é o mesmo caminho do `appleNotifications`), é o envelope que
+            // precisa viajar.
+            if await enviar(jws: resultado.jwsRepresentation, user: user) {
                 UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: chave)
                 enviadas += 1
             }
