@@ -284,6 +284,33 @@ já fazem isso sozinhos e abortam com mensagem clara se não houver simulador.
 (`_scripts/rodar_auditoria.sh`, de 03/08, ainda tem `DEV=` chumbado — quando ele
 falhar, é por isso.)
 
+### DÍVIDA — `MealDetailView` existe, não é alcançável e não edita [2026-08-06]
+
+Registrado para quem pegar a **2.1** (refeição editável depois de registrada)
+não achar que já tem meio caminho andado. **Não tem.**
+
+- O arquivo está no target e compila, mas **nenhuma navegação aponta para ele**.
+  Única referência viva: `SmokeTestTelas.swift:376`, dentro de `#if DEBUG` e
+  atrás da flag `smokeTelas`. Em release não existe.
+- Se fosse alcançável, **não editaria nada**: só `toggleMeal` e `removeMeal`,
+  os mesmos dois botões que a linha da `DietaView.swift:226-262` já tem.
+
+**O obstáculo da 2.1 é de modelo, não de tela.** `Meal` (`Models.swift:45-54`)
+não guarda gramas nem base por 100 g; `addFood` (`Models.swift:748`) escreve a
+porção dentro da string do nome e descarta o número. Sem os dois gravados, não
+há o que reescalar.
+
+Ordem certa: (a) campos opcionais de porção e base no `Meal`; (b) gravá-los no
+`addFood`; (c) formulário de quantidade na tela — o de `AddFoodView.swift:224-298`
+serve; (d) só então ligar a navegação. Ligar a navegação primeiro entrega dois
+botões repetidos e nenhuma edição.
+
+Migração: **não há histórico de itens a preservar.** O diário é do dia
+(`loadMealsForToday`, `Models.swift:545-558`), sem Firestore/Watch/HealthKit, e
+`kcalByDay` guarda só um `Int` por dia. Campos opcionais com default bastam.
+
+Padrão pronto para copiar: suplemento já tem editor — `SupplementsView.swift:55`.
+
 ### Sistema de quotes dinâmicas (projeto futuro)
 - Feature planejada: quotes selecionadas por perfil/momento do usuário
 - Não bloqueia Apple

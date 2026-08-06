@@ -1,0 +1,15 @@
+-- SO-REPARO (base do commit 1)
+   declaracoes no escopo direto de executar(): 161 | duplicadas: NENHUMA
+   ids de assercao: 129 | duplicados: NENHUM
+   P1a/P1b/P1c presentes: True | A27a/b/c do HealthKit intactos: True
+   semPremium (AppModel da B11b): 7 ocorrencias | acaoSemPremium (nome novo): 5
+
+-- FINAL (reparo + bloco E)
+   declaracoes no escopo direto de executar(): 176 | duplicadas: NENHUMA
+   ids de assercao: 137 | duplicados: NENHUM
+   P1a/P1b/P1c presentes: True | A27a/b/c do HealthKit intactos: True
+   semPremium (AppModel da B11b): 9 ocorrencias | acaoSemPremium (nome novo): 6
+
+O erro que isto prova ter sumido: Invalid redeclaration of 'semPremium',
+introduzido pelo commit 4944881 hoje, que parou o alvo Debug inteiro.
+NAO e execucao do compilador - e analise de escopo por indentacao.

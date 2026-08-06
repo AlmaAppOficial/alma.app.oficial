@@ -559,6 +559,11 @@ enum AuditoriaBloqueadores {
         // `CorpoAcesso.acaoAoTocarRecursoPago`, um enum de duas opções e
         // nenhuma delas "nada". Esta asserção vigia a regra; o tipo vigia o
         // esquecimento, transformando-o em erro de compilação.
+        // [2026-08-06] Renomeados de `semPremium`/`comPremium` para
+        // `acaoSemPremium`/`acaoComPremium`: `semPremium` já era o AppModel da
+        // B11b, na linha 252, no MESMO escopo desta função. Duas declarações
+        // com o mesmo nome no mesmo escopo é `Invalid redeclaration` — o alvo
+        // Debug inteiro parou de compilar quando este bloco entrou.
         // [2026-08-06] Ids renomeados de A27a/b/c para P1a/b/c (P de pago).
         // A27a/A27b/A27c JÁ EXISTIAM desde 05/08, nas linhas ~1196-1208, e são
         // do HealthKit. Ids repetidos tornam o log ambíguo — quando um reprova,
@@ -1504,6 +1509,185 @@ enum AuditoriaBloqueadores {
                 + "escala(208,100)=\(AppModel.escalarPor100(208, gramas: 100))")
 
         UserDefaults().removePersistentDomain(forName: "auditoria.alma.comida")
+
+        // ── E · a porção deixa de ser um decreto (2026-08-06) ────────────────
+        //
+        // O bloco H fez a tela e o diário contarem o MESMO número. Não fez esse
+        // número poder estar CERTO: `porcaoG` vinha da IA, era `let`, e não
+        // havia controle nenhum na tela — ou a pessoa aceitava a estimativa ou
+        // não registrava. A queixa que abriu este trabalho foi exatamente essa:
+        // "as proporções estão exatas mas a quantidade não era a que tinha no
+        // prato".
+        //
+        // Deixar a porção editável REABRE a porta que o H fechou, se uma ponta
+        // ler a estimativa e a outra ler o ajuste. É isso que E1 mede.
+        //
+        // O QUE ESTE BLOCO NÃO COBRE, dito antes de alguém supor que cobre: que
+        // o Slider da tela escreve em `porcaoAjustada`, e que os tiles desenham
+        // o que calcularam. Isso é wiring dentro de uma View e nenhuma asserção
+        // de runtime pega sem XCUITest — fica com o lint E-W1..E-W4, estático.
+        let modelEdicao = AppModel(store: UserDefaults(suiteName: "auditoria.alma.edicao")!)
+        modelEdicao.meals = []
+
+        let pratoParaEditar = FoodScanResult(
+            name: "Prato de teste", brand: nil,
+            description: "Porção estimada na foto: 250 g",
+            kcalPer100: 208, proteinPer100: 27, carbsPer100: 4, fatPer100: 9,
+            porcaoG: 250
+        )
+
+        // A pessoa olhou o prato e sabe que era mais do que a IA leu: 250 → 450.
+        let porcaoCorrigida = 450
+        let exibidoAposEdicao = pratoParaEditar.macros(para: porcaoCorrigida)
+        let rotuloDoBotao = FoodScanView.rotuloDeConfirmacao(gramas: porcaoCorrigida,
+                                                            refeicao: .almoco)
+        modelEdicao.addFood(pratoParaEditar.comoFoodItem,
+                            grams: porcaoCorrigida, to: .almoco)
+        let gravadoAposEdicao = modelEdicao.meals.last
+
+        /// O comparador que E0 e E1 compartilham. Estando os dois na mesma
+        /// função, um comparador cego reprovaria E0 antes de aprovar E1 de
+        /// mentira.
+        let confereComExibido: (Meal?) -> Bool = { m in
+            guard let m else { return false }
+            return m.kcal == exibidoAposEdicao.kcal
+                && m.protein == exibidoAposEdicao.proteina
+                && m.carbs == exibidoAposEdicao.carbo
+                && m.fat == exibidoAposEdicao.gordura
+        }
+
+        // E0 · CANÁRIO, primeiro de todos (Regra 2 do CLAUDE.md).
+        //
+        // Monta o registro que sairia do BUG que E1 existe para pegar — o botão
+        // gravando a estimativa da IA em vez do ajuste da pessoa — e exige que o
+        // comparador o REPROVE. Se E0 ficar verde, o comparador está cego e o
+        // resultado de E1 não vale nada.
+        let comoSeUsasseAEstimativa = Meal(
+            type: .almoco, name: "canário",
+            kcal: pratoParaEditar.macrosDaPorcao.kcal,
+            protein: pratoParaEditar.macrosDaPorcao.proteina,
+            carbs: pratoParaEditar.macrosDaPorcao.carbo,
+            fat: pratoParaEditar.macrosDaPorcao.gordura,
+            done: true)
+        checa("E0", "o comparador acusa um registro feito com a estimativa, não com o ajuste",
+              confereComExibido(comoSeUsasseAEstimativa) == false,
+              "estimativa=\(pratoParaEditar.macrosDaPorcao.kcal)kcal vs "
+                + "ajuste=\(exibidoAposEdicao.kcal)kcal · "
+                + (confereComExibido(comoSeUsasseAEstimativa)
+                   ? "✗✗ COMPARADOR CEGO" : "✓ comparador vivo"))
+
+        // E1 · O INVARIANTE, agora com a porção CORRIGIDA pela pessoa.
+        //
+        // Mutação alvo, dita com precisão para não prometer o que não entrego:
+        // fazer `macros(para:)` e `addFood` escalarem por quantidades
+        // diferentes. E1 NÃO toca na View — chama `addFood` direto — então ela
+        // não pega o botão passando `r.porcaoG` no lugar de `gramas`. Esse caso
+        // é do lint E-W1/E-W1b, estático. Aqui provo a aritmética das duas
+        // pontas; lá provo que a tela liga as duas pontas na mesma variável.
+        checa("E1", "com a porção ajustada, o que a tela mostra é o que entra na dieta",
+              confereComExibido(gravadoAposEdicao),
+              "exibido=\(exibidoAposEdicao.kcal)kcal/\(exibidoAposEdicao.proteina)P/"
+                + "\(exibidoAposEdicao.carbo)C/\(exibidoAposEdicao.gordura)G · registrado="
+                + (gravadoAposEdicao.map {
+                    "\($0.kcal)kcal/\($0.protein)P/\($0.carbs)C/\($0.fat)G" } ?? "NADA"))
+
+        // E1b · GUARDA ANTI-CEGUEIRA do E1. Se o ajuste fosse ignorado, E1
+        // passaria comparando a estimativa com ela mesma. Aqui exijo que o
+        // número da porção ajustada seja OUTRO: 450 g de 208 kcal/100 g são
+        // 936 kcal, não os 520 da estimativa de 250 g.
+        checa("E1b", "o ajuste realmente muda o número — não é a estimativa disfarçada",
+              exibidoAposEdicao.kcal == 936
+                && exibidoAposEdicao.kcal != pratoParaEditar.macrosDaPorcao.kcal,
+              "ajustado=\(exibidoAposEdicao.kcal) (esperado 936) · "
+                + "estimado=\(pratoParaEditar.macrosDaPorcao.kcal)")
+
+        // E2 · O QUE O BOTÃO PROMETE É O QUE O DIÁRIO REGISTRA.
+        //
+        // Terceira ponta do requisito: exibido, CONFIRMADO e gravado. O rótulo
+        // do botão é a promessa que a pessoa lê antes de tocar; se ele disser
+        // 450 g e o diário guardar outra coisa, é o bug de 05/08 de novo, só
+        // que na frase em vez do número.
+        //
+        // [revisão 06/08] A primeira versão fazia `.contains("450 g")` nas duas
+        // frases. Isso é quase tautologia: eu passei 450 para as duas e conferi
+        // que 450 voltou. Agora EXTRAIO o número de cada frase e comparo os
+        // números — as duas frases são produzidas por funções diferentes
+        // (`rotuloDeConfirmacao` e `addFood`), então a comparação tem do que
+        // discordar. Mutação alvo: mudar o número dentro de qualquer uma delas.
+        let extrairGramas: (String) -> Int? = { frase in
+            guard let marca = frase.range(of: " g") else { return nil }
+            var digitos = ""
+            for caractere in frase[frase.startIndex..<marca.lowerBound].reversed() {
+                if caractere.isNumber { digitos.insert(caractere, at: digitos.startIndex) }
+                else { break }
+            }
+            return Int(digitos)
+        }
+        let gramasNoBotao = extrairGramas(rotuloDoBotao)
+        let gramasNoDiario = gravadoAposEdicao.flatMap { extrairGramas($0.name) }
+        checa("E2", "o rótulo do botão carrega a mesma porção que foi registrada",
+              gramasNoBotao != nil
+                && gramasNoBotao == gramasNoDiario
+                && gramasNoBotao == porcaoCorrigida,
+              "botão=\(gramasNoBotao.map(String.init) ?? "nada") · "
+                + "diário=\(gramasNoDiario.map(String.init) ?? "nada") · "
+                + "esperado=\(porcaoCorrigida) · frases: \"\(rotuloDoBotao)\" / "
+                + "\"\(gravadoAposEdicao?.name ?? "NADA")\"")
+
+        // E2b · GUARDA ANTI-CEGUEIRA do E2: o extrator precisa saber devolver
+        // números DIFERENTES para frases diferentes. Se ele devolvesse sempre a
+        // mesma coisa (ou sempre nil comparado com nil), E2 passaria comparando
+        // nada com nada.
+        checa("E2b", "o extrator do E2 distingue frases com números diferentes",
+              extrairGramas(FoodScanView.rotuloDeConfirmacao(gramas: 250, refeicao: .almoco)) == 250
+                && extrairGramas("sem número aqui") == nil,
+              "250→\(extrairGramas(FoodScanView.rotuloDeConfirmacao(gramas: 250, refeicao: .almoco)).map(String.init) ?? "nil") · "
+                + "sem número→\(extrairGramas("sem número aqui").map(String.init) ?? "nil")")
+
+        // E3 · a estimativa continua sendo lida DA estimativa.
+        //
+        // [revisão 06/08] A primeira versão assertava `porcaoG == 250` — o
+        // mesmo 250 que a linha acima acabara de passar ao construtor. Isso não
+        // é asserção, é eco: `porcaoG` é `let` numa struct e nada aqui o muta,
+        // então nem trocar `let` por `var` deixaria a linha vermelha, ao
+        // contrário do que o comentário antigo prometia.
+        //
+        // O que VALE a pena travar é o elo que a refatoração de hoje criou:
+        // `macrosDaPorcao` (que H2/H2b/H2d usam para provar o conserto de
+        // 05/08) tem de continuar sendo `macros(para: porcaoG)`. Se alguém
+        // apontar `macrosDaPorcao` para outra quantidade — 100, ou a ajustada —
+        // as asserções H passam a falar de outra coisa sem avisar.
+        // Mutação alvo: trocar o corpo de `macrosDaPorcao` para `macros(para: 100)`.
+        let porEstimativa = pratoParaEditar.macrosDaPorcao
+        let porParametro = pratoParaEditar.macros(para: pratoParaEditar.porcaoG)
+        checa("E3", "macrosDaPorcao continua sendo a escala da porção estimada",
+              porEstimativa == porParametro && porEstimativa.kcal == 520
+                && porEstimativa.kcal != exibidoAposEdicao.kcal,
+              "estimativa=\(porEstimativa.kcal)kcal · parametrizada=\(porParametro.kcal)kcal "
+                + "· ajustada=\(exibidoAposEdicao.kcal)kcal")
+
+        // ── E4 · o CustomFoodForm para de trocar a unidade em silêncio ───────
+        //
+        // O formulário pergunta "Macros (por porção)" e o `StoredFood` guarda
+        // por 100 g. Até 06/08 os mesmos números iam para os dois lugares: uma
+        // marmita de 600 kcal virava 600 kcal POR 100 G, e a leitura seguinte
+        // do código de barras a 350 g devolvia 2 100 kcal. Mesmo gênero do bug
+        // do scan — número mudando de unidade sem nada denunciar.
+        let convertido = CustomFoodForm.converterPara100g(600, gramasDaPorcao: 350)
+        checa("E4", "macros por porção são convertidos para 100 g antes de virar catálogo",
+              convertido == 171,
+              "600 kcal em 350 g → \(convertido) kcal/100 g (esperado 171)")
+
+        // E4b · CANÁRIO DA CONVERSÃO, nas duas pontas que importam:
+        //   · em 100 g tem de ser a IDENTIDADE, senão a correção quebra quem
+        //     ignorou o campo novo (o valor pré-preenchido é 100);
+        //   · fora de 100 g NÃO pode ser cópia — a cópia era exatamente o bug.
+        let identidade = CustomFoodForm.converterPara100g(600, gramasDaPorcao: 100)
+        checa("E4b", "a conversão é identidade em 100 g e deixa de ser cópia fora dele",
+              identidade == 600 && convertido != 600,
+              "em100g=\(identidade) (esperado 600) · em350g=\(convertido) (não pode ser 600)")
+
+        UserDefaults().removePersistentDomain(forName: "auditoria.alma.edicao")
 
         UserDefaults().removePersistentDomain(forName: suiteHK)
         UserDefaults().removePersistentDomain(forName: suiteAp)

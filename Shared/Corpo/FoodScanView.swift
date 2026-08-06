@@ -30,16 +30,25 @@ struct FoodScanResult {
     /// entra na dieta. Ver `macrosDaPorcao` e a asserção H2.
     let porcaoG: Int
 
-    /// Os quatro números que a tela mostra E que vão para o diário.
+    /// Os quatro números para UMA quantidade qualquer.
     ///
-    /// Passam pela MESMA função que o `AppModel.addFood` usa
-    /// (`AppModel.escalarPor100`). É isso que torna impossível a tela dizer uma
-    /// coisa e o registro gravar outra — que era o bug.
+    /// [2026-08-06] Virou função com parâmetro porque a porção deixou de ser um
+    /// decreto: a pessoa pode ajustar antes de confirmar (ver `porcaoAjustada`).
+    /// A conta em si não mudou — continua saindo toda de `AppModel.escalarPor100`,
+    /// a mesma função que o `AppModel.addFood` usa. É isso que torna impossível a
+    /// tela dizer uma coisa e o registro gravar outra, que era o bug de 05/08.
+    func macros(para gramas: Int) -> (kcal: Int, proteina: Int, carbo: Int, gordura: Int) {
+        (kcal:     AppModel.escalarPor100(kcalPer100,    gramas: gramas),
+         proteina: AppModel.escalarPor100(proteinPer100, gramas: gramas),
+         carbo:    AppModel.escalarPor100(carbsPer100,   gramas: gramas),
+         gordura:  AppModel.escalarPor100(fatPer100,     gramas: gramas))
+    }
+
+    /// Os números da porção que a IA estimou, sem ajuste nenhum.
+    /// Mantido para as asserções H2/H2b/H2d, que provam o conserto de 05/08 e
+    /// continuam falando exatamente do que falavam.
     var macrosDaPorcao: (kcal: Int, proteina: Int, carbo: Int, gordura: Int) {
-        (kcal:     AppModel.escalarPor100(kcalPer100,    gramas: porcaoG),
-         proteina: AppModel.escalarPor100(proteinPer100, gramas: porcaoG),
-         carbo:    AppModel.escalarPor100(carbsPer100,   gramas: porcaoG),
-         gordura:  AppModel.escalarPor100(fatPer100,     gramas: porcaoG))
+        macros(para: porcaoG)
     }
 
     /// O `FoodItem` que vai para o diário. Carrega os valores POR 100 g porque
@@ -71,6 +80,22 @@ struct FoodScanView: View {
     @State private var showGallery = false
     /// [2026-08-05] Consentimento por envio.
     @State private var mostrarConsentimento = false
+
+    /// [2026-08-06] O ajuste da pessoa POR CIMA da estimativa da IA.
+    ///
+    /// Nasce `nil` de propósito: a estimativa já vem preenchida como ponto de
+    /// partida, e quem concorda com ela não precisa tocar em nada. `nil` também
+    /// é o que distingue "aceitei o que a IA leu" de "corrigi para 450 g" — por
+    /// isso não sobrescrevo `result.porcaoG`. A estimativa continua visível
+    /// depois do ajuste, porque é vendo a diferença entre o que a máquina leu e
+    /// o que ela corrigiu que a pessoa aprende quanto confiar na leitura.
+    @State private var porcaoAjustada: Int?
+
+    /// A quantidade que vale AGORA — a única lida pelos tiles, pelo rótulo do
+    /// botão e pelo registro. Ver `resultSection`.
+    private func porcaoEmUso(_ r: FoodScanResult) -> Int {
+        porcaoAjustada ?? r.porcaoG
+    }
 
     var body: some View {
         NavigationStack {
@@ -106,6 +131,7 @@ struct FoodScanView: View {
                 CameraPickerView { image in
                     photoData = image.jpegData(compressionQuality: 0.8)
                     result = nil
+                    porcaoAjustada = nil   // foto nova, estimativa nova
                     showCamera = false
                 }
                 .ignoresSafeArea()
@@ -134,6 +160,20 @@ struct FoodScanView: View {
         AIService.isRealAI
         ? "Tire uma foto do seu prato e a IA estima os macronutrientes. É uma estimativa a partir da imagem — confira a porção antes de adicionar."
         : "A leitura do prato por foto não está disponível nesta versão. Registre o alimento pela busca ou pelo código de barras — o resultado é o mesmo, sem chute."
+    }
+
+    /// [2026-08-06] Os dois textos que carregam a quantidade, como FUNÇÃO.
+    ///
+    /// Enquanto viviam soltos dentro do corpo da View, "o que o botão promete"
+    /// era uma string que nenhuma asserção conseguia ler. Sendo função estática,
+    /// a View e o harness leem a MESMA fonte, e dá para afirmar o que antes só
+    /// dava para olhar: que o número prometido no botão é o número gravado.
+    static func rotuloDaPorcao(gramas: Int) -> String {
+        "Valores para \(gramas) g"
+    }
+
+    static func rotuloDeConfirmacao(gramas: Int, refeicao: MealType) -> String {
+        "Adicionar \(gramas) g à \(refeicao.rawValue)"
     }
 
     /// Mesmo texto do scan corporal — a promessa é a mesma nos dois envios.
@@ -252,7 +292,22 @@ struct FoodScanView: View {
     }
 
     private func resultSection(_ r: FoodScanResult) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        // ═══════════════════════════════════════════════════════════════════
+        // [2026-08-06] UMA quantidade, três consumidores.
+        //
+        // `gramas` é lido pelos tiles, pelo rótulo do botão e pela chamada de
+        // `addFood`. Não há segunda variável, então divergir exigiria alguém
+        // criar uma — que é exatamente a mutação que a asserção E1 procura.
+        //
+        // É a mesma ideia do conserto de 05/08, agora com a porção podendo
+        // mudar: naquele dia o problema era a tela mostrar um número e o
+        // registro gravar outro; deixar a porção editável reabriria essa porta
+        // se cada ponta lesse a sua própria fonte.
+        // ═══════════════════════════════════════════════════════════════════
+        let gramas = porcaoEmUso(r)
+        let macros = r.macros(para: gramas)
+
+        return VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(r.name)
                     .font(.title3.bold())
@@ -271,19 +326,20 @@ struct FoodScanView: View {
             // qual porção. Antes eram por 100 g, sem dizer, logo abaixo de uma
             // frase que anunciava a porção estimada: quem lia "250 g" e "520
             // kcal" somava 520 kcal a um prato que tem 1 300.
-            //
-            // São exatamente os números que o botão abaixo registra — os dois
-            // leem `r.macrosDaPorcao`.
-            Text("Valores para os \(r.porcaoG) g estimados na foto")
+            Text(Self.rotuloDaPorcao(gramas: gramas))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Theme.inkSoft)
 
             HStack(spacing: 10) {
-                macroTile("\(r.macrosDaPorcao.kcal)", "kcal", Theme.coral)
-                macroTile("\(r.macrosDaPorcao.proteina) g", "Prot", Theme.primary)
-                macroTile("\(r.macrosDaPorcao.carbo) g", "Carbo", Theme.gold)
-                macroTile("\(r.macrosDaPorcao.gordura) g", "Gord", Theme.azure)
+                macroTile("\(macros.kcal)", "kcal", Theme.coral)
+                macroTile("\(macros.proteina) g", "Prot", Theme.primary)
+                macroTile("\(macros.carbo) g", "Carbo", Theme.gold)
+                macroTile("\(macros.gordura) g", "Gord", Theme.azure)
             }
+
+            // O ajuste fica ENTRE os números e o botão: a pessoa mexe e vê os
+            // quatro números mudarem logo acima, antes de confirmar.
+            porcaoEditor(r, gramas: gramas)
 
             // Picker de refeição
             Picker("Refeição", selection: $mealType) {
@@ -298,11 +354,15 @@ struct FoodScanView: View {
             // porção e registrava outra na dieta — e a contagem de calorias,
             // que é o valor inteiro desta parte do app, ficava errada em
             // silêncio, sem nada na tela que denunciasse.
+            //
+            // [2026-08-06] E agora grava a porção EM USO, não a estimada: se a
+            // pessoa corrigiu para 450 g, é 450 g que entra na dieta.
             Button {
-                model.addFood(r.comoFoodItem, grams: r.porcaoG, to: mealType)
+                model.addFood(r.comoFoodItem, grams: gramas, to: mealType)
                 dismiss()
             } label: {
-                Label("Adicionar \(r.porcaoG) g à \(mealType.rawValue)", systemImage: "checkmark")
+                Label(Self.rotuloDeConfirmacao(gramas: gramas, refeicao: mealType),
+                      systemImage: "checkmark")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -312,6 +372,97 @@ struct FoodScanView: View {
             }
         }
         .cardStyle()
+    }
+
+    // MARK: Ajuste da porção
+
+    /// [2026-08-06] O controle que faltava.
+    ///
+    /// A IA acerta a proporção do prato e erra o tamanho — foi a queixa que
+    /// abriu este trabalho. A estimativa vem preenchida, e quem concorda com ela
+    /// não toca em nada; quem olhou o prato e sabe que era mais, arrasta.
+    private func porcaoEditor(_ r: FoodScanResult, gramas: Int) -> some View {
+        // O slider do AddFoodView para em 500 g, o que não cobre um prato
+        // cheio. Aqui a faixa acompanha a estimativa quando ela é grande.
+        let limite = Double(max(1000, r.porcaoG * 2))
+        // E o piso acompanha a estimativa quando ela é pequena. `porcaoG` só
+        // garante ser ≥ 1 (ver `enviarParaAnalise`); com o piso fixo em 10, uma
+        // estimativa de 5 g deixaria o rótulo dizendo "5 g" e o slider parado
+        // em 10 — número mostrado diferente de número representado, que é a
+        // família de bug que este trabalho inteiro existe para fechar.
+        let piso = min(10, max(1, r.porcaoG))
+
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Quantidade")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+                Text("\(gramas) g")
+                    .font(.headline.bold())
+                    .foregroundStyle(Theme.primary)
+            }
+
+            HStack(spacing: 12) {
+                ajusteBotao("minus", habilitado: gramas > piso) {
+                    porcaoAjustada = max(piso, gramas - 5)
+                }
+                Slider(
+                    value: Binding<Double>(
+                        get: { Double(gramas) },
+                        set: { novo in porcaoAjustada = max(piso, Int(novo.rounded())) }
+                    ),
+                    // [revisão 06/08] SEM `step:`. Com passo de 5 a grade do
+                    // slider ancorava no piso (10, 15, 20…) e a estimativa da
+                    // IA é inteiro qualquer: um prato de 247 g pulava para 245
+                    // ao primeiro toque, e os botões −/+ andavam por 242, 237…,
+                    // uma grade que nunca encontrava a do slider. Dois
+                    // controles discordando sobre quais números existem é a
+                    // mesma família de bug que este trabalho fecha. Contínuo,
+                    // com o `set` arredondando para Int, todo grama é
+                    // alcançável e as duas grades viram uma só.
+                    in: Double(piso)...limite
+                )
+                .tint(Theme.primary)
+                ajusteBotao("plus", habilitado: Double(gramas) < limite) {
+                    porcaoAjustada = min(Int(limite), gramas + 5)
+                }
+            }
+
+            // A estimativa da IA nunca some de vista. Depois de ajustar, a
+            // pessoa continua vendo o que a máquina tinha lido — e volta em um
+            // toque se tiver exagerado na correção.
+            if gramas != r.porcaoG {
+                Button {
+                    porcaoAjustada = nil
+                } label: {
+                    Label("A IA estimou \(r.porcaoG) g · voltar à estimativa",
+                          systemImage: "arrow.uturn.backward")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Theme.primary)
+                }
+                .buttonStyle(.plain)
+            } else {
+                Text("Estimativa da IA. Ajuste se o prato tinha mais ou menos que isso.")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surfaceAlt)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous))
+    }
+
+    private func ajusteBotao(_ simbolo: String, habilitado: Bool,
+                             acao: @escaping () -> Void) -> some View {
+        Button(action: acao) {
+            Image(systemName: "\(simbolo).circle.fill")
+                .font(.title2)
+                .foregroundStyle(habilitado ? Theme.primary : Theme.inkSoft.opacity(0.35))
+        }
+        .buttonStyle(.plain)
+        .disabled(!habilitado)
     }
 
     private func macroTile(_ value: String, _ label: String, _ tint: Color) -> some View {
@@ -363,6 +514,7 @@ struct FoodScanView: View {
             if let data = try? await item.loadTransferable(type: Data.self) {
                 photoData = data
                 result = nil        // reset ao trocar a foto
+                porcaoAjustada = nil
                 errorMessage = nil
             }
         }
@@ -390,6 +542,10 @@ struct FoodScanView: View {
                 // porque porção zero registraria uma refeição de 0 kcal com
                 // cara de refeição registrada.
                 let porcao = max(1, Int(prato.porcaoG.rounded()))
+                // Análise nova zera o ajuste: o ponto de partida volta a ser a
+                // estimativa desta foto, não a correção que a pessoa fez na
+                // anterior.
+                porcaoAjustada = nil
                 result = FoodScanResult(
                     name: prato.nome,
                     brand: nil,
@@ -404,6 +560,7 @@ struct FoodScanView: View {
                 // [F2/B8] Erro é erro. Nunca um "resultado" inventado que
                 // poderia acabar somado às calorias do dia.
                 result = nil
+                porcaoAjustada = nil
                 errorMessage = error.localizedDescription
             }
         }

@@ -1,0 +1,16 @@
+VERIFICAÇÃO DAS CONSTANTES DAS ASSERÇÕES E0..E4b
+Isto confere a ARITMÉTICA que escrevi nas asserções.
+NÃO é execução do harness Swift — ver o que está declarado como dívida.
+
+Prato: 208 kcal/100g, 27P, 4C, 9G · estimativa da IA 250 g · pessoa corrige para 450 g
+
+  E1/E1b  ajustado 450 g -> [936, 122, 18, 41]   (asserção espera kcal == 936)  OK
+  E3      estimado 250 g -> [520, 68, 10, 23]   (asserção espera kcal == 520)  OK
+  E0      canário: os dois são diferentes?  True  OK
+
+  E4      600 kcal em 350 g -> 171 kcal/100g  (asserção espera 171)  OK
+  E4b     600 kcal em 100 g -> 600 kcal/100g  (identidade, espera 600)  OK
+  E4b     e 350 g NÃO é cópia: 171 != 600 -> True  OK
+
+Deriva declarada no comentário do código: 600 kcal/350 g -> 171/100g -> de volta a 350 g:
+  escalar(171, 350) = 599 kcal (contra 600 digitados) — deriva de 1 kcal, só no catálogo

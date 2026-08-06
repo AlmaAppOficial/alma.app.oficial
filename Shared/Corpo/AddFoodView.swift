@@ -325,6 +325,12 @@ struct CustomFoodForm: View {
     @State private var protein = ""
     @State private var carbs = ""
     @State private var fat = ""
+    /// [2026-08-06] O peso da porção a que os números acima se referem.
+    ///
+    /// Nasce "100" porque com 100 a conversão para 100 g é a identidade: quem
+    /// não olhar este campo recebe exatamente o comportamento antigo. Uma
+    /// correção não pode criar um erro novo para quem ignorou a mudança.
+    @State private var porcaoG = "100"
     @State private var selectedMeal: MealType
     @State private var showError = false
 
@@ -340,7 +346,40 @@ struct CustomFoodForm: View {
         Int(kcal) != nil &&
         Int(protein) != nil &&
         Int(carbs) != nil &&
-        Int(fat) != nil
+        Int(fat) != nil &&
+        (Int(porcaoG) ?? 0) > 0
+    }
+
+    /// [2026-08-06] CONVERSÃO DA UNIDADE — o conserto.
+    ///
+    /// O formulário pergunta os macros POR PORÇÃO (é assim que a pessoa pensa
+    /// numa marmita) e o `StoredFood` guarda POR 100 G (é assim que o resto do
+    /// app calcula). Até hoje os mesmos números iam para os dois lugares, sem
+    /// conversão nenhuma: uma marmita de 600 kcal virava 600 kcal POR 100 G, e
+    /// a próxima leitura do código de barras a 350 g devolvia 2 100 kcal.
+    ///
+    /// Mesmo gênero do bug do scan de 05/08 — número mudando de unidade em
+    /// silêncio, sem nada na tela denunciando.
+    ///
+    /// O arredondamento fica AQUI, no item de catálogo, e nunca no número que a
+    /// pessoa digitou: o `Meal` recebe o valor por porção intacto.
+    ///
+    /// CUSTO, com o tamanho certo — [revisão 06/08] a versão anterior deste
+    /// comentário dizia "um kcal de deriva" e subestimava o caso ruim:
+    /// · em kcal a perda é desprezível — 600 em 350 g viram 171/100 g, que de
+    ///   volta a 350 g dão 599;
+    /// · em macro PEQUENO com porção GRANDE a perda é total — 1 g de gordura em
+    ///   350 g dá 0,29/100 g, que num campo `Int` é **0**, e o macro some do
+    ///   item de catálogo para sempre.
+    ///
+    /// Isso é limitação do campo ser `Int`, não da conversão, e vale para todo
+    /// o `StoredFood`. Não arredondo para cima: inflar 0,29 para 1 seria
+    /// inventar 3× de gordura em cada uso futuro. Quem for dar precisão a isto
+    /// muda o tipo do campo, não esta função. Nada disso toca o `Meal` — o que
+    /// entra no diário hoje continua sendo o número digitado.
+    static func converterPara100g(_ valorDaPorcao: Int, gramasDaPorcao: Int) -> Int {
+        guard gramasDaPorcao > 0 else { return valorDaPorcao }
+        return Int((Double(valorDaPorcao) * 100.0 / Double(gramasDaPorcao)).rounded())
     }
 
     var body: some View {
@@ -370,9 +409,29 @@ struct CustomFoodForm: View {
                     }
                 }
 
+                // [2026-08-06] O peso da porção vem ANTES dos macros, porque é
+                // ele que dá sentido aos números seguintes. Sem esta pergunta o
+                // formulário não tinha como saber de quanto a pessoa falava — e
+                // chutava 100 g, em silêncio.
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Peso da porção (g)").font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
+                    macroField("Ex.: 350", text: $porcaoG, tint: Theme.primary)
+                    Text("Os macros abaixo são desta porção. O alimento fica salvo convertido para 100 g, para a próxima vez.")
+                        .font(.caption2)
+                        .foregroundStyle(Theme.inkSoft)
+                }
+
                 // Grid de macros
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Macros (por porção)").font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
+                    // [revisão 06/08] Enquanto o campo está vazio no meio da
+                    // digitação, o rótulo dizia "por porção de 0 g" — um número
+                    // que não é verdade em tela, que é o gênero de coisa que
+                    // este conserto existe para tirar do app. Sem número válido,
+                    // o rótulo simplesmente não promete quantidade nenhuma.
+                    Text((Int(porcaoG) ?? 0) > 0
+                         ? "Macros (por porção de \(Int(porcaoG) ?? 0) g)"
+                         : "Macros (por porção)")
+                        .font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
                     HStack(spacing: 10) {
                         macroField("kcal", text: $kcal, tint: Theme.coral)
                         macroField("Proteína (g)", text: $protein, tint: Theme.primary)
@@ -400,11 +459,26 @@ struct CustomFoodForm: View {
 
                 Button {
                     guard isValid else { showError = true; return }
+                    // [revisão 06/08] `Int(porcaoG) ?? 100` era código morto
+                    // perigoso: o `isValid` já garante > 0, então o 100 nunca
+                    // dispararia — mas ele é exatamente o "chuta 100 g em
+                    // silêncio" que este conserto existe para matar. Bastaria
+                    // alguém afrouxar o isValid para o bug voltar sem sinal.
+                    // Sem valor de reserva, não há para onde ele voltar.
+                    guard let gramas = Int(porcaoG), gramas > 0 else {
+                        showError = true; return
+                    }
                     let cleanName = name.trimmingCharacters(in: .whitespaces)
                     let cleanBrand = brand.trimmingCharacters(in: .whitespaces)
+                    let comMarca = cleanBrand.isEmpty ? cleanName : "\(cleanName) (\(cleanBrand))"
                     let meal = Meal(
                         type: selectedMeal,
-                        name: cleanBrand.isEmpty ? cleanName : "\(cleanName) (\(cleanBrand))",
+                        // [2026-08-06] A porção passa a aparecer no nome. Este
+                        // era o único caminho de registro que não dizia de
+                        // quanto falava — nem no texto, nem em campo nenhum.
+                        name: "\(comMarca) · \(gramas) g",
+                        // Os números digitados entram no diário INTACTOS. O
+                        // arredondamento da conversão fica só no catálogo.
                         kcal: Int(kcal) ?? 0,
                         protein: Int(protein) ?? 0,
                         carbs: Int(carbs) ?? 0,
@@ -414,13 +488,16 @@ struct CustomFoodForm: View {
                     model.meals.append(meal)
                     // [F3] Guarda o alimento do usuário — com marca e barcode,
                     // a próxima leitura do mesmo código acha na hora.
+                    // [2026-08-06] Agora CONVERTIDO para 100 g. Antes copiava o
+                    // valor da porção para o campo por-100-g: uma marmita de
+                    // 600 kcal voltava, na leitura seguinte, como 600 kcal/100 g.
                     model.userFoods.append(StoredFood(
                         name: cleanName,
                         brand: cleanBrand.isEmpty ? nil : cleanBrand,
-                        kcalPer100: Int(kcal) ?? 0,
-                        proteinPer100: Int(protein) ?? 0,
-                        carbsPer100: Int(carbs) ?? 0,
-                        fatPer100: Int(fat) ?? 0,
+                        kcalPer100:    Self.converterPara100g(Int(kcal) ?? 0,    gramasDaPorcao: gramas),
+                        proteinPer100: Self.converterPara100g(Int(protein) ?? 0, gramasDaPorcao: gramas),
+                        carbsPer100:   Self.converterPara100g(Int(carbs) ?? 0,   gramasDaPorcao: gramas),
+                        fatPer100:     Self.converterPara100g(Int(fat) ?? 0,     gramasDaPorcao: gramas),
                         barcode: barcode
                     ))
                     onDone()

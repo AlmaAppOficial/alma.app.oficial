@@ -1,0 +1,29 @@
+═════ MUTAÇÃO — porção editável e unidade do alimento personalizado ═════
+
+  base: lint verde antes de mutar ✓
+
+  ✓ M-E1  vermelho, como deve ser: O BUG QUE E1 PROCURA: grava a estimativa da IA e joga fora o ajuste
+  ✓ M-E2  vermelho, como deve ser: a fonte única da quantidade some; cada ponta volta a ler a sua
+  ✓ M-E3  vermelho, como deve ser: o rótulo volta a ser string solta e E2 fica sem o que ler
+  ✓ M-E4  vermelho, como deve ser: o Slider para de escrever no estado — a porção volta a ser decreto
+  ✓ M-E5  vermelho, como deve ser: os tiles voltam a mostrar por 100 g, ignorando a quantidade em uso
+  ✓ M-E6  vermelho, como deve ser: O BUG ORIGINAL: valor da porção copiado para o campo por-100-g
+  ✓ M-E7  vermelho, como deve ser: a mesma reversão, mas alinhada por colunas — o furo que a revisão achou
+
+═════ RESULTADO ═════
+vermelhas (boas): 7 · verdes (furos): 0
+
+═════ NÃO PROVADO AQUI — dívida declarada, não verde ═════
+  M-E7 · asserção E1 (936 exibidos == 936 registrados com a porção
+         ajustada): mutação = passar porcaoCorrigida para uma das pontas
+         e porcaoG para a outra. Aritmética, roda no harness em DEBUG —
+         exige build.
+  M-E8 · asserção E0 (o canário do comparador): mutação = fazer
+         confereComExibido devolver true sempre. Mesma condição.
+  M-E9 · asserção E4/E4b (conversão para 100 g): mutação = fazer
+         converterPara100g devolver o valor sem converter. Mesma condição.
+  SEM XCUITEST: nada aqui prova o que o olho vê NA TELA, nem que arrastar
+  o Slider redesenha os quatro números. E-W4 prova que o Slider escreve
+  em porcaoAjustada e E-W2 prova que os tiles leem a mesma variável que o
+  registro — o elo 'e o pixel mudou' continua sem prova. Cegueira
+  conhecida e declarada, como em 05/08.

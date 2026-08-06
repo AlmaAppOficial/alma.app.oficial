@@ -156,11 +156,24 @@ REGRAS = [
         "mutacao": "voltar `grams: 100` no botão de adicionar",
     },
     {
+        # [2026-08-06] Atualizada junto com a porção editável. A regra ANTIGA
+        # exigia `r.macrosDaPorcao.kcal` nos tiles — o que, com a porção
+        # ajustável, passaria a significar "mostre a estimativa da IA e ignore
+        # a correção da pessoa", ou seja, o bug novo. A INTENÇÃO é a mesma de
+        # 05/08 e não mudou: os tiles mostram os macros da quantidade que vale,
+        # nunca os valores por 100 g. O que mudou é qual quantidade vale.
         "id": "H-W2",
-        "desc": "os tiles mostram os macros DA PORÇÃO",
+        "desc": "os tiles mostram os macros DA QUANTIDADE EM USO",
         "arquivo": "Shared/Corpo/FoodScanView.swift",
-        "precisa": r"macroTile\(\"\\\(r\.macrosDaPorcao\.kcal\)\"",
+        "precisa": r"macroTile\(\"\\\(macros\.kcal\)\"",
         "mutacao": "voltar os tiles a exibir r.kcalPer100",
+    },
+    {
+        "id": "H-W2b",
+        "desc": "os tiles NÃO voltam a exibir valores por 100 g",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        "proibe": r"macroTile\(\"\\\(r\.(kcal|protein|carbs|fat)Per100\)\"",
+        "mutacao": "pôr r.kcalPer100 de volta num tile",
     },
     {
         "id": "H-W3",
@@ -182,6 +195,67 @@ REGRAS = [
         "arquivo": "Shared/Corpo/AnaliseDeFotoService.swift",
         "proibe": r"base\.analysis\.(summary|observations|focusAreas|somatotype)",
         "mutacao": "reintroduzir qualquer `base.analysis.<texto>` como reserva",
+    },
+    # ── E · a porção deixa de ser um decreto (2026-08-06) ──────────────────
+    # As asserções E0..E4b provam a ARITMÉTICA em runtime. Estas cinco provam o
+    # WIRING dentro da View, que runtime nenhum enxerga sem XCUITest: que existe
+    # controle na tela, que ele escreve no estado, e que as três pontas (tiles,
+    # rótulo do botão e registro) leem a MESMA variável.
+    {
+        "id": "E-W1",
+        "desc": "o registro usa a quantidade EM USO, não a estimativa da IA",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        "precisa": r"model\.addFood\(r\.comoFoodItem, grams: gramas, to: mealType\)",
+        "mutacao": "voltar `grams: r.porcaoG`, ignorando o ajuste da pessoa",
+    },
+    {
+        "id": "E-W1b",
+        "desc": "e não volta a gravar a estimativa por baixo do ajuste",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        "proibe": r"addFood\([^)]*grams:\s*r\.porcaoG",
+        "mutacao": "gravar r.porcaoG mesmo com a porção ajustada na tela",
+    },
+    {
+        "id": "E-W2",
+        "desc": "UMA quantidade só, lida pelos três consumidores",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        "precisa": r"let gramas = porcaoEmUso\(r\)",
+        "mutacao": "cada ponta voltar a ler a sua própria fonte de porção",
+    },
+    {
+        "id": "E-W3",
+        "desc": "o rótulo do botão sai da função estática que o harness lê",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        "precisa": r"Label\(Self\.rotuloDeConfirmacao\(gramas: gramas, refeicao: mealType\)",
+        "mutacao": "voltar a string solta no corpo da View — E2 fica sem o que ler",
+    },
+    {
+        "id": "E-W4",
+        "desc": "existe controle de ajuste, e ele escreve no estado",
+        "arquivo": "Shared/Corpo/FoodScanView.swift",
+        # [revisão 06/08] Tolerante a reformatação: fixar o texto literal
+        # inteiro transforma uma quebra de linha em falha falsa. O que precisa
+        # existir é a atribuição ao estado a partir do valor do controle.
+        "precisa": r"porcaoAjustada\s*=\s*max\(\s*piso\s*,\s*Int\(",
+        "mutacao": "tirar o Slider — a porção volta a ser decreto da IA",
+    },
+    {
+        "id": "E-W5",
+        "desc": "o CustomFoodForm CONVERTE para 100 g em vez de copiar a porção",
+        "arquivo": "Shared/Corpo/AddFoodView.swift",
+        "precisa": r"kcalPer100:\s*Self\.converterPara100g\(",
+        "mutacao": "voltar `kcalPer100: Int(kcal) ?? 0` — marmita de 600 kcal vira 600/100 g",
+    },
+    {
+        "id": "E-W5b",
+        "desc": "e a cópia crua não volta por outro caminho",
+        "arquivo": "Shared/Corpo/AddFoodView.swift",
+        # [revisão 06/08] `\s+` e não um espaço só: o código usa alinhamento por
+        # colunas (`kcalPer100:    Self.converterPara100g(`). Com um espaço
+        # fixo, uma reversão escrita no mesmo estilo alinhado passaria batido
+        # pelo canário — o furo exato que este `proibe` existe para tapar.
+        "proibe": r"kcalPer100:\s+Int\(kcal\)\s*\?\?\s*0",
+        "mutacao": "O BUG ORIGINAL: valor da porção gravado no campo por-100-g",
     },
     {
         # Guarda a DECISÃO, não o código: 05/08 decidiu-se NÃO registrar o

@@ -1,0 +1,39 @@
+--- a/Shared/AuditoriaBloqueadores.swift
++++ b/Shared/AuditoriaBloqueadores.swift
+@@ -559,18 +559,26 @@
+         // `CorpoAcesso.acaoAoTocarRecursoPago`, um enum de duas opções e
+         // nenhuma delas "nada". Esta asserção vigia a regra; o tipo vigia o
+         // esquecimento, transformando-o em erro de compilação.
+-        let semPremium = CorpoAcesso.acaoAoTocarRecursoPago(temPremium: false)
+-        let comPremium = CorpoAcesso.acaoAoTocarRecursoPago(temPremium: true)
+-        checa("A27a", "sem assinatura, tocar recurso pago OFERECE o Premium",
+-              semPremium == .oferecerPremium, "\(semPremium)")
+-        checa("A27b", "com assinatura, tocar recurso pago ABRE o recurso",
+-              comPremium == .abrir, "\(comPremium)")
++        // [2026-08-06] Ids renomeados de A27a/b/c para P1a/b/c (P de pago).
++        // A27a/A27b/A27c JÁ EXISTIAM desde 05/08, nas linhas ~1196-1208, e são
++        // do HealthKit. Ids repetidos tornam o log ambíguo — quando um reprova,
++        // não dá para saber qual dos dois foi. É a mesma razão pela qual o
++        // bloco de honestidade virou `H` e não `C`, escrita neste arquivo umas
++        // 800 linhas abaixo. Agrava que o cabeçalho do bloco de HealthKit
++        // declara `A27g` como VERMELHA de propósito: o log do A27 é exatamente
++        // o que alguém lê com atenção.
++        let acaoSemPremium = CorpoAcesso.acaoAoTocarRecursoPago(temPremium: false)
++        let acaoComPremium = CorpoAcesso.acaoAoTocarRecursoPago(temPremium: true)
++        checa("P1a", "sem assinatura, tocar recurso pago OFERECE o Premium",
++              acaoSemPremium == .oferecerPremium, "\(acaoSemPremium)")
++        checa("P1b", "com assinatura, tocar recurso pago ABRE o recurso",
++              acaoComPremium == .abrir, "\(acaoComPremium)")
+ 
+-        // Canário: se as duas respostas fossem iguais, A27a/A27b poderiam estar
++        // Canário: se as duas respostas fossem iguais, P1a/P1b poderiam estar
+         // verdes com a função devolvendo sempre a mesma coisa.
+-        checa("A27c", "canário — a decisão realmente depende da assinatura",
+-              semPremium != comPremium,
+-              semPremium != comPremium ? "distingue" : "DETECTOR CEGO: mesma resposta para os dois")
++        checa("P1c", "canário — a decisão realmente depende da assinatura",
++              acaoSemPremium != acaoComPremium,
++              acaoSemPremium != acaoComPremium ? "distingue" : "DETECTOR CEGO: mesma resposta para os dois")
+ 
+         // ── A20 · ditado: duas rodadas de fala com pausa no meio ────────────
+         //
