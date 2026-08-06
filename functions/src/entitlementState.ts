@@ -63,6 +63,16 @@ export interface EventoApple {
   /** Fim do período de tolerância, quando a Apple concede um. */
   gracePeriodExpiresDateMs?: number | null;
   ambiente?: string | null;
+  /**
+   * Quando a Apple assinou este evento (`signedDate`).
+   *
+   * [2026-08-06] `decidirEstado` NÃO usa este campo — o estado depende do que
+   * aconteceu, não de quando a mensagem foi emitida. Ele existe para a guarda
+   * de ORDEM em `aplicarEvento`: a Apple reentrega, e pode reentregar um evento
+   * VELHO depois de um novo. Sem esta data, um `DID_RENEW` atrasado sobrescreve
+   * um `REFUND` recente e o reembolsado volta a ter acesso.
+   */
+  signedDateMs?: number | null;
 }
 
 export interface EstadoEntitlement {

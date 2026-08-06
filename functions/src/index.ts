@@ -5,6 +5,7 @@ import { defineSecret } from 'firebase-functions/params';
 import OpenAI from 'openai';
 import * as crypto from 'crypto';
 import ogs from 'open-graph-scraper';
+import { ehAssinante } from './entitlementLeitura';
 
 admin.initializeApp();
 
@@ -36,12 +37,18 @@ const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
  * contra produção). O aviso anterior de "ainda não implantado" ficou obsoleto no
  * mesmo dia e chegou a induzir a erro num relatório; por isso está corrigido aqui.
  *
- * ⚠️ MAS a copy "ilimitadas" CONTINUA FALSA, por outro motivo: `ehAssinante()`
- * lê `entitlements/{uid}`, e NADA escreve nessa coleção ainda — o
- * `entitlementApply.ts` existe mas não é importado por este arquivo, então não
- * vai para produção. Na prática TODO MUNDO é tratado como não-assinante e pega
- * o limite de 20/h. Enquanto isso for verdade, nenhuma tela pode prometer
- * volume — é o que a asserção A17 vigia.
+ * ✅ [2026-08-06] O furo do entitlement está fechado no servidor. O aviso que
+ * ficava aqui — "NADA escreve em `entitlements/{uid}`, todo mundo pega 20/h" —
+ * deixou de valer: `entitlementApply` passou a ser exportado (fim deste
+ * arquivo), o webhook da Apple decodifica a transação e grava, e o endpoint
+ * `vincularAssinatura` grava na hora quando o app manda a compra assinada.
+ *
+ * ⚠️ MAS o efeito só aparece DEPOIS de duas coisas que não são deste arquivo:
+ * o deploy das functions (gate do Assis) e um build novo do iOS que chame
+ * `vincularAssinatura` (`AlmaEntitlementBridge.swift`). Sem o build, a Apple
+ * manda notificações que o servidor não consegue atribuir a ninguém — elas
+ * ficam guardadas em `apple_notifications` e são aplicadas assim que o vínculo
+ * aparecer. Até lá, o assinante continua pegando 20/h.
  *
  * ── Números e por quê ───────────────────────────────────────────────────────
  * Custo medido por mensagem (gpt-4o-mini, ~2.000 tokens de entrada com system
@@ -100,24 +107,43 @@ const LIMITES_ASSINANTE_PADRAO = {
  * Enquanto as App Store Server Notifications V2 não estiverem ligadas, esta
  * função devolve `false` — ou seja, na dúvida o usuário é tratado como
  * não-assinante e o limite antigo continua valendo. Falhar para o lado seguro.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ⚠️ LIMITAÇÃO CONHECIDA E ACEITA — origens `web` e `legado` [2026-08-06]
+ *
+ * O app reconhece QUATRO origens de acesso (`AccessManager.OrigemDoAcesso`):
+ * `appStore`, `web` (custom claim, assinatura contratada fora do app),
+ * `legado` (herdado do Corpo & Alma) e `nenhuma`. Só as duas primeiras chegam
+ * a `entitlements/{uid}`:
+ *
+ *   • `appStore` → escrito pelo webhook da Apple e por `vincularAssinatura`;
+ *   • `google`   → escrito por `validateAndroidPurchase`;
+ *   • `web`      → NÃO escreve aqui. Vive só no custom claim;
+ *   • `legado`   → NÃO escreve aqui, e NÃO PODERIA: ele é carimbado pelo
+ *                  cliente em `users/{uid}` (`LegacyEntitlementStore.swift:67`),
+ *                  documento que o próprio usuário pode editar. Ler premium de
+ *                  lá é exatamente o furo de receita que esta coleção existe
+ *                  para fechar. Confiar no `legado` sem verificação de servidor
+ *                  seria trocar um furo por outro.
+ *
+ * CONSEQUÊNCIA PRÁTICA: quem tem acesso por `web` ou `legado` vê "Premium" no
+ * app e mesmo assim pega o limite de 20 mensagens/hora no chat.
+ *
+ * POR QUE ISSO FICA ASSIM POR ORA (decisão do Assis, 06/08): o fluxo real é o
+ * INVERSO do que se supunha — quem paga o Alma ganha o Corpo & Alma, não o
+ * contrário. Com um assinante só hoje, o caminho `legado` está praticamente sem
+ * uso e não vale gastar a rodada nele. Resolver de verdade exige uma
+ * verificação de servidor da ponte C&A.
+ *
+ * SE ISSO MUDAR — se aparecer gente reclamando de limite com Premium na tela —
+ * o sintoma é este parágrafo, não um bug novo.
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * [2026-08-06] O CORPO desta função mudou de arquivo (`entitlementLeitura.ts`)
+ * para poder ser exercitado contra o emulador do Firestore — aqui dentro do
+ * `index.ts` ela era intestável, e uma regra que decide dinheiro precisava
+ * deixar de ser. A regra não mudou; só o endereço.
  */
-async function ehAssinante(
-  db: FirebaseFirestore.Firestore,
-  uid: string,
-): Promise<boolean> {
-  try {
-    const doc = await db.collection('entitlements').doc(uid).get();
-    if (!doc.exists) return false;
-    const d = doc.data() ?? {};
-    if (d.active !== true) return false;
-    const expira = d.expiresAt as FirebaseFirestore.Timestamp | undefined;
-    if (expira && expira.toMillis() < Date.now()) return false;
-    return true;
-  } catch (e) {
-    console.error('[entitlement] falha ao ler; tratando como não-assinante', e);
-    return false;
-  }
-}
 
 /**
  * [Build 84 — 2026-07-28] Máximo de caracteres por mensagem do chat.
@@ -1379,6 +1405,13 @@ export const notifyNewFeedPost = onDocumentCreated(
 // ─── Billing Android ──────────────────────────────────────────────────────────
 export * from './billing';
 export { appleNotifications } from './appleNotifications';
+
+// ─── Entitlement Apple (vínculo transação→uid) ───────────────────────────────
+// [2026-08-06] ESTA LINHA É METADE DO CONSERTO. `entitlementApply.ts` existia
+// desde 04/08, compilado e testado, e nunca foi exportado — o Firebase só
+// implanta o que sai daqui, então o código estava vivo no repositório e morto
+// em produção. `lib/index.js` provava: nenhuma menção a entitlement.
+export { vincularAssinatura } from './entitlementApply';
 
 // ─── Análise de fotos por IA (corpo e comida) ─────────────────────────────────
 // [2026-08-05] Substitui a chamada direta ao Gemini com chave no bundle. A

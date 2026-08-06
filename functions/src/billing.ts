@@ -102,8 +102,52 @@ export const validateAndroidPurchase = onCall(
     }
 
     // ── Aplica o entitlement ──────────────────────────────────────────────
+    //
+    // [2026-08-06 — decisão do Assis: "mínimo agora, RTDN depois"]
+    //
+    // ANTES: esta função escrevia SÓ o custom claim e `users/{uid}`. A função
+    // `chat` não lê nenhum dos dois — ela lê `entitlements/{uid}`. Então o
+    // assinante Android era validado com sucesso e mesmo assim caía no limite
+    // de 20 mensagens/hora do não-assinante, igualzinho ao iOS, por um caminho
+    // diferente.
+    //
+    // AGORA: `entitlements/{uid}` é a fonte de verdade ÚNICA do servidor, e a
+    // Google escreve nela como a Apple escreve. Com `expiresAt` real, o acesso
+    // EXPIRA SOZINHO — que é a metade barata de consertar do problema abaixo.
+    //
+    // ⚠️ DÍVIDA CONHECIDA E ACEITA — RTDN (Real-time Developer Notifications)
+    // Esta função só roda quando o APP a chama. Reembolso, cancelamento e
+    // expiração acontecem no servidor da Google e nunca chegam aqui. Sem RTDN:
+    //   • o `expiresAt` limita o estrago a, no máximo, um ciclo de cobrança
+    //     (antes era acesso eterno — o claim subia e ninguém nunca o derrubava);
+    //   • um REEMBOLSO no meio do ciclo continua sem cortar o acesso na hora.
+    // Fechar isso exige endpoint Pub/Sub + configuração no Play Console.
+    //
+    // ⚠️ O CLAIM CONTINUA SÓ SUBINDO, de propósito. `isPremium` é o gate do
+    // CLIENTE Android (`AccessRepository`), não do servidor. Rebaixá-lo aqui
+    // seria mexer no acesso de gente em campo sem poder testar num device —
+    // e o device de teste não está disponível nesta sessão. O servidor, que é
+    // o que estava sangrando, já passa a ver a verdade por `entitlements`.
+    const db = admin.firestore();
+
+    await db.doc(`entitlements/${uid}`).set(
+      {
+        active: isActive,
+        productId,
+        expiresAt: expiryTimeMillis
+          ? admin.firestore.Timestamp.fromMillis(expiryTimeMillis)
+          : null,
+        origem: 'google',
+        motivo: isActive
+          ? `assinatura Google ativa${expiryTimeMillis ? ` até ${new Date(expiryTimeMillis).toISOString()}` : ''}`
+          : 'assinatura Google não está ativa',
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
     if (isActive) {
-      // 1) Custom claim — fonte de verdade lida pelo app (preserva claims já existentes).
+      // Custom claim — gate do cliente Android (preserva claims já existentes).
       const userRecord = await admin.auth().getUser(uid);
       const existingClaims = userRecord.customClaims ?? {};
       await admin.auth().setCustomUserClaims(uid, {
@@ -111,8 +155,8 @@ export const validateAndroidPurchase = onCall(
         isPremium: true,
       });
 
-      // 2) Auditoria no Firestore (não é fonte de verdade do gate).
-      await admin.firestore().doc(`users/${uid}`).set(
+      // Auditoria no Firestore (não é fonte de verdade de nada).
+      await db.doc(`users/${uid}`).set(
         {
           isPremium: true,
           subscriptionSource: 'android',

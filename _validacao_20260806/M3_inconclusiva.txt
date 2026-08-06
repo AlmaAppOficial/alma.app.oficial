@@ -1,0 +1,5 @@
+
+> alma-functions@1.1.0 build
+> tsc
+
+src/entitlementLeitura.ts(35,11): error TS6133: 'expira' is declared but its value is never read.

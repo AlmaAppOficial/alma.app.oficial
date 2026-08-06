@@ -6,6 +6,16 @@
                   "fields": [
                             { "fieldPath": "createdAt", "order": "DESCENDING" }
                   ]
+          },
+          {
+                  "//": "[2026-08-06] Exigido por reprocessarPendentes (entitlementApply.ts): as notificações da Apple que chegaram antes do vínculo transação→uid são buscadas por transação + pendência, em ordem de chegada. Sem este índice a consulta falha em produção com FAILED_PRECONDITION — e falha justamente no momento em que um assinante novo acaba de vincular a compra.",
+                  "collectionGroup": "apple_notifications",
+                  "queryScope": "COLLECTION",
+                  "fields": [
+                            { "fieldPath": "originalTransactionId", "order": "ASCENDING" },
+                            { "fieldPath": "processada", "order": "ASCENDING" },
+                            { "fieldPath": "recebidaEm", "order": "ASCENDING" }
+                  ]
           }
     ],
     "fieldOverrides": []

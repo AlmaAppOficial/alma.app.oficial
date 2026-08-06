@@ -11,41 +11,29 @@
  * valida a cadeia até a raiz `Apple Root CA - G3` antes de qualquer decodagem.
  * Um payload forjado é REJEITADO com 401 e registrado.
  *
- * O que este arquivo NÃO faz ainda (peça 4, próxima etapa): escrever
- * `entitlements/{uid}`. Falta o vínculo transação→uid, que exige o app enviar
- * o `originalTransactionId`. Enquanto isso, toda notificação verificada é
- * persistida crua em `apple_notifications/{uuid}` — nenhuma se perde, e quando
- * o vínculo existir dá para reprocessar o histórico.
+ * [2026-08-06] AGORA ESCREVE `entitlements/{uid}`. O cabeçalho antigo dizia que
+ * isso era "a próxima etapa"; a etapa aconteceu. Três coisas mudaram aqui:
+ *
+ *   1. DECODIFICA A TRANSAÇÃO. `verifyAndDecodeNotification` devolve
+ *      `data.signedTransactionInfo` como string JWS opaca — os campos que
+ *      decidem acesso estão lá dentro. Sem `verifyAndDecodeTransaction`, o
+ *      arquivo enxergava só `notificationType` e achava que tinha tudo.
+ *
+ *   2. GRAVA DESNORMALIZADO. Antes só o `payload` cru era persistido; o
+ *      `reprocessarPendentes` consultava `originalTransactionId` e lia `evento`,
+ *      campos que ninguém escrevia. A fila de reprocessamento era um cano sem
+ *      saída, e calada. Agora os dois campos existem.
+ *
+ *   3. DEDUPE ATÔMICO. O `.get()` seguido de `.set()` tinha janela: duas
+ *      reentregas simultâneas passavam as duas. Virou `create()`, que falha
+ *      quando o documento já existe.
  */
 import { onRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { SignedDataVerifier, Environment } from '@apple/app-store-server-library';
-
-const BUNDLE_ID = 'com.almaapp.app';
-const APP_APPLE_ID = 6761478534;
-
-/** Raízes da Apple. Sem elas não há verificação — e sem verificação não há endpoint. */
-function raizesDaApple(): Buffer[] {
-  const dir = join(__dirname, '..', 'apple_certs');
-  return ['AppleRootCA-G3.pem'].map((f) => readFileSync(join(dir, f)));
-}
-
-/**
- * Um verificador por ambiente. A Apple manda notificações de Sandbox e de
- * Produção para URLs diferentes, mas o mesmo endpoint pode atender as duas —
- * então tentamos Produção e, se a assinatura não bater, Sandbox.
- */
-function verificadores(): { ambiente: Environment; v: SignedDataVerifier }[] {
-  const raizes = raizesDaApple();
-  return [Environment.PRODUCTION, Environment.SANDBOX].map((ambiente) => ({
-    ambiente,
-    // `enableOnlineChecks = true`: consulta OCSP da Apple. Mais lento e mais
-    // correto — um certificado revogado deixa de ser aceito.
-    v: new SignedDataVerifier(raizes, true, ambiente, BUNDLE_ID, APP_APPLE_ID),
-  }));
-}
+import { verificarNotificacao, verificarTransacao, verificarRenovacao, AssinaturaInvalida } from './appleVerificador';
+import { eventoDeNotificacao, TransacaoDecodificada, RenovacaoDecodificada } from './appleEvento';
+import { aplicarEvento } from './entitlementApply';
+import { EventoApple } from './entitlementState';
 
 export const appleNotifications = onRequest(
   { region: 'southamerica-east1', cors: false, maxInstances: 10 },
@@ -63,61 +51,113 @@ export const appleNotifications = onRequest(
     }
 
     // ── verificação criptográfica ────────────────────────────────────────────
-    let payload: Record<string, unknown> | null = null;
-    let ambienteOk: Environment | null = null;
-    const erros: string[] = [];
-
-    for (const { ambiente, v } of verificadores()) {
-      try {
-        payload = (await v.verifyAndDecodeNotification(signedPayload)) as unknown as Record<string, unknown>;
-        ambienteOk = ambiente;
-        break;
-      } catch (e) {
-        erros.push(`${ambiente}: ${(e as Error).message}`);
-      }
-    }
-
-    if (!payload || !ambienteOk) {
+    let notificacao;
+    let ambienteOk;
+    try {
+      const r = await verificarNotificacao(signedPayload);
+      notificacao = r.valor;
+      ambienteOk = r.ambiente;
+    } catch (e) {
       // Não decodificamos nada de um payload que não passou na assinatura.
-      console.error('[apple-notif] ASSINATURA INVÁLIDA — rejeitado:', erros.join(' | '));
+      const detalhe = e instanceof AssinaturaInvalida ? e.detalhes.join(' | ') : String(e);
+      console.error('[apple-notif] ASSINATURA INVÁLIDA — rejeitado:', detalhe);
       res.status(401).json({ error: 'assinatura inválida' });
       return;
     }
 
-    const tipo = String(payload.notificationType ?? '?');
-    const subtipo = payload.subtype ? String(payload.subtype) : null;
-    const uuid = String(payload.notificationUUID ?? `sem-uuid-${Date.now()}`);
+    const tipo = String(notificacao.notificationType ?? '?');
+    const subtipo = notificacao.subtype ? String(notificacao.subtype) : null;
+    const uuid = String(notificacao.notificationUUID ?? `sem-uuid-${Date.now()}`);
+
+    // ── decodificação das partes internas ────────────────────────────────────
+    // Cada uma é um JWS por si só e passa pela mesma cadeia de verificação.
+    // Falha aqui NÃO derruba a notificação: `TEST` e `CONSUMPTION_REQUEST`
+    // chegam sem transação, e `decidirEstado` já sabe recusar evento incompleto.
+    let transacao: TransacaoDecodificada | null = null;
+    let renovacao: RenovacaoDecodificada | null = null;
+
+    const jwsTransacao = notificacao.data?.signedTransactionInfo;
+    if (typeof jwsTransacao === 'string' && jwsTransacao.length > 0) {
+      try {
+        transacao = (await verificarTransacao(jwsTransacao)).valor as TransacaoDecodificada;
+      } catch (e) {
+        console.error(`[apple-notif] ${uuid}: transação não verificada —`, (e as Error).message);
+      }
+    }
+
+    const jwsRenovacao = notificacao.data?.signedRenewalInfo;
+    if (typeof jwsRenovacao === 'string' && jwsRenovacao.length > 0) {
+      try {
+        renovacao = (await verificarRenovacao(jwsRenovacao)).valor as RenovacaoDecodificada;
+      } catch (e) {
+        console.error(`[apple-notif] ${uuid}: renovação não verificada —`, (e as Error).message);
+      }
+    }
+
+    const evento: EventoApple = eventoDeNotificacao(notificacao, transacao, renovacao);
 
     console.info(
-      `[apple-notif] ✅ verificada · ${tipo}${subtipo ? '/' + subtipo : ''} · ${ambienteOk} · ${uuid}`,
+      `[apple-notif] ✅ verificada · ${tipo}${subtipo ? '/' + subtipo : ''} · ${ambienteOk} · ` +
+        `tx=${evento.originalTransactionId ?? '—'} · ${uuid}`,
     );
 
-    // ── persistência ─────────────────────────────────────────────────────────
-    // Idempotente pelo notificationUUID: a Apple reenvia até receber 200, e
-    // reenvio não pode virar processamento duplicado.
-    try {
-      const db = admin.firestore();
-      const ref = db.collection('apple_notifications').doc(uuid);
-      const jaExiste = (await ref.get()).exists;
+    // ── persistência idempotente ─────────────────────────────────────────────
+    const db = admin.firestore();
+    const ref = db.collection('apple_notifications').doc(uuid);
+    let jaProcessada = false;
 
-      if (jaExiste) {
-        console.info(`[apple-notif] ${uuid} já processada — 200 sem reprocessar`);
-      } else {
-        await ref.set({
-          notificationType: tipo,
-          subtype: subtipo,
-          environment: String(ambienteOk),
-          recebidaEm: admin.firestore.FieldValue.serverTimestamp(),
-          // Guardamos o payload verificado inteiro: quando o vínculo
-          // transação→uid existir, dá para reprocessar o histórico.
-          payload: JSON.parse(JSON.stringify(payload)),
-          processada: false,
-        });
-      }
+    try {
+      await ref.create({
+        notificationType: tipo,
+        subtype: subtipo,
+        environment: String(ambienteOk),
+        recebidaEm: admin.firestore.FieldValue.serverTimestamp(),
+        // Desnormalizados no topo: são o que `reprocessarPendentes` consulta.
+        originalTransactionId: evento.originalTransactionId,
+        evento,
+        // Payload verificado inteiro, para auditoria e para reprocessar histórico.
+        payload: JSON.parse(JSON.stringify(notificacao)),
+        processada: false,
+      });
     } catch (e) {
-      // Persistir é importante, mas responder 200 à Apple é mais: se
-      // devolvermos erro ela reenvia, e o reenvio cai no mesmo problema.
-      console.error('[apple-notif] falha ao persistir (respondendo 200 assim mesmo)', e);
+      // ALREADY_EXISTS: reentrega da Apple. Se a tentativa anterior morreu antes
+      // de aplicar, `processada` continua false e vale tentar de novo — é assim
+      // que uma falha parcial se conserta sozinha na próxima reentrega.
+      const snap = await ref.get();
+      if (!snap.exists) {
+        console.error(`[apple-notif] ${uuid}: falha ao gravar —`, (e as Error).message);
+        res.status(500).json({ error: 'falha ao persistir' });
+        return;
+      }
+      jaProcessada = snap.data()?.processada === true;
+      if (jaProcessada) {
+        console.info(`[apple-notif] ${uuid} já processada — 200 sem reprocessar`);
+        res.status(200).json({ ok: true, duplicada: true });
+        return;
+      }
+      console.info(`[apple-notif] ${uuid} reentregue sem ter sido aplicada — tentando de novo`);
+    }
+
+    // ── aplicação do entitlement ─────────────────────────────────────────────
+    // Mudança de postura em relação ao comentário antigo ("responder 200 é mais
+    // importante que persistir"): agora que a notificação MUDA o acesso de
+    // alguém, deixar a Apple reentregar é melhor que engolir a falha. O dedupe
+    // acima garante que a reentrega não duplique nada.
+    try {
+      const r = await aplicarEvento(db, evento);
+      await ref.update({
+        processada: !r.pendente,
+        resultado: r.motivo,
+        aplicadoEm: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      console.info(
+        `[apple-notif] ${uuid}: ${r.aplicado ? 'APLICADO' : 'não aplicado'}` +
+          `${r.pendente ? ' (aguardando vínculo)' : ''} — ${r.motivo}`,
+      );
+    } catch (e) {
+      console.error(`[apple-notif] ${uuid}: falha ao aplicar —`, e);
+      res.status(500).json({ error: 'falha ao aplicar' });
+      return;
     }
 
     res.status(200).json({ ok: true });

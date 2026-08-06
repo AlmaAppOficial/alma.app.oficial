@@ -26,6 +26,24 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // [2026-08-06] Bastidores do entitlement da Apple. Já seriam negados por
+    // omissão; ficam explícitos porque são o caminho do dinheiro e um leitor
+    // futuro precisa ver a intenção, não deduzi-la da ausência.
+    //
+    // apple_transaction_links: quem é dono de qual originalTransactionId.
+    //   Escrito só pelo servidor, depois de VERIFICAR o JWS da Apple. Se o
+    //   cliente pudesse escrever, bastaria apontar a transação de outra pessoa
+    //   para o próprio uid — roubo de assinatura por edição de documento.
+    //
+    // apple_notifications: notificações verificadas, cruas. Contêm dados de
+    //   compra de terceiros; ninguém no cliente tem o que fazer com elas.
+    match /apple_transaction_links/{transacao} {
+      allow read, write: if false;
+    }
+    match /apple_notifications/{uuid} {
+      allow read, write: if false;
+    }
+
     // cada utilizador só acede aos seus próprios dados
     match /users/{userId} {
       allow read, write: if request.auth != null
