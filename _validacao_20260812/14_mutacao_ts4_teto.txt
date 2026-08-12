@@ -1,0 +1,95 @@
+
+═════ S1 · o rótulo que quebrou a produção ═════
+  ✓ S1a grafia canônica passa intacta
+  ✓ S1b grafia canônica passa intacta
+  ✓ S1c grafia canônica passa intacta
+
+═════ S2 · variações que o modelo pode escrever ═════
+  ✓ S2a minúscula
+  ✓ S2b maiúscula
+  ✓ S2c espaço sobrando
+  ✓ S2d acento e sufixo
+  ✓ S2g acento DENTRO do radical
+  ✓ S2e composto → primeiro citado
+  ✓ S2f frase inteira
+
+═════ S3 · NÃO INVENTAR (o coração do B8) ═════
+  ✓ S3a null não vira tipo
+  ✓ S3b undefined não vira tipo
+  ✓ S3c vazio não vira tipo
+  ✓ S3d texto qualquer não vira tipo
+  ✓ S3e número não vira tipo
+  ✓ S3f objeto não vira tipo
+
+═════ S4 · o MIME sai dos BYTES, não de suposição ═════
+  ✓ S4a JPEG
+  ✓ S4b PNG
+  ✓ S4c WEBP
+  ✓ S4d GIF
+  ✓ S4e HEIC reconhecido como HEIC
+  ✓ S4f lixo não vira formato
+
+═════ S5 · entrada da foto ═════
+  ✓ S5a data URL → base64 puro
+  ✓ S5b base64 puro passa
+  ✓ S5c lixo é recusado
+  ✓ S5d vazio é recusado
+  ✓ S5e bytes reais, não tamanho do base64
+
+═════ S6 · a descrição da pessoa, higienizada ═════
+  ✓ S6a texto legítimo passa intacto
+  ✓ S6b quebra de linha vira espaço
+  ✓ S6c os sinais < e > somem
+  ✓ S6d corta no teto
+  ✓ S6e null não vira texto
+  ✓ S6f objeto não vira texto
+  ✓ S6g colapsa espaço
+  ✓ S6h caractere de controle vira espaço
+
+═════ S7 · a descrição entra como DADO, dentro de um bloco ═════
+  ✓ S7a sem descrição, pedido de sempre
+  ✓ S7a2 sem descrição, sem bloco vazio
+  ✓ S7b o texto chega ao modelo
+  ✓ S7b2 o aviso vem ANTES do bloco (senão a ordem já foi lida)
+  ✓ S7-ctrl CONTROLE: texto CRU consegue forjar o terminador
+  ✓ S7c texto higienizado NÃO consegue fechar o bloco
+  ✓ S7d a frase hostil não atravessa com quebra de linha
+
+═════ S8 · as medidas do scan corporal (porta que já estava aberta) ═════
+  ✓ S8a medidas válidas passam inteiras
+  ✓ S8b objetivo fora da lista é descartado
+  ✓ S8c texto arbitrário em objetivo NÃO atravessa
+  ✓ S8c2 e portanto não aparece no pedido enviado ao modelo
+  ✓ S8d números fora de faixa são descartados, não corrigidos
+  ✓ S8e string não é medida
+  ✓ S8f null não é medida
+  ✓ S8g sem medidas, pedido de sempre
+  ✓ S8h a frase é montada campo a campo, não por JSON.stringify
+  ✓ S8i nenhum JSON cru na mensagem
+
+═════ S9 · o texto que VOLTA tem tamanho de rótulo ═════
+  ✓ S9a nome normal passa
+  ✗ S9b parágrafo é cortado no tamanho de um nome — esperava 80, veio 400
+  ✓ S9c null continua null
+  ✓ S9d só espaço vira null, não string vazia
+  ✓ S9e sem quebra de linha na tela
+
+═════ CANÁRIO · estes TRÊS têm de reprovar ═════
+  ✗ CAN-1 (DEVE REPROVAR) chute a partir de lixo — esperava "Mesomorfo", veio null
+  ✗ CAN-2 (DEVE REPROVAR) lixo virando JPEG — esperava "jpeg", veio null
+  ✗ CAN-3 (DEVE REPROVAR) quebra de linha sobrevivendo — esperava "a\nb", veio "a b"
+
+═════ RESULTADO ═════
+asserções: 56 · falhas: 1
+   ✗ S9b parágrafo é cortado no tamanho de um nome — esperava 80, veio 400
+canário reprovou as três, como deve: o arquivo enxerga. ✓
+
+═════ O QUE ESTE ARQUIVO **NÃO** PROVA — cegueira declarada ═════
+  · Não chama a OpenAI. Não prova que o `enum` do json_schema é
+    obedecido pelo provedor — isso só o caminho real prova
+    (_scripts/provar_scan_ponta_a_ponta.sh, que gasta cota).
+  · Não prova o fluxo HTTP da função (auth, rate limit, recibo):
+    exigiria emulador, como o roda_testes_ciclo.sh faz.
+  · Não prova NADA do lado Swift. O cliente tem lint + mutação
+    (H-W4/H-W4b/H-W4c) e nenhum teste de tela — o projeto não tem
+    XCUITest, dívida declarada no CLAUDE.md.

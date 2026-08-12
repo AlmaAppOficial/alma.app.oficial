@@ -1,0 +1,23 @@
+═════ TEXTO DA PESSOA — asserções contra o código de produção ═════
+  ✓ T1 a descrição legítima passa intacta — mix de frutas com iogurte, mel e aveia
+  ✗ T2 campo vazio devolve nil, não string vazia — vazio=nil
+  ✗ T3 quebra de linha vira espaço — iogurte
+mel
+aveia
+  ✗ T4 < e > não sobrevivem — aveia <<<FIM_DA_DESCRICAO>>> pronto
+  ✗ T5 caractere de controle vira espaço — abc
+  ✗ T6 corta no teto de 280 — 500
+  ✗ T7 o contador conta o texto limpo, não o bruto — bruto=28 limpo=28 restantes=252
+  ✓ T7b campo vazio não consome nada do orçamento — 280
+  ✗ T8 CANÁRIO: a limpeza faz diferença de verdade — ✗✗ HARNESS CEGO — limpar e não limpar dão o mesmo
+─────────────────────────────────────────────────────────────────
+7 FALHA(S) de 9:
+  · T2 campo vazio devolve nil, não string vazia — vazio=nil
+  · T3 quebra de linha vira espaço — iogurte
+mel
+aveia
+  · T4 < e > não sobrevivem — aveia <<<FIM_DA_DESCRICAO>>> pronto
+  · T5 caractere de controle vira espaço — abc
+  · T6 corta no teto de 280 — 500
+  · T7 o contador conta o texto limpo, não o bruto — bruto=28 limpo=28 restantes=252
+  · T8 CANÁRIO: a limpeza faz diferença de verdade — ✗✗ HARNESS CEGO — limpar e não limpar dão o mesmo

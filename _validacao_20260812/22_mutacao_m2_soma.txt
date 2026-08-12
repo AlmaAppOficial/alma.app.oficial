@@ -1,0 +1,22 @@
+═════ REFEIÇÃO COM COMPONENTES — contra o código de produção ═════
+  ✓ R0 CANÁRIO: campo não-opcional REPROVA o diário antigo — ✓ armadilha visível: keyNotFound(componentes)
+  ✓ R1 o diário gravado antes dos componentes continua sendo lido — 2 refeições preservadas
+  ✓ R1b sem componentes, o campo é nil (e não lista vazia) — Pão integral · 60 g=nil · Frango · 250 g=nil
+  ✓ R1c o rawValue "Café da manhã" continua sendo o do disco — lido=Café da manhã
+  ✓ R1d e os totais antigos atravessam intactos — 148kcal
+  ✓ R2 a refeição com componentes sobrevive ao disco — 4 componentes
+  ✓ R2b a unidade de cada componente sobrevive junto — Arroz branco=g Peito de frango=g Salada=g Suco de laranja=ml
+  ✓ R2c componente sem unidade no JSON vira grama, sem lançar — Arroz 150g
+  ✗ R3 os totais da refeição são a soma dos componentes — total=0 soma=495 · arroz=195 frango=198 salada=12 suco=90
+  ✓ R3a e os números são os da PORÇÃO, não os por 100 — arroz(150g de 130/100)=195 frango(120g de 165/100)=198
+  ✓ R3b CANÁRIO: o comparador acusa total que não bate com a soma — ✓ comparador vivo (acusou 9999)
+  ✗ R4 editar a quantidade refaz o total sozinho — antes=0 depois=0 esperado=574
+  ✓ R4b a edição preserva id e `done` — não vira linha nova no diário — id igual=true done=true
+  ✓ R4c componente zerado sai da conta sem sumir da lista — 4 itens, salada=0 kcal
+  ✓ R5 quantidade negativa é aparada em 0, não subtrai do dia — quantidade=0 kcal=0
+  ✓ R6 o resumo cita cada componente com a sua unidade — Arroz branco 150 g · Peito de frango 120 g · Salada 60 g · Suco de laranja 200 ml
+  ✓ R6b refeição antiga não se diz editável — antiga=false nova=true
+─────────────────────────────────────────────────────────────────
+2 FALHA(S) de 17:
+  · R3 os totais da refeição são a soma dos componentes — total=0 soma=495 · arroz=195 frango=198 salada=12 suco=90
+  · R4 editar a quantidade refaz o total sozinho — antes=0 depois=0 esperado=574

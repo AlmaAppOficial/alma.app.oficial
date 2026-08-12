@@ -1,0 +1,97 @@
+Líquido em mililitro, descrição antes do scan, e o prato em partes editáveis
+
+Os três pedidos da fila da 2.0.2, na ordem em que o Assis os pediu. Nada foi
+enviado a loja, nada foi arquivado, nada foi empurrado — é código e prova.
+
+(1) MILILITRO — "ao adicionar leite só oferece grama"
+
+A unidade passa a ser um DADO do alimento, nunca uma inferência sobre ele.
+`Unidade` (g/ml) viaja no `FoodItem`, no `StoredFood` e no componente; um único
+`textoDaQuantidade` escreve o número com a sua unidade, no lugar da letra "g"
+que estava chumbada em oito pontos da interface.
+
+A versão rápida — rotular por lista de nomes em tempo de execução — foi recusada
+por escrito no comentário do `enum`: é o bug de unidade mudando em silêncio que
+custou dois dias em 06/08, e erra nos dois sentidos ("leite em pó" é grama,
+"caldo de cana" não casa com nada). No catálogo embutido a unidade está
+declarada item a item, num arquivo versionado que aparece no diff. Em produto de
+código de barras ela vem do campo `quantity` da Open Food Facts — o que o
+FABRICANTE declarou na embalagem, que é leitura de dado, não palpite.
+
+A armadilha do decoder, que era o risco real: `var unidade: Unidade = .grama`
+com `Codable` sintetizado lança `keyNotFound` em todo alimento já gravado,
+porque o decoder sintetizado usa `decode` e não `decodeIfPresent` mesmo havendo
+valor padrão. O `try?` do `AppModel` engole o erro e a pessoa perde os
+alimentos personalizados sem uma linha de aviso. Por isso `init(from:)` à mão.
+O canário U0 do harness planta a versão ingênua e prova que ela quebra:
+`keyNotFound(unidade)`.
+
+(2) DESCRIÇÃO ANTES DO SCAN — "coloco um mix de frutas com iogurte, mel e aveia
+    e a IA identifica só iogurte"
+
+Campo livre na tela principal, antes do botão Analisar. Não dentro do
+`confirmationDialog`: ele não aceita `TextField`, e o texto do consentimento é
+promessa de privacidade revisada, que não muda para acomodar recurso.
+
+O texto é tratado como DADO em quatro camadas: higienização (sem quebra de
+linha, sem `<` `>`, teto de 280), bloco delimitado com o aviso ANTES dele,
+regra explícita no `system`, e o `json_schema` estrito na volta — que é o que
+mais segura, porque não existe campo onde caiba um parágrafo de conselho.
+Sobram `nome` e `motivo`, que são texto e vão para a tela: cortados em 80 e 240.
+
+Fechada junto a porta que JÁ ESTAVA ABERTA: `medidas` ia inteiro para dentro da
+mensagem via `JSON.stringify`, sem olhar chave nem tipo. Agora cada número tem
+faixa e `objetivo` é lista fechada de três valores. Seria estranho blindar a
+porta nova e deixar escancarada a do lado.
+
+(3) COMPONENTES EDITÁVEIS — "ele quer os componentes separados, editáveis"
+
+`Meal` ganha `componentes` (opcional, pelo mesmo motivo do item 1: o diário do
+dia é `Codable` em `UserDefaults`). Cada componente guarda quantidade E base por
+100 — os dois números que faltavam e sem os quais editar exigiria fazer parsing
+do nome, como o próprio `MealDetailView` avisava desde 06/08.
+
+O invariante: com componentes, o total É a soma deles. Não por disciplina — por
+desenho. Os dois únicos caminhos que dão componentes a uma refeição
+(`comComponentes` e `trocandoComponentes`) calculam os totais a partir da lista.
+
+A dívida declarada no `MealDetailView` foi paga na ordem que ela mesma prescrevia:
+(a) campos, (b) gravar, (c) formulário, (d) navegação. `addFood` também passou a
+gravar componente — assim todo registro nasce editável, e não só o que vem do
+scan. No servidor, `componentes` é aditivo: os campos do topo continuam
+obrigatórios e continuam descrevendo o prato inteiro, que é o que o 2.0.1 na
+loja lê.
+
+PROVA (Regra 1 — asserção que fica verde sem a linha de produção não conta)
+
+  · 14 asserções de unidade, 9 de texto (cliente), 17 de refeição, 57 no
+    servidor. Todas contra o código de PRODUÇÃO — os tipos puros mudaram de
+    arquivo justamente para poderem ser compilados com `swiftc` sem simulador.
+  · 11 mutações rodadas; cada uma apaga a linha protegida e a asserção
+    correspondente fica VERMELHA. Evidências em `_validacao_20260812/`.
+  · Canários em todos os quatro harnesses.
+  · `xcodebuild` do app inteiro: BUILD SUCCEEDED. `tsc` limpo.
+
+DUAS CEGUEIRAS ENCONTRADAS PELAS PRÓPRIAS MUTAÇÕES, e corrigidas:
+
+  · `mutacao_texto.sh` dava as mutações TS1/TS2 como "asserção cega" — mas quem
+    estava cego era ele: as mutações não compilavam, o `npm run build` falhava
+    para o /dev/null e o teste rodava contra o `lib/` antigo, íntegro. Falha de
+    build virou um terceiro resultado, gritado.
+  · A asserção R1b era verdade vácua: `allSatisfy` sobre lista vazia devolve
+    `true`, então com o diário destruído ela ficava verde afirmando algo sobre
+    refeições que não existiam. Agora exige `!antigas.isEmpty`.
+
+E um erro meu que quase entrou: ao mover `MealType` de arquivo eu digitei
+`case cafe = "Café"`. O `rawValue` gravado no disco é "Café da manhã" — todo
+registro de café teria lançado `dataCorrupted` e sumido da tela. A asserção R1c
+existe por causa disso.
+
+NOTA SOBRE O QUE FICOU FORA DESTE COMMIT
+
+A árvore já tinha trabalho não commitado de outra sessão (07/08: virada do dia
+no Corpo, pontuação de sono) em arquivos que esta fila precisava tocar. Ele NÃO
+entrou aqui: `Models.swift` entrou por 10 dos 13 hunks e
+`AuditoriaBloqueadores.swift` por 2 dos 3, escolhidos depois de ler cada um
+(`_scripts/staged_por_hunk.py`). Seis arquivos daquele WIP continuam fora do
+índice, intactos. Detalhe em `REPASSE_IOS_202.md`.

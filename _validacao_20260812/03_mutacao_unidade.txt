@@ -1,0 +1,19 @@
+═════ UNIDADE DE MEDIDA — asserções contra o código de produção ═════
+  ✓ U0 CANÁRIO: o decoder sintetizado REPROVA o dado antigo — ✓ armadilha visível: keyNotFound(unidade)
+  ✓ U1 alimento gravado antes da unidade existir continua sendo lido — 2 alimentos preservados
+  ✓ U1b e ele é grama, que é o que de fato foi cadastrado — Marmita da mãe=g Pão caseiro=g
+  ✓ U1c os outros campos atravessaram intactos — Marmita da mãe/171kcal/Casa
+  ✓ U2 alimento gravado em mililitro volta em mililitro — Leite da fazenda=ml
+  ✓ U3 ida e volta pelo disco preserva a unidade de cada item — Leite integral=ml Arroz=g
+  ✓ U3b o encoder grava a chave `unidade` no disco — grava "unidade":"ml"
+  ✓ U4 unidade desconhecida vira grama em vez de apagar a lista — decodificou 1 item(ns)
+  ✓ U5 lista misturada (antigo + novo) sobrevive inteira — Antigo sem unidade=g · Novo em ml=ml
+  ✓ U6 a quantidade é escrita com a unidade do próprio alimento — 200 ml / 250 g
+  ✓ U6b a base nutricional também: "100 ml", não "100 g" — 100 ml · por 100 ml
+  ✓ U7 a unidade sobrevive à conversão para FoodItem — leite=ml arroz=g
+  ✗ U8 a unidade vem do que o fabricante declarou na embalagem — Leite em pó 400 g→ml (esperado g, líquido no NOME, massa na embalagem)
+  ✗ U9 CANÁRIO: a leitura da embalagem discorda da adivinhação por nome — ✗✗ IGUAIS — daEmbalagem virou palpite por nome
+─────────────────────────────────────────────────────────────────
+2 FALHA(S) de 14:
+  · U8 a unidade vem do que o fabricante declarou na embalagem — Leite em pó 400 g→ml (esperado g, líquido no NOME, massa na embalagem)
+  · U9 CANÁRIO: a leitura da embalagem discorda da adivinhação por nome — ✗✗ IGUAIS — daEmbalagem virou palpite por nome
