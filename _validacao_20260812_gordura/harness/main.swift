@@ -119,8 +119,12 @@ checa("G12", "o 0 já gravado vira ausência na leitura",
       lidoDoDisco.estimatedBodyFat == nil,
       "estimatedBodyFat = \(d(lidoDoDisco.estimatedBodyFat))")
 
-checa("G12b", "e o resultado salvo continua inteiro ao redor",
-      lidoDoDisco.somatotype == .mesomorfo
+// [12/08 — parte 2] Esta asserção MUDOU DE SENTIDO e a mudança é o conserto.
+// Ela exigia `somatotype == .mesomorfo` neste JSON (gordura 0 no disco): ou
+// seja, ela PRENDIA o defeito no lugar. Agora o rótulo salvo com gordura
+// ausente também some na leitura. O que continua inteiro é o resto.
+checa("G12b", "o rótulo salvo junto do 0 some com ele — e o resto continua inteiro",
+      lidoDoDisco.somatotype == nil
         && lidoDoDisco.summary == "resumo"
         && lidoDoDisco.observations == ["obs"]
         && lidoDoDisco.focusAreas == ["foco"],
@@ -203,11 +207,112 @@ checa("G20 CANÁRIO", "o detector enxerga os três renders cegos quando eles exi
         ? "✓ detector vivo — acusou: \(acusados.joined(separator: ", "))"
         : "✗✗ DETECTOR CEGO (acusou \(acusados.count) de 3) — DESCARTAR G19")
 
-// ── 6. O harness rodou tudo que promete? ────────────────────────────────
+// ── 6. O RÓTULO (parte 2) — a conta não usa mais o vazio ────────────────
+// O defeito de baixo: a heurística testa `bodyFat <= 12` e o 0 da ausência
+// passa. Mesmo corpo, IMC 17,96: quem não informou nada recebia "Ectomorfo"
+// com a mesma confiança de quem informou 10%.
+print("─── o rótulo: sem gordura, sem somatotipo ───")
+
+// A REGRA PURA primeiro (Regra 4: testar a função, não o dado de saúde).
+checa("S1", "sem gordura, o rótulo não se sustenta",
+      BodyAnalysis.somatotipoSustentado(.ectomorfo, gordura: nil) == nil,
+      "(.ectomorfo, nil) → \(String(describing: BodyAnalysis.somatotipoSustentado(.ectomorfo, gordura: nil)))")
+
+checa("S2", "o zero de carga não sustenta rótulo nenhum",
+      BodyAnalysis.somatotipoSustentado(.ectomorfo, gordura: 0) == nil,
+      "(.ectomorfo, 0) → \(String(describing: BodyAnalysis.somatotipoSustentado(.ectomorfo, gordura: 0)))")
+
+// O OUTRO LADO DA FRONTEIRA: quem informou continua recebendo o rótulo.
+checa("S3", "com gordura informada, o rótulo atravessa intacto",
+      BodyAnalysis.somatotipoSustentado(.endomorfo, gordura: 31.5) == .endomorfo,
+      "(.endomorfo, 31.5) → \(String(describing: BodyAnalysis.somatotipoSustentado(.endomorfo, gordura: 31.5)))")
+
+checa("S4", "no mínimo informável pelo slider (5%) o rótulo continua de pé",
+      BodyAnalysis.somatotipoSustentado(.mesomorfo, gordura: 5) == .mesomorfo,
+      "(.mesomorfo, 5) → \(String(describing: BodyAnalysis.somatotipoSustentado(.mesomorfo, gordura: 5)))")
+
+// A ROTA DO DEFEITO, ponta a ponta. Corpo magro (IMC 17,96) — o mesmo da sonda
+// `05_achado_somatotipo.txt`, onde a ausência saía "Ectomorfo".
+func entradaMagra(gordura: Double) -> ScanInput {
+    ScanInput(weightKg: 52, heightCm: 170, ageYears: 30, bodyFat: gordura,
+              goal: Goal.manter.rawValue, frontPhoto: nil, sidePhoto: nil)
+}
+let magroSemGordura = try await MockAIPlanService().analyze(entradaMagra(gordura: 0))
+let magroCom10      = try await MockAIPlanService().analyze(entradaMagra(gordura: 10))
+
+checa("S5", "a rota exata do achado: sem gordura, sem rótulo",
+      magroSemGordura.analysis.somatotype == nil,
+      "somatotipo = \(String(describing: magroSemGordura.analysis.somatotype))")
+
+checa("S6", "quem informou 10% continua recebendo Ectomorfo (nada foi tirado de quem informou)",
+      magroCom10.analysis.somatotype == .ectomorfo,
+      "somatotipo = \(String(describing: magroCom10.analysis.somatotype))")
+
+// O rótulo não pode apenas MUDAR DE LUGAR: a frase do resumo o repetia.
+let tresRotulos = ["ectomorfo", "mesomorfo", "endomorfo"]
+let resumoSemGordura = magroSemGordura.analysis.summary.lowercased()
+let citadosNoResumo = tresRotulos.filter { resumoSemGordura.contains($0) }
+checa("S7", "sem rótulo, o resumo também não o pronuncia",
+      citadosNoResumo.isEmpty,
+      citadosNoResumo.isEmpty ? "nenhum dos três rótulos no resumo"
+                              : "AINDA CITA: \(citadosNoResumo.joined(separator: ", "))")
+
+let resumoCom10 = magroCom10.analysis.summary.lowercased()
+checa("S8", "controle positivo: com rótulo, o resumo continua dizendo qual é",
+      resumoCom10.contains("ectomorfo"),
+      "resumo cita 'ectomorfo': \(resumoCom10.contains("ectomorfo"))")
+
+checa("S9", "tirar o rótulo não derruba o resto (a lição do incidente da IA)",
+      !magroSemGordura.analysis.summary.isEmpty
+        && magroSemGordura.analysis.observations.count >= 1
+        && magroSemGordura.analysis.focusAreas.count >= 1
+        && magroSemGordura.plan.dailyKcal > 0,
+      "resumo=\(magroSemGordura.analysis.summary.count) chars · obs=\(magroSemGordura.analysis.observations.count) · focos=\(magroSemGordura.analysis.focusAreas.count) · kcal=\(magroSemGordura.plan.dailyKcal)")
+
+// O IMC SOZINHO NÃO CLASSIFICA. Corpo pesado (IMC 34,6): a primeira condição da
+// heurística (`bmi >= 27`) daria "Endomorfo" sem olhar a gordura. Foi recusado
+// recalcular por IMC quando falta a gordura — então aqui também não há rótulo.
+let pesadoSemGordura = try await MockAIPlanService().analyze(
+    ScanInput(weightKg: 100, heightCm: 170, ageYears: 30, bodyFat: 0,
+              goal: Goal.manter.rawValue, frontPhoto: nil, sidePhoto: nil))
+checa("S10", "IMC alto sozinho não fabrica rótulo quando a gordura falta",
+      pesadoSemGordura.analysis.somatotype == nil,
+      "IMC 34,6 sem gordura → somatotipo = \(String(describing: pesadoSemGordura.analysis.somatotype))")
+
+// O DADO JÁ GRAVADO NO APARELHO — o motivo de a regra rodar no `init(from:)`.
+let discoRotuloComMedida = try JSONDecoder().decode(
+    BodyAnalysis.self, from: Data(#"{"somatotype":"Endomorfo","estimatedBodyFat":31.5,"summary":"r","observations":[],"focusAreas":[]}"#.utf8))
+checa("S11", "rótulo salvo com medida real continua aparecendo ao reabrir",
+      discoRotuloComMedida.somatotype == .endomorfo,
+      "somatotipo = \(String(describing: discoRotuloComMedida.somatotype))")
+
+let voltaSemRotulo = try JSONDecoder().decode(
+    BodyAnalysis.self, from: JSONEncoder().encode(magroSemGordura.analysis))
+checa("S12", "ida e volta pelo disco não ressuscita o rótulo",
+      voltaSemRotulo.somatotype == nil && voltaSemRotulo.estimatedBodyFat == nil,
+      "somatotipo = \(String(describing: voltaSemRotulo.somatotype)) · gordura = \(d(voltaSemRotulo.estimatedBodyFat))")
+
+// CANÁRIO (Regra 2): a heurística INGÊNUA, a que estava em produção até agora.
+// Ela TEM de produzir o rótulo a partir da ausência. Se este canário não
+// acusar, S5/S10 não estão medindo nada e o bloco inteiro cai.
+func heurísticaIngênua(bodyFat: Double, bmi: Double) -> Somatotype {
+    if bodyFat >= 25 || bmi >= 27 { return .endomorfo }
+    else if bodyFat <= 12 && bmi < 21 { return .ectomorfo }
+    else { return .mesomorfo }
+}
+let ingênuaComAusência = heurísticaIngênua(bodyFat: 0, bmi: 17.96)
+checa("S13 CANÁRIO", "a heurística ingênua de fato rotula a ausência (detector vivo)",
+      ingênuaComAusência == .ectomorfo,
+      ingênuaComAusência == .ectomorfo
+        ? "✓ detector vivo — o 0 passa no `<= 12` e sai \(ingênuaComAusência.rawValue); a de produção agora devolve nil"
+        : "✗✗ CANÁRIO MUDO — S5/S10 não provam nada, DESCARTAR")
+
+// ── 7. O harness rodou tudo que promete? ────────────────────────────────
 // 22 e não 20: a primeira execução acusou "rodou 22, esperava 20" porque eu
 // tinha acrescentado G5b e G12b depois de contar. O guarda pegou o autor do
 // harness — que é para isso que ele existe.
-let ESPERADO = 22
+// 35 desde 12/08 (parte 2): as 22 de antes + S1..S13.
+let ESPERADO = 35
 if totalDeChecagens != ESPERADO {
     let msg = "HARNESS INCOMPLETO: rodou \(totalDeChecagens) asserções, esperava \(ESPERADO)"
     print("✗✗ \(msg)")

@@ -84,13 +84,52 @@ struct BodyAnalysis: Codable {
         return bruto
     }
 
+    /// A REGRA DE CIMA, uma camada acima da anterior: **sem gordura, sem
+    /// rótulo.**
+    ///
+    /// Consertar a linha de gordura (12/08, `012b40f`) deixou o defeito de pé um
+    /// nível abaixo. A heurística do `MockAIPlanService` testa `bodyFat <= 12`, e
+    /// o zero da ausência **passa nesse teste**: mesmo corpo, IMC 17,96, quem
+    /// nunca informou nada recebia "Ectomorfo" com a mesma confiança de quem
+    /// informou 10% (sonda `05_achado_somatotipo.txt`). A linha já não mentia; a
+    /// conta ainda usava o vazio.
+    ///
+    /// Rótulo tirado de dado que ninguém forneceu é pior que rótulo ausente —
+    /// mais ainda num app de saúde, onde "Ectomorfo" soa como leitura do corpo
+    /// da pessoa. E esconder não é invenção nova: é o que a tela **já** faz com
+    /// somatotipo ausente desde o incidente da IA (`ScanResultView`), quando o
+    /// modelo devolve `null` no rótulo.
+    ///
+    /// FOI RECUSADA, por decisão do Assis, a alternativa de recalcular o rótulo
+    /// só por IMC quando falta a gordura: isso seria inventar um método de
+    /// classificação corporal, o que é afirmação de saúde, não decisão de
+    /// engenharia.
+    ///
+    /// ── O CUSTO, dito em voz alta ───────────────────────────────────────────
+    /// No caminho COM foto o rótulo vem da imagem, não da gordura — lá ele não é
+    /// calculado com a ausência. Mesmo assim esta regra o alcança, porque
+    /// `BodyAnalysis` não guarda a procedência (quem guarda é
+    /// `ScanResult.isAIGenerated`, um nível acima). Na prática isso só morde se a
+    /// IA devolver gordura ≤ 0 junto de um rótulo válido: o servidor não valida
+    /// faixa (`analiseDeFoto.ts` só normaliza `somatotipo` e exige `resumo`) e o
+    /// cliente só desembrulha o opcional, então é alcançável, ainda que exija
+    /// resposta malformada — 0% de gordura é fisiologicamente impossível. Nesse
+    /// caso perde-se o rótulo; resumo, observações e focos continuam. Preferido
+    /// a espalhar a regra por dois tipos e deixar o Android com um invariante
+    /// que não porta.
+    static func somatotipoSustentado(_ bruto: Somatotype?, gordura: Double?) -> Somatotype? {
+        guard gorduraInformada(gordura) != nil else { return nil }
+        return bruto
+    }
+
     init(somatotype: Somatotype?,
          estimatedBodyFat: Double?,
          summary: String,
          observations: [String],
          focusAreas: [String]) {
-        self.somatotype = somatotype
-        self.estimatedBodyFat = Self.gorduraInformada(estimatedBodyFat)
+        let gordura = Self.gorduraInformada(estimatedBodyFat)
+        self.somatotype = Self.somatotipoSustentado(somatotype, gordura: gordura)
+        self.estimatedBodyFat = gordura
         self.summary = summary
         self.observations = observations
         self.focusAreas = focusAreas
@@ -102,11 +141,20 @@ struct BodyAnalysis: Codable {
 
     /// Escrito à mão para que o zero gravado por versões anteriores vire
     /// ausência na leitura, em vez de voltar à tela como medida.
+    ///
+    /// O rótulo segue junto pelo mesmo motivo, e ele é o caso MAIS grave dos
+    /// dois: quem gerou um scan sem informar a gordura tem no aparelho um
+    /// `{"somatotype":"Ectomorfo","estimatedBodyFat":0}`. Normalizar só a
+    /// gordura deixaria a tela abrindo "Perfil: Ectomorfo" sem linha de gordura
+    /// nenhuma — o rótulo inventado sobrevivendo ao conserto, vindo do disco,
+    /// para sempre e justamente para quem tomou o defeito.
     init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        somatotype       = try c.decodeIfPresent(Somatotype.self, forKey: .somatotype)
-        estimatedBodyFat = Self.gorduraInformada(
+        let gordura = Self.gorduraInformada(
             try c.decodeIfPresent(Double.self, forKey: .estimatedBodyFat))
+        somatotype       = Self.somatotipoSustentado(
+            try c.decodeIfPresent(Somatotype.self, forKey: .somatotype), gordura: gordura)
+        estimatedBodyFat = gordura
         summary          = try c.decode(String.self, forKey: .summary)
         observations     = try c.decode([String].self, forKey: .observations)
         focusAreas       = try c.decode([String].self, forKey: .focusAreas)
@@ -249,10 +297,30 @@ struct MockAIPlanService: AIPlanService {
         let bmi = input.weightKg / (h * h)
 
         // Somatotipo (heurística por IMC + % gordura)
-        let soma: Somatotype
-        if input.bodyFat >= 25 || bmi >= 27 { soma = .endomorfo }
-        else if input.bodyFat <= 12 && bmi < 21 { soma = .ectomorfo }
-        else { soma = .mesomorfo }
+        //
+        // [2026-08-12] A heurística SÓ RODA quando a gordura existe. Antes ela
+        // rodava sempre, e o `0` da ausência passava no teste `<= 12` — a pessoa
+        // que não informou nada saía "Ectomorfo", que é o vazio virando rótulo.
+        //
+        // Note que a primeira condição (`bmi >= 27`) classificaria sozinha, sem
+        // olhar a gordura. Não é saída: usar só o IMC quando falta a gordura é
+        // um método de classificação corporal DIFERENTE deste, inventado aqui e
+        // exibido com a mesma cara. Ou a heurística tem as duas entradas que ela
+        // pede, ou não há rótulo.
+        let soma: Somatotype?
+        if let gordura = BodyAnalysis.gorduraInformada(input.bodyFat) {
+            if gordura >= 25 || bmi >= 27 { soma = .endomorfo }
+            else if gordura <= 12 && bmi < 21 { soma = .ectomorfo }
+            else { soma = .mesomorfo }
+        } else {
+            soma = nil
+        }
+
+        // Sem rótulo, a frase que o descreve também sai — senão ele apenas troca
+        // de lugar, do cabeçalho para o meio do resumo, e continua sendo dito.
+        let perfilNoResumo = soma.map {
+            " Seu perfil estimado é predominantemente \($0.rawValue.lowercased()). \($0.descricao)"
+        } ?? ""
 
         // Gasto energético (Mifflin-St Jeor, fator de atividade moderado)
         let bmr = 10 * input.weightKg + 6.25 * input.heightCm - 5 * Double(input.ageYears) + 5
@@ -273,7 +341,7 @@ struct MockAIPlanService: AIPlanService {
         let analysis = BodyAnalysis(
             somatotype: soma,
             estimatedBodyFat: input.bodyFat,
-            summary: "Estimativa calculada apenas com suas medidas (peso, altura, idade e % de gordura informados) — sem análise de fotos. Seu perfil estimado é predominantemente \(soma.rawValue.lowercased()). \(soma.descricao) O plano abaixo foi calibrado para seu objetivo de \(input.goal.lowercased()).",
+            summary: "Estimativa calculada apenas com suas medidas (peso, altura, idade e % de gordura informados) — sem análise de fotos.\(perfilNoResumo) O plano abaixo foi calibrado para seu objetivo de \(input.goal.lowercased()).",
             observations: observations(for: input, bmi: bmi),
             focusAreas: focusAreas(for: input.goal)
         )
