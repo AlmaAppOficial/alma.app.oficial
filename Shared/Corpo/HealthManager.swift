@@ -259,9 +259,30 @@ final class HealthManager: ObservableObject {
 
     private func readSleepLastNight() {
         guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return }
-        // Janela de 30 horas para capturar sono da noite anterior mesmo quando o app abre cedo
-        let start = Calendar.current.date(byAdding: .hour, value: -30, to: Date()) ?? Date()
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: Date())
+        // [2026-08-07 — DEFEITO relatado pelo Assis: "o sono indicou 11h30, mas
+        // no meu relógio foram 6h50"]
+        //
+        // Aqui havia uma janela ROLANTE de 30 horas a partir de agora. Abrindo o
+        // app às 10:00, ela começava às 04:00 de ONTEM — e engolia o rabo da
+        // noite retrasada junto com a noite passada. Duas madrugadas somadas
+        // como se fossem uma.
+        //
+        // A conta que o Assis viu: noite real 23:30→06:20 = 6h50, mais o trecho
+        // 04:00→08:30 da noite anterior que caía dentro da janela = 4h30.
+        // Total 11h20. Ele viu 11h30.
+        //
+        // A janela agora é ANCORADA, idêntica à de `fetchYesterdaySleepHours`
+        // em HealthKitManager.swift — que sempre esteve certa. Os dois leitores
+        // de HealthKit deste app precisam falar da MESMA madrugada; era esse
+        // exatamente o risco descrito no cabeçalho de PontuacaoDeSono.swift.
+        //
+        // ATENÇÃO ao que isto NÃO conserta: amostras sobrepostas de fontes
+        // diferentes (iPhone + relógio na mesma madrugada) continuam somadas
+        // dentro de `NoiteDeSono.montar`. É defeito real, conhecido e
+        // documentado lá; ficou para a versão seguinte por mudar um número já
+        // visível na tela.
+        let janela = janelaDaNoitePassada()
+        let predicate = HKQuery.predicateForSamples(withStart: janela.inicio, end: janela.fim)
         let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self] _, samples, _ in
             let brutas = (samples as? [HKCategorySample]) ?? []
             // [2026-08-04] Antes esta consulta só somava horas e jogava fora o

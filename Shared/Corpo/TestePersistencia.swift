@@ -121,6 +121,74 @@ enum TestePersistencia {
                 "água NÃO ressuscita numa segunda instância do mesmo dia",
                 "veio \(m4.waterMl) ml")
 
+        log("───── dieta: a virada do dia (defeito 07/08) ─────")
+        //
+        // O DEFEITO: "entrei hoje no Corpo e fui em Dieta, e os dados de ontem
+        // ainda continuam lá."
+        //
+        // `loadMealsForToday` SEMPRE esteve correta — a comparação de data nunca
+        // teve defeito. O problema era o GATILHO: o único lugar que a chamava era
+        // o `init`, e o `AppModel` do Corpo é `@StateObject` de `CorpoModuleView`.
+        // Quem deixa o app em segundo plano a noite toda nunca constrói um
+        // `AppModel` novo — e nunca via o dia virar.
+        //
+        // Nada disto é sobre fuso horário. O Assis está em Lisboa e o fuso das
+        // máquinas dele está CORRETO (ver a regra 🇵🇹 no CLAUDE.md).
+
+        // Ontem à noite a pessoa registrou o jantar.
+        let ontemANoite = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        let jantar = [Meal(type: .jantar, name: "Jantar de ontem", kcal: 700,
+                           protein: 40, carbs: 60, fat: 20, done: true)]
+        store.set(try! JSONEncoder().encode(jantar), forKey: AppModel.mealsKey)
+        store.set(ontemANoite, forKey: AppModel.mealsDateKey)
+
+        // O app NÃO foi reaberto — a instância de ontem continua viva.
+        let mDia = AppModel(store: store)
+        mDia.reavaliarDiaAtual()
+
+        confere(mDia.meals.allSatisfy { $0.kcal == 0 && !$0.done },
+                "dieta zera na virada do dia SEM reabrir o app",
+                "veio \(mDia.meals.map(\.kcal))")
+
+        // ANTI-LAVAGEM: `persistMeals` carimba `mealsDate = Date()` a cada
+        // mudança. Sem o reset acima, tocar numa refeição de ontem regravaria o
+        // dado velho COM A DATA DE HOJE — legitimado no disco, sobrevivendo até
+        // a reinstalação. Depois do reset, não há o que lavar.
+        if let primeira = mDia.meals.first { mDia.toggleMeal(primeira) }
+        let mDepois = AppModel(store: store)
+        confere(mDepois.meals.allSatisfy { $0.kcal == 0 },
+                "refeição de ontem NÃO ressuscita com carimbo de hoje",
+                "veio \(mDepois.meals.map(\.kcal))")
+
+        // Idempotência: chamar de novo no MESMO dia não pode apagar o que a
+        // pessoa acabou de registrar. Usa o mesmo caminho da interface
+        // (`meals.append`, como em AddFoodView.swift:488).
+        let mHoje = AppModel(store: store)
+        mHoje.meals.append(Meal(type: .cafe, name: "Ovos · 100 g", kcal: 200,
+                                protein: 14, carbs: 2, fat: 15, done: true))
+        let kcalAntes = mHoje.meals.reduce(0) { $0 + $1.kcal }
+        mHoje.reavaliarDiaAtual()
+        confere(mHoje.meals.reduce(0) { $0 + $1.kcal } == kcalAntes,
+                "reavaliar no MESMO dia não apaga o que foi registrado hoje",
+                "antes \(kcalAntes), depois \(mHoje.meals.reduce(0) { $0 + $1.kcal })")
+
+        // CANÁRIO (regra 2 do CLAUDE.md): um caso que TEM de reprovar se o
+        // detector estiver cego. Refeição carimbada com HOJE deve SOBREVIVER —
+        // se este zerar junto, o reset está zerando tudo indiscriminadamente e
+        // as asserções acima não significam nada.
+        store.set(try! JSONEncoder().encode(jantar), forKey: AppModel.mealsKey)
+        store.set(Date(), forKey: AppModel.mealsDateKey)
+        let mCanario = AppModel(store: store)
+        mCanario.reavaliarDiaAtual()
+        let canarioSobreviveu = mCanario.meals.contains { $0.kcal == 700 }
+        if canarioSobreviveu {
+            log("✓ detector vivo — refeição de HOJE sobreviveu ao reavaliar")
+        } else {
+            falhas += 1
+            log("✗✗ DETECTOR CEGO — o reset zerou até o dado de HOJE.")
+            log("   O resultado inteiro deste bloco está descartado.")
+        }
+
         UserDefaults().removePersistentDomain(forName: suite)
         log(falhas == 0 ? "───── TUDO PASSOU ─────" : "───── \(falhas) FALHA(S) ─────")
     }

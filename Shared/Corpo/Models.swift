@@ -522,6 +522,28 @@ final class AppModel: ObservableObject {
         store.set(Date(), forKey: Self.mealsDateKey)
     }
 
+    /// A REGRA da virada do dia, isolada como função pura.
+    ///
+    /// [2026-08-07] Existe por causa da regra 4 do CLAUDE.md: `AppModel` depende
+    /// de Combine e `UserDefaults` e só roda no device. A decisão "este dado
+    /// diário ainda vale?" é Foundation puro e dá para exercitar com datas
+    /// fabricadas, sem simulador e sem tocar em dado de ninguém.
+    ///
+    /// Fonte única: `loadMealsForToday` e `reavaliarDiaAtual` passam as duas por
+    /// aqui. Se divergissem, a leitura e o reset discordariam sobre que dia é.
+    ///
+    /// NÃO tem nada a ver com fuso. O Assis mora em Lisboa e o fuso das máquinas
+    /// dele está correto — ver a regra 🇵🇹 no CLAUDE.md antes de "consertar"
+    /// isto para UTC.
+    static func dadoDiarioAindaVale(
+        gravadoEm: Date?,
+        agora: Date,
+        calendario: Calendar = .current
+    ) -> Bool {
+        guard let gravadoEm else { return false }
+        return calendario.isDate(gravadoEm, inSameDayAs: agora)
+    }
+
     /// Refeições gravadas, se forem de HOJE. Em outro dia (ou sem dado), devolve
     /// os templates vazios — o diário alimentar é diário, não acumulativo.
     static func loadMealsForToday(
@@ -529,14 +551,55 @@ final class AppModel: ObservableObject {
         calendar: Calendar = .current,
         now: Date = Date()
     ) -> [Meal] {
-        guard let savedDate = store.object(forKey: mealsDateKey) as? Date,
-              calendar.isDate(savedDate, inSameDayAs: now),
+        guard dadoDiarioAindaVale(gravadoEm: store.object(forKey: mealsDateKey) as? Date,
+                                  agora: now,
+                                  calendario: calendar),
               let data = store.data(forKey: mealsKey),
               let saved = try? JSONDecoder().decode([Meal].self, from: data),
               !saved.isEmpty else {
             return emptyMealTemplates()
         }
         return saved
+    }
+
+    /// Reavalia se o dia virou e zera o que é diário. Idempotente.
+    ///
+    /// [2026-08-07 — DEFEITO relatado pelo Assis: "entrei hoje no Corpo e os
+    /// dados de ontem ainda continuam lá"]
+    ///
+    /// `loadMealsForToday` sempre esteve CORRETA — o problema nunca foi a
+    /// comparação de data. Era o gatilho: o único lugar que a chamava era o
+    /// `init` (linha ~407), e o `AppModel` do Corpo é um `@StateObject` de
+    /// `CorpoModuleView` — vive enquanto o módulo estiver aberto. Quem deixa o
+    /// app em segundo plano a noite toda NUNCA constrói um `AppModel` novo, e
+    /// portanto nunca via o dia virar. Varri o `Shared/` inteiro por
+    /// `scenePhase|willEnterForeground|significantTimeChange`: não havia
+    /// NENHUM recálculo de dia no app iOS.
+    ///
+    /// E havia um segundo defeito, pior, que este método também fecha: como
+    /// `persistMeals()` carimba `mealsDate = Date()` a cada `didSet`, bastava a
+    /// pessoa tocar numa refeição de ontem (via `toggleMeal`) para o dado velho
+    /// ser regravado COM A DATA DE HOJE — legitimado no disco, sobrevivendo até
+    /// a reinstalação. Zerando ANTES de qualquer interação, a lavagem não tem o
+    /// que lavar.
+    ///
+    /// A atribuição `meals = ...` aqui está FORA do `init`, então dispara o
+    /// `didSet` de propósito: é assim que os templates vazios chegam ao disco já
+    /// com a data de hoje. Mesmo raciocínio do "o zero precisa chegar ao disco"
+    /// do bug B4 da água.
+    func reavaliarDiaAtual(agora: Date = Date(), calendario: Calendar = .current) {
+        if !Self.dadoDiarioAindaVale(gravadoEm: store.object(forKey: Self.mealsDateKey) as? Date,
+                                     agora: agora,
+                                     calendario: calendario) {
+            meals = Self.emptyMealTemplates()
+        }
+
+        if !Self.dadoDiarioAindaVale(gravadoEm: store.object(forKey: "lastWaterDate") as? Date,
+                                     agora: agora,
+                                     calendario: calendario) {
+            waterMl = 0                                  // didSet grava o zero
+            store.set(agora, forKey: "lastWaterDate")
+        }
     }
 
     var kcalConsumed: Int { meals.filter { $0.done }.reduce(0) { $0 + $1.kcal } }

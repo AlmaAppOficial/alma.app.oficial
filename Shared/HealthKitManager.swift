@@ -7,15 +7,11 @@
 import SwiftUI
 import HealthKit
 
-/// Estados de sono REAL (não "na cama"). Constante de nível de arquivo (nonisolated)
-/// para poder ser lida dentro dos closures Sendable do HKSampleQuery — uma `static`
-/// dentro da classe `@MainActor` não pode (erro de isolamento no Swift 6).
-private let sleepAsleepStates: Set<Int> = [
-    HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue,
-    HKCategoryValueSleepAnalysis.asleepCore.rawValue,
-    HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
-    HKCategoryValueSleepAnalysis.asleepREM.rawValue
-]
+// [2026-08-07] `sleepAsleepStates` vivia aqui e sumiu com a unificação dos dois
+// leitores: quem decide o que é sono agora é `traduzirAmostraDeSono` +
+// `NoiteDeSono.montar`, em Shared/Corpo/PontuacaoDeSono.swift, para os dois
+// caminhos. Ter a lista de estados em dois lugares foi o que deixou as telas
+// discordarem sobre a mesma noite.
 
 // MARK: - StressLevel
 enum StressLevel {
@@ -341,12 +337,11 @@ class HealthKitManager: ObservableObject {
         guard HKHealthStore.isHealthDataAvailable() else { return nil }
         let cal = Calendar.current
         let now = Date()
-        let ontem = cal.date(byAdding: .day, value: -1, to: now) ?? now
-        let inicio = cal.date(bySettingHour: 18, minute: 0, second: 0, of: ontem) ?? ontem
-        let meioDia = cal.date(bySettingHour: 12, minute: 0, second: 0, of: now) ?? now
-        let fim = meioDia < now ? meioDia : now
+        // [2026-08-07] Era o mesmo cálculo de janela escrito à mão aqui, uma
+        // terceira vez. Três cópias que coincidiam por sorte; agora é uma só.
+        let janela = janelaDaNoitePassada(agora: now, calendario: cal)
 
-        if let noite = await sleepStages(from: inicio, to: fim) { return noite }
+        if let noite = await sleepStages(from: janela.inicio, to: janela.fim) { return noite }
         // Mesmo fallback de 48 h da duração: quem dormiu fora da janela típica.
         let fallback = cal.date(byAdding: .hour, value: -48, to: now) ?? now
         return await sleepStages(from: fallback, to: now)
@@ -388,29 +383,33 @@ class HealthKitManager: ObservableObject {
         return await sleepHours(from: start, to: Date())
     }
 
-    /// Horas de sono numa janela. Primeiro soma estados `asleep*`; se vier 0, faz
-    /// fallback para amostras `inBed`. Esse fallback é essencial para fontes como
-    /// **Garmin** (via Garmin Connect), que em várias versões gravam o sono apenas
-    /// como `inBed` no app Saúde — sem ele, o card zera mesmo havendo dado.
+    /// Horas de sono numa janela, com sobreposição contada UMA vez.
+    ///
+    /// [2026-08-07] Esta função tinha a própria soma — `reduce` cru sobre as
+    /// durações — enquanto o leitor do Corpo montava a noite por
+    /// `NoiteDeSono.montar`. Duas contas diferentes para o mesmo dado: era por
+    /// isso que a aba Saúde dizia 9h21 e a outra tela dizia 11h30 para a mesma
+    /// madrugada de 6h50. Consertar só um dos lados deixaria as telas
+    /// discordando com números novos.
+    ///
+    /// Agora as duas passam pela MESMA função pura. A regra de sono do app vive
+    /// num lugar só, e "as duas telas mostram o mesmo número" virou invariante
+    /// verificável — ver o harness em `_validacao_20260807/`.
+    ///
+    /// O fallback de `inBed` continua: fontes como **Garmin** (via Garmin
+    /// Connect) gravam o sono só como "na cama", e sem ele o card zera mesmo
+    /// havendo dado. Quem aplica esse fallback agora é `montar`, que devolve a
+    /// duração de `naCama` quando não há nenhum estágio de sono.
     nonisolated private func sleepHours(from start: Date, to end: Date) async -> Double {
         guard let type = HKCategoryType.categoryType(forIdentifier: .sleepAnalysis) else { return 0 }
         let pred = HKQuery.predicateForSamples(withStart: start, end: end)
-        let sort = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
 
         return await withCheckedContinuation { (cont: CheckedContinuation<Double, Never>) in
-            let q = HKSampleQuery(sampleType: type, predicate: pred, limit: HKObjectQueryNoLimit, sortDescriptors: [sort]) { _, samples, _ in
+            let q = HKSampleQuery(sampleType: type, predicate: pred,
+                                  limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
                 let cats = (samples ?? []).compactMap { $0 as? HKCategorySample }
-                func sum(_ states: Set<Int>) -> Double {
-                    cats.filter { states.contains($0.value) }
-                        .reduce(0.0) { $0 + $1.endDate.timeIntervalSince($1.startDate) } / 3600.0
-                }
-                let asleep = sum(sleepAsleepStates)
-                if asleep > 0 {
-                    cont.resume(returning: asleep)
-                } else {
-                    // Fallback: contar "na cama" (alguns exports, p.ex. Garmin, só gravam isso).
-                    cont.resume(returning: sum([HKCategoryValueSleepAnalysis.inBed.rawValue]))
-                }
+                let noite = NoiteDeSono.montar(cats.compactMap(traduzirAmostraDeSono))
+                cont.resume(returning: noite?.totalDormido ?? 0)
             }
             self.store.execute(q)
         }
@@ -452,15 +451,15 @@ class HealthKitManager: ObservableObject {
     nonisolated private func fetchYesterdaySleepHours() async -> Double {
         let cal = Calendar.current
         let now = Date()
-        // Início: ontem às 18:00
-        let yesterday = cal.date(byAdding: .day, value: -1, to: now) ?? now
-        let startOfYesterdayEvening = cal.date(bySettingHour: 18, minute: 0, second: 0, of: yesterday) ?? yesterday
-        // Fim: hoje às 12:00 (ou agora se for de manhã cedo)
-        let noonToday = cal.date(bySettingHour: 12, minute: 0, second: 0, of: now) ?? now
-        let end = noonToday < now ? noonToday : now
+        // [2026-08-07] Janela vinda da MESMA função pura que o leitor do Corpo
+        // usa (`janelaDaNoitePassada`). Antes era calculada à mão aqui — e o
+        // leitor do Corpo calculava de outro jeito (30 h rolantes), que foi
+        // metade da razão de as duas telas discordarem sobre a mesma noite.
+        let janela = janelaDaNoitePassada(agora: now, calendario: cal)
 
-        // Janela "noite passada". sleepHours(from:to:) já tenta asleep* e cai pra inBed.
-        let primary = await sleepHours(from: startOfYesterdayEvening, to: end)
+        // `sleepHours(from:to:)` monta a noite por `NoiteDeSono.montar`, que já
+        // une sobreposição e já cai para "na cama" quando não há estágio algum.
+        let primary = await sleepHours(from: janela.inicio, to: janela.fim)
         if primary > 0 { return primary }
 
         // Fallback: últimas 48h (cobre quem dormiu/sincronizou fora da janela típica).

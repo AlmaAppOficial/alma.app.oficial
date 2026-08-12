@@ -16,6 +16,9 @@ import SwiftUI
 struct CorpoModuleView: View {
 
     @Environment(\.dismiss) private var dismiss
+    /// [2026-08-07] Usado para reavaliar a virada do dia — ver o `.onChange` no
+    /// `body`. Antes disto o módulo não observava ciclo de vida nenhum.
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var access: AccessManager
     /// StoreKit do Alma — o módulo Corpo vende o mesmo produto que o resto do app.
     @EnvironmentObject var storeAlma: StoreKitManager
@@ -76,6 +79,30 @@ struct CorpoModuleView: View {
                 WatchBridge.shared.attachCorpoModel(corpoModel)
                 #endif
             }
+            // [2026-08-07] A VIRADA DO DIA. `corpoModel` é @StateObject: nasce
+            // uma vez e sobrevive a noite inteira em segundo plano. Sem estes
+            // dois gatilhos, o `init` era o único momento em que o app olhava
+            // que dia é — e quem não fecha o app via a dieta de ontem hoje.
+            //
+            // São dois porque cobrem cenários diferentes, e um só deixaria
+            // metade do defeito vivo:
+            //   • scenePhase .active — app volta do segundo plano (caso do Assis)
+            //   • significantTimeChange — meia-noite com o app JÁ em primeiro
+            //     plano; aqui o scenePhase não muda e nada mais avisaria.
+            // Forma de UM parâmetro de propósito: o alvo de implantação do
+            // projeto é anterior ao iOS 17, e `onChange(of:initial:_:)` (dois
+            // parâmetros) só existe de lá para cá. Mesmo formato já usado em
+            // CorpoHomeView.swift:81.
+            .onChange(of: scenePhase) { nova in
+                if nova == .active { corpoModel.reavaliarDiaAtual() }
+            }
+            #if os(iOS)
+            .onReceive(NotificationCenter.default.publisher(
+                for: UIApplication.significantTimeChangeNotification
+            )) { _ in
+                corpoModel.reavaliarDiaAtual()
+            }
+            #endif
     }
 
     private var conteudo: some View {

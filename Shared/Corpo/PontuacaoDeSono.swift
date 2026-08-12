@@ -65,6 +65,84 @@ struct AmostraDeSono {
     var horas: Double { max(0, fim.timeIntervalSince(inicio)) / 3600 }
 }
 
+// MARK: - Qual madrugada é "a noite passada" [2026-08-07]
+//
+// [DEFEITO relatado pelo Assis: "o sono indicou 11h30, mas no relógio foram 6h50"]
+//
+// O leitor do Corpo (`HealthManager.readSleepLastNight`) usava uma janela
+// ROLANTE de 30 horas a partir de agora. Abrindo o app às 10:00, ela começava
+// às 04:00 de ONTEM — e somava o rabo da noite retrasada com a noite passada.
+// Duas madrugadas contadas como uma. A conta que ele viu: 6h50 da noite real
+// + 4h30 do fim da noite anterior = 11h20. Ele viu 11h30.
+//
+// A regra vive AQUI, e não dentro de cada manager, pelo mesmo motivo que a
+// tradução das amostras: existem DOIS leitores de HealthKit neste app. Se cada
+// um recortasse a madrugada do seu jeito, o card da tela e a linha que a IA
+// recebe falariam de noites diferentes — e o usuário nunca saberia qual é.
+//
+// Função pura: entra "agora", sai o intervalo. Exercitável com datas
+// fabricadas, sem HealthKit e sem simulador.
+
+// MARK: - União de intervalos sobrepostos [2026-08-07]
+//
+// [DEFEITO relatado pelo Assis: o card de pontuação dizia 9h21 e a outra tela
+// dizia 11h30, para a MESMA noite, em que o relógio marcou 6h50.]
+//
+// Duas fontes gravam a mesma madrugada no Apple Saúde: o relógio estagia
+// (REM/profundo/leve) e o iPhone grava um bloco "dormindo, sem estágio". Somar
+// as durações conta o mesmo minuto duas vezes. Medido: 13,50 h onde o real
+// eram 7,00 h.
+//
+// A regra certa é medir a UNIÃO dos intervalos: minuto coberto por duas fontes
+// vale um minuto. É o que o Apple Saúde mostra e é o que o relógio da pessoa
+// mostra — e agora é o que o Alma mostra.
+
+/// Une intervalos sobrepostos ou encostados e devolve os blocos resultantes.
+///
+/// Ordena por início e vai fundindo enquanto houver interseção. Blocos de
+/// duração zero ou negativa são descartados (amostra corrompida não vira tempo).
+func unirIntervalos(_ amostras: [AmostraDeSono]) -> [(inicio: Date, fim: Date)] {
+    let validos = amostras
+        .filter { $0.fim > $0.inicio }
+        .sorted { $0.inicio < $1.inicio }
+    guard let primeiro = validos.first else { return [] }
+
+    var blocos: [(inicio: Date, fim: Date)] = [(primeiro.inicio, primeiro.fim)]
+    for amostra in validos.dropFirst() {
+        let ultimo = blocos[blocos.count - 1]
+        if amostra.inicio <= ultimo.fim {
+            // Sobrepõe (ou encosta): estica o bloco atual, não abre outro.
+            blocos[blocos.count - 1].fim = max(ultimo.fim, amostra.fim)
+        } else {
+            blocos.append((amostra.inicio, amostra.fim))
+        }
+    }
+    return blocos
+}
+
+/// Horas totais de uma lista de blocos já unidos.
+func horasDosBlocos(_ blocos: [(inicio: Date, fim: Date)]) -> Double {
+    blocos.reduce(0) { $0 + $1.fim.timeIntervalSince($1.inicio) } / 3600
+}
+
+/// A janela da noite passada: de ontem às 18:00 até hoje ao meio-dia.
+///
+/// O fim é `min(meio-dia, agora)` para quem abre o app de madrugada — não faz
+/// sentido pedir amostras do futuro.
+///
+/// Ancorada de propósito. Uma janela relativa a "agora" varre duas madrugadas
+/// sempre que o app é aberto de manhã, que é justamente o horário em que
+/// alguém olha o sono.
+func janelaDaNoitePassada(
+    agora: Date = Date(),
+    calendario: Calendar = .current
+) -> (inicio: Date, fim: Date) {
+    let ontem = calendario.date(byAdding: .day, value: -1, to: agora) ?? agora
+    let inicio = calendario.date(bySettingHour: 18, minute: 0, second: 0, of: ontem) ?? ontem
+    let meioDia = calendario.date(bySettingHour: 12, minute: 0, second: 0, of: agora) ?? agora
+    return (inicio, min(meioDia, agora))
+}
+
 #if canImport(HealthKit)
 /// Do vocabulário do HealthKit para o nosso — uma única vez no app inteiro.
 ///
@@ -73,8 +151,12 @@ struct AmostraDeSono {
 /// pontuação existe para não dar.
 ///
 /// Função de nível de arquivo (`nonisolated` por natureza) porque roda dentro
-/// dos closures `Sendable` do `HKSampleQuery` — mesmo motivo de
-/// `sleepAsleepStates` em `HealthKitManager.swift`.
+/// dos closures `Sendable` do `HKSampleQuery`: uma `static` dentro de uma classe
+/// `@MainActor` não pode ser lida ali (erro de isolamento no Swift 6).
+///
+/// [2026-08-07] Esta é a ÚNICA lista de estados de sono do app. `HealthKitManager`
+/// tinha a sua própria (`sleepAsleepStates`) e somava por conta — foi o que fez
+/// duas telas mostrarem durações diferentes para a mesma madrugada.
 func traduzirAmostraDeSono(_ amostra: HKCategorySample) -> AmostraDeSono? {
     let estagio: AmostraDeSono.Estagio
     if #available(iOS 16.0, *) {
@@ -117,21 +199,40 @@ extension NoiteDeSono {
     /// amostra classificada, os quatro campos ficam `nil` juntos: não dá para
     /// afirmar "você não acordou" quando o aparelho simplesmente não olhou.
     ///
-    /// Amostras sobrepostas (iPhone + relógio gravando a mesma madrugada) são
-    /// somadas, o mesmo comportamento que o app já usa para exibir "Sono: X h".
-    /// Trocar isso mudaria o número que a pessoa já vê hoje na tela.
+    /// **3. [2026-08-07] Sobreposição conta UMA vez.** Antes, amostras
+    /// sobrepostas (iPhone + relógio na mesma madrugada) eram somadas, e havia
+    /// um comentário aqui dizendo que mudar isso mexeria no número que a pessoa
+    /// já via. Mexeu — e era esse o conserto: o número que ela via estava
+    /// errado em DUAS telas ao mesmo tempo, com valores diferentes (9h21 no
+    /// card, 11h30 na outra) para uma noite de 6h50. Um app que mostra duas
+    /// durações para a mesma madrugada não tem credibilidade nenhuma.
+    ///
+    /// O TOTAL é a união de todos os estágios de sono juntos — **não** a soma
+    /// dos quatro. Somar contaria duas vezes o minuto em que o iPhone diz
+    /// "dormindo, sem estágio" e o relógio diz "REM".
+    ///
+    /// LIMITE CONHECIDO, escrito de propósito: se uma fonte grosseira cobrir com
+    /// "dormindo" um trecho que outra marcou como "acordado", o trecho conta
+    /// como sono. Não subtraímos `acordado` da união porque isso seria eleger
+    /// uma fonte como mais confiável que a outra sem ter como saber. O efeito é
+    /// de minutos, não de horas — a ordem de grandeza que motivou este conserto
+    /// era 1,4× a 1,7×.
     static func montar(_ amostras: [AmostraDeSono]) -> NoiteDeSono? {
         guard !amostras.isEmpty else { return nil }
 
-        func horas(_ e: AmostraDeSono.Estagio) -> Double {
-            amostras.filter { $0.estagio == e }.reduce(0) { $0 + $1.horas }
+        func blocos(_ e: AmostraDeSono.Estagio) -> [(inicio: Date, fim: Date)] {
+            unirIntervalos(amostras.filter { $0.estagio == e })
         }
+        func horas(_ e: AmostraDeSono.Estagio) -> Double { horasDosBlocos(blocos(e)) }
 
         let rem = horas(.rem)
         let profundo = horas(.profundo)
-        let leve = horas(.leve)
-        let indeterminado = horas(.indeterminado)
-        let dormido = rem + profundo + leve + indeterminado
+
+        // A união dos QUATRO estágios de sono de uma vez só.
+        let estagiosDeSono: Set<AmostraDeSono.Estagio> = [.rem, .profundo, .leve, .indeterminado]
+        let dormido = horasDosBlocos(
+            unirIntervalos(amostras.filter { estagiosDeSono.contains($0.estagio) })
+        )
 
         let classificada = amostras.contains {
             $0.estagio == .rem || $0.estagio == .profundo || $0.estagio == .leve
@@ -150,12 +251,16 @@ extension NoiteDeSono {
                                acordado: nil, despertares: nil)
         }
 
+        // `despertares` conta BLOCOS unidos, não amostras: o mesmo despertar
+        // gravado pelo iPhone e pelo relógio é um despertar, não dois.
+        let blocosAcordado = blocos(.acordado)
+
         return NoiteDeSono(
             totalDormido: dormido,
             rem: rem,
             profundo: profundo,
-            acordado: horas(.acordado),
-            despertares: amostras.filter { $0.estagio == .acordado }.count
+            acordado: horasDosBlocos(blocosAcordado),
+            despertares: blocosAcordado.count
         )
     }
 }
@@ -272,9 +377,31 @@ enum PontuacaoDeSono {
     static let explicacao =
         "Comparamos seu sono com uma noite de referência: tempo total, REM, "
       + "sono profundo e continuidade."
+    /// [2026-08-07] O rodapé dizia: *"Estimativa do Alma a partir dos seus
+    /// dados. Não vem do Apple Saúde e não é avaliação clínica."*
+    ///
+    /// O Assis apontou, e estava certo: **os dados VÊM do Apple Saúde.** Tempo
+    /// total, REM, profundo e despertares só podem vir de lá — é o relógio que
+    /// estagia o sono, e o app não tem como medir nada disso sozinho. Conferido
+    /// na origem antes de reescrever: `HealthManager.readSleepLastNight` →
+    /// `HKSampleQuery(.sleepAnalysis)` → `traduzirAmostraDeSono` → `montar`.
+    /// Todos os campos de `NoiteDeSono` nascem de `HKCategorySample`.
+    ///
+    /// O que é do Alma é a PONTUAÇÃO: as faixas de referência deste arquivo, as
+    /// notas por fator e o total de 0 a 100 (`calcular`). Nada disso existe no
+    /// HealthKit — não há métrica de qualidade de sono na Apple.
+    ///
+    /// A frase antiga negava a origem do dado e, com isso, sugeria que o app
+    /// tinha inventado os números. Trocar "não vem do Apple Saúde" por uma
+    /// separação explícita entre DADO e PONTUAÇÃO corrige sem afrouxar nada: o
+    /// "não é avaliação clínica" continua, porque é ele que segura a regra 3.1.
+    ///
+    /// Vale para as três ramificações do card (com pontuação, sem estágios e
+    /// sem registro nenhum) — o rodapé é renderizado embaixo das três.
     static let rodape =
-        "Estimativa do Alma a partir dos seus dados. Não vem do Apple Saúde e "
-      + "não é avaliação clínica."
+        "Tempo total, REM, sono profundo e despertares vêm do Apple Saúde. "
+      + "A pontuação e a comparação com uma noite de referência são cálculo "
+      + "do Alma — não é avaliação clínica."
 
     /// O que a tela diz quando existe duração mas faltam os estágios.
     static let semEstagios =

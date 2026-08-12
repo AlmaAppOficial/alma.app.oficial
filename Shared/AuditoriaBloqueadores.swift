@@ -712,10 +712,27 @@ enum AuditoriaBloqueadores {
         checa("A18e", "nenhuma frase da pontuação julga o sono da pessoa",
               julga.isEmpty, julga.isEmpty ? "\(textos.count) frases" : "\(julga)")
 
-        checa("A18f", "o rodapé nega que o número venha do Apple Saúde",
-              PontuacaoDeSono.rodape.contains("Não vem do Apple Saúde")
-                && PontuacaoDeSono.rodape.contains("não é avaliação clínica"),
-              PontuacaoDeSono.rodape)
+        // [2026-08-07] Esta checagem exigia a frase "Não vem do Apple Saúde" —
+        // e a frase era FALSA. Os dados de sono vêm do Apple Saúde; o que é do
+        // Alma é a pontuação. O checador estava travando a redação errada no
+        // lugar, que é o pior tipo de teste: um que defende o defeito.
+        //
+        // Agora ele exige as três coisas que precisam estar ditas:
+        //   1. que o DADO vem do Apple Saúde;
+        //   2. que a PONTUAÇÃO é cálculo do Alma;
+        //   3. que nada disso é avaliação clínica (regra 3.1).
+        let rodape = PontuacaoDeSono.rodape
+        checa("A18f", "o rodapé separa o DADO (Apple Saúde) da PONTUAÇÃO (Alma)",
+              rodape.contains("vêm do Apple Saúde")
+                && rodape.contains("cálculo")
+                && rodape.contains("do Alma")
+                && rodape.contains("não é avaliação clínica"),
+              rodape)
+
+        // E o inverso: a frase antiga não pode voltar por descuido.
+        checa("A18f2", "o rodapé NÃO nega mais a origem do dado",
+              !rodape.contains("Não vem do Apple Saúde"),
+              rodape)
 
         // ── A18 (montagem) · da amostra do aparelho para a noite ────────────
         // [2026-08-04] A UI entrou nesta rodada, e com ela a tradução das
