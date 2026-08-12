@@ -22,36 +22,18 @@ struct CorpoHealthMetric: Identifiable {
 
 // MARK: - Refeição / Dieta
 
-enum MealType: String, CaseIterable, Identifiable, Codable {
-    case cafe = "Café da manhã"
-    case almoco = "Almoço"
-    case lanche = "Lanche"
-    case jantar = "Jantar"
-
-    var id: String { rawValue }
-
-    var systemImage: String {
-        switch self {
-        case .cafe:   return "sunrise.fill"
-        case .almoco: return "sun.max.fill"
-        case .lanche: return "cup.and.saucer.fill"
-        case .jantar: return "moon.stars.fill"
-        }
-    }
-}
-
-// [2026-07-29] Codable para persistir as refeições do dia (antes o array `meals`
-// vivia só em memória e tudo que o usuário adicionava sumia ao fechar o app).
-struct Meal: Identifiable, Codable {
-    var id = UUID()
-    let type: MealType
-    let name: String
-    let kcal: Int
-    let protein: Int   // g
-    let carbs: Int     // g
-    let fat: Int       // g
-    var done: Bool
-}
+// [2026-08-12] `MealType` e `Meal` MUDARAM DE ARQUIVO — agora vivem em
+// `Refeicao.swift`, junto do `ComponenteDaRefeicao` que a refeição passou a
+// poder carregar.
+//
+// Mesmo motivo da mudança de `FoodItem`/`StoredFood`: os três tipos só
+// dependem de Foundation, e `Meal` ganhou um campo persistido — que é
+// exatamente o tipo de mudança que precisa de teste de decodificação contra o
+// dado antigo, e que este arquivo (SwiftUI + UserDefaults + meia dúzia de
+// dependências) torna impossível exercitar fora do simulador.
+//
+// ⚠️ Os `rawValue` de `MealType` estão gravados no disco de quem usa o app.
+// Ver o aviso no topo do enum em `Refeicao.swift` antes de tocar neles.
 
 // MARK: - Treino / Exercício
 
@@ -738,21 +720,85 @@ final class AppModel: ObservableObject {
     /// Com uma função só, exibido e registrado não conseguem divergir: divergir
     /// exigiria chamar a função com gramas diferentes, e é exatamente isso que
     /// a asserção H2 compara. Não mexa aqui sem olhar H2.
+    /// [2026-08-12] A conta mudou de casa (`Refeicao.swift`, função pura) para
+    /// poder ser exercitada sem simulador. Este método CONTINUA sendo a porta
+    /// de entrada de todo mundo — inclusive da asserção H2d, provada em 06/08,
+    /// que fala deste nome. Delegar em vez de repetir a fórmula é o que impede
+    /// as duas de divergirem, que seria o bug que o bloco H fechou.
+    /// A chamada abaixo é a função LIVRE de `Refeicao.swift`, não recursão.
+    ///
+    /// O prefixo do módulo é OBRIGATÓRIO e eu descobri isso errando: escrevi
+    /// `escalarPor100(valorPor100, quantidade: gramas)` supondo que os rótulos
+    /// diferentes (`quantidade:` aqui, `gramas:` no método) desempatassem. Não
+    /// desempatam — dentro do escopo do tipo, o Swift resolve para o MEMBRO
+    /// antes de olhar o escopo global, e o compilador respondeu com
+    /// "use of 'escalarPor100' refers to instance method rather than global
+    /// function". Sem o prefixo isto seria recursão infinita se compilasse.
     static func escalarPor100(_ valorPor100: Int, gramas: Int) -> Int {
-        Int((Double(valorPor100) * Double(gramas) / 100.0).rounded())
+        Alma_App_Oficial.escalarPor100(valorPor100, quantidade: gramas)
     }
 
-    func addFood(_ food: FoodItem, grams: Int, to type: MealType) {
-        let meal = Meal(
+    /// Registra um alimento no diário do dia.
+    ///
+    /// [2026-08-12] O rótulo do parâmetro era `grams:` e a unidade do nome era
+    /// a letra "g" chumbada aqui dentro. Com o mililitro existindo, as duas
+    /// coisas passariam a mentir em metade das chamadas: 200 ml de leite
+    /// entrariam no diário como "Leite integral · 200 g".
+    ///
+    /// A unidade NÃO é parâmetro desta função de propósito. Ela vem junto do
+    /// `food`, que é a única coisa que sabe em que unidade aquele alimento é
+    /// medido. Se fosse parâmetro, existiria a chamada em que quantidade e
+    /// unidade discordam — e essa chamada seria escrita, mais cedo ou mais
+    /// tarde, exatamente como o `grams: 100` fixo do botão do scan foi escrito
+    /// em 05/08.
+    func addFood(_ food: FoodItem, quantidade: Int, to type: MealType) {
+        // [2026-08-12] Passa por `comComponentes` mesmo sendo UM item só.
+        //
+        // Dava para continuar somando os quatro números aqui e deixar
+        // `componentes` nulo — e aí só o que viesse do scan seria editável,
+        // enquanto o que veio da busca continuaria intocável. Duas refeições no
+        // mesmo diário, uma editável e a outra não, sem nada na tela explicando
+        // a diferença.
+        //
+        // Com um componente único, todo registro nasce editável e os totais de
+        // TODOS eles saem do mesmo lugar. A conta não mudou: `ComponenteDaRefeicao.kcal`
+        // chama a mesma `escalarPor100` que esta função chamava — é por isso que
+        // H2/H2b/H2d continuam valendo palavra por palavra.
+        meals.append(Meal.comComponentes(
             type: type,
-            name: "\(food.name) · \(grams) g",
-            kcal:    Self.escalarPor100(food.kcalPer100,    gramas: grams),
-            protein: Self.escalarPor100(food.proteinPer100, gramas: grams),
-            carbs:   Self.escalarPor100(food.carbsPer100,   gramas: grams),
-            fat:     Self.escalarPor100(food.fatPer100,     gramas: grams),
-            done: true
-        )
-        meals.append(meal)
+            name: "\(food.name) · \(textoDaQuantidade(quantidade, food.unidade))",
+            componentes: [ComponenteDaRefeicao(
+                nome: food.name,
+                quantidade: quantidade,
+                unidade: food.unidade,
+                kcalPor100: food.kcalPer100,
+                proteinaPor100: food.proteinPer100,
+                carboPor100: food.carbsPer100,
+                gorduraPor100: food.fatPer100)]))
+    }
+
+    /// [2026-08-12] Registra um prato JÁ DECOMPOSTO — o caminho do scan quando a
+    /// IA devolve os componentes separados.
+    ///
+    /// O `name` é do prato inteiro e não carrega quantidade: quem diz "quanto"
+    /// são os componentes, cada um com o seu. Pôr uma quantidade no nome aqui
+    /// criaria um segundo número falando da mesma coisa — e o dia em que ele
+    /// discordasse da soma seria o bug de 05/08 de volta.
+    func registrarPrato(nome: String, componentes: [ComponenteDaRefeicao],
+                        to type: MealType) {
+        guard !componentes.isEmpty else { return }
+        meals.append(Meal.comComponentes(type: type, name: nome,
+                                         componentes: componentes))
+    }
+
+    /// Substitui uma refeição pela versão editada, no lugar dela.
+    ///
+    /// Casa por `id` e não por índice: entre abrir a tela de detalhe e salvar,
+    /// a virada do dia pode ter zerado `meals` (ver `reavaliarDiaAtual`). Com
+    /// índice, salvar depois disso escreveria por cima da refeição errada.
+    func atualizarRefeicao(_ nova: Meal) {
+        guard let i = meals.firstIndex(where: { $0.id == nova.id }) else { return }
+        meals[i] = nova
     }
 
     /// [F3] Resolve um código de barras: cadastro do usuário → cache Open Food Facts → catálogo embutido.
@@ -955,18 +1001,16 @@ final class AppModel: ObservableObject {
 
 // MARK: - Alimento e banco de dados nutricional
 
-struct FoodItem: Identifiable {
-    let id = UUID()
-    let name: String
-    let kcalPer100: Int
-    let proteinPer100: Int
-    let carbsPer100: Int
-    let fatPer100: Int
-    let emoji: String
-    var barcode: String? = nil
-    /// Marca/fabricante (vem da Open Food Facts ou do cadastro manual).
-    var brand: String? = nil
-}
+// [2026-08-12] `FoodItem` e `StoredFood` MUDARAM DE ARQUIVO — agora vivem em
+// `UnidadeDeMedida.swift`, junto do `enum Unidade` que os dois passaram a
+// carregar.
+//
+// A mudança não é de organização, é o que torna o conserto provável: os dois
+// tipos só dependem de Foundation, e este arquivo aqui importa SwiftUI e
+// arrasta meia dúzia de outros junto. Sozinhos, eles compilam com `swiftc` no
+// Mac e o harness exercita o decodificador DE PRODUÇÃO — que é justamente onde
+// mora a armadilha do `keyNotFound` que apagaria os alimentos personalizados
+// de todo mundo. Ver o cabeçalho de `UnidadeDeMedida.swift`.
 
 /// [F5] Suplemento do usuário — registro pessoal, 100% local.
 /// O app NÃO recomenda suplemento nem dose; apenas registra o que o usuário já usa.
@@ -984,25 +1028,23 @@ struct Supplement: Codable, Identifiable, Equatable {
     var takenDates: [String] = []
 }
 
-/// Alimento cadastrado pelo usuário (Codable — persiste em UserDefaults).
-struct StoredFood: Codable, Identifiable, Equatable {
-    var id = UUID()
-    var name: String
-    var brand: String?
-    var kcalPer100: Int
-    var proteinPer100: Int
-    var carbsPer100: Int
-    var fatPer100: Int
-    var barcode: String?
+// `StoredFood` também mudou para `UnidadeDeMedida.swift` — ver a nota acima.
 
-    var asFoodItem: FoodItem {
-        FoodItem(name: name, kcalPer100: kcalPer100, proteinPer100: proteinPer100,
-                 carbsPer100: carbsPer100, fatPer100: fatPer100, emoji: "📦",
-                 barcode: barcode, brand: brand)
-    }
-}
-
-/// Mini base nutricional (por 100 g). Em produção: API / banco com milhões de itens + código de barras.
+/// Mini base nutricional (por 100 g ou 100 ml — ver `unidade` em cada item).
+///
+/// [2026-08-12] A `unidade:` aparece SÓ nos itens líquidos, e cada uma foi
+/// escrita à mão nesta lista. Isso é diferente de adivinhar pelo nome em tempo
+/// de execução (ver a nota longa em `Unidade`, que explica por que a adivinhação
+/// foi recusada): aqui a decisão está num arquivo versionado, aparece no diff e
+/// pode ser conferida item a item antes de subir.
+///
+/// O critério usado: entra como `.mililitro` o que a pessoa serve em copo e o
+/// mercado vende em litro. Ficam em grama, de propósito, os casos que "parecem"
+/// líquido e não são — iogurte (comido de colher, vendido em grama), leite EM
+/// PÓ, creme de leite de lata, coco ralado, azeite e óleo (usados em colher, e
+/// cuja densidade é longe de 1 g/ml). Errar para o lado de grama mantém o
+/// comportamento que já existia; errar para ml mudaria o número embaixo do dedo
+/// de quem já usa o app.
 let foodDatabase: [FoodItem] = [
     FoodItem(name: "Peito de frango grelhado", kcalPer100: 165, proteinPer100: 31, carbsPer100: 0, fatPer100: 4, emoji: "🍗"),
     FoodItem(name: "Arroz branco cozido", kcalPer100: 130, proteinPer100: 3, carbsPer100: 28, fatPer100: 0, emoji: "🍚"),
@@ -1025,7 +1067,7 @@ let foodDatabase: [FoodItem] = [
     FoodItem(name: "Atum em lata", kcalPer100: 116, proteinPer100: 26, carbsPer100: 0, fatPer100: 1, emoji: "🐟", barcode: "7891167021014"),
     FoodItem(name: "Lentilha cozida", kcalPer100: 116, proteinPer100: 9, carbsPer100: 20, fatPer100: 0, emoji: "🫘"),
     FoodItem(name: "Pasta de amendoim", kcalPer100: 588, proteinPer100: 25, carbsPer100: 20, fatPer100: 50, emoji: "🥜", barcode: "7898024390015"),
-    FoodItem(name: "Leite desnatado", kcalPer100: 35, proteinPer100: 3, carbsPer100: 5, fatPer100: 0, emoji: "🥛", barcode: "7891000051207"),
+    FoodItem(name: "Leite desnatado", kcalPer100: 35, proteinPer100: 3, carbsPer100: 5, fatPer100: 0, emoji: "🥛", barcode: "7891000051207", unidade: .mililitro),
     FoodItem(name: "Macarrão integral cozido", kcalPer100: 124, proteinPer100: 5, carbsPer100: 25, fatPer100: 1, emoji: "🍝"),
     FoodItem(name: "Laranja", kcalPer100: 47, proteinPer100: 1, carbsPer100: 12, fatPer100: 0, emoji: "🍊"),
     FoodItem(name: "Barra de proteína", kcalPer100: 350, proteinPer100: 30, carbsPer100: 35, fatPer100: 10, emoji: "🍫", barcode: "7898939672014"),
@@ -1070,13 +1112,13 @@ let foodDatabase: [FoodItem] = [
     FoodItem(name: "Coco ralado (sem açúcar)", kcalPer100: 660, proteinPer100: 7, carbsPer100: 24, fatPer100: 64, emoji: "🥥"),
 
     // Laticínios
-    FoodItem(name: "Leite integral", kcalPer100: 61, proteinPer100: 3, carbsPer100: 5, fatPer100: 3, emoji: "🥛", barcode: "7891000100196"),
+    FoodItem(name: "Leite integral", kcalPer100: 61, proteinPer100: 3, carbsPer100: 5, fatPer100: 3, emoji: "🥛", barcode: "7891000100196", unidade: .mililitro),
     FoodItem(name: "Iogurte grego integral", kcalPer100: 97, proteinPer100: 9, carbsPer100: 4, fatPer100: 5, emoji: "🥛"),
     FoodItem(name: "Requeijão cremoso", kcalPer100: 240, proteinPer100: 8, carbsPer100: 5, fatPer100: 21, emoji: "🧈"),
 
     // Bebidas e suplementos
-    FoodItem(name: "Café preto (sem açúcar)", kcalPer100: 2, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "☕"),
-    FoodItem(name: "Suco de laranja natural", kcalPer100: 45, proteinPer100: 1, carbsPer100: 11, fatPer100: 0, emoji: "🍊"),
+    FoodItem(name: "Café preto (sem açúcar)", kcalPer100: 2, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "☕", unidade: .mililitro),
+    FoodItem(name: "Suco de laranja natural", kcalPer100: 45, proteinPer100: 1, carbsPer100: 11, fatPer100: 0, emoji: "🍊", unidade: .mililitro),
     FoodItem(name: "Vitamina C (comprimido)", kcalPer100: 0, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "💊"),
     FoodItem(name: "BCAA (pó)", kcalPer100: 110, proteinPer100: 27, carbsPer100: 0, fatPer100: 0, emoji: "💊"),
     FoodItem(name: "Creatina monoidratada (pó)", kcalPer100: 0, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "💊"),
@@ -1145,7 +1187,7 @@ let foodDatabase: [FoodItem] = [
     FoodItem(name: "Queijo cheddar", kcalPer100: 402, proteinPer100: 25, carbsPer100: 1, fatPer100: 33, emoji: "🧀"),
     FoodItem(name: "Manteiga", kcalPer100: 726, proteinPer100: 1, carbsPer100: 0, fatPer100: 82, emoji: "🧈"),
     FoodItem(name: "Creme de leite (lata)", kcalPer100: 312, proteinPer100: 2, carbsPer100: 3, fatPer100: 32, emoji: "🥛"),
-    FoodItem(name: "Leite semidesnatado", kcalPer100: 49, proteinPer100: 3, carbsPer100: 5, fatPer100: 2, emoji: "🥛"),
+    FoodItem(name: "Leite semidesnatado", kcalPer100: 49, proteinPer100: 3, carbsPer100: 5, fatPer100: 2, emoji: "🥛", unidade: .mililitro),
     FoodItem(name: "Iogurte desnatado natural", kcalPer100: 47, proteinPer100: 4, carbsPer100: 6, fatPer100: 1, emoji: "🥛"),
     FoodItem(name: "Leite em pó integral", kcalPer100: 496, proteinPer100: 26, carbsPer100: 38, fatPer100: 26, emoji: "🥛"),
 
@@ -1171,7 +1213,7 @@ let foodDatabase: [FoodItem] = [
     FoodItem(name: "Caju", kcalPer100: 43, proteinPer100: 1, carbsPer100: 10, fatPer100: 0, emoji: "🍊"),
     FoodItem(name: "Goiaba", kcalPer100: 54, proteinPer100: 2, carbsPer100: 12, fatPer100: 1, emoji: "🍏"),
     FoodItem(name: "Maracujá (polpa)", kcalPer100: 68, proteinPer100: 2, carbsPer100: 13, fatPer100: 1, emoji: "🍊"),
-    FoodItem(name: "Limão (suco)", kcalPer100: 29, proteinPer100: 0, carbsPer100: 9, fatPer100: 0, emoji: "🍋"),
+    FoodItem(name: "Limão (suco)", kcalPer100: 29, proteinPer100: 0, carbsPer100: 9, fatPer100: 0, emoji: "🍋", unidade: .mililitro),
     FoodItem(name: "Ameixa fresca", kcalPer100: 46, proteinPer100: 1, carbsPer100: 11, fatPer100: 0, emoji: "🫐"),
     FoodItem(name: "Mirtilo (blueberry)", kcalPer100: 57, proteinPer100: 1, carbsPer100: 14, fatPer100: 0, emoji: "🫐"),
 
@@ -1199,13 +1241,13 @@ let foodDatabase: [FoodItem] = [
     FoodItem(name: "Pipoca sem manteiga", kcalPer100: 375, proteinPer100: 11, carbsPer100: 74, fatPer100: 4, emoji: "🍿"),
 
     // MARK: - Bebidas e sucos
-    FoodItem(name: "Água de coco", kcalPer100: 19, proteinPer100: 0, carbsPer100: 4, fatPer100: 0, emoji: "🥥"),
-    FoodItem(name: "Suco de uva integral", kcalPer100: 62, proteinPer100: 0, carbsPer100: 15, fatPer100: 0, emoji: "🍇"),
-    FoodItem(name: "Suco de maçã natural", kcalPer100: 46, proteinPer100: 0, carbsPer100: 11, fatPer100: 0, emoji: "🍎"),
-    FoodItem(name: "Leite com chocolate (integral)", kcalPer100: 83, proteinPer100: 4, carbsPer100: 11, fatPer100: 3, emoji: "🍫"),
-    FoodItem(name: "Chá verde (sem açúcar)", kcalPer100: 1, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "🍵"),
-    FoodItem(name: "Refrigerante cola (350 ml)", kcalPer100: 42, proteinPer100: 0, carbsPer100: 11, fatPer100: 0, emoji: "🥤"),
-    FoodItem(name: "Refrigerante zero", kcalPer100: 0, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "🥤"),
+    FoodItem(name: "Água de coco", kcalPer100: 19, proteinPer100: 0, carbsPer100: 4, fatPer100: 0, emoji: "🥥", unidade: .mililitro),
+    FoodItem(name: "Suco de uva integral", kcalPer100: 62, proteinPer100: 0, carbsPer100: 15, fatPer100: 0, emoji: "🍇", unidade: .mililitro),
+    FoodItem(name: "Suco de maçã natural", kcalPer100: 46, proteinPer100: 0, carbsPer100: 11, fatPer100: 0, emoji: "🍎", unidade: .mililitro),
+    FoodItem(name: "Leite com chocolate (integral)", kcalPer100: 83, proteinPer100: 4, carbsPer100: 11, fatPer100: 3, emoji: "🍫", unidade: .mililitro),
+    FoodItem(name: "Chá verde (sem açúcar)", kcalPer100: 1, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "🍵", unidade: .mililitro),
+    FoodItem(name: "Refrigerante cola (350 ml)", kcalPer100: 42, proteinPer100: 0, carbsPer100: 11, fatPer100: 0, emoji: "🥤", unidade: .mililitro),
+    FoodItem(name: "Refrigerante zero", kcalPer100: 0, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "🥤", unidade: .mililitro),
 
     // MARK: - Açaí e sobremesas
     FoodItem(name: "Açaí na tigela (sem acompanhamento)", kcalPer100: 247, proteinPer100: 3, carbsPer100: 21, fatPer100: 17, emoji: "🫐"),
@@ -1235,7 +1277,7 @@ let foodDatabase: [FoodItem] = [
     FoodItem(name: "Geleia de morango", kcalPer100: 250, proteinPer100: 0, carbsPer100: 62, fatPer100: 0, emoji: "🍓"),
     FoodItem(name: "Maionese tradicional", kcalPer100: 680, proteinPer100: 1, carbsPer100: 3, fatPer100: 75, emoji: "🫙"),
     FoodItem(name: "Ketchup", kcalPer100: 112, proteinPer100: 1, carbsPer100: 27, fatPer100: 0, emoji: "🍅"),
-    FoodItem(name: "Molho shoyu", kcalPer100: 60, proteinPer100: 6, carbsPer100: 8, fatPer100: 0, emoji: "🫙"),
+    FoodItem(name: "Molho shoyu", kcalPer100: 60, proteinPer100: 6, carbsPer100: 8, fatPer100: 0, emoji: "🫙", unidade: .mililitro),
     FoodItem(name: "Açúcar refinado", kcalPer100: 387, proteinPer100: 0, carbsPer100: 100, fatPer100: 0, emoji: "🍚"),
     FoodItem(name: "Adoçante (stevia)", kcalPer100: 0, proteinPer100: 0, carbsPer100: 0, fatPer100: 0, emoji: "🌿")
 ]

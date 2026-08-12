@@ -15,6 +15,16 @@ struct DietaView: View {
     @State private var activeSheet: DietaSheet? = nil
     @State private var showPaywall = false
     @State private var showGoalEditor = false   // [F4] editor da meta calórica
+    /// [2026-08-12] A refeição aberta para edição por componente.
+    ///
+    /// `sheet(item:)` e não `isPresented` + variável separada: com duas fontes
+    /// (um Bool e um "qual"), existe o estado em que a tela está aberta e o
+    /// "qual" é nil. Uma fonte só, e ela não tem esse estado.
+    ///
+    /// Sheet e não `navigationDestination(item:)`, que é iOS 17+ — o Alma
+    /// suporta iOS 16, pela mesma razão que o `onChange` do `FoodScanView`
+    /// ficou na forma de um parâmetro só.
+    @State private var refeicaoAberta: Meal? = nil
 
     var body: some View {
         NavigationStack {
@@ -34,7 +44,15 @@ struct DietaView: View {
                                 // são grátis: é o diário da pessoa. Ver CorpoAcesso.
                                 onAdd: { activeSheet = .addFood(type) },
                                 onDelete: { model.removeMeal($0) },
-                                onToggleDone: { model.toggleMeal($0) }
+                                onToggleDone: { model.toggleMeal($0) },
+                                // [2026-08-12] Passo (d) da dívida declarada no
+                                // `MealDetailView`: a tela finalmente é
+                                // alcançável. Vem POR ÚLTIMO de propósito —
+                                // ligar a navegação antes de a refeição ter
+                                // componentes teria entregue dois botões
+                                // repetidos e nenhuma edição, que era
+                                // exatamente o aviso escrito lá.
+                                onOpen: { refeicaoAberta = $0 }
                             )
                         }
                     }
@@ -100,6 +118,12 @@ struct DietaView: View {
             }
             .sheet(isPresented: $showPaywall) { PaywallDoCorpo() }
             .sheet(isPresented: $showGoalEditor) { GoalEditorView() }
+            // [2026-08-12] Editar a refeição registrada. `NavigationStack`
+            // dentro do sheet porque o `MealDetailView` usa `navigationTitle` e
+            // sem uma pilha própria o título simplesmente não aparece.
+            .sheet(item: $refeicaoAberta) { refeicao in
+                NavigationStack { MealDetailView(meal: refeicao) }
+            }
         }
     }
 
@@ -173,6 +197,8 @@ struct MealGroupCard: View {
     let onAdd: () -> Void
     let onDelete: (Meal) -> Void
     let onToggleDone: (Meal) -> Void
+    /// [2026-08-12] Abre a refeição para editar os componentes.
+    let onOpen: (Meal) -> Void
 
     private var totalKcal: Int    { items.reduce(0) { $0 + $1.kcal } }
     private var totalProtein: Int { items.reduce(0) { $0 + $1.protein } }
@@ -225,16 +251,44 @@ struct MealGroupCard: View {
 
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     HStack(spacing: 10) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(item.name)
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(item.done ? Theme.ink : Theme.inkSoft)
-                                .lineLimit(2)
-                            Text("\(item.kcal) kcal · P\(item.protein) C\(item.carbs) G\(item.fat)")
-                                .font(.caption2)
-                                .foregroundStyle(Theme.inkSoft)
+                        // [2026-08-12] O texto vira o toque que abre a edição;
+                        // os dois botões da direita continuam fazendo o que
+                        // faziam. Sem `contentShape`, a área vazia ao lado do
+                        // texto não responderia e a pessoa acharia que o toque
+                        // "às vezes funciona".
+                        Button { onOpen(item) } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 4) {
+                                    Text(item.name)
+                                        .font(.caption.weight(.medium))
+                                        .foregroundStyle(item.done ? Theme.ink : Theme.inkSoft)
+                                        .lineLimit(2)
+                                    if item.editavel {
+                                        Image(systemName: "slider.horizontal.3")
+                                            .font(.caption2)
+                                            .foregroundStyle(Theme.primary.opacity(0.7))
+                                    }
+                                }
+                                Text("\(item.kcal) kcal · P\(item.protein) C\(item.carbs) G\(item.fat)")
+                                    .font(.caption2)
+                                    .foregroundStyle(Theme.inkSoft)
+                                // Os componentes aparecem na própria linha do
+                                // diário: é o que responde ao pedido de "ver as
+                                // partes" sem precisar abrir nada.
+                                if let resumo = item.resumoDosComponentes,
+                                   item.componentes?.count ?? 0 >= 2 {
+                                    Text(resumo)
+                                        .font(.caption2)
+                                        .foregroundStyle(Theme.inkSoft.opacity(0.85))
+                                        .lineLimit(2)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
                         }
-                        Spacer()
+                        .buttonStyle(.plain)
+
+                        Spacer(minLength: 0)
 
                         // Marcar como consumido
                         Button { onToggleDone(item) } label: {

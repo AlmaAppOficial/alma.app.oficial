@@ -1471,7 +1471,7 @@ enum AuditoriaBloqueadores {
             porcaoG: 250
         )
         let exibido = pratoDaIA.macrosDaPorcao
-        modelComida.addFood(pratoDaIA.comoFoodItem, grams: pratoDaIA.porcaoG, to: .almoco)
+        modelComida.addFood(pratoDaIA.comoFoodItem, quantidade: pratoDaIA.porcaoG, to: .almoco)
         let registrado = modelComida.meals.last
 
         let batem = registrado.map {
@@ -1542,7 +1542,7 @@ enum AuditoriaBloqueadores {
         let rotuloDoBotao = FoodScanView.rotuloDeConfirmacao(gramas: porcaoCorrigida,
                                                             refeicao: .almoco)
         modelEdicao.addFood(pratoParaEditar.comoFoodItem,
-                            grams: porcaoCorrigida, to: .almoco)
+                            quantidade: porcaoCorrigida, to: .almoco)
         let gravadoAposEdicao = modelEdicao.meals.last
 
         /// O comparador que E0 e E1 compartilham. Estando os dois na mesma

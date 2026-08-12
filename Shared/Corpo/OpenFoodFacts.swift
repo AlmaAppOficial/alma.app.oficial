@@ -20,11 +20,26 @@ struct CachedProduct: Codable, Equatable {
     let proteinPer100: Int
     let carbsPer100: Int
     let fatPer100: Int
+    /// [2026-08-12] A unidade lida da embalagem declarada pelo fabricante.
+    ///
+    /// **OPCIONAL, e isso é a parte importante.** Este tipo é `Codable` e vive
+    /// no cache em `UserDefaults` (`offProductCache`). Uma propriedade NÃO
+    /// opcional aqui — mesmo com valor padrão — faria o decodificador
+    /// sintetizado lançar `keyNotFound` em todo produto já cacheado, e o
+    /// `try?` do `cacheDict()` transformaria isso em cache vazio, em silêncio.
+    /// É a mesma armadilha descrita no cabeçalho de `UnidadeDeMedida.swift`;
+    /// aqui o estrago seria menor (cache se refaz pela rede) mas o mecanismo é
+    /// idêntico. `Optional` faz o Swift sintetizar `decodeIfPresent`, e o dado
+    /// antigo continua legível.
+    ///
+    /// `nil` = a base não disse, ou disse algo que não dá para ler → grama.
+    let unidade: Unidade?
 
     var asFoodItem: FoodItem {
         FoodItem(name: name, kcalPer100: kcalPer100, proteinPer100: proteinPer100,
                  carbsPer100: carbsPer100, fatPer100: fatPer100, emoji: "🛒",
-                 barcode: barcode, brand: brand)
+                 barcode: barcode, brand: brand,
+                 unidade: unidade ?? .padraoHistorico)
     }
 }
 
@@ -56,6 +71,10 @@ enum OpenFoodFactsService {
             let product_name: String?
             let brands: String?
             let nutriments: Nutriments?
+            /// [2026-08-12] Quantidade líquida da embalagem ("1 L", "395 g").
+            /// É daqui que sai a unidade — do que o fabricante declarou, não de
+            /// um palpite sobre o nome. Ver `Unidade.daEmbalagem`.
+            let quantity: String?
         }
         struct Nutriments: Decodable {
             let kcal: Double?
@@ -104,7 +123,7 @@ enum OpenFoodFactsService {
     static func lookup(_ barcode: String) async throws -> CachedProduct {
         if let hit = cached(barcode) { return hit }
 
-        let fields = "product_name,brands,nutriments"
+        let fields = "product_name,brands,nutriments,quantity"
         guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(barcode).json?fields=\(fields)") else {
             throw ProductLookupError.badResponse
         }
@@ -140,7 +159,8 @@ enum OpenFoodFactsService {
             kcalPer100: Int((n?.kcal ?? 0).rounded()),
             proteinPer100: Int((n?.proteins ?? 0).rounded()),
             carbsPer100: Int((n?.carbs ?? 0).rounded()),
-            fatPer100: Int((n?.fat ?? 0).rounded())
+            fatPer100: Int((n?.fat ?? 0).rounded()),
+            unidade: Unidade.daEmbalagem(p.quantity)
         )
         saveToCache(product)
         return product

@@ -62,6 +62,34 @@ private struct RespostaCorpo: Decodable {
     let focos: [String]
 }
 
+/// [2026-08-12] Um alimento dentro do prato, como a IA o viu.
+struct ComponenteDoPrato: Decodable, Equatable {
+    let nome: String
+    let porcaoG: Double
+    let kcalPor100: Double
+    let proteinaPor100: Double
+    let carboPor100: Double
+    let gorduraPor100: Double
+
+    /// O componente do jeito que o diário guarda.
+    ///
+    /// Sempre `.grama`: a IA estima peso a partir de uma foto, e a resposta do
+    /// servidor fala em gramas (`porcaoG`) nos dois níveis. Um copo de suco na
+    /// foto sai daqui em grama, e isso é uma limitação REAL desta versão —
+    /// dita aqui em vez de disfarçada com um palpite pelo nome do componente,
+    /// que é a adivinhação que `Unidade` recusa por escrito.
+    var comoComponenteDaRefeicao: ComponenteDaRefeicao {
+        ComponenteDaRefeicao(
+            nome: nome,
+            quantidade: max(1, Int(porcaoG.rounded())),
+            unidade: .grama,
+            kcalPor100: Int(kcalPor100.rounded()),
+            proteinaPor100: Int(proteinaPor100.rounded()),
+            carboPor100: Int(carboPor100.rounded()),
+            gorduraPor100: Int(gorduraPor100.rounded()))
+    }
+}
+
 struct AnaliseDePrato: Decodable, Equatable {
     let nome: String
     let porcaoG: Double
@@ -69,6 +97,9 @@ struct AnaliseDePrato: Decodable, Equatable {
     let proteinaPor100: Double
     let carboPor100: Double
     let gorduraPor100: Double
+    /// `nil` = o servidor não mandou decomposição, ou mandou e ela não passou na
+    /// conferência dele. O prato inteiro continua valendo — ver `analisarPrato`.
+    var componentes: [ComponenteDoPrato]? = nil
 }
 
 private struct RespostaPrato: Decodable {
@@ -80,6 +111,9 @@ private struct RespostaPrato: Decodable {
     let proteinaPor100: Double?
     let carboPor100: Double?
     let gorduraPor100: Double?
+    /// Campo novo do servidor. Opcional aqui de propósito: uma função mais
+    /// velha que ainda não devolva a chave continua sendo decodificada.
+    let componentes: [ComponenteDoPrato]?
 }
 
 private struct EnvelopeFalha: Decodable {
@@ -304,7 +338,16 @@ enum AnaliseDeFotoService {
 
     // MARK: Comida
 
-    static func analisarPrato(foto: Data, consentimento: Bool) async throws -> AnaliseDePrato {
+    /// [2026-08-12] `descricao` é o texto opcional que a pessoa escreve antes de
+    /// analisar — "mix de frutas com iogurte, mel e aveia".
+    ///
+    /// Ele viaja como DADO e o servidor o trata como dado (bloco delimitado,
+    /// instrução `system` dizendo que ali não há ordens, esquema estrito na
+    /// volta). Ver o bloco longo em `functions/src/analiseDeFoto.ts`. Aqui só
+    /// passa pela limpeza de interface do `TextoDaPessoa`, que existe para o
+    /// que a tela mostra ser o que de fato é enviado — não como defesa.
+    static func analisarPrato(foto: Data, descricao: String = "",
+                              consentimento: Bool) async throws -> AnaliseDePrato {
         guard consentimento else { throw ErroDaAnalise.semConsentimento }
 
         guard let pronta = Self.jpegParaEnvio(foto) else {
@@ -312,7 +355,9 @@ enum AnaliseDeFotoService {
                 "Não consegui preparar essa foto. Tente escolher outra imagem.")
         }
         let dados = try await chamar(tipo: "comida", fotos: [pronta.base64EncodedString()],
-                                     medidas: nil, consentimento: consentimento)
+                                     medidas: nil,
+                                     contexto: TextoDaPessoa.descricaoParaEnvio(descricao),
+                                     consentimento: consentimento)
         let r = try decodificar(RespostaPrato.self, de: dados)
 
         guard r.legivel,
@@ -322,15 +367,22 @@ enum AnaliseDeFotoService {
                 r.motivo ?? "Não consegui identificar a comida nessa foto.")
         }
 
+        // Menos de dois componentes não é decomposição: é o prato inteiro com
+        // outro nome. O servidor já filtra assim (`sanitizarComponentes`); a
+        // mesma regra aqui evita depender de uma função mais velha ter feito.
+        let componentes = (r.componentes?.count ?? 0) >= 2 ? r.componentes : nil
+
         return AnaliseDePrato(nome: nome, porcaoG: r.porcaoG ?? 100,
                               kcalPor100: kcal, proteinaPor100: p,
-                              carboPor100: c, gorduraPor100: g)
+                              carboPor100: c, gorduraPor100: g,
+                              componentes: componentes)
     }
 
     // MARK: Transporte
 
     private static func chamar(tipo: String, fotos: [String],
-                               medidas: [String: Any]?, consentimento: Bool) async throws -> Data {
+                               medidas: [String: Any]?, contexto: String? = nil,
+                               consentimento: Bool) async throws -> Data {
         guard let user = Auth.auth().currentUser else { throw ErroDaAnalise.semSessao }
         let token: String
         do { token = try await user.getIDToken() }
@@ -346,6 +398,10 @@ enum AnaliseDeFotoService {
         var corpo: [String: Any] = ["tipo": tipo, "fotos": fotos,
                                     "consentimento": consentimento]
         if let medidas { corpo["medidas"] = medidas }
+        // Sem descrição, a chave não existe — e o servidor monta o pedido de
+        // sempre. Ver `TextoDaPessoa.descricaoParaEnvio` sobre por que `nil` e
+        // não string vazia.
+        if let contexto { corpo["contexto"] = contexto }
         req.httpBody = try JSONSerialization.data(withJSONObject: corpo)
 
         let (data, resposta): (Data, URLResponse)

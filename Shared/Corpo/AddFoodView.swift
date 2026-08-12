@@ -202,7 +202,10 @@ struct AddFoodView: View {
                                 Text(food.name)
                                     .font(.subheadline.weight(.semibold))
                                     .foregroundStyle(Theme.ink)
-                                Text([food.brand, "\(food.kcalPer100) kcal · 100 g"]
+                                // A base também diz a unidade: um leite listado
+                                // como "61 kcal · 100 g" prometeria grama e
+                                // abriria a tela seguinte em mililitro.
+                                Text([food.brand, "\(food.kcalPer100) kcal · \(food.unidade.cem)"]
                                         .compactMap { $0 }.joined(separator: " · "))
                                     .font(.caption)
                                     .foregroundStyle(Theme.inkSoft)
@@ -230,6 +233,12 @@ struct AddFoodView: View {
         let carb: Int = Int((Double(food.carbsPer100) * f).rounded())
         let fat:  Int = Int((Double(food.fatPer100) * f).rounded())
         let gramsInt: Int = Int(grams)
+        // [2026-08-12] UMA quantidade, um texto, três lugares que o mostram —
+        // mesmo desenho do `let gramas` do `FoodScanView.resultSection`. A
+        // unidade vem do alimento, nunca de um palpite sobre o nome dele, e
+        // nunca digitada de novo aqui: era assim que a letra "g" acabava colada
+        // em número que representa mililitro.
+        let quantoTexto = textoDaQuantidade(gramsInt, food.unidade)
 
         return ScrollView {
             VStack(spacing: 20) {
@@ -252,7 +261,7 @@ struct AddFoodView: View {
                     Text("\(kcal)")
                         .font(.system(size: 44, weight: .bold))
                         .foregroundStyle(Theme.coral)
-                    Text("kcal em \(gramsInt) g")
+                    Text("kcal em \(quantoTexto)")
                         .font(.subheadline)
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -264,7 +273,7 @@ struct AddFoodView: View {
                     HStack {
                         Text("Quantidade").font(.headline).foregroundStyle(Theme.ink)
                         Spacer()
-                        Text("\(gramsInt) g").font(.headline.bold()).foregroundStyle(Theme.primary)
+                        Text(quantoTexto).font(.headline.bold()).foregroundStyle(Theme.primary)
                     }
                     Slider(value: $grams, in: 10...500, step: 10).tint(Theme.primary)
                 }
@@ -284,7 +293,7 @@ struct AddFoodView: View {
                 .pickerStyle(.segmented)
 
                 Button {
-                    model.addFood(food, grams: Int(grams), to: mealType)
+                    model.addFood(food, quantidade: gramsInt, to: mealType)
                     dismiss()
                 } label: {
                     Label("Adicionar à \(mealType.rawValue)", systemImage: "checkmark")
@@ -331,6 +340,13 @@ struct CustomFoodForm: View {
     /// não olhar este campo recebe exatamente o comportamento antigo. Uma
     /// correção não pode criar um erro novo para quem ignorou a mudança.
     @State private var porcaoG = "100"
+    /// [2026-08-12] Grama ou mililitro — ESCOLHA da pessoa, nunca dedução.
+    ///
+    /// Nasce em `.grama` porque era a única unidade que existia até aqui: quem
+    /// não encostar neste controle recebe exatamente o comportamento antigo,
+    /// pelo mesmo motivo que `porcaoG` nasce "100". Uma correção não pode criar
+    /// um erro novo para quem ignorou a mudança.
+    @State private var unidade: Unidade = .grama
     @State private var selectedMeal: MealType
     @State private var showError = false
 
@@ -377,6 +393,13 @@ struct CustomFoodForm: View {
     /// inventar 3× de gordura em cada uso futuro. Quem for dar precisão a isto
     /// muda o tipo do campo, não esta função. Nada disso toca o `Meal` — o que
     /// entra no diário hoje continua sendo o número digitado.
+    ///
+    /// [2026-08-12] Serve igual para mililitro, e o nome ficou como estava de
+    /// propósito: a conta é "regra de três para 100 unidades" e não depende de
+    /// qual unidade é. Renomear para `converterPara100` sem mudar uma linha do
+    /// corpo custaria diff em código provado por mutação em 06/08, em troca de
+    /// nada. A unidade a que o número se refere viaja no `StoredFood.unidade`,
+    /// que é onde ela tem de estar.
     static func converterPara100g(_ valorDaPorcao: Int, gramasDaPorcao: Int) -> Int {
         guard gramasDaPorcao > 0 else { return valorDaPorcao }
         return Int((Double(valorDaPorcao) * 100.0 / Double(gramasDaPorcao)).rounded())
@@ -414,9 +437,25 @@ struct CustomFoodForm: View {
                 // formulário não tinha como saber de quanto a pessoa falava — e
                 // chutava 100 g, em silêncio.
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Peso da porção (g)").font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
-                    macroField("Ex.: 350", text: $porcaoG, tint: Theme.primary)
-                    Text("Os macros abaixo são desta porção. O alimento fica salvo convertido para 100 g, para a próxima vez.")
+                    Text("Tamanho da porção").font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
+
+                    // [2026-08-12] O seletor vem ANTES do número, e não depois,
+                    // porque é ele que dá sentido ao que se digita a seguir —
+                    // mesmo raciocínio que pôs a porção antes dos macros em
+                    // 06/08. Segmentado, e não um menu escondido: com duas
+                    // opções, esconder uma seria transformar "escolha" em
+                    // "padrão que ninguém vê", que é a adivinhação de volta com
+                    // outro nome.
+                    Picker("Unidade", selection: $unidade) {
+                        ForEach(Unidade.allCases) { u in
+                            Text(u == .grama ? "Gramas (g)" : "Mililitros (ml)").tag(u)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    macroField(unidade == .grama ? "Ex.: 350" : "Ex.: 200",
+                               text: $porcaoG, tint: Theme.primary)
+                    Text("Os macros abaixo são desta porção. O alimento fica salvo convertido para \(unidade.cem), para a próxima vez.")
                         .font(.caption2)
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -429,7 +468,7 @@ struct CustomFoodForm: View {
                     // este conserto existe para tirar do app. Sem número válido,
                     // o rótulo simplesmente não promete quantidade nenhuma.
                     Text((Int(porcaoG) ?? 0) > 0
-                         ? "Macros (por porção de \(Int(porcaoG) ?? 0) g)"
+                         ? "Macros (por porção de \(textoDaQuantidade(Int(porcaoG) ?? 0, unidade)))"
                          : "Macros (por porção)")
                         .font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
                     HStack(spacing: 10) {
@@ -476,7 +515,7 @@ struct CustomFoodForm: View {
                         // [2026-08-06] A porção passa a aparecer no nome. Este
                         // era o único caminho de registro que não dizia de
                         // quanto falava — nem no texto, nem em campo nenhum.
-                        name: "\(comMarca) · \(gramas) g",
+                        name: "\(comMarca) · \(textoDaQuantidade(gramas, unidade))",
                         // Os números digitados entram no diário INTACTOS. O
                         // arredondamento da conversão fica só no catálogo.
                         kcal: Int(kcal) ?? 0,
@@ -498,7 +537,12 @@ struct CustomFoodForm: View {
                         proteinPer100: Self.converterPara100g(Int(protein) ?? 0, gramasDaPorcao: gramas),
                         carbsPer100:   Self.converterPara100g(Int(carbs) ?? 0,   gramasDaPorcao: gramas),
                         fatPer100:     Self.converterPara100g(Int(fat) ?? 0,     gramasDaPorcao: gramas),
-                        barcode: barcode
+                        barcode: barcode,
+                        // [2026-08-12] A unidade viaja COM o alimento salvo. Sem
+                        // isto, o leite cadastrado em ml voltaria em grama na
+                        // próxima busca — o número certo com o rótulo errado,
+                        // que é a forma mais silenciosa deste bug.
+                        unidade: unidade
                     ))
                     onDone()
                 } label: {

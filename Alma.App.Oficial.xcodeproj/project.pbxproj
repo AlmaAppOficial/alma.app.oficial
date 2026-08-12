@@ -132,6 +132,9 @@
 		3C05FAB203B1000000000000 /* AlmaEntitlementBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
 		BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */; };
+		CAF57DF067CF000000000000 /* Refeicao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A7135E42C049DD21DB8EC4 /* Refeicao.swift */; };
+		45C8D95929E4000000000000 /* TextoDaPessoa.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB66B126BEFE6197A6D1E77 /* TextoDaPessoa.swift */; };
+		2732DDA22F4A000000000000 /* UnidadeDeMedida.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10493D45C7AB1E82E3B60930 /* UnidadeDeMedida.swift */; };
 		BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */; };
 		2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22125E08D23CEE6A3878453B /* TestePersistencia.swift */; };
 		155C4512DD68000000000000 /* GestaoDoPlanoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */; };
@@ -392,6 +395,9 @@
 		EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaEntitlementBridge.swift; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
 		477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AnaliseDeFotoService.swift"; sourceTree = "<group>"; };
+		01A7135E42C049DD21DB8EC4 /* Refeicao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Refeicao.swift"; sourceTree = "<group>"; };
+		3AB66B126BEFE6197A6D1E77 /* TextoDaPessoa.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TextoDaPessoa.swift"; sourceTree = "<group>"; };
+		10493D45C7AB1E82E3B60930 /* UnidadeDeMedida.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/UnidadeDeMedida.swift"; sourceTree = "<group>"; };
 		DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AparenciaDoApp.swift"; sourceTree = "<group>"; };
 		22125E08D23CEE6A3878453B /* TestePersistencia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TestePersistencia.swift"; sourceTree = "<group>"; };
 		B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GestaoDoPlanoView.swift; sourceTree = "<group>"; };
@@ -621,6 +627,9 @@
 				EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
 				477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */,
+				01A7135E42C049DD21DB8EC4 /* Refeicao.swift */,
+				3AB66B126BEFE6197A6D1E77 /* TextoDaPessoa.swift */,
+				10493D45C7AB1E82E3B60930 /* UnidadeDeMedida.swift */,
 				DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */,
 				22125E08D23CEE6A3878453B /* TestePersistencia.swift */,
 				B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */,
@@ -1135,6 +1144,9 @@
 				3C05FAB203B1000000000000 /* AlmaEntitlementBridge.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
 				BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */,
+				CAF57DF067CF000000000000 /* Refeicao.swift in Sources */,
+				45C8D95929E4000000000000 /* TextoDaPessoa.swift in Sources */,
+				2732DDA22F4A000000000000 /* UnidadeDeMedida.swift in Sources */,
 				BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */,
 				2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */,
 				155C4512DD68000000000000 /* GestaoDoPlanoView.swift in Sources */,

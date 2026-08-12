@@ -81,6 +81,14 @@ struct FoodScanView: View {
     /// [2026-08-05] Consentimento por envio.
     @State private var mostrarConsentimento = false
 
+    /// [2026-08-12] Descrição opcional do prato, escrita pela pessoa.
+    ///
+    /// NÃO é zerada quando a foto muda, ao contrário de `result` e
+    /// `porcaoAjustada`. Trocar a foto quase sempre é refotografar O MESMO
+    /// prato com luz melhor, e apagar a frase que a pessoa acabou de escrever
+    /// seria punir quem tentou de novo. Ela some sozinha ao fechar a tela.
+    @State private var descricao = ""
+
     /// [2026-08-06] O ajuste da pessoa POR CIMA da estimativa da IA.
     ///
     /// Nasce `nil` de propósito: a estimativa já vem preenchida como ponto de
@@ -90,6 +98,17 @@ struct FoodScanView: View {
     /// depois do ajuste, porque é vendo a diferença entre o que a máquina leu e
     /// o que ela corrigiu que a pessoa aprende quanto confiar na leitura.
     @State private var porcaoAjustada: Int?
+
+    /// [2026-08-12] Os componentes do prato, já no formato do diário e já
+    /// editáveis. Vazio = a IA não decompôs este prato (sopa, vitamina) ou é uma
+    /// função antiga que ainda não manda o campo — e aí a tela é a de sempre,
+    /// com uma quantidade só.
+    @State private var componentes: [ComponenteDaRefeicao] = []
+
+    /// O que a IA leu, intocado. Serve ao botão de voltar atrás — mesma ideia do
+    /// `porcaoAjustada`: a pessoa aprende quanto confiar na leitura vendo a
+    /// diferença entre o que a máquina viu e o que ela corrigiu.
+    @State private var componentesDaIA: [ComponenteDaRefeicao] = []
 
     /// A quantidade que vale AGORA — a única lida pelos tiles, pelo rótulo do
     /// botão e pelo registro. Ver `resultSection`.
@@ -104,6 +123,21 @@ struct FoodScanView: View {
                     intro
                     photoSlot
                     if photoData != nil && result == nil {
+                        // [2026-08-12] A descrição fica AQUI, na tela, e não
+                        // dentro do diálogo de consentimento. Dois motivos, os
+                        // dois definitivos:
+                        //
+                        // 1. `confirmationDialog` não aceita `TextField` —
+                        //    aceita `Button` e `Text`. Um campo posto ali
+                        //    simplesmente não apareceria.
+                        // 2. O texto do consentimento foi revisado e é uma
+                        //    promessa de privacidade exibida à pessoa. Ele não
+                        //    muda para acomodar recurso novo.
+                        //
+                        // Só aparece depois que existe foto: pedir para
+                        // descrever um prato que ainda não foi fotografado é
+                        // pedir na ordem errada.
+                        descricaoField
                         analyzeButton
                     }
                     if let msg = errorMessage {
@@ -132,6 +166,8 @@ struct FoodScanView: View {
                     photoData = image.jpegData(compressionQuality: 0.8)
                     result = nil
                     porcaoAjustada = nil   // foto nova, estimativa nova
+                    componentes = []
+                    componentesDaIA = []
                     showCamera = false
                 }
                 .ignoresSafeArea()
@@ -174,6 +210,16 @@ struct FoodScanView: View {
 
     static func rotuloDeConfirmacao(gramas: Int, refeicao: MealType) -> String {
         "Adicionar \(gramas) g à \(refeicao.rawValue)"
+    }
+
+    /// [2026-08-12] Os dois rótulos do caminho com componentes. Estáticos pelo
+    /// mesmo motivo dos de cima: a asserção lê a MESMA string que a tela.
+    static func rotuloDaSoma(itens: Int) -> String {
+        "Total de \(itens) \(itens == 1 ? "item" : "itens")"
+    }
+
+    static func rotuloDeConfirmacaoComponentes(itens: Int, refeicao: MealType) -> String {
+        "Adicionar \(itens) \(itens == 1 ? "item" : "itens") à \(refeicao.rawValue)"
     }
 
     /// Mesmo texto do scan corporal — a promessa é a mesma nos dois envios.
@@ -257,6 +303,51 @@ struct FoodScanView: View {
         }
     }
 
+    /// [2026-08-12] O campo que responde à queixa do Assis: a IA olha a foto e
+    /// vê iogurte; o mel e a aveia estão embaixo, e nenhuma câmera resolve isso.
+    ///
+    /// O rótulo diz "opcional" e o exemplo é o caso real dele. Nada aqui é
+    /// obrigatório e o botão de analisar não depende deste campo — quem só quer
+    /// fotografar continua fotografando e tocando em Analisar.
+    private var descricaoField: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Descrição (opcional)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Theme.inkSoft)
+                Spacer()
+                // O contador conta o texto JÁ LIMPO — o mesmo que vai viajar.
+                // Ver `TextoDaPessoa.restantes`.
+                Text("\(TextoDaPessoa.restantes(descricao))")
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(TextoDaPessoa.restantes(descricao) <= 20
+                                     ? Theme.coral : Theme.inkSoft)
+            }
+
+            TextField(Self.exemploDeDescricao, text: $descricao, axis: .vertical)
+                .lineLimit(2...4)
+                .font(.subheadline)
+                .padding(12)
+                .background(Theme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSmall,
+                                            style: .continuous))
+
+            Text(Self.ajudaDaDescricao)
+                .font(.caption2)
+                .foregroundStyle(Theme.inkSoft)
+        }
+    }
+
+    /// Estáticos pelo mesmo motivo de `tituloDaTela` e `rotuloDaPorcao`: o
+    /// harness lê a MESMA string que a tela desenha, em vez de uma cópia que
+    /// pode envelhecer sozinha.
+    static let exemploDeDescricao =
+        "Ex.: mix de frutas com iogurte, mel e aveia"
+
+    static let ajudaDaDescricao =
+        "Conte o que a foto não mostra — o que está embaixo, o molho, o azeite. "
+        + "Serve só para identificar os ingredientes desta foto."
+
     private var analyzeButton: some View {
         Button { analyze() } label: {
             Label("Analisar com IA", systemImage: "sparkles")
@@ -304,8 +395,20 @@ struct FoodScanView: View {
         // registro gravar outro; deixar a porção editável reabriria essa porta
         // se cada ponta lesse a sua própria fonte.
         // ═══════════════════════════════════════════════════════════════════
+        // [2026-08-12] Com componentes, a fonte única passa a ser a LISTA: os
+        // quatro números do topo são a soma dela, o botão registra ela, e o
+        // total nunca é digitado em lugar nenhum. É o mesmo princípio de antes
+        // ("uma quantidade, três consumidores"), agora com N quantidades e uma
+        // soma — por isso a soma mora em `Meal.comComponentes`, e não aqui.
+        let temComponentes = !componentes.isEmpty
         let gramas = porcaoEmUso(r)
-        let macros = r.macros(para: gramas)
+        let macros: (kcal: Int, proteina: Int, carbo: Int, gordura: Int) =
+            temComponentes
+            ? (kcal:     componentes.reduce(0) { $0 + $1.kcal },
+               proteina: componentes.reduce(0) { $0 + $1.proteina },
+               carbo:    componentes.reduce(0) { $0 + $1.carbo },
+               gordura:  componentes.reduce(0) { $0 + $1.gordura })
+            : r.macros(para: gramas)
 
         return VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
@@ -326,7 +429,9 @@ struct FoodScanView: View {
             // qual porção. Antes eram por 100 g, sem dizer, logo abaixo de uma
             // frase que anunciava a porção estimada: quem lia "250 g" e "520
             // kcal" somava 520 kcal a um prato que tem 1 300.
-            Text(Self.rotuloDaPorcao(gramas: gramas))
+            Text(temComponentes
+                 ? Self.rotuloDaSoma(itens: componentes.count)
+                 : Self.rotuloDaPorcao(gramas: gramas))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Theme.inkSoft)
 
@@ -339,7 +444,11 @@ struct FoodScanView: View {
 
             // O ajuste fica ENTRE os números e o botão: a pessoa mexe e vê os
             // quatro números mudarem logo acima, antes de confirmar.
-            porcaoEditor(r, gramas: gramas)
+            if temComponentes {
+                componentesEditor
+            } else {
+                porcaoEditor(r, gramas: gramas)
+            }
 
             // Picker de refeição
             Picker("Refeição", selection: $mealType) {
@@ -358,10 +467,20 @@ struct FoodScanView: View {
             // [2026-08-06] E agora grava a porção EM USO, não a estimada: se a
             // pessoa corrigiu para 450 g, é 450 g que entra na dieta.
             Button {
-                model.addFood(r.comoFoodItem, grams: gramas, to: mealType)
+                if temComponentes {
+                    // O nome vai SEM quantidade: quem diz quanto são os
+                    // componentes. Ver `AppModel.registrarPrato`.
+                    model.registrarPrato(nome: r.name, componentes: componentes,
+                                         to: mealType)
+                } else {
+                    model.addFood(r.comoFoodItem, quantidade: gramas, to: mealType)
+                }
                 dismiss()
             } label: {
-                Label(Self.rotuloDeConfirmacao(gramas: gramas, refeicao: mealType),
+                Label(temComponentes
+                      ? Self.rotuloDeConfirmacaoComponentes(itens: componentes.count,
+                                                            refeicao: mealType)
+                      : Self.rotuloDeConfirmacao(gramas: gramas, refeicao: mealType),
                       systemImage: "checkmark")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
@@ -454,6 +573,82 @@ struct FoodScanView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous))
     }
 
+    // MARK: Ajuste por componente
+
+    /// [2026-08-12] A resposta à queixa do Assis: o prato deixa de ser um item
+    /// só. Cada componente tem a sua linha, a sua quantidade e os seus −/+, e os
+    /// quatro números lá em cima são a soma — que muda enquanto a pessoa ajusta.
+    ///
+    /// Reaproveita `ComponenteLinha` (abaixo) e `ajusteBotao` (do editor de
+    /// porção) de propósito: um segundo par de botões com regra própria seria
+    /// a mesma armadilha das duas grades do slider, resolvida em 06/08.
+    private var componentesEditor: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("O que a IA viu no prato")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Theme.ink)
+
+            ForEach(Array(componentes.enumerated()), id: \.element.id) { i, c in
+                VStack(spacing: 6) {
+                    HStack {
+                        Text(c.nome)
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.ink)
+                            .lineLimit(1)
+                        Spacer()
+                        Text(textoDaQuantidade(c.quantidade, c.unidade))
+                            .font(.subheadline.bold().monospacedDigit())
+                            .foregroundStyle(Theme.primary)
+                    }
+                    HStack(spacing: 12) {
+                        ajusteBotao("minus", habilitado: c.quantidade > 0) {
+                            componentes[i] = c.com(quantidade: max(0, c.quantidade - 10))
+                        }
+                        Slider(
+                            value: Binding<Double>(
+                                get: { Double(componentes[i].quantidade) },
+                                set: { componentes[i] = c.com(quantidade: Int($0.rounded())) }
+                            ),
+                            in: 0...Double(max(500, c.quantidade * 3))
+                        )
+                        .tint(Theme.primary)
+                        ajusteBotao("plus", habilitado: true) {
+                            componentes[i] = c.com(quantidade: c.quantidade + 10)
+                        }
+                    }
+                    HStack {
+                        Text("\(c.kcal) kcal · P\(c.proteina) C\(c.carbo) G\(c.gordura)")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.inkSoft)
+                        Spacer()
+                    }
+                }
+                .padding(.vertical, 4)
+                if i < componentes.count - 1 { Divider() }
+            }
+
+            // Zero é permitido de propósito: é assim que a pessoa tira da conta
+            // o que a IA viu e ela não comeu, sem precisar de um botão de
+            // remover que a lista de 2 a 8 itens não justifica.
+            Text("Arraste até 0 o que você não comeu.")
+                .font(.caption2)
+                .foregroundStyle(Theme.inkSoft)
+
+            if componentes != componentesDaIA {
+                Button { componentes = componentesDaIA } label: {
+                    Label("Voltar ao que a IA estimou", systemImage: "arrow.uturn.backward")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Theme.primary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surfaceAlt)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous))
+    }
+
     private func ajusteBotao(_ simbolo: String, habilitado: Bool,
                              acao: @escaping () -> Void) -> some View {
         Button(action: acao) {
@@ -515,6 +710,8 @@ struct FoodScanView: View {
                 photoData = data
                 result = nil        // reset ao trocar a foto
                 porcaoAjustada = nil
+                componentes = []
+                componentesDaIA = []
                 errorMessage = nil
             }
         }
@@ -537,15 +734,18 @@ struct FoodScanView: View {
             defer { analyzing = false }
             do {
                 let prato = try await AnaliseDeFotoService.analisarPrato(
-                    foto: imageData, consentimento: true)
+                    foto: imageData, descricao: descricao, consentimento: true)
                 // A porção vem da IA e agora é NÚMERO, não frase. `max(1,…)`
                 // porque porção zero registraria uma refeição de 0 kcal com
                 // cara de refeição registrada.
                 let porcao = max(1, Int(prato.porcaoG.rounded()))
                 // Análise nova zera o ajuste: o ponto de partida volta a ser a
                 // estimativa desta foto, não a correção que a pessoa fez na
-                // anterior.
+                // anterior. Vale para a porção e para os componentes.
                 porcaoAjustada = nil
+                let daIA = prato.componentes?.map(\.comoComponenteDaRefeicao) ?? []
+                componentesDaIA = daIA
+                componentes = daIA
                 result = FoodScanResult(
                     name: prato.nome,
                     brand: nil,
@@ -561,6 +761,8 @@ struct FoodScanView: View {
                 // poderia acabar somado às calorias do dia.
                 result = nil
                 porcaoAjustada = nil
+                componentes = []
+                componentesDaIA = []
                 errorMessage = error.localizedDescription
             }
         }
