@@ -170,11 +170,40 @@ guard let fonteDaTela = try? String(contentsOfFile: caminhoDaTela, encoding: .ut
 
 /// Os três jeitos de imprimir a gordura sem antes perguntar se ela existe.
 /// Devolve os que encontrou — lista vazia é o estado bom.
+///
+/// ── REESCRITA em 12/08 (parte 3), depois de um FALSO POSITIVO ──────────────
+/// A versão anterior era `fonte.contains("analysis.estimatedBodyFat)")` — casa
+/// por SUBSTRING, que é o defeito que o CLAUDE.md nomeia. Ela ficou vermelha
+/// quando o banner passou a chamar
+/// `medidasUsadas(gordura: analysis.estimatedBodyFat)`: a substring está lá,
+/// mas o opcional está sendo ENTREGUE à função que trata a ausência, que é o
+/// oposto de render cego.
+///
+/// A lição não é afrouxar: é que "achou o texto" não é "entendeu o uso". Agora
+/// cada ocorrência é CLASSIFICADA pelo que vem colado nela. E o canário passou
+/// a exigir as duas coisas — que acuse os três usos cegos **e** que NÃO acuse
+/// os dois seguros. Detector que só é testado contra código ruim aprende a
+/// gritar com tudo.
 func rendersCegos(_ fonte: String) -> [String] {
     var achados: [String] = []
-    if fonte.contains(#"analysis.estimatedBodyFat)"#) { achados.append("render direto") }
-    if fonte.contains("estimatedBodyFat ??") { achados.append("valor de reserva") }
-    if fonte.contains("estimatedBodyFat!") { achados.append("desembrulho à força") }
+    let alvo = "analysis.estimatedBodyFat"
+    var busca = fonte.startIndex..<fonte.endIndex
+    while let faixa = fonte.range(of: alvo, range: busca) {
+        let depois = fonte[faixa.upperBound...]
+        let antes  = fonte[..<faixa.lowerBound]
+        if depois.hasPrefix(".map {") {
+            // ligação opcional: a tela decide o que fazer quando não há gordura
+        } else if antes.hasSuffix("medidasUsadas(gordura: ") {
+            // entregue à função cuja única razão de existir é tratar a ausência
+        } else if depois.hasPrefix("!") {
+            achados.append("desembrulho à força")
+        } else if depois.hasPrefix(" ??") {
+            achados.append("valor de reserva")
+        } else {
+            achados.append("render direto")
+        }
+        busca = faixa.upperBound..<fonte.endIndex
+    }
     return achados
 }
 
@@ -193,19 +222,23 @@ checa("G19", "a tela não imprime a gordura sem checar se ela existe",
       cegosNaTela.isEmpty,
       cegosNaTela.isEmpty ? "nenhum render cego" : "ACHADOS: \(cegosNaTela.joined(separator: ", "))")
 
-// CANÁRIO (Regra 2): uma tela ruim de propósito, com os três defeitos.
-// O detector TEM de acusar os três. Se acusar menos, G19 não vale nada.
+// CANÁRIO (Regra 2), agora com as DUAS pontas: uma tela com os três usos cegos
+// E os dois usos seguros. O detector tem de acusar exatamente os três — nem
+// menos (cego), nem mais (grita com quem trata a ausência direito, que foi o
+// falso positivo desta sessão).
 let telaRuimDePropósito = """
 Text(String(format: "Gordura estimada: %.0f%%", analysis.estimatedBodyFat))
 Text(String(format: "%.0f", analysis.estimatedBodyFat ?? 0))
 Text(String(format: "%.0f", analysis.estimatedBodyFat!))
+let ok1 = analysis.estimatedBodyFat.map { String(format: "%.0f%%", $0) }
+Text("com \\(BodyAnalysis.medidasUsadas(gordura: analysis.estimatedBodyFat)).")
 """
 let acusados = rendersCegos(telaRuimDePropósito)
-checa("G20 CANÁRIO", "o detector enxerga os três renders cegos quando eles existem",
+checa("G20 CANÁRIO", "o detector acusa os três usos cegos e poupa os dois seguros",
       acusados.count == 3,
       acusados.count == 3
-        ? "✓ detector vivo — acusou: \(acusados.joined(separator: ", "))"
-        : "✗✗ DETECTOR CEGO (acusou \(acusados.count) de 3) — DESCARTAR G19")
+        ? "✓ detector vivo e sem falso positivo — acusou só: \(acusados.joined(separator: ", "))"
+        : "✗✗ DETECTOR RUIM (acusou \(acusados.count), esperava 3: \(acusados.joined(separator: ", "))) — DESCARTAR G19")
 
 // ── 6. O RÓTULO (parte 2) — a conta não usa mais o vazio ────────────────
 // O defeito de baixo: a heurística testa `bodyFat <= 12` e o 0 da ausência
@@ -307,12 +340,82 @@ checa("S13 CANÁRIO", "a heurística ingênua de fato rotula a ausência (detect
         ? "✓ detector vivo — o 0 passa no `<= 12` e sai \(ingênuaComAusência.rawValue); a de produção agora devolve nil"
         : "✗✗ CANÁRIO MUDO — S5/S10 não provam nada, DESCARTAR")
 
-// ── 7. O harness rodou tudo que promete? ────────────────────────────────
+// ── 7. A FRASE que declara as entradas ──────────────────────────────────
+// Terceira camada da mesma ausência: duas frases diziam "peso, altura, idade e
+// % de gordura informados" mesmo sem gordura informada. As duas aparecem
+// JUNTAS na tela do caminho sem foto (resumo + banner de `isAIGenerated ==
+// false`), então corrigir uma só as poria em contradição a um dedo de
+// distância.
+print("─── a frase: a lista de entradas é a que foi usada mesmo ───")
+
+checa("F1", "sem gordura, a frase não a lista entre as entradas",
+      !BodyAnalysis.medidasUsadas(gordura: nil).contains("gordura"),
+      "nil → \"\(BodyAnalysis.medidasUsadas(gordura: nil))\"")
+
+checa("F2", "o zero de carga também não entra na lista",
+      !BodyAnalysis.medidasUsadas(gordura: 0).contains("gordura"),
+      "0 → \"\(BodyAnalysis.medidasUsadas(gordura: 0))\"")
+
+checa("F3", "com gordura informada, a frase continua exatamente a de hoje",
+      BodyAnalysis.medidasUsadas(gordura: 18)
+        == "peso, altura, idade e % de gordura informados",
+      "18 → \"\(BodyAnalysis.medidasUsadas(gordura: 18))\"")
+
+checa("F4", "e o que sobra sem a gordura continua verdadeiro, não vago",
+      BodyAnalysis.medidasUsadas(gordura: nil) == "peso, altura e idade",
+      "nil → \"\(BodyAnalysis.medidasUsadas(gordura: nil))\"")
+
+// Ponta a ponta: o resumo do scan sem gordura não pode prometer a entrada.
+checa("F5", "o resumo do scan sem gordura não diz que usou gordura",
+      !magroSemGordura.analysis.summary.contains("% de gordura"),
+      "resumo: \(magroSemGordura.analysis.summary)")
+
+checa("F6", "controle positivo: o resumo de quem informou continua declarando",
+      magroCom10.analysis.summary.contains("% de gordura informados"),
+      "declara a entrada: \(magroCom10.analysis.summary.contains("% de gordura informados"))")
+
+// O BANNER mora em SwiftUI e não compila aqui. O que dá para provar é que ele
+// CHAMA a função em vez de repetir a lista na mão — que é a única coisa capaz
+// de fazer as duas frases divergirem de novo.
+let bannerChamaAFuncao = fonteDaTela.contains("BodyAnalysis.medidasUsadas(gordura: analysis.estimatedBodyFat)")
+checa("F7", "o banner tira a lista da mesma função, não de texto fixo",
+      bannerChamaAFuncao,
+      bannerChamaAFuncao ? "achou a chamada a `BodyAnalysis.medidasUsadas`"
+                         : "NÃO achou a chamada — o banner voltou a ter lista própria")
+
+/// Acha lista de entradas escrita à mão na tela — o jeito de as duas frases
+/// voltarem a divergir. Devolve o que encontrou; vazio é o estado bom.
+func listasFixasNaTela(_ fonte: String) -> [String] {
+    var achados: [String] = []
+    if fonte.contains("altura, idade e % de gordura") { achados.append("lista completa fixa") }
+    if fonte.contains("peso, altura e idade\"") { achados.append("lista curta fixa") }
+    return achados
+}
+let fixasNaTela = listasFixasNaTela(fonteDaTela)
+checa("F8", "a tela não tem nenhuma lista de entradas escrita à mão",
+      fixasNaTela.isEmpty,
+      fixasNaTela.isEmpty ? "nenhuma lista fixa" : "ACHADAS: \(fixasNaTela.joined(separator: ", "))")
+
+// CANÁRIO (Regra 2): uma tela com as duas listas fixas. O detector TEM de
+// acusar as duas — senão F8 é decorativa.
+let telaComListaFixa = """
+Text("Este resultado foi calculado apenas com peso, altura, idade e % de gordura informados.")
+Text("Calculado com peso, altura e idade")
+"""
+let acusadasFixas = listasFixasNaTela(telaComListaFixa)
+checa("F9 CANÁRIO", "o detector enxerga lista fixa quando ela existe",
+      acusadasFixas.count == 2,
+      acusadasFixas.count == 2
+        ? "✓ detector vivo — acusou: \(acusadasFixas.joined(separator: ", "))"
+        : "✗✗ DETECTOR CEGO (acusou \(acusadasFixas.count) de 2) — DESCARTAR F8")
+
+// ── 8. O harness rodou tudo que promete? ────────────────────────────────
 // 22 e não 20: a primeira execução acusou "rodou 22, esperava 20" porque eu
 // tinha acrescentado G5b e G12b depois de contar. O guarda pegou o autor do
 // harness — que é para isso que ele existe.
 // 35 desde 12/08 (parte 2): as 22 de antes + S1..S13.
-let ESPERADO = 35
+// 44 desde 12/08 (parte 3, a frase): + F1..F9.
+let ESPERADO = 44
 if totalDeChecagens != ESPERADO {
     let msg = "HARNESS INCOMPLETO: rodou \(totalDeChecagens) asserções, esperava \(ESPERADO)"
     print("✗✗ \(msg)")

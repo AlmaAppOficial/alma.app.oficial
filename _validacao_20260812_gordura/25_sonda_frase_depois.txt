@@ -1,0 +1,24 @@
+═════ DEPOIS (parte 3) — rótulo e frase, contra a produção corrigida
+data: 2026-08-12 20:39:50 WEST
+AIBodyScan.swift sha1 47bac6fa3f61
+─── COMPILAÇÃO ───
+exit code do swiftc: 0
+─── EXECUÇÃO ───
+IMC do corpo usado nas três linhas: 17.96
+
+  gordura NÃO informada (0)    → rótulo: nenhum     | linha de gordura: (linha escondida)
+  gordura informada: 10%       → rótulo: Ectomorfo  | linha de gordura: 10%
+  gordura informada: 30%       → rótulo: Endomorfo  | linha de gordura: 30%
+
+─── e o RESUMO, que também pronunciava o rótulo ───
+
+  [sem gordura informada]
+  Estimativa calculada apenas com suas medidas (peso, altura e idade) — sem análise de fotos. O plano abaixo foi calibrado para seu objetivo de manter a forma.
+
+  [com 10% informado]
+  Estimativa calculada apenas com suas medidas (peso, altura, idade e % de gordura informados) — sem análise de fotos. Seu perfil estimado é predominantemente ectomorfo. Estrutura mais magra, ganha massa com mais dificuldade. O plano abaixo foi calibrado para seu objetivo de manter a forma.
+
+Leitura: quem não informou a gordura não recebe rótulo nenhum — nem no
+cabeçalho, nem no meio do resumo. Quem informou 10% continua recebendo
+Ectomorfo, e quem informou 30%, Endomorfo: nada foi tirado de quem
+informou. Compare com `05_achado_somatotipo.txt`, o mesmo corpo antes.

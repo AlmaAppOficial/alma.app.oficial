@@ -122,6 +122,33 @@ struct BodyAnalysis: Codable {
         return bruto
     }
 
+    /// A lista de entradas que a estimativa REALMENTE usou, para o texto que a
+    /// declara. Terceira aplicação da mesma regra, agora na frase.
+    ///
+    /// Duas frases dizem essa lista, e **as duas aparecem juntas na mesma tela**
+    /// do caminho sem foto: o resumo (`MockAIPlanService`) e o banner
+    /// "Estimativa por medidas — sem IA" (`ScanResultView`, sob
+    /// `isAIGenerated == false`). Ambas afirmavam "peso, altura, idade e % de
+    /// gordura informados" mesmo quando ninguém informou gordura nenhuma.
+    ///
+    /// Isso é a mesma família dos dois consertos anteriores — ausência
+    /// apresentada como informação —, e depois deles ficou pior, não melhor:
+    /// sem a linha de gordura e sem o rótulo, a gordura passou a alimentar
+    /// **exatamente nada** na tela, enquanto duas frases diziam que ela entrou
+    /// na conta. Vale notar que ela nunca entrou nos números do plano: o
+    /// Mifflin-St Jeor abaixo usa peso, altura e idade, e a proteína sai do
+    /// peso. A gordura só alimentava o rótulo e a própria linha dela.
+    ///
+    /// Por que UMA função e não dois `if`: consertar uma frase e não a outra
+    /// deixaria a tela se contradizendo sobre o mesmo scan, a um dedo de
+    /// distância. Saindo as duas daqui, divergir deixa de ser possível — e o
+    /// caso "informou" continua com a redação de hoje, palavra por palavra.
+    static func medidasUsadas(gordura: Double?) -> String {
+        gorduraInformada(gordura) != nil
+            ? "peso, altura, idade e % de gordura informados"
+            : "peso, altura e idade"
+    }
+
     init(somatotype: Somatotype?,
          estimatedBodyFat: Double?,
          summary: String,
@@ -341,7 +368,7 @@ struct MockAIPlanService: AIPlanService {
         let analysis = BodyAnalysis(
             somatotype: soma,
             estimatedBodyFat: input.bodyFat,
-            summary: "Estimativa calculada apenas com suas medidas (peso, altura, idade e % de gordura informados) — sem análise de fotos.\(perfilNoResumo) O plano abaixo foi calibrado para seu objetivo de \(input.goal.lowercased()).",
+            summary: "Estimativa calculada apenas com suas medidas (\(BodyAnalysis.medidasUsadas(gordura: input.bodyFat))) — sem análise de fotos.\(perfilNoResumo) O plano abaixo foi calibrado para seu objetivo de \(input.goal.lowercased()).",
             observations: observations(for: input, bmi: bmi),
             focusAreas: focusAreas(for: input.goal)
         )

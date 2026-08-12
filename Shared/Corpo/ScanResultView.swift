@@ -46,7 +46,11 @@ struct ScanResultView: View {
                 Text("Estimativa por medidas — sem IA")
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(Theme.ink)
-                Text("Este resultado foi calculado apenas com peso, altura, idade e % de gordura informados. Nenhuma foto foi analisada.")
+                // A lista de entradas sai de `BodyAnalysis.medidasUsadas` — a
+                // MESMA função que escreve a lista dentro do resumo, logo
+                // abaixo nesta tela. Hard-coded aqui, as duas frases divergiam
+                // no dia em que uma fosse corrigida sozinha.
+                Text("Este resultado foi calculado apenas com \(BodyAnalysis.medidasUsadas(gordura: analysis.estimatedBodyFat)). Nenhuma foto foi analisada.")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
             }
