@@ -1,0 +1,14 @@
+═════ ACHADO (não consertado) — o rótulo do somatotipo ainda é calculado com a ausência
+data: 2026-08-12 19:40:42 WEST
+─── COMPILAÇÃO ───
+exit code do swiftc: 0
+─── EXECUÇÃO ───
+IMC do corpo usado nas duas linhas: 17.96
+
+  gordura NÃO informada (0)    → rótulo: Ectomorfo   | linha de gordura: (linha escondida)
+  gordura informada: 10%       → rótulo: Ectomorfo   | linha de gordura: 10%
+  gordura informada: 30%       → rótulo: Endomorfo   | linha de gordura: 30%
+
+Leitura: quem não informou a gordura recebe o MESMO rótulo de quem
+informou 10% — porque o 0 da ausência passa no teste `<= 12`.
+A linha de gordura já não mente. O rótulo ainda é calculado com o vazio.

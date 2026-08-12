@@ -57,9 +57,30 @@ struct ScanResultView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous))
     }
 
-    // Análise
-    private var analysisCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
+    /// [2026-08-12] Duas linhas que só aparecem quando têm o que dizer.
+    ///
+    /// O somatotipo já sumia quando faltava — a IA devolve `null` no rótulo e a
+    /// tela deixou de derrubar a análise inteira por causa disso. A gordura
+    /// **não** sumia: no caminho sem foto, quem nunca informou o percentual
+    /// carregava um `0` vindo do `AppModel`, e a tela imprimia "Gordura
+    /// estimada: 0%". Ausência vestida de medição, num app de saúde.
+    ///
+    /// Agora as duas seguem a mesma regra, e o que some é a linha: sem
+    /// travessão, sem "não informado", sem estimar por fora. Esconder já era o
+    /// comportamento estabelecido aqui para dado que falta — a régua é a
+    /// coerência com o que a tela já fazia.
+    ///
+    /// Faltando as duas, o cabeçalho inteiro sai. Ícone sozinho ao lado de um
+    /// bloco vazio não informa nada. O resumo, as observações e os focos ficam:
+    /// não dependem destes dois campos.
+    @ViewBuilder
+    private var cabecalhoDaAnalise: some View {
+        let perfil = analysis.somatotype.map { "Perfil: \($0.rawValue)" }
+        let gordura = analysis.estimatedBodyFat.map {
+            String(format: "Gordura estimada: %.0f%%", $0)
+        }
+
+        if let principal = perfil ?? gordura {
             HStack(spacing: 14) {
                 Image(systemName: "sparkles")
                     .font(.title2)
@@ -68,24 +89,26 @@ struct ScanResultView: View {
                     .background(Theme.primary)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 VStack(alignment: .leading, spacing: 2) {
-                    // [2026-08-12] Sem rótulo, a gordura sobe para a linha principal.
-                    // Antes a ausência do somatotipo derrubava a tela inteira; agora
-                    // ela só tira uma linha. Nada é inventado para preencher o buraco.
-                    if let somatotype = analysis.somatotype {
-                        Text("Perfil: \(somatotype.rawValue)")
-                            .font(.headline)
-                            .foregroundStyle(Theme.ink)
-                        Text(String(format: "Gordura estimada: %.0f%%", analysis.estimatedBodyFat))
+                    Text(principal)
+                        .font(.headline)
+                        .foregroundStyle(Theme.ink)
+                    // A gordura só é segunda linha quando o perfil ocupou a
+                    // primeira. Sozinha, ela É a primeira.
+                    if perfil != nil, let gordura {
+                        Text(gordura)
                             .font(.caption)
                             .foregroundStyle(Theme.inkSoft)
-                    } else {
-                        Text(String(format: "Gordura estimada: %.0f%%", analysis.estimatedBodyFat))
-                            .font(.headline)
-                            .foregroundStyle(Theme.ink)
                     }
                 }
                 Spacer()
             }
+        }
+    }
+
+    // Análise
+    private var analysisCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cabecalhoDaAnalise
             Text(analysis.summary)
                 .font(.subheadline)
                 .foregroundStyle(Theme.inkSoft)

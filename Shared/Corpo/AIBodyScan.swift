@@ -41,10 +41,76 @@ struct BodyAnalysis: Codable {
     /// exibir como se a foto tivesse sido lida — isso é o B8, e é o motivo de
     /// aqui ser `nil` em vez de um valor de reserva.
     let somatotype: Somatotype?
-    let estimatedBodyFat: Double
+
+    /// OPCIONAL desde 12/08/2026, pelo mesmo motivo do `somatotype` acima e com
+    /// uma diferença que pesa mais: aqui a ausência vinha **disfarçada de
+    /// medida**.
+    ///
+    /// No caminho sem foto, quem nunca informou a gordura tem `bodyFat == 0` no
+    /// `AppModel` — o zero é o valor de carga (`store.object(...) as? Double ?? 0`,
+    /// `Models.swift`), não algo que alguém tenha digitado. Esse zero atravessava
+    /// o `ScanInput` inteiro e a tela imprimia **"Gordura estimada: 0%"**: um
+    /// número que ninguém mediu, exibido como resultado, num app de saúde.
+    ///
+    /// Zero não é medida — é ausência de medida. A regra já valia em
+    /// `SaudeView.medida(_:casas:)`, em `EditAssessmentView.measureRow` e em
+    /// `AppModel.hasBodyProfile`; o que faltava era ela chegar aqui. Sendo
+    /// opcional, o compilador não deixa mais ninguém imprimir este campo sem
+    /// antes decidir o que fazer quando ele não existe — a mesma trava que
+    /// `imcSeguro` ganhou depois do "nan · Obesidade".
+    ///
+    /// Ausência esconde a linha (`ScanResultView`), e nada mais. Continua
+    /// PROIBIDO preencher com estimativa local e exibir como se fosse leitura —
+    /// é o B8, e é o motivo de ser `nil` em vez de um valor de reserva.
+    let estimatedBodyFat: Double?
     let summary: String
     let observations: [String]
     let focusAreas: [String]
+
+    /// A REGRA, num lugar só: gordura só é dado quando é número finito e maior
+    /// que zero.
+    ///
+    /// Está aqui, e não na tela, porque o resultado é **persistido**
+    /// (`AppModel.scanResult`, JSON no store) e reaberto pelo "Ver meu plano
+    /// atual" da `SaudeView`. Quem já gerou um scan sem informar a gordura tem
+    /// um `0` gravado no aparelho; normalizar só na hora de desenhar deixaria
+    /// esse arquivo mentindo para sempre. Por isso a regra roda também no
+    /// `init(from:)` — o dado velho é corrigido na leitura.
+    ///
+    /// `> 0` e não `>= 5` (o mínimo do slider): o limite do controle é assunto
+    /// da tela de edição. Aqui a pergunta é só se existe medida.
+    static func gorduraInformada(_ bruto: Double?) -> Double? {
+        guard let bruto, bruto.isFinite, bruto > 0 else { return nil }
+        return bruto
+    }
+
+    init(somatotype: Somatotype?,
+         estimatedBodyFat: Double?,
+         summary: String,
+         observations: [String],
+         focusAreas: [String]) {
+        self.somatotype = somatotype
+        self.estimatedBodyFat = Self.gorduraInformada(estimatedBodyFat)
+        self.summary = summary
+        self.observations = observations
+        self.focusAreas = focusAreas
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case somatotype, estimatedBodyFat, summary, observations, focusAreas
+    }
+
+    /// Escrito à mão para que o zero gravado por versões anteriores vire
+    /// ausência na leitura, em vez de voltar à tela como medida.
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        somatotype       = try c.decodeIfPresent(Somatotype.self, forKey: .somatotype)
+        estimatedBodyFat = Self.gorduraInformada(
+            try c.decodeIfPresent(Double.self, forKey: .estimatedBodyFat))
+        summary          = try c.decode(String.self, forKey: .summary)
+        observations     = try c.decode([String].self, forKey: .observations)
+        focusAreas       = try c.decode([String].self, forKey: .focusAreas)
+    }
 }
 
 struct PlannedMeal: Codable, Identifiable {

@@ -1,0 +1,38 @@
+═════ BASE DEPOIS DAS MUTAÇÕES — as três desfeitas, tudo verde de novo
+data: 2026-08-12 19:39:28 WEST
+swiftc: swift-driver version: 1.148.6 Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)
+arquivos compilados (produção + andaimes + asserções):
+  Shared/Corpo/AIBodyScan.swift  (PRODUÇÃO — sha1 639bb34817a7)
+  Shared/Corpo/ScanResultView.swift  (lido como texto — sha1 d68bf1a22482)
+  _validacao_20260812_gordura/harness/{stubs,main}.swift
+─── COMPILAÇÃO ───
+
+exit code do swiftc: 0
+✓ COMPILOU (binário novo: 19:39:30)
+─── EXECUÇÃO ───
+═════ GORDURA AUSENTE ≠ GORDURA ZERO — asserções contra o código de produção ═════
+  ✓ G1 ausência declarada (nil) não vira número — nil → nil
+  ✓ G2 o zero de carga é ausência, não medida — 0 → nil
+  ✓ G3 percentual informado atravessa intacto — 18.4 → 18.4
+  ✓ G4 negativo não é medida — -3 → nil
+  ✓ G5 NaN e infinito não são medida — nan → nil · inf → nil
+  ✓ G5b o mínimo que a pessoa consegue informar (5%) continua sendo medida — 5 → 5.0
+  ✓ G6 construir com 0 já guarda ausência — estimatedBodyFat = nil
+  ✓ G7 construir com 22 guarda 22 — estimatedBodyFat = 22.0
+  ✓ G8 sem gordura informada, a linha não tem o que mostrar — estimatedBodyFat = nil
+  ✓ G9 com gordura informada, a linha aparece — estimatedBodyFat = 22.0
+  ✓ G10 é mesmo a rota sem foto (a que o Assis relatou) — isAIGenerated = Optional(false)
+  ✓ G11 esconder a gordura não derruba o resto da análise — resumo=284 chars · obs=3 · focos=3 · kcal=2487
+  ✓ G12 o 0 já gravado vira ausência na leitura — estimatedBodyFat = nil
+  ✓ G12b e o resultado salvo continua inteiro ao redor — somatotipo=Optional(gordura_harness_82213.Somatotype.mesomorfo) resumo=resumo obs=["obs"] focos=["foco"]
+  ✓ G13 resultado salvo com medida real continua mostrando — estimatedBodyFat = 31.5
+  ✓ G14 resultado sem a chave decodifica como ausência, sem estourar — estimatedBodyFat = nil
+  ✓ G15 ida e volta pelo disco preserva a medida — estimatedBodyFat = 18.0
+  ✓ G16 ida e volta não ressuscita o zero — estimatedBodyFat = nil
+  ✓ G17 controle positivo: a tela de fato fala de gordura estimada — achou a copy na fonte
+  ✓ G18 a tela lê a gordura por ligação opcional — achou `analysis.estimatedBodyFat.map {`
+  ✓ G19 a tela não imprime a gordura sem checar se ela existe — nenhum render cego
+  ✓ G20 CANÁRIO o detector enxerga os três renders cegos quando eles existem — ✓ detector vivo — acusou: render direto, valor de reserva, desembrulho à força
+─────────────────────────────────────────────────────────────────
+22 asserções, 0 FALHA(S).
+exit code do harness: 0  (0 = tudo verde, 1 = houve falha, 2 = abortou)
