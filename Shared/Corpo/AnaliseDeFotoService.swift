@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import Foundation
+import UIKit
 import FirebaseAuth
 
 // MARK: - Erros honestos
@@ -103,9 +104,15 @@ enum AnaliseDeFotoService {
     static func analisarCorpo(input: ScanInput, consentimento: Bool) async throws -> ScanResult {
         guard consentimento else { throw ErroDaAnalise.semConsentimento }
 
+        // Redimensiona e reencoda ANTES de virar base64 — ver `jpegParaEnvio`.
         var fotos: [String] = []
-        if let f = input.frontPhoto { fotos.append(f.base64EncodedString()) }
-        if let s = input.sidePhoto  { fotos.append(s.base64EncodedString()) }
+        for original in [input.frontPhoto, input.sidePhoto].compactMap({ $0 }) {
+            guard let pronta = Self.jpegParaEnvio(original) else {
+                throw ErroDaAnalise.fotoIlegivel(
+                    "Não consegui preparar essa foto. Tente escolher outra imagem.")
+            }
+            fotos.append(pronta.base64EncodedString())
+        }
         guard !fotos.isEmpty else {
             throw ErroDaAnalise.fotoIlegivel("Adicione ao menos uma foto para a análise.")
         }
@@ -134,16 +141,47 @@ enum AnaliseDeFotoService {
         // Isto é o mesmo erro do B8, um nível abaixo: lá o app inteiro caía no
         // cálculo local; aqui caíam três campos, em silêncio e sem banner,
         // porque `isAIGenerated` continuava `true`.
+        //
+        // ── EMENDA [2026-08-12] — O QUE ESTAVA CERTO E O QUE CUSTOU CARO ────
+        //
+        // O princípio acima continua valendo e não foi afrouxado: NADA vindo do
+        // `MockAIPlanService` entra num resultado rotulado como análise por foto.
+        //
+        // O erro foi de EXECUÇÃO, e ele quebrou o recurso em produção. A guarda
+        // tratou `somatotipo` — um RÓTULO — como se fosse a leitura da foto, no
+        // mesmo nível da gordura e do resumo. E o esquema do servidor permitia
+        // `null` naquele campo enquanto a instrução nunca o pedia, então o
+        // modelo devolvia `null` sempre. Resultado: `Somatotype.init(rawValue:)`
+        // dava `nil`, e a pessoa perdia gordura, resumo, observações e focos —
+        // tudo que a IA tinha entregue de verdade — por causa de uma palavra.
+        // Quatro tentativas do Assis em 12/08, quatro telas de erro, quatro
+        // scans queimados do limite diário.
+        //
+        // A distinção que faltava, e que agora é explícita aqui:
+        //   • `gorduraEstimada` e `resumo` SUSTENTAM a análise → sem eles não
+        //     houve leitura, e recusar é honesto.
+        //   • `somatotipo` DESCREVE a análise → sem ele a leitura aconteceu do
+        //     mesmo jeito, e derrubá-la é perder informação boa por nada.
+        //
+        // Ausência de rótulo agora esconde o rótulo (`BodyAnalysis.somatotype`
+        // é opcional e `ScanResultView` omite a linha). O que continua proibido
+        // — e é o coração do B8 — é PREENCHER o rótulo com heurística local e
+        // exibi-lo como se a foto tivesse sido lida. Por isso `nil`, nunca um
+        // valor de reserva. O lint H-W4 mudou junto, de propósito: ele passou a
+        // prender este invariante em vez da linha antiga.
         // ═══════════════════════════════════════════════════════════════════
         guard r.legivel, let gordura = r.gorduraEstimada else {
             throw ErroDaAnalise.fotoIlegivel(
                 r.motivo ?? "Não consegui ler essa foto o suficiente para estimar.")
         }
-        guard let somatotipo = r.somatotipo.flatMap(Somatotype.init(rawValue:)),
-              let resumo = r.resumo, !resumo.isEmpty else {
+        let resumoLimpo = r.resumo?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !resumoLimpo.isEmpty else {
             throw ErroDaAnalise.indisponivel(
                 "A análise da foto voltou incompleta. Tente de novo em alguns minutos.")
         }
+        let resumo = resumoLimpo
+        // Vem da IA ou não vem. `nil` é resposta válida e some da tela.
+        let somatotipo = Self.somatotipoDaIA(r.somatotipo)
 
         // A IA entrega a leitura da foto. O plano NUMÉRICO sai do cálculo
         // local, alimentado pela gordura que a IA estimou em vez da informada —
@@ -194,12 +232,86 @@ enum AnaliseDeFotoService {
 
     static let focosPadraoDaIA = ["Constância", "Composição corporal"]
 
+    /// Traz o rótulo para a grafia que o app conhece, ou devolve `nil`.
+    ///
+    /// O servidor já normaliza e o esquema já fecha o `enum` — isto aqui é a
+    /// terceira camada, para o caso de um servidor mais velho, um modelo trocado
+    /// ou alguém afrouxando o esquema. Reconhecer "mesomorfo" em minúscula e
+    /// mostrar o rótulo é melhor que escondê-lo por causa de uma letra.
+    ///
+    /// NÃO INVENTA: sem radical reconhecível, devolve `nil` e a tela omite a
+    /// linha. Chutar um tipo aqui seria o B8 de novo, agora com três camadas
+    /// de código dando cobertura ao chute.
+    static func somatotipoDaIA(_ bruto: String?) -> Somatotype? {
+        guard let bruto else { return nil }
+        let limpo = bruto.folding(options: [.diacriticInsensitive, .caseInsensitive],
+                                  locale: Locale(identifier: "pt_BR"))
+        // Composto: vale o PRIMEIRO citado. Regra arbitrária e casada com a do
+        // servidor (`normalizarSomatotipo`) de propósito — as duas mudam juntas
+        // ou nenhuma muda. Ver a nota lá sobre por que não é a convenção clássica.
+        var melhor: (tipo: Somatotype, posicao: String.Index)?
+        for tipo in [Somatotype.ectomorfo, .mesomorfo, .endomorfo] {
+            let radical = String(tipo.rawValue.prefix(4))
+                .folding(options: [.diacriticInsensitive, .caseInsensitive],
+                         locale: Locale(identifier: "pt_BR"))
+            if let faixa = limpo.range(of: radical),
+               melhor == nil || faixa.lowerBound < melhor!.posicao {
+                melhor = (tipo, faixa.lowerBound)
+            }
+        }
+        return melhor?.tipo
+    }
+
+    /// Reduz a foto para `ladoMaximo` no maior lado e devolve JPEG.
+    ///
+    /// ═══════════════════════════════════════════════════════════════════════
+    /// [2026-08-12] ISTO NÃO EXISTIA. `ladoMaximo` estava declarado desde 05/08
+    /// e NUNCA era usado — o comentário do topo prometia "redimensiona antes de
+    /// enviar" e nada redimensionava. Dois efeitos reais:
+    ///
+    ///   1. Foto da galeria sai do `PhotosPicker` no formato original. No iPhone
+    ///      isso costuma ser HEIC, e o servidor rotula tudo como
+    ///      `data:image/jpeg;base64,` sem olhar os bytes. Reencodar aqui elimina
+    ///      a divergência entre o rótulo e o conteúdo, em vez de contar com o
+    ///      provedor farejar o formato.
+    ///   2. Uma foto de 12 MP passa fácil de 3 MB e infla mais um terço em
+    ///      base64 — perto do teto de 4 MB por foto do servidor, que responde
+    ///      "Foto muito grande" quando estoura.
+    ///
+    /// E não custa qualidade: com `detail: "high"` a OpenAI reduz a imagem para
+    /// caber em 2048×2048 e depois põe o lado MENOR em 768 px. Uma foto de
+    /// 3024×4032 e uma de 960×1280 chegam ao modelo como a mesma imagem de
+    /// 768×1024. O que se corta aqui é upload, latência e custo — não detalhe.
+    /// ═══════════════════════════════════════════════════════════════════════
+    static func jpegParaEnvio(_ dados: Data) -> Data? {
+        guard let imagem = UIImage(data: dados) else { return nil }
+        let lado = max(imagem.size.width, imagem.size.height)
+        // Já pequena: só reencoda para garantir que é JPEG de verdade.
+        let escala = lado > ladoMaximo ? ladoMaximo / lado : 1
+        let tamanho = CGSize(width: (imagem.size.width * escala).rounded(),
+                             height: (imagem.size.height * escala).rounded())
+        // `UIGraphicsImageRendererFormat()` e não `.default()`: o `.default()`
+        // está depreciado desde o iOS 11 E lê os traits da tela principal, o que
+        // dispara o Main Thread Checker — esta função roda fora da main thread,
+        // dentro do `Task` da view.
+        let formato = UIGraphicsImageRendererFormat()
+        formato.scale = 1                      // pontos = pixels, sem 2x/3x surpresa
+        formato.opaque = true
+        return UIGraphicsImageRenderer(size: tamanho, format: formato)
+            .image { _ in imagem.draw(in: CGRect(origin: .zero, size: tamanho)) }
+            .jpegData(compressionQuality: 0.85)
+    }
+
     // MARK: Comida
 
     static func analisarPrato(foto: Data, consentimento: Bool) async throws -> AnaliseDePrato {
         guard consentimento else { throw ErroDaAnalise.semConsentimento }
 
-        let dados = try await chamar(tipo: "comida", fotos: [foto.base64EncodedString()],
+        guard let pronta = Self.jpegParaEnvio(foto) else {
+            throw ErroDaAnalise.fotoIlegivel(
+                "Não consegui preparar essa foto. Tente escolher outra imagem.")
+        }
+        let dados = try await chamar(tipo: "comida", fotos: [pronta.base64EncodedString()],
                                      medidas: nil, consentimento: consentimento)
         let r = try decodificar(RespostaPrato.self, de: dados)
 

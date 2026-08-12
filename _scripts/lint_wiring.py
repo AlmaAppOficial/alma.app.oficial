@@ -182,12 +182,53 @@ REGRAS = [
         "precisa": r"static func escalarPor100\(_ valorPor100: Int, gramas: Int\)",
         "mutacao": "reescrever a conta dentro do addFood, criando duplicata",
     },
+    # ── H-W4 reescrita em 2026-08-12, depois do incidente em produção ────────
+    # A versão de 05/08 exigia literalmente
+    #     `guard let somatotipo = r.somatotipo.flatMap`
+    # e com isso prendia o MECANISMO, não o invariante. O mecanismo estava
+    # errado: tratava o RÓTULO (somatotipo) no mesmo nível do que SUSTENTA a
+    # análise (gordura e resumo), e derrubava a leitura inteira quando o rótulo
+    # não vinha na grafia exata. Aconteceu quatro vezes seguidas com o Assis.
+    #
+    # O invariante que sempre importou continua inteiro e agora está em DUAS
+    # regras, porque são duas afirmações diferentes:
+    #   H-W4  — o rótulo sai da string da PRÓPRIA IA (via normalizador), nunca
+    #           de heurística local; sem nada reconhecível vira `nil`.
+    #   H-W4b — o que sustenta a análise continua obrigatório: resumo vazio
+    #           ainda RECUSA. É a metade do invariante que NÃO foi afrouxada, e
+    #           sem esta regra alguém relaxaria o resumo junto sem ninguém ver.
     {
         "id": "H-W4",
-        "desc": "o caminho de IA exige somatotipo e resumo da própria IA",
+        "desc": "o rótulo vem da própria IA, normalizado — nunca de cálculo local",
         "arquivo": "Shared/Corpo/AnaliseDeFotoService.swift",
-        "precisa": r"guard let somatotipo = r\.somatotipo\.flatMap",
-        "mutacao": "voltar o fallback `?? base.analysis.somatotype`",
+        "precisa": r"let somatotipo = Self\.somatotipoDaIA\(r\.somatotipo\)",
+        "mutacao": "derivar o somatotipo do `base` (mock) quando a IA não manda",
+    },
+    {
+        "id": "H-W4b",
+        "desc": "resumo vazio ainda derruba a análise (a metade não afrouxada)",
+        "arquivo": "Shared/Corpo/AnaliseDeFotoService.swift",
+        "precisa": r"guard !resumoLimpo\.isEmpty else",
+        "mutacao": "aceitar resumo vazio, deixando a tela sem a leitura da foto",
+    },
+    # [2026-08-12] A PRIMEIRA VERSÃO DESTA REGRA ERA CEGA, e a revisão provou
+    # isso por mutação antes de qualquer commit. Ela era
+    #     proibe: somatotipoDaIA\([^)]*\)\s*\?\?\s*\.(ecto|meso|endo)morfo
+    # ou seja, olhava só o SÍTIO DE CHAMADA e só na grafia com ponto. Passava
+    # verde com o bug dentro em dois casos: `?? Somatotype.mesomorfo` (nome
+    # qualificado) e — pior — `return melhor?.tipo ?? .mesomorfo` DENTRO da
+    # própria função que promete não chutar, que é o lugar mais natural de
+    # introduzir o defeito.
+    #
+    # É exatamente o modo de falha que a A26d denunciou em 05/08: guarda que fica
+    # verde porque não enxerga. Agora a regra varre o ARQUIVO inteiro por
+    # qualquer `?? <somatotipo literal>`, com ou sem qualificação.
+    {
+        "id": "H-W4c",
+        "desc": "nada no caminho de IA chuta um somatotipo com `?? .tipo`",
+        "arquivo": "Shared/Corpo/AnaliseDeFotoService.swift",
+        "proibe": r"\?\?\s*(Somatotype)?\.(ecto|meso|endo)morfo",
+        "mutacao": "pôr `?? .mesomorfo` na saída do normalizador OU na chamada",
     },
     {
         "id": "H-W5",
@@ -195,6 +236,48 @@ REGRAS = [
         "arquivo": "Shared/Corpo/AnaliseDeFotoService.swift",
         "proibe": r"base\.analysis\.(summary|observations|focusAreas|somatotype)",
         "mutacao": "reintroduzir qualquer `base.analysis.<texto>` como reserva",
+    },
+    # ── H-W6 · A LINHA QUE CAUSOU O INCIDENTE DE 12/08 ────────────────────────
+    # Esta é a regra mais importante do bloco H, porque prende a causa raiz
+    # exata em vez de um sintoma.
+    #
+    # O que aconteceu: `somatotipo` era `{ type: ['string','null'] }` — texto
+    # livre, anulável — e a instrução do modelo NUNCA mencionava o campo. O
+    # modelo devolvia `null` de forma determinística e o app 2.0.1 descartava a
+    # análise inteira. Quatro tentativas do Assis, quatro telas de erro.
+    #
+    # `enum` fechado + não-anulável não é preferência de estilo: com
+    # `strict: true` é o que restringe a decodificação e torna `null`
+    # impossível de emitir. Voltar a permitir `null` é reabrir o incidente,
+    # e é por isso que existem DUAS regras — uma exige a forma certa, a outra
+    # proíbe a forma errada de voltar por outro caminho.
+    {
+        "id": "H-W6",
+        "desc": "somatotipo é enum FECHADO no esquema do servidor",
+        "arquivo": "functions/src/analiseDeFoto.ts",
+        "precisa": r"somatotipo: \{ type: 'string', enum: SOMATOTIPOS \}",
+        "mutacao": "tirar o enum, deixando o campo como string livre",
+    },
+    {
+        "id": "H-W6b",
+        "desc": "e somatotipo NÃO volta a ser anulável",
+        "arquivo": "functions/src/analiseDeFoto.ts",
+        "proibe": r"somatotipo: \{ type: \[('|\")string\1, ('|\")null\2\]",
+        "mutacao": "devolver `type: ['string','null']` ao campo — o bug original",
+    },
+    {
+        "id": "H-W6c",
+        "desc": "a instrução do modelo PEDE o somatotipo pelo nome",
+        "arquivo": "functions/src/analiseDeFoto.ts",
+        "precisa": r'- "somatotipo": EXATAMENTE uma destas três palavras',
+        "mutacao": "tirar o campo da instrução, como estava antes de 12/08",
+    },
+    {
+        "id": "H-W7",
+        "desc": "o rótulo ausente NÃO derruba a análise no servidor",
+        "arquivo": "functions/src/analiseDeFoto.ts",
+        "proibe": r"faltando\.push\('somatotipo'\);[\s\S]{0,400}?res\.status\(502\)",
+        "mutacao": "voltar a responder 502 quando só o rótulo falta",
     },
     # ── E · a porção deixa de ser um decreto (2026-08-06) ──────────────────
     # As asserções E0..E4b provam a ARITMÉTICA em runtime. Estas cinco provam o

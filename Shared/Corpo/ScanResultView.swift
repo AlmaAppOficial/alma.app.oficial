@@ -68,12 +68,21 @@ struct ScanResultView: View {
                     .background(Theme.primary)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Perfil: \(analysis.somatotype.rawValue)")
-                        .font(.headline)
-                        .foregroundStyle(Theme.ink)
-                    Text(String(format: "Gordura estimada: %.0f%%", analysis.estimatedBodyFat))
-                        .font(.caption)
-                        .foregroundStyle(Theme.inkSoft)
+                    // [2026-08-12] Sem rótulo, a gordura sobe para a linha principal.
+                    // Antes a ausência do somatotipo derrubava a tela inteira; agora
+                    // ela só tira uma linha. Nada é inventado para preencher o buraco.
+                    if let somatotype = analysis.somatotype {
+                        Text("Perfil: \(somatotype.rawValue)")
+                            .font(.headline)
+                            .foregroundStyle(Theme.ink)
+                        Text(String(format: "Gordura estimada: %.0f%%", analysis.estimatedBodyFat))
+                            .font(.caption)
+                            .foregroundStyle(Theme.inkSoft)
+                    } else {
+                        Text(String(format: "Gordura estimada: %.0f%%", analysis.estimatedBodyFat))
+                            .font(.headline)
+                            .foregroundStyle(Theme.ink)
+                    }
                 }
                 Spacer()
             }

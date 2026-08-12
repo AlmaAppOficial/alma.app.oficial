@@ -29,7 +29,18 @@ enum Somatotype: String, Codable {
 }
 
 struct BodyAnalysis: Codable {
-    let somatotype: Somatotype
+    /// OPCIONAL desde 12/08/2026, e a opcionalidade é o conserto — não um detalhe.
+    ///
+    /// O somatotipo é um RÓTULO. A análise é a gordura estimada, o resumo, as
+    /// observações e os focos. Até 12/08 o app descartava tudo isso quando o
+    /// rótulo não vinha na grafia esperada: a pessoa perdia a análise inteira
+    /// por causa de uma palavra. Aconteceu em produção, quatro vezes seguidas.
+    ///
+    /// Agora ausência de rótulo esconde o rótulo (`ScanResultView`), e nada mais.
+    /// O que continua PROIBIDO é preencher este campo com heurística local e
+    /// exibir como se a foto tivesse sido lida — isso é o B8, e é o motivo de
+    /// aqui ser `nil` em vez de um valor de reserva.
+    let somatotype: Somatotype?
     let estimatedBodyFat: Double
     let summary: String
     let observations: [String]

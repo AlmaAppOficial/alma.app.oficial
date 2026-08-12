@@ -51,12 +51,20 @@ rm -f /tmp/mutc_base_$$
 echo
 
 # ── (b) porção ─────────────────────────────────────────────────────────────
+# [2026-08-12] O padrão desta mutação estava OBSOLETO desde 06/08: procurava
+# `grams: r.porcaoG`, que deixou de existir quando a porção virou ajustável
+# (commit 9ba23fc, linha atual `grams: gramas`). O `mutar` reporta isso como
+# furo — "a mutação não alterou o arquivo" —, então o script vinha acusando um
+# buraco que não existia. Corrigido para a linha viva.
 mutar "M-H1" "Shared/Corpo/FoodScanView.swift" \
-  's|model.addFood(r.comoFoodItem, grams: r.porcaoG, to: mealType)|model.addFood(r.comoFoodItem, grams: 100, to: mealType)|' \
-  "$LINT" "O BUG ORIGINAL: volta grams: 100 fixo, ignorando a porção da IA"
+  's|model.addFood(r.comoFoodItem, grams: gramas, to: mealType)|model.addFood(r.comoFoodItem, grams: 100, to: mealType)|' \
+  "$LINT" "O BUG ORIGINAL: volta grams: 100 fixo, ignorando a porção em uso"
 
+# [2026-08-12] Mesmo defeito do M-H1, achado na mesma revisão: o padrão
+# `r.macrosDaPorcao.kcal` morreu em 06/08 e a linha viva é `macros.kcal`.
+# A mutação não casava, o `mutar` contava furo e o script saía com exit 1.
 mutar "M-H2" "Shared/Corpo/FoodScanView.swift" \
-  's|macroTile("\\(r.macrosDaPorcao.kcal)", "kcal", Theme.coral)|macroTile("\\(r.kcalPer100)", "kcal", Theme.coral)|' \
+  's|macroTile("\\(macros.kcal)", "kcal", Theme.coral)|macroTile("\\(r.kcalPer100)", "kcal", Theme.coral)|' \
   "$LINT" "os tiles voltam a mostrar por 100 g debaixo da frase da porção"
 
 mutar "M-H3" "Shared/Corpo/Models.swift" \
@@ -64,9 +72,46 @@ mutar "M-H3" "Shared/Corpo/Models.swift" \
   "$LINT" "a fonte única da escala some e cada ponta faz a própria conta"
 
 # ── (a) vazamento de texto ─────────────────────────────────────────────────
+# [2026-08-12] M-H4 foi reescrita e ganhou três irmãs. A versão de 05/08 mutava
+# `guard let somatotipo = r.somatotipo.flatMap(...)`, linha que deixou de
+# existir: era ELA a causa do incidente de 12/08 — tratava o RÓTULO como se
+# fosse a leitura da foto e derrubava a análise inteira quando ele não vinha na
+# grafia exata. Quatro tentativas do Assis, quatro telas de erro.
+#
+# O invariante não foi afrouxado, foi partido em dois, e as mutações seguem os
+# dois pedaços: M-H4/M-H4c provam que o rótulo não pode voltar a sair do mock
+# nem ser chutado; M-H4b prova que o RESUMO — o que sustenta a leitura —
+# continua obrigatório. Sem M-H4b, alguém afrouxaria o resumo junto achando que
+# é a mesma flexibilização, e aí a tela volta a mentir.
 mutar "M-H4" "Shared/Corpo/AnaliseDeFotoService.swift" \
-  's|guard let somatotipo = r.somatotipo.flatMap(Somatotype.init(rawValue:)),|guard let somatotipo = Optional(Somatotype(rawValue: r.somatotipo ?? "") ?? base.analysis.somatotype),|' \
-  "$LINT" "volta o fallback do mock para o somatotipo"
+  's|let somatotipo = Self.somatotipoDaIA(r.somatotipo)|let somatotipo = Self.somatotipoDaIA(r.somatotipo) ?? base.analysis.somatotype|' \
+  "$LINT" "o rótulo volta a sair do mock quando a IA não manda"
+
+mutar "M-H4b" "Shared/Corpo/AnaliseDeFotoService.swift" \
+  's|guard !resumoLimpo.isEmpty else {|guard true else {|' \
+  "$LINT" "resumo vazio deixa de derrubar a análise (a metade NÃO afrouxada)"
+
+mutar "M-H4c" "Shared/Corpo/AnaliseDeFotoService.swift" \
+  's|let somatotipo = Self.somatotipoDaIA(r.somatotipo)|let somatotipo = Self.somatotipoDaIA(r.somatotipo) ?? .mesomorfo|' \
+  "$LINT" "o normalizador passa a CHUTAR .mesomorfo em vez de omitir o rótulo"
+
+mutar "M-H4d" "Shared/Corpo/AnaliseDeFotoService.swift" \
+  's|let somatotipo = Self.somatotipoDaIA(r.somatotipo)|let somatotipo: Somatotype? = nil|' \
+  "$LINT" "o normalizador some do caminho e o rótulo nunca mais aparece"
+
+# ── As duas abaixo nasceram de uma REVISÃO, não de imaginação ───────────────
+# A primeira versão da regra H-W4c olhava só o sítio de chamada e só na grafia
+# com ponto. Estas duas mutações passavam VERDE COM O BUG DENTRO, e a segunda é
+# a mais perigosa das duas: o chute plantado DENTRO da função que promete não
+# chutar — o lugar mais natural de alguém introduzir o defeito de boa-fé.
+# É o modo de falha da A26d (guarda cega) cometido pela própria guarda.
+mutar "M-H4e" "Shared/Corpo/AnaliseDeFotoService.swift" \
+  's|return melhor?.tipo|return melhor?.tipo ?? .mesomorfo|' \
+  "$LINT" "CEGUEIRA 1: o chute plantado DENTRO do normalizador"
+
+mutar "M-H4f" "Shared/Corpo/AnaliseDeFotoService.swift" \
+  's|let somatotipo = Self.somatotipoDaIA(r.somatotipo)|let somatotipo = Self.somatotipoDaIA(r.somatotipo) ?? Somatotype.mesomorfo|' \
+  "$LINT" "CEGUEIRA 2: o mesmo chute com o nome do tipo QUALIFICADO"
 
 mutar "M-H5" "Shared/Corpo/AnaliseDeFotoService.swift" \
   's|observations: r.observacoes.isEmpty ? Self.observacoesPadraoDaIA : r.observacoes|observations: r.observacoes.isEmpty ? base.analysis.observations : r.observacoes|' \
