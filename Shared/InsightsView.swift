@@ -251,8 +251,14 @@ struct InsightsView: View {
                 VStack(spacing: 10) {
                     InsightWellnessRow(label: "Sono (ontem)", value: sleepHrs > 0 ? String(format: "%.1fh", sleepHrs) : "—",
                                 progress: min(sleepHrs / 8.0, 1.0), color: .indigo)
-                    InsightWellnessRow(label: "Atividade", value: "\(hk.stepsFormatted) passos",
-                                progress: min(Double(hk.steps) / 10000.0, 1.0), color: .green)
+                    // [2026-08-13] Era `"\(hk.stepsFormatted) passos"`, sem
+                    // portão nenhum: as três linhas vizinhas já diziam "—" na
+                    // ausência de dado e só esta exibia "0 passos" como se
+                    // fosse medição. Num cartão PAGO, ao lado de três medidas
+                    // honestas — o que torna o zero ainda mais convincente.
+                    InsightWellnessRow(label: "Atividade",
+                                value: hk.stepsFormatted.map { "\($0) passos" } ?? "—",
+                                progress: min(Double(hk.steps ?? 0) / 10000.0, 1.0), color: .green)
                     InsightWellnessRow(label: "HRV (variabilidade)", value: hrvVal > 0 ? "\(Int(hrvVal)) ms" : "—",
                                 progress: min(hrvVal / 80.0, 1.0), color: .purple)
                     InsightWellnessRow(label: "Freq. média", value: hrAvg > 0 ? "\(Int(hrAvg)) bpm" : "—",
@@ -265,35 +271,37 @@ struct InsightsView: View {
 
     // MARK: - Stress Trend
 
-    /// [2026-08-03 — BUG B7 da revisão independente]
-    /// `stressLevel` nasce `.low` e continua `.low` quando não há dado nenhum.
-    /// Sem este gate, a tela — que é PAGA — afirmava "Relaxado · seu corpo está
-    /// respondendo bem" para quem nunca conectou o Apple Saúde. A Home já fazia
-    /// a verificação certa; a Insights não. Mesmo critério nos dois lugares.
-    private var hasStressData: Bool {
-        hk.averageHRV > 0 || hk.hrv > 0 || hk.averageHeartRate > 0 || hk.heartRate > 0
-    }
+    // [2026-08-03 — BUG B7 da revisão independente]
+    // `stressLevel` nascia `.low` e continuava `.low` quando não havia dado
+    // nenhum. Sem portão, a tela — que é PAGA — afirmava "Relaxado · seu corpo
+    // está respondendo bem" para quem nunca conectou o Apple Saúde.
+    //
+    // [2026-08-13] O portão `hasStressData` que resolveu aquilo tinha o MESMO
+    // defeito da Home, e por isso saiu: aceitava `averageHeartRate > 0 ||
+    // heartRate > 0`, enquanto a conta do nível usa só HRV. Quem tem pulseira
+    // que grava FC e não grava HRV passava, e recebia o valor padrão como
+    // leitura. Duas cópias do critério em duas telas é a estrutura que
+    // permite a divergência; agora não há critério nenhum aqui — só o
+    // `Optional` que vem do motor, que é a própria resposta.
 
     @ViewBuilder
     private var stressTrendCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: hasStressData ? hk.stressLevel.icon : "waveform.path.ecg")
-                    .foregroundColor(hasStressData ? hk.stressLevel.color : CalmTheme.textSecondary)
+                Image(systemName: hk.stressLevel?.icon ?? "waveform.path.ecg")
+                    .foregroundColor(hk.stressLevel?.color ?? CalmTheme.textSecondary)
                 Text("Nível de stress")
                     .font(.headline)
                     .foregroundColor(CalmTheme.textPrimary)
                 Spacer()
-                if hasStressData {
-                    Text(hk.stressLevel.label)
+                if let stress = hk.stressLevel {
+                    Text(stress.label)
                         .font(.subheadline.bold())
-                        .foregroundColor(hk.stressLevel.color)
+                        .foregroundColor(stress.color)
                 }
             }
 
-            Text(hasStressData
-                 ? stressDescription
-                 : "Sem dados de variabilidade cardíaca ainda. Conecte um relógio ou o app Saúde para a Alma acompanhar isso com você.")
+            Text(stressDescription)
                 .font(.subheadline)
                 .foregroundColor(CalmTheme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -309,6 +317,8 @@ struct InsightsView: View {
             return "Estresse moderado detectado. Considere fazer uma pausa para respirar ou uma curta meditação."
         case .high:
             return "Nível de estresse elevado. Recomendamos uma sessão de relaxamento profundo. A Alma pode te guiar."
+        case nil:
+            return "Sem dados de variabilidade cardíaca ainda. Conecte um relógio ou o app Saúde para a Alma acompanhar isso com você."
         }
     }
 

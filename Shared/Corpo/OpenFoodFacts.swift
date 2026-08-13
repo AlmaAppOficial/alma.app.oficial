@@ -16,10 +16,27 @@ struct CachedProduct: Codable, Equatable {
     let barcode: String
     let name: String
     let brand: String?
-    let kcalPer100: Int
-    let proteinPer100: Int
-    let carbsPer100: Int
-    let fatPer100: Int
+
+    /// Valores por 100 g/ml **como a base declarou**. `nil` = a Open Food Facts
+    /// não tem esse nutriente cadastrado para este produto.
+    ///
+    /// [2026-08-13] Os quatro eram `Int` não-opcional e o parse fazia
+    /// `Int((n?.kcal ?? 0).rounded())`. A distinção existe no JSON — a chave
+    /// `energy-kcal_100g` simplesmente não vem quando ninguém preencheu, o que
+    /// é comum no catálogo brasileiro — e era destruída na leitura. Um alimento
+    /// real com cadastro incompleto entrava na dieta **valendo zero** e
+    /// deflacionava o total do dia sem aviso nenhum: a pessoa comia, registrava,
+    /// e o app dizia que ela não tinha comido.
+    ///
+    /// `Optional` aqui é seguro para o cache já gravado em `UserDefaults`
+    /// (`offProductCache`) pela mesma razão explicada em `unidade` logo abaixo:
+    /// o Swift sintetiza `decodeIfPresent` e o dado antigo continua legível.
+    /// O contrário — passar de opcional para não-opcional — é que seria a
+    /// armadilha.
+    let kcalPer100: Int?
+    let proteinPer100: Int?
+    let carbsPer100: Int?
+    let fatPer100: Int?
     /// [2026-08-12] A unidade lida da embalagem declarada pelo fabricante.
     ///
     /// **OPCIONAL, e isso é a parte importante.** Este tipo é `Codable` e vive
@@ -35,11 +52,30 @@ struct CachedProduct: Codable, Equatable {
     /// `nil` = a base não disse, ou disse algo que não dá para ler → grama.
     let unidade: Unidade?
 
-    var asFoodItem: FoodItem {
-        FoodItem(name: name, kcalPer100: kcalPer100, proteinPer100: proteinPer100,
-                 carbsPer100: carbsPer100, fatPer100: fatPer100, emoji: "🛒",
-                 barcode: barcode, brand: brand,
-                 unidade: unidade ?? .padraoHistorico)
+    /// O produto como item de dieta — `nil` quando a base não tem a energia.
+    ///
+    /// [2026-08-13] Sem kcal não existe item de dieta honesto: o alimento
+    /// entraria valendo 0 e subtrairia do total do dia aquilo que a pessoa
+    /// realmente comeu. Quem chama decide o que fazer com o `nil` (o fluxo da
+    /// Dieta oferece o cadastro manual, já com nome e marca preenchidos).
+    ///
+    /// **Fronteira conhecida, declarada de propósito:** quando a energia
+    /// existe mas um MACRO não, o macro vira 0 aqui. `FoodItem` — e o
+    /// `StoredFood` que ele alimenta — carrega os macros como `Int`
+    /// não-opcional, e `StoredFood` é `Codable` gravado em `UserDefaults`.
+    /// Torná-los opcionais é refatoração da dieta inteira com um decodificador
+    /// sintetizado no meio do caminho (a armadilha do topo de
+    /// `UnidadeDeMedida.swift`), e não cabe junto com esta correção. O estrago
+    /// é menor e de outra natureza: afeta a meta de proteína/carbo/gordura,
+    /// não o total calórico do dia.
+    var asFoodItem: FoodItem? {
+        guard let kcal = kcalPer100 else { return nil }
+        return FoodItem(name: name, kcalPer100: kcal,
+                        proteinPer100: proteinPer100 ?? 0,
+                        carbsPer100: carbsPer100 ?? 0,
+                        fatPer100: fatPer100 ?? 0, emoji: "🛒",
+                        barcode: barcode, brand: brand,
+                        unidade: unidade ?? .padraoHistorico)
     }
 }
 
@@ -144,6 +180,23 @@ enum OpenFoodFactsService {
         if http.statusCode == 404 { throw ProductLookupError.notFound }
         guard (200..<300).contains(http.statusCode) else { throw ProductLookupError.badResponse }
 
+        let product = try produto(deJSON: data, barcode: barcode)
+        saveToCache(product)
+        return product
+    }
+
+    // MARK: Parse (separado da rede de propósito — é o que dá para verificar)
+
+    /// Constrói o produto a partir do corpo cru devolvido pela Open Food Facts.
+    ///
+    /// Existe separado de `lookup` porque a REGRA que interessa não é a
+    /// chamada HTTP, é o que se faz com o JSON — e um teste que precisasse de
+    /// rede não seria teste, seria sorteio. Aqui dá para alimentar a resposta
+    /// exata que a base devolve para um produto com cadastro incompleto e
+    /// exigir que o resultado diga "não sei" em vez de "zero".
+    ///
+    /// - Throws: `ProductLookupError.notFound` quando não há produto ou nome.
+    static func produto(deJSON data: Data, barcode: String) throws -> CachedProduct {
         guard let decoded = try? JSONDecoder().decode(OFFResponse.self, from: data),
               decoded.status == 1,
               let p = decoded.product,
@@ -152,17 +205,26 @@ enum OpenFoodFactsService {
         }
 
         let n = p.nutriments
-        let product = CachedProduct(
+        return CachedProduct(
             barcode: barcode,
             name: rawName,
             brand: p.brands?.components(separatedBy: ",").first?.trimmingCharacters(in: .whitespaces),
-            kcalPer100: Int((n?.kcal ?? 0).rounded()),
-            proteinPer100: Int((n?.proteins ?? 0).rounded()),
-            carbsPer100: Int((n?.carbs ?? 0).rounded()),
-            fatPer100: Int((n?.fat ?? 0).rounded()),
+            // `map`, não `?? 0`. Campo ausente continua ausente até o fim.
+            kcalPer100: inteiro(n?.kcal),
+            proteinPer100: inteiro(n?.proteins),
+            carbsPer100: inteiro(n?.carbs),
+            fatPer100: inteiro(n?.fat),
             unidade: Unidade.daEmbalagem(p.quantity)
         )
-        saveToCache(product)
-        return product
+    }
+
+    /// Arredonda preservando a ausência. `nil` entra, `nil` sai.
+    ///
+    /// Valor não finito (`NaN`/infinito, que um JSON malformado consegue
+    /// produzir) também vira `nil`: `Int(Double.nan)` é crash em Swift, e
+    /// "número impossível" é tão pouco informativo quanto ausência.
+    private static func inteiro(_ valor: Double?) -> Int? {
+        guard let v = valor, v.isFinite, v >= 0 else { return nil }
+        return Int(v.rounded())
     }
 }

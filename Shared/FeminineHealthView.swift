@@ -589,58 +589,34 @@ struct FeminineHealthView: View {
     }
 
     // MARK: - Pregnancy Section
+    //
+    // [2026-08-13] Antes, esta seção era uma coisa só e assumia que havia data
+    // prevista do parto. Não havia: `pregnancyWeeks` devolvia 0 quando a DPP
+    // não tinha sido informada, e a tela exibia "0" em fonte 64 bold, a
+    // legenda "semanas de gravidez" e o card "Trimestre 1" com o texto sobre o
+    // desenvolvimento dos órgãos do bebê — para quem tinha apenas ligado um
+    // interruptor. O fluxo ainda induzia ao erro: o botão de informar a data
+    // ficava ABAIXO do número que dependia dela.
+    //
+    // Agora são dois estados explícitos, decididos pelo motor puro
+    // (`CycleCalculator.pregnancyDisplay`), com a mesma régua que o ciclo já
+    // usava aqui do lado: ausência é ausência, não zero.
     private var pregnancySection: some View {
-        let weeks = pregnancyWeeks
-        let daysRemaining = daysUntilDueDate
+        VStack(spacing: 14) {
+            switch CycleCalculator.pregnancyDisplay(
+                dueDateTimestamp: dueDateTimestamp,
+                today: Date()
+            ) {
+            case .awaitingDueDate:
+                pregnancyAwaitingDueDateCard
 
-        return VStack(spacing: 14) {
-            // Semanas
-            VStack(spacing: 8) {
-                Text("\(weeks)")
-                    .font(.system(size: 64, weight: .bold, design: .rounded))
-                    .foregroundColor(pink)
-                Text("semanas de gravidez")
-                    .font(.headline)
-                    .foregroundColor(CalmTheme.textPrimary)
-                if daysRemaining > 0 {
-                    Text("Faltam \(daysRemaining) dias para o parto previsto")
-                        .font(.caption)
-                        .foregroundColor(CalmTheme.textSecondary)
-                }
-            }
-            .padding(20)
-            .background(CalmTheme.surface)
-            .cornerRadius(CalmTheme.rMedium)
-
-            // Progresso trimestre — [Build 84] boundaries alinhados ao texto
-            let trimester = CycleCalculator.trimester(weeks: weeks)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Trimestre \(trimester)")
-                    .font(.headline)
-                    .foregroundColor(CalmTheme.textPrimary)
-                Text(trimesterDescription(trimester))
-                    .font(.caption)
-                    .foregroundColor(CalmTheme.textSecondary)
-                    .lineSpacing(4)
-            }
-            .padding(16)
-            .background(CalmTheme.surface)
-            .cornerRadius(CalmTheme.rMedium)
-
-            // DPP
-            Button {
-                tempDate = dueDateTimestamp > 0
-                    ? Date(timeIntervalSince1970: dueDateTimestamp)
-                    : (Calendar.current.date(byAdding: .day, value: 280, to: Date()) ?? Date())
-                showPregnancyPicker = true
-            } label: {
-                Label("Definir data prevista do parto", systemImage: "calendar.badge.plus")
-                    .font(.subheadline)
-                    .frame(maxWidth: .infinity)
-                    .padding(12)
-                    .background(pink.opacity(0.1))
-                    .foregroundColor(pink)
-                    .cornerRadius(CalmTheme.rSmall)
+            case let .tracking(weeks, trimester, daysRemaining):
+                pregnancyTrackingCards(
+                    weeks: weeks,
+                    trimester: trimester,
+                    daysRemaining: daysRemaining
+                )
+                dueDateButton(title: "Alterar data prevista do parto", primary: false)
             }
         }
         .sheet(isPresented: $showPregnancyPicker) {
@@ -648,6 +624,86 @@ struct FeminineHealthView: View {
                 dueDateTimestamp = tempDate.timeIntervalSince1970
                 FeminineHealthSecureStore.dueDateTimestamp = dueDateTimestamp
             }
+        }
+    }
+
+    /// Modo gravidez ligado, DPP não informada. Nenhum número, nenhum
+    /// trimestre, nenhum texto sobre o bebê — só o que falta para poder contar.
+    private var pregnancyAwaitingDueDateCard: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "calendar.badge.plus")
+                .font(.system(size: 44))
+                .foregroundColor(pink)
+            Text("Falta a data prevista do parto")
+                .font(.headline)
+                .foregroundColor(CalmTheme.textPrimary)
+                .multilineTextAlignment(.center)
+            Text("Informe a data prevista para acompanhar a semana da gestação, o trimestre e quantos dias faltam.")
+                .font(.subheadline)
+                .foregroundColor(CalmTheme.textSecondary)
+                .multilineTextAlignment(.center)
+
+            dueDateButton(title: "Definir data prevista do parto", primary: true)
+        }
+        .padding(20)
+        .background(CalmTheme.surface)
+        .cornerRadius(CalmTheme.rMedium)
+    }
+
+    /// DPP informada: semana, trimestre e contagem regressiva.
+    @ViewBuilder
+    private func pregnancyTrackingCards(
+        weeks: Int,
+        trimester: Int,
+        daysRemaining: Int
+    ) -> some View {
+        // Semanas
+        VStack(spacing: 8) {
+            Text("\(weeks)")
+                .font(.system(size: 64, weight: .bold, design: .rounded))
+                .foregroundColor(pink)
+            Text(weeks == 1 ? "semana de gravidez" : "semanas de gravidez")
+                .font(.headline)
+                .foregroundColor(CalmTheme.textPrimary)
+            if daysRemaining > 0 {
+                Text("\(daysRemaining == 1 ? "Falta" : "Faltam") \(daysRemaining) \(daysRemaining == 1 ? "dia" : "dias") para o parto previsto")
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+            }
+        }
+        .padding(20)
+        .background(CalmTheme.surface)
+        .cornerRadius(CalmTheme.rMedium)
+
+        // Progresso trimestre — [Build 84] boundaries alinhados ao texto
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Trimestre \(trimester)")
+                .font(.headline)
+                .foregroundColor(CalmTheme.textPrimary)
+            Text(trimesterDescription(trimester))
+                .font(.caption)
+                .foregroundColor(CalmTheme.textSecondary)
+                .lineSpacing(4)
+        }
+        .padding(16)
+        .background(CalmTheme.surface)
+        .cornerRadius(CalmTheme.rMedium)
+    }
+
+    private func dueDateButton(title: String, primary: Bool) -> some View {
+        Button {
+            tempDate = dueDateTimestamp > 0
+                ? Date(timeIntervalSince1970: dueDateTimestamp)
+                : (Calendar.current.date(byAdding: .day, value: 280, to: Date()) ?? Date())
+            showPregnancyPicker = true
+        } label: {
+            Label(title, systemImage: "calendar.badge.plus")
+                .font(primary ? .subheadline.bold() : .subheadline)
+                .frame(maxWidth: .infinity)
+                .padding(12)
+                .background(primary ? pink : pink.opacity(0.1))
+                .foregroundColor(primary ? .white : pink)
+                .cornerRadius(CalmTheme.rSmall)
         }
     }
 
@@ -691,19 +747,18 @@ struct FeminineHealthView: View {
         return formatter.string(from: snap.nextPeriodDate)
     }
 
-    private var pregnancyWeeks: Int {
-        guard dueDateTimestamp > 0 else { return 0 }
-        return CycleCalculator.gestationalWeeks(
-            dueDate: Date(timeIntervalSince1970: dueDateTimestamp),
-            today: Date()
-        )
-    }
-
-    private var daysUntilDueDate: Int {
-        guard dueDateTimestamp > 0 else { return 0 }
-        let dueDate = Date(timeIntervalSince1970: dueDateTimestamp)
-        return max(0, Calendar.current.dateComponents([.day], from: Date(), to: dueDate).day ?? 0)
-    }
+    // [2026-08-13] `pregnancyWeeks` e `daysUntilDueDate` saíram daqui.
+    //
+    // Os dois faziam `guard dueDateTimestamp > 0 else { return 0 }` — e é esse
+    // `0` que a tela exibia em fonte 64 bold como se fosse a semana da
+    // gestação de alguém que nunca informou a data. Um guard que devolve zero
+    // não está protegendo nada: está fabricando um valor e entregando à
+    // interface como se fosse medição.
+    //
+    // A decisão virou `CycleCalculator.pregnancyDisplay(dueDateTimestamp:today:)`,
+    // que devolve `.awaitingDueDate` ou `.tracking(...)` — impossível de
+    // confundir com "semana 0", que é um valor real e legítimo de quem
+    // informou a DPP e está na primeira semana.
 
     private func dayColor(day: Int, snap: CycleSnapshot, length: Int) -> Color {
         if day <= min(periodLength, length) { return Color.red.opacity(0.6) }

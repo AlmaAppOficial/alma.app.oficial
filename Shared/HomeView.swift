@@ -476,20 +476,24 @@ struct HomeView: View {
                     .font(.headline)
                     .foregroundColor(CalmTheme.textPrimary)
                 Spacer()
-                // Badge de stress só aparece quando há dado real de HRV ou FC
-                let hasStressData = hk.averageHRV > 0 || hk.hrv > 0
-                                 || hk.averageHeartRate > 0 || hk.heartRate > 0
-                if authorized && hasStressData {
+                // [2026-08-13] O portão era `averageHRV > 0 || hrv > 0 ||
+                // averageHeartRate > 0 || heartRate > 0` — aceitava FC — mas a
+                // conta do nível usa só HRV. Quem tem pulseira que grava FC e
+                // não grava HRV passava no portão e recebia o valor PADRÃO
+                // (`.low` = "Relaxado", folha verde) como se fosse leitura do
+                // corpo dele. Agora o portão É a conta: `stressLevel` só existe
+                // quando há HRV, e não há como os dois divergirem de novo.
+                if authorized, let stress = hk.stressLevel {
                     HStack(spacing: 4) {
-                        Image(systemName: hk.stressLevel.icon)
+                        Image(systemName: stress.icon)
                             .font(.caption)
-                        Text(hk.stressLevel.label)
+                        Text(stress.label)
                             .font(.caption.bold())
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(hk.stressLevel.color.opacity(0.12))
-                    .foregroundColor(hk.stressLevel.color)
+                    .background(stress.color.opacity(0.12))
+                    .foregroundColor(stress.color)
                     .cornerRadius(12)
                 }
             }
@@ -515,9 +519,12 @@ struct HomeView: View {
                                  value: sleepVal > 0 ? String(format: "%.1f", sleepVal) : "—",
                                  unit: sleepVal > 0 ? "h" : "",
                                  label: "Sono (ontem)")
+                    // Passos de HOJE — e só de hoje. Até 13/08 este card podia
+                    // exibir os passos de ONTEM (fallback silencioso dentro do
+                    // HealthKitManager) debaixo do título "Saúde hoje".
                     HealthMetric(icon: "figure.walk", color: .green,
-                                 value: hk.steps > 0 ? hk.stepsFormatted : "—",
-                                 unit: hk.steps > 0 ? "passos" : "",
+                                 value: hk.stepsFormatted ?? "—",
+                                 unit: hk.stepsFormatted != nil ? "passos" : "",
                                  label: "Passos")
                 }
 
@@ -536,7 +543,7 @@ struct HomeView: View {
                 // Wellness bars (InsightsView style)
                 VStack(alignment: .leading, spacing: 12) {
                     WellnessRow(label: "Sono (ontem)", value: hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours, max: 10, icon: "moon.fill", color: .indigo)
-                    WellnessRow(label: "Atividade", value: Double(hk.steps) / 10000.0, max: 1.0, icon: "figure.walk", color: .green)
+                    WellnessRow(label: "Atividade", value: Double(hk.steps ?? 0) / 10000.0, max: 1.0, icon: "figure.walk", color: .green)
                     WellnessRow(label: "Variabilidade", value: (hk.averageHRV > 0 ? hk.averageHRV : hk.hrv) / 100.0, max: 1.0, icon: "waveform.path", color: .purple)
                     WellnessRow(label: "Freq. cardíaca", value: (hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate) / 100.0, max: 1.0, icon: "heart.fill", color: .red)
                 }
@@ -602,11 +609,17 @@ struct HomeView: View {
     // nao mais BinauralTrack/sine wave). Converte StressLevel enum em Double 0-1 pro
     // SmartPlaylistEngine. Generate ja tem fallback interno (mix variado se sem dados).
     private var recommendedTracks: [RecommendedSound] {
+        // [2026-08-13] `stressLevel` virou opcional. Sem HRV o parâmetro vai
+        // `nil` — que é exatamente o que o `generate` já esperava receber
+        // quando não há dado (a assinatura sempre foi `Double? = nil`). Antes,
+        // "sem dado" chegava aqui como 0.2, isto é, "relaxado", e a playlist
+        // era escolhida com base numa leitura que não existiu.
         let stressDouble: Double? = {
             switch hk.stressLevel {
             case .low:      return 0.2
             case .moderate: return 0.5
             case .high:     return 0.8
+            case nil:       return nil
             }
         }()
         return SmartPlaylistEngine.generate(

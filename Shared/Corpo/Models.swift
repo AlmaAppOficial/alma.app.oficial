@@ -867,7 +867,12 @@ final class AppModel: ObservableObject {
     /// [F3] Resolve um código de barras: cadastro do usuário → cache Open Food Facts → catálogo embutido.
     func food(forBarcode code: String) -> FoodItem? {
         if let mine = userFoods.first(where: { $0.barcode == code }) { return mine.asFoodItem }
-        if let cached = OpenFoodFactsService.cached(code) { return cached.asFoodItem }
+        // [2026-08-13] `asFoodItem` virou opcional (produto sem kcal na base
+        // não vira item de dieta). O `if let` duplo importa: com um só, um
+        // produto cacheado SEM kcal devolveria `nil` aqui e o catálogo
+        // embutido logo abaixo nunca seria consultado — o cache incompleto
+        // passaria a esconder um alimento que o app conhece.
+        if let cached = OpenFoodFactsService.cached(code), let item = cached.asFoodItem { return item }
         return foodDatabase.first { $0.barcode == code }
     }
 

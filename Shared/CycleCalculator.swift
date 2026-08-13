@@ -286,4 +286,67 @@ enum CycleCalculator {
         if weeks <= 27 { return 2 }
         return 3
     }
+
+    /// O que a seção de gravidez tem, de fato, para mostrar.
+    ///
+    /// [2026-08-13] Existe porque a tela tratava DPP ausente como **semana
+    /// zero**. Quem ligava o Modo Gravidez sem ter informado a data prevista
+    /// do parto via um "0" em fonte 64 bold, a legenda "semanas de gravidez"
+    /// e um card "Trimestre 1" descrevendo o desenvolvimento dos órgãos do
+    /// bebê. Nada disso tinha lastro: a pessoa só havia ligado um interruptor.
+    /// O `guard` de `pregnancyWeeks` devolvia `0` em vez de dizer "não sei".
+    ///
+    /// A régua aqui é a que o ciclo menstrual já usava nesta mesma tela
+    /// (`lastPeriodTimestamp <= 0` → estado vazio honesto, sem inventar
+    /// "Dia 1 de 28"): **ausência é ausência, não zero.** O Android decide
+    /// igual em `ui/screens/SaudeScreen.kt`.
+    ///
+    /// Repare que `weeks == 0` continua sendo um valor LEGÍTIMO — é a primeira
+    /// semana de gestação de quem informou a DPP. Por isso a distinção não
+    /// pode ser feita no número: é a **presença da data** que decide, e é isso
+    /// que este tipo carrega.
+    ///
+    /// Isolada do Keychain de propósito, pela mesma razão do
+    /// `FeminineHealthSecureStore.decidirHistórico(bruto:legado:)`: isto é dado
+    /// de saúde sensível, e a REGRA precisa ser verificável sem que nenhuma
+    /// asserção escreva na chave real de uma pessoa (Regra 4 do CLAUDE.md).
+    enum PregnancyDisplay: Equatable {
+        /// Modo gravidez ligado, DPP ainda não informada. A tela não exibe
+        /// semana, trimestre nem texto gestacional — só convida a informar.
+        case awaitingDueDate
+        /// DPP informada: dá para contar.
+        case tracking(weeks: Int, trimester: Int, daysRemaining: Int)
+    }
+
+    /// Decide o que a seção de gravidez mostra a partir do que está gravado.
+    ///
+    /// - Parameter dueDateTimestamp: `timeIntervalSince1970` da DPP.
+    ///   `0` (o padrão do store quando ninguém informou), negativo ou não
+    ///   finito ⇒ `.awaitingDueDate`.
+    ///
+    /// Isto cobre também **o dado já gravado**: quem ligou o modo gravidez
+    /// antes desta correção tem `pregnancyMode = true` no Keychain sem data
+    /// nenhuma. Como a decisão é tomada na LEITURA, essa pessoa passa a ver o
+    /// estado honesto assim que abrir a tela — sem migração, sem escrita, sem
+    /// encostar no Keychain.
+    static func pregnancyDisplay(
+        dueDateTimestamp: Double,
+        today: Date,
+        calendar: Calendar = .current
+    ) -> PregnancyDisplay {
+        guard dueDateTimestamp.isFinite, dueDateTimestamp > 0 else {
+            return .awaitingDueDate
+        }
+        let due = Date(timeIntervalSince1970: dueDateTimestamp)
+        let weeks = gestationalWeeks(dueDate: due, today: today, calendar: calendar)
+        return .tracking(
+            weeks: weeks,
+            trimester: trimester(weeks: weeks),
+            // Dias de CALENDÁRIO (startOfDay dos dois lados), igual ao resto do
+            // motor. O cálculo antigo vivia na view e media de `Date()` até a
+            // DPP em intervalos de 24 h — uma DPP para amanhã de manhã contava
+            // 0 dias à noite.
+            daysRemaining: max(0, daysUntil(due, today: today, calendar: calendar))
+        )
+    }
 }

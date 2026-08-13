@@ -242,7 +242,12 @@ struct SupplementForm: View {
                 let p = try await OpenFoodFactsService.lookup(barcode.trimmingCharacters(in: .whitespaces))
                 name = p.name
                 if let b = p.brand { brand = b }
-                if p.kcalPer100 > 0 { lookupMessage = "Encontrado: \(p.kcalPer100) kcal/100 g — ajuste a kcal pela SUA dose." }
+                // [2026-08-13] Era `p.kcalPer100 > 0`. Funcionava por acidente:
+                // o parse colapsava "ausente" em 0, então `> 0` acertava a
+                // mensagem pelo motivo errado. Agora a ausência é do tipo, e o
+                // suplemento sem kcal na base continua sendo um fluxo legítimo
+                // — aqui a pessoa informa a kcal da dose dela de qualquer jeito.
+                if let kcal = p.kcalPer100 { lookupMessage = "Encontrado: \(kcal) kcal/100 g — ajuste a kcal pela SUA dose." }
                 else { lookupMessage = "Produto encontrado (sem dados de kcal na base)." }
             } catch let e as ProductLookupError {
                 lookupMessage = e.errorDescription

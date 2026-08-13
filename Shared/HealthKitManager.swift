@@ -13,9 +13,14 @@ import HealthKit
 // caminhos. Ter a lista de estados em dois lugares foi o que deixou as telas
 // discordarem sobre a mesma noite.
 
-// MARK: - StressLevel
-enum StressLevel {
-    case low, moderate, high
+// MARK: - StressLevel (apresentação)
+//
+// [2026-08-13] Os CASOS do enum mudaram para Shared/RegrasDeSaude.swift, junto
+// com a regra que decide qual deles vale. Aqui ficou só o que precisa de
+// SwiftUI. A separação não é estética: enquanto a regra morava neste arquivo,
+// ela só rodava dentro do app com HealthKit disponível — logo, nunca foi
+// exercitada, e por isso o "Relaxado" sem HRV sobreviveu tanto tempo.
+extension StressLevel {
 
     var label: String {
         switch self {
@@ -102,11 +107,17 @@ class HealthKitManager: ObservableObject {
     @Published var averageHRV: Double = 0             // media do dia
     @Published var sleepHours: Double = 0             // ultimas 24h (compatibilidade)
     @Published var yesterdaySleepHours: Double = 0    // noite passada: ontem 18h -> hoje 12h
-    @Published var steps: Int = 0
-    @Published var stressLevel: StressLevel = .low
+    /// Passos de hoje. `nil` = sem dado de hoje (ver `RegrasDeSaude.passosDeHoje`).
+    @Published var steps: Int?
+    /// Nível de stress. `nil` = sem HRV, e então a interface não afirma nada
+    /// (ver `RegrasDeSaude.nivelDeStress`). Era `= .low` — um valor padrão que
+    /// a Início exibia como "Relaxado" para quem nunca teve HRV medido.
+    @Published var stressLevel: StressLevel?
 
-    /// Passos formatados para exibição com separador de milhar (ex: "8.543")
-    var stepsFormatted: String {
+    /// Passos formatados para exibição com separador de milhar (ex: "8.543").
+    /// `nil` quando não há dado — quem exibe mostra "—".
+    var stepsFormatted: String? {
+        guard let steps else { return nil }
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.locale = Locale(identifier: "pt_BR")
@@ -178,8 +189,10 @@ class HealthKitManager: ObservableObject {
             guard error == nil else { return }
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                let today = await self.fetchTodaySteps()
-                self.steps = today > 0 ? today : self.steps
+                // [2026-08-13] Continua não regredindo para "sem dado" quando
+                // uma notificação do observer chega vazia — `??` faz o mesmo
+                // que o `> 0 ? : ` fazia, agora com Optional.
+                self.steps = await self.fetchTodaySteps() ?? self.steps
             }
         }
         stepObserver = observer
@@ -207,36 +220,31 @@ class HealthKitManager: ObservableObject {
         sleepHours = await sleep
         yesterdaySleepHours = await yesterdaySleep
 
-        // Stress level usa MEDIA do HRV quando disponivel (mais robusto que ultimo valor)
-        let hrvForStress = averageHRV > 0 ? averageHRV : hrv
-        if hrvForStress > 50 {
-            stressLevel = .low
-        } else if hrvForStress > 30 {
-            stressLevel = .moderate
-        } else if hrvForStress > 0 {
-            stressLevel = .high
-        } else {
-            stressLevel = .low  // default when no data
-        }
+        // Stress level usa MEDIA do HRV quando disponivel (mais robusto que ultimo valor).
+        // [2026-08-13] A escada de `if` que vivia aqui terminava em
+        // `else { stressLevel = .low }` — sem HRV, "Relaxado". A decisão virou
+        // uma função pura e opcional; ver RegrasDeSaude.nivelDeStress.
+        stressLevel = RegrasDeSaude.nivelDeStress(hrvMedio: averageHRV, hrvUltimo: hrv)
 
         // Inicia observer de passos em tempo real (idempotente — para o anterior se existir)
         startStepObserver()
     }
 
-    /// Passos de hoje com fallback para ontem.
-    /// - Se hoje tiver dado → retorna hoje.
-    /// - Se hoje for 0 (ex: primeiro uso do dia, relógio recém-sincronizado) → retorna ontem como estimativa.
-    nonisolated private func fetchTodaySteps() async -> Int {
-        let today = await fetchTodaySum(.stepCount, unit: .count())
-        if today > 0 { return Int(today) }
-
-        // Fallback: ontem (evita exibir 0 cedo de manhã antes do relógio sincronizar)
-        let cal = Calendar.current
-        let yesterday = cal.date(byAdding: .day, value: -1, to: Date()) ?? Date()
-        let startYesterday = cal.startOfDay(for: yesterday)
-        let endYesterday   = cal.startOfDay(for: Date())
-        let yesterdaySteps = await fetchRangeSum(.stepCount, unit: .count(), from: startYesterday, to: endYesterday)
-        return Int(yesterdaySteps)
+    /// Passos de HOJE. `nil` quando não há dado de hoje.
+    ///
+    /// [2026-08-13] Aqui morava um fallback para ONTEM: quando a soma de hoje
+    /// vinha 0, o método consultava o dia anterior e devolvia aquele número —
+    /// que a Início exibia sob o título "Saúde hoje". A justificativa original
+    /// ("evita exibir 0 cedo de manhã antes do relógio sincronizar") deixou de
+    /// valer quando a tela passou a mostrar "—" para ausência: o fallback
+    /// deixou de proteger de um zero feio e passou a produzir um número falso.
+    ///
+    /// Pior, `stepsToday()` — a fonte do contexto de saúde do chat — nunca teve
+    /// esse fallback. O app afirmava um número na tela e, no mesmo instante,
+    /// conversava como se não tivesse o dado. Agora os dois passam pela mesma
+    /// regra pura e não têm como divergir. Ver `RegrasDeSaude.passosDeHoje`.
+    nonisolated private func fetchTodaySteps() async -> Int? {
+        RegrasDeSaude.passosDeHoje(somaDeHoje: await fetchTodaySum(.stepCount, unit: .count()))
     }
 
     /// Valor MAIS RECENTE de uma quantity. Tenta hoje; se não houver amostra hoje,
@@ -308,13 +316,13 @@ class HealthKitManager: ObservableObject {
     }
 
     /// Passos de hoje (`nil` quando não há dado/autorização).
+    /// Mesma regra que a Início usa — de propósito. Ver `fetchTodaySteps()`.
     nonisolated func stepsToday() async -> Int? {
         #if DEBUG
         if SementeDeSaude.ligada { return SementeDeSaude.passos }
         #endif
         guard HKHealthStore.isHealthDataAvailable() else { return nil }
-        let steps = await fetchTodaySum(.stepCount, unit: .count())
-        return steps > 0 ? Int(steps) : nil
+        return await fetchTodaySteps()
     }
 
     /// Horas de sono da noite passada (`nil` quando não há dado/autorização).

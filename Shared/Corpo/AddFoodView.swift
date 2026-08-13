@@ -22,6 +22,12 @@ struct AddFoodView: View {
     @State private var notFoundCode: String?
     @State private var showCustomForm = false
     @State private var customFormBarcode: String?   // [F3] pré-preenche o cadastro manual
+    /// [2026-08-13] Produto que EXISTE na base mas está sem os valores
+    /// nutricionais. É um caso diferente de "não encontrado" e precisa de uma
+    /// conversa diferente: aqui o app já sabe o nome e a marca.
+    @State private var semNutrientes: CachedProduct?
+    @State private var customFormNome: String?
+    @State private var customFormMarca: String?
     @State private var lookingUp = false            // [F3] consultando a Open Food Facts
     @State private var lookupError: String?         // [F3] offline / erro da base
 
@@ -52,7 +58,16 @@ struct AddFoodView: View {
             defer { lookingUp = false }
             do {
                 let product = try await OpenFoodFactsService.lookup(code)
-                withAnimation { selected = product.asFoodItem; grams = 100 }
+                // [2026-08-13] `asFoodItem` é `nil` quando a base não tem a
+                // energia do produto — cadastro incompleto é comum no catálogo
+                // brasileiro. Antes disso, o alimento entrava na dieta valendo
+                // 0 kcal e encolhia o total do dia em silêncio. Agora o app diz
+                // o que sabe (nome, marca) e pede o que falta.
+                if let item = product.asFoodItem {
+                    withAnimation { selected = item; grams = 100 }
+                } else {
+                    semNutrientes = product
+                }
             } catch ProductLookupError.notFound {
                 notFoundCode = code
             } catch let e as ProductLookupError {
@@ -67,7 +82,9 @@ struct AddFoodView: View {
         NavigationStack {
             Group {
                 if showCustomForm {
-                    CustomFoodForm(mealType: mealType, barcode: customFormBarcode) { dismiss() }
+                    CustomFoodForm(mealType: mealType, barcode: customFormBarcode,
+                                   nomeInicial: customFormNome,
+                                   marcaInicial: customFormMarca) { dismiss() }
                 } else if let food = selected {
                     quantityForm(food)
                 } else {
@@ -113,12 +130,31 @@ struct AddFoodView: View {
             )) {
                 Button("Cadastrar manualmente") {
                     customFormBarcode = notFoundCode
+                    customFormNome = nil
+                    customFormMarca = nil
                     notFoundCode = nil
                     withAnimation { showCustomForm = true }
                 }
                 Button("Agora não", role: .cancel) {}
             } message: {
                 Text("O código \(notFoundCode ?? "") não está na base de produtos. Cadastre com nome, marca e macros — fica salvo para a próxima leitura.")
+            }
+            // [2026-08-13] Produto encontrado, mas sem valores nutricionais na
+            // base. Antes ele entrava direto na dieta valendo 0 kcal.
+            .alert("Sem valores nutricionais", isPresented: Binding(
+                get: { semNutrientes != nil },
+                set: { if !$0 { semNutrientes = nil } }
+            )) {
+                Button("Completar cadastro") {
+                    customFormBarcode = semNutrientes?.barcode
+                    customFormNome = semNutrientes?.name
+                    customFormMarca = semNutrientes?.brand
+                    semNutrientes = nil
+                    withAnimation { showCustomForm = true }
+                }
+                Button("Agora não", role: .cancel) {}
+            } message: {
+                Text("Achamos \(semNutrientes?.name ?? "o produto") na base, mas ela não tem as calorias deste item. Complete os valores do rótulo — fica salvo para a próxima leitura.")
             }
             .alert("Não foi possível consultar", isPresented: Binding(
                 get: { lookupError != nil },
@@ -350,11 +386,19 @@ struct CustomFoodForm: View {
     @State private var selectedMeal: MealType
     @State private var showError = false
 
-    init(mealType: MealType, barcode: String? = nil, onDone: @escaping () -> Void) {
+    /// [2026-08-13] `nomeInicial`/`marcaInicial` chegam quando a Open Food
+    /// Facts conhece o produto mas não tem os valores nutricionais dele: o app
+    /// já sabe o nome e a marca, e refazer isso à mão seria pedir duas vezes.
+    /// Ambos têm padrão `nil` — os call sites antigos seguem iguais.
+    init(mealType: MealType, barcode: String? = nil,
+         nomeInicial: String? = nil, marcaInicial: String? = nil,
+         onDone: @escaping () -> Void) {
         self.mealType = mealType
         self.barcode = barcode
         self.onDone = onDone
         _selectedMeal = State(initialValue: mealType)
+        _name = State(initialValue: nomeInicial ?? "")
+        _brand = State(initialValue: marcaInicial ?? "")
     }
 
     private var isValid: Bool {

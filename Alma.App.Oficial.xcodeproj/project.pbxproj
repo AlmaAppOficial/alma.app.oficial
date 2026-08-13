@@ -10,6 +10,8 @@
 		2C6E7DC9AF0F80B508FFCD73 /* beethoven_pastoral.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */; };
 		3B3DBF0CFCB3CCAD55ED2BC3 /* sleep_forest.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4E8212392CD1E71B620535EF /* sleep_forest.mp3 */; };
 		4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
+		0C2652A53797000000000000 /* RegrasDeSaude.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */; };
+		0C2652A53797000000000001 /* RegrasDeSaude.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */; };
 		51AAFE1E9BDF372601C72D4C /* AppleAuthCodeKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */; };
 		65AE642A66D2D2A1AC049C94 /* sleep_water.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 41FFC8A153FE4E23B4B7C375 /* sleep_water.mp3 */; };
 		7650A7659DAE7293791FAC46 /* bach_goldberg.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B0931D3CA21F8310F5571932 /* bach_goldberg.mp3 */; };
@@ -299,6 +301,7 @@
 		57807D2FD00320D19F3B9A25 /* mozart_k467.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mozart_k467.mp3; sourceTree = "<group>"; };
 		6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataCleanupService.swift; sourceTree = "<group>"; };
 		6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Shared/RegrasDeSaude.swift"; sourceTree = "<group>"; };
 		747D23548A27853E9A52C7D7 /* sleep_pink_noise.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_pink_noise.mp3; sourceTree = "<group>"; };
 		956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleAuthCodeKeychainStore.swift; sourceTree = "<group>"; };
 		99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = beethoven_pastoral.mp3; sourceTree = "<group>"; };
@@ -599,6 +602,7 @@
 				9ECED0E92F58902C009412A7 /* LoginView.swift */,
 				9ECED0EB2F58902D009412A7 /* MainTabView.swift */,
 				6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */,
+				54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */,
 				9ECED0ED2F58902E009412A7 /* MessageBubble.swift */,
 				9ECED0EC2F58902E009412A7 /* OpenAIService.swift */,
 				9ECED0EF2F58902F009412A7 /* ProfileView.swift */,
@@ -1110,6 +1114,7 @@
 				9ECED0F52F589030009412A7 /* LoginView.swift in Sources */,
 				9ECED0F92F589030009412A7 /* MainTabView.swift in Sources */,
 				4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */,
+				0C2652A53797000000000000 /* RegrasDeSaude.swift in Sources */,
 				9ECED0CC2F588F21009412A7 /* ContentView.swift in Sources */,
 				9ECED1032F589030009412A7 /* InsightsView.swift in Sources */,
 				9ECED0CA2F588F21009412A7 /* Alma_App_OficialApp.swift in Sources */,
@@ -1241,6 +1246,7 @@
 				9ECED0F62F589030009412A7 /* LoginView.swift in Sources */,
 				9ECED0FA2F589030009412A7 /* MainTabView.swift in Sources */,
 				9A7045ACB39443178EA04B8F /* HealthKitManager.swift in Sources */,
+				0C2652A53797000000000001 /* RegrasDeSaude.swift in Sources */,
 				9ECED0BD2F588F21009412A7 /* Tests_iOSLaunchTests.swift in Sources */,
 				9ECED1042F589030009412A7 /* InsightsView.swift in Sources */,
 				9ECED0BB2F588F21009412A7 /* Tests_iOS.swift in Sources */,
