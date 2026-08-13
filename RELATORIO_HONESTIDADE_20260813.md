@@ -75,17 +75,8 @@ idênticos** ao original.
    novo alerta "Sem valores nutricionais", o "—" nos passos e o sumiço do badge
    "Relaxado" estão provados na REGRA, nunca no pixel.
 
-2. **O alvo iOS não foi compilado** — você pediu nada de build. O que rodou foi
-   `swiftc` sobre o subconjunto puro (`CycleCalculator`, `RegrasDeSaude`,
-   `OpenFoodFacts`, `UnidadeDeMedida`) mais `swiftc -parse` nos dez arquivos
-   tocados (`_validacao_20260813/40_sintaxe_swiftc_parse.txt`, todos exit 0).
-   `-parse` é sintaxe, **não** verificação de tipos: mudei assinaturas
-   (`steps: Int?`, `stressLevel: StressLevel?`, `stepsFormatted: String?`,
-   `asFoodItem: FoodItem?`) e um erro de tipo nas views não apareceria aí.
-   Fiz varredura mecânica de **todas** as ocorrências de cada símbolo alterado
-   em `Shared/ ios/ AlmaWatch/` e todas estão tratadas — mas isso é leitura, não
-   compilador. **Um `xcodebuild build` local (sem archive, sem upload, sem
-   tocar no ASC) fecharia isto em ~2 min, se você autorizar.**
+2. ~~O alvo iOS não foi compilado.~~ **RESOLVIDO — e o compilador achou um
+   defeito real que a varredura mecânica não pegava.** Ver §Compilação.
 
 3. **Macros ausentes ainda colapsam em 0** no `FoodItem` (a energia, não). Está
    comentado no código como fronteira consciente: `FoodItem`/`StoredFood`
@@ -102,22 +93,68 @@ idênticos** ao original.
 
 ---
 
+## Compilação — autorizada pelo Assis, e valeu a pena
+
+`xcodebuild build`, esquema `Alma.App.Oficial (iOS)`, Debug, simulador.
+**Só compila:** sem archive, sem export, sem upload, sem tocar no App Store
+Connect (a 2.0.2 está em revisão). Script: `_scripts/honestidade_compilar.sh`,
+que também **não mexe em DerivedData** — há outras sessões vivas no repositório.
+
+### Primeira rodada: BUILD FAILED, 4 erros — e o erro era meu
+
+```
+error: Build input file cannot be found:
+'…/alma.app.oficial-main/Shared/Shared/RegrasDeSaude.swift'
+```
+
+`Shared/Shared`. Ao registrar o arquivo novo no projeto passei
+`Shared/RegrasDeSaude.swift` como caminho, mas o grupo do Xcode já carrega
+`Shared/` na base — então o caminho foi concatenado duas vezes. O
+`PBXFileReference` correto é `path = RegrasDeSaude.swift`, igual ao do
+`HealthKitManager.swift` (linha 303) e ao do `CycleCalculator.swift` (linha 395),
+que eu tinha ali do lado para comparar e não comparei.
+
+**O ponto que interessa:** este defeito era **invisível** para tudo o que eu
+tinha feito até então. O harness de mutação passou (compila os arquivos soltos,
+não pelo projeto). O `swiftc -parse` passou (o arquivo existe, o caminho é do
+Xcode). A varredura de símbolos passou (todos tratados). Um `.pbxproj` errado
+não é erro de Swift, é erro de wiring — e só o build enxerga. Sem a autorização
+do Assis, isto teria ido para o próximo `git pull` dele como um projeto que não
+abre.
+
+### Segunda rodada: BUILD SUCCEEDED
+
+`_validacao_20260813/51_build_resultado.txt` e `52_build_avisos.txt`.
+
+- **0 erros.**
+- **Controle positivo:** os dez arquivos que toquei aparecem no log de
+  compilação (6 a 12 ocorrências cada). Um `BUILD SUCCEEDED` que tivesse pulado
+  os arquivos novos seria outra medição do nada — a mesma família do `strings`
+  no `.apk` e dos `Info.plist` de bundle de recurso do build 96.
+- **Controle negativo:** `0` ocorrências de `Shared/Shared` no log.
+- **5 avisos, 3 únicos, nenhum nos meus arquivos:** metadata de AppIntents,
+  coerção de `UIView?` para `Any`, e uma propriedade `main actor-isolated`
+  (erro no modo Swift 6). Todos pré-existentes.
+
+Com isto, as três assinaturas que viraram `Optional` (`steps: Int?`,
+`stressLevel: StressLevel?`, `asFoodItem: FoodItem?`, mais
+`stepsFormatted: String?`) estão verificadas **pelo compilador**, não por
+leitura.
+
+---
+
 ## Item 2 — investigação e recomendação (NADA foi implementado)
 
-### O defeito é maior do que o relatório dizia
+### Correção da minha própria estimativa: são 228 kcal/dia, não 166
 
-`Models.swift:303` faz `?? .masculino` e **nada no app escreve `model.sex`**
-exceto o `Picker` de `NutritionEngine.swift:138`, dentro do `GoalEditorView` —
-alcançável só por Dieta → "Meta". Confirmado por varredura: zero outros
-escritores.
-
-O relatório falava em "cerca de 166 kcal a mais por dia". **166 é o delta do
-BMR**, e `suggestedKcal` multiplica o BMR pelo fator de atividade:
+**166 é o delta do BMR**, antes do fator de atividade. `suggestedKcal`
+(`NutritionEngine.swift:59-69`) multiplica o BMR pelo fator, então o erro que
+chega no prato da pessoa é maior:
 
 | atividade | fator | erro real por dia |
 |---|---|---|
-| Sedentário | 1,20 | **199 kcal** |
-| Leve (o padrão) | 1,375 | **228 kcal** |
+| Sedentário | 1,20 | 199 kcal |
+| **Leve (o padrão)** | 1,375 | **228 kcal** |
 | Moderado | 1,55 | 257 kcal |
 | Intenso | 1,725 | 286 kcal |
 
@@ -125,20 +162,84 @@ Exemplo (mulher, 65 kg, 165 cm, 35 anos, manter, leve): meta correta **1850**,
 meta exibida **2078**. *(Aritmética a partir da fórmula lida em
 `NutritionEngine.swift:53-68` — não é execução do binário de produção.)*
 
-E o padrão `activityLevel = .leve` erra na **mesma ordem de grandeza**: para a
-mesma pessoa, sedentário daria 1614 contra 1850, ou seja 236 kcal. Não é um
-problema "menor" — é do mesmo tamanho.
+### Sexo e nível de atividade são o MESMO defeito com dois nomes
 
-### O achado que muda a decisão
+`Models.swift:303-304`, uma linha embaixo da outra:
 
-**O onboarding já pergunta gênero, e a pergunta é obrigatória.**
-`OnboardingBiometricsView.swift:191` oferece *Feminino · Masculino · Não
-binário · Prefiro não dizer*, e `canAdvance` (`:36`) trava o passo 1 sem
-resposta. O valor vive em `UserMemoryManager.gender` (`alma_user_gender`), local.
-O mesmo fluxo já coleta peso e altura (passo 2) e idade (data de nascimento).
+```swift
+sex           = BiologicalSex(rawValue: store.string(forKey: "sexBiological") ?? "") ?? .masculino
+activityLevel = ActivityLevel(rawValue: store.string(forKey: "activityLevel") ?? "") ?? .leve
+```
 
-Ou seja: **o onboarding coleta todos os insumos do Mifflin menos o termo de
-sexo — e tem, ali do lado, uma resposta adjacente que ninguém usa.**
+Dois `??` assumindo um valor que ninguém informou, alimentando a mesma fórmula,
+sob o mesmo rótulo "calculada para você". E o de atividade **não é o menor**:
+para a mesma mulher do exemplo, `sedentário` daria 1614 contra os 1850 de
+`leve` — **236 kcal**, mais que o termo de sexo. Tratar um sem o outro conserta
+metade de um número e deixa a outra metade mentindo com a mesma cara.
+
+**Nada no app escreve `model.sex` nem `model.activityLevel`** exceto os dois
+`Picker` de `NutritionEngine.swift:138` e `:145`, dentro do `GoalEditorView` —
+alcançável só por Dieta → "Meta" (`DietaView.swift:120`). Confirmado por
+varredura: zero outros escritores.
+
+### O campo do onboarding: conferido na fonte, é IDENTIDADE DE GÊNERO
+
+O Assis lembrava que o onboarding já pergunta **sexo**. Fui conferir o rótulo
+que a pessoa vê, as opções, e o que é gravado. **É identidade de gênero.**
+
+`Shared/OnboardingBiometricsView.swift:186-198`, literal:
+
+```swift
+// ── Género ────────────────────────────────────────────────
+VStack(alignment: .leading, spacing: 10) {
+    Text("Como você se identifica?")
+    ...
+    let genders = ["Feminino", "Masculino", "Não binário", "Prefiro não dizer"]
+```
+
+O que é gravado (`Shared/UserMemoryManager.swift:24-29`):
+
+```swift
+// Identidade — lida/escrita directamente em UserDefaults (não encriptada, não sensível)
+// gender: "Feminino" | "Masculino" | "Não binário" | "Prefiro não dizer"
+var gender: String {
+    get { UserDefaults.standard.string(forKey: "alma_user_gender") ?? "" }
+```
+
+Tipo `String`, chave `alma_user_gender`, UserDefaults local. **Não há caminho de
+pular:** `canAdvance` (`:34-38`) trava o passo 1 sem resposta — mas *"Prefiro
+não dizer"* **é** uma resposta válida, e não carrega informação de sexo nenhuma.
+
+**Provas por enumeração, não por grep vazio:**
+
+- O literal `"Sexo"` aparece **uma única vez em todo o código-fonte**, e é o
+  `Picker("Sexo", selection: $model.sex)` de `NutritionEngine.swift:138` — a
+  tela da Meta, não o onboarding.
+- Existe **uma única** tela de onboarding no app inteiro
+  (`find` por `*onboard*` → só `Shared/OnboardingBiometricsView.swift`).
+- Os literais `"Feminino"`/`"Masculino"` aparecem em exatamente 3 arquivos:
+  o onboarding (junto com as outras duas opções), o `enum BiologicalSex`, e o
+  `UserMemoryManager`.
+
+**De onde vem a lembrança — e ela não bate com nenhum dos dois apps.** O
+comentário de `Models.swift:318-320` diz que as medidas "eram coletadas no
+onboarding do Corpo & Alma, que a fusão removeu". Fui ver: o
+`CorpoAlma_com_Watch/CorpoEAlma/OnboardingView.swift` pergunta **nome, objetivo,
+idade, peso e altura — e não pergunta sexo**. Ali também o único `Picker("Sexo")`
+está no `NutritionEngine.swift:132`, dentro da tela de Meta. Ou seja, o defeito
+é o mesmo nos dois apps, e a pergunta de sexo nunca existiu em onboarding
+nenhum.
+
+### Conclusão: o caminho C continua sendo o certo
+
+Como o campo é identidade com quatro opções — duas delas sem tradução possível
+para o Mifflin —, **não dá para "só ligar o dado na fórmula"**. Ligar direto
+significaria decidir que identidade de gênero é sexo biológico, em silêncio,
+dentro de uma conta de saúde. O rótulo da tela (*"Como você se identifica?"*) e
+o comentário do store (*"não sensível"*) mostram que o campo foi desenhado para
+outra pergunta.
+
+O que sobra é o híbrido, com a ressalva dita na cara.
 
 ### Caminho A — perguntar sexo biológico no onboarding
 
@@ -160,48 +261,57 @@ sexo — e tem, ali do lado, uma resposta adjacente que ninguém usa.**
   perfil padrão" ou esconde qual é o padrão, ou diz "perfil masculino" para uma
   mulher — as duas opções são ruins.
 
-### Recomendação — caminho C, híbrido
+### Recomendação — caminho C, na versão enxuta
 
-**1. `AppModel.sex` vira `BiologicalSex?`.** Mata o `?? .masculino`. `nil` =
-ninguém informou, que é a verdade.
+O Assis tem razão numa coisa: uma máquina de estados de "proposta/confirmação"
+é complexidade demais. Dá para ter a honestidade sem ela.
 
-**2. Propor a partir do gênero que o onboarding JÁ coletou**, na leitura:
-*Feminino* → `.feminino`, *Masculino* → `.masculino`, *Não binário / Prefiro
-não dizer / vazio* → continua `nil`. Guardado como **proposta**, distinta de
-valor confirmado.
+**1. `AppModel.sex` e `AppModel.activityLevel` viram opcionais.** Mata os dois
+`??` de `Models.swift:303-304`. `nil` = ninguém informou, que é a verdade.
 
-**3. A tela da Meta passa a ter três estados**, com vocabulário que ela já tem
-(`"Meta sugerida (em uso)"` / `"informe suas medidas"`):
-   - **confirmado** → "Meta sugerida (em uso)", como hoje;
-   - **derivado, não confirmado** → número + "Estimada — confirme seu perfil",
-     com confirmação de um toque;
-   - **`nil`** → sem número; sexo entra em `missingProfileFields`, e o caminho
-     que já existe (`customKcalGoal`, meta manual) atende quem não quer
-     responder.
+**2. Derivar o sexo do gênero já coletado, na leitura:** *Feminino* →
+`.feminino`, *Masculino* → `.masculino`, *Não binário / Prefiro não dizer /
+vazio* → continua `nil`. Sem chave nova, sem migração — a decisão é tomada na
+leitura, o mesmo mecanismo que resolveu o item 1 e que cobre quem já está
+instalado.
 
-**Por que C:**
-- usa dado que o app já tem, então quase ninguém vê pergunta nova, e a cobertura
-  é alta porque a pergunta de gênero é obrigatória;
-- **cobre quem já está instalado sem migração**, porque a decisão é tomada na
-  leitura — o mesmo mecanismo que resolveu o item 1;
-- nunca apresenta valor não confirmado como "calculada para você";
-- não obriga ninguém a responder sobre sexo biológico: quem não quer cai no
-  caminho manual;
+**3. Uma linha de texto onde o número aparece**, e só isso — sem fluxo de
+confirmação, sem terceiro estado. Debaixo da meta sugerida, algo como
+*"Calculada usando **Feminino**. Não é isso? Ajuste em Perfil para o cálculo."*
+O `Picker` que corrige já está na mesma tela, dez pontos abaixo
+(`NutritionEngine.swift:138`). Quem concorda não faz nada; quem discorda vê o
+pressuposto e o conserta sem sair de onde está.
+
+**4. Sem sexo derivável → sem número.** Sexo (e atividade) entram em
+`missingProfileFields`, e a tela usa a frase que já existe para peso/altura/idade
+ausentes: *"informe suas medidas"*. Quem escolheu não dizer cai no caminho
+manual que já existe (`customKcalGoal`).
+
+**Por que assim:**
+- usa dado que o app já tem: quase ninguém vê pergunta nova, e a cobertura é
+  alta porque a pergunta é obrigatória no onboarding;
+- cobre quem já está instalado sem migração e sem escrever nada;
+- o pressuposto fica **visível na tela onde o número está**, em vez de invisível
+  no `?? .masculino`;
+- não obriga ninguém a declarar sexo biológico;
 - nada sai do aparelho — o gênero já mora em `UserDefaults` local
   (corregedoria inalterada).
 
 **O custo, dito na cara:** identidade de gênero **não é** sexo biológico.
-Derivar é um *padrão*, não uma verdade — e é exatamente por isso que precisa
-vir rotulado como estimativa e ser trocável num toque. Uma mulher trans que
-respondeu "Feminino" recebe a fórmula feminina por padrão e troca se quiser.
-É melhor do que hoje, em que **todo mundo** recebe a masculina em silêncio.
+Derivar é um *padrão*, não uma verdade — e é por isso que o pressuposto tem de
+aparecer escrito e ser trocável num toque. Uma mulher trans que respondeu
+"Feminino" recebe a fórmula feminina por padrão e troca se quiser. Ainda assim é
+melhor do que hoje, em que **todo mundo** recebe a masculina em silêncio.
 
-**Sugestão de escopo junto:** aplicar a mesma régua ao `activityLevel` (erro do
-mesmo tamanho) e só então dizer "calculada para você".
+**Custo estimado:** ~2–3 h + harness de mutação. Atritos conhecidos: o `didSet`
+que persiste `sex.rawValue`, e os dois `Picker`, que precisam de um estado "não
+informado" ou de um `Binding` intermediário.
 
-**Custo estimado:** ~2–3 h de implementação + harness de mutação. Os pontos de
-atrito conhecidos são o `didSet` que persiste `sex.rawValue` e o `Picker`, que
-precisa de um terceiro estado "não informado" ou de um `Binding` intermediário.
+**Alternativa, se o Assis quiser mesmo perguntar:** acrescentar *sexo biológico*
+ao passo 2 do onboarding (o de peso e altura), separado da pergunta de
+identidade e explicado como insumo da fórmula. Resolve quem entra a partir daí,
+mas **não** resolve quem já está instalado — para esses, os pontos 1, 2 e 4
+continuam necessários de qualquer jeito.
 
 ---
 
