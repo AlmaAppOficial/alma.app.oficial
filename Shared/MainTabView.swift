@@ -13,38 +13,13 @@ final class TabVisibilityState: ObservableObject {
 
 // StressLevel + HealthKitManager foram movidos para Shared/HealthKitManager.swift
 
-// MARK: - HealthMetric card
-struct HealthMetric: View {
-    let icon: String
-    let color: Color
-    let value: String
-    let unit: String
-    let label: String
+// [2026-08-14] `HealthMetric` removido junto com a `healthSection` da
+// Início (pedido do Assis: os números já aparecem no Insights e no Corpo).
+// Os quatro usos que existiam viviam todos lá dentro.
+//
+// Não confundir com `CorpoHealthMetric` (Shared/Corpo/Models.swift:13), que
+// é outro tipo, do módulo Corpo, e continua vivo.
 
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(color)
-                .frame(width: 36, height: 36)
-                .background(color.opacity(0.12))
-                .cornerRadius(10)
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text(value).font(.headline.bold())
-                    Text(unit).font(.caption).foregroundColor(CalmTheme.textSecondary)
-                }
-                Text(label)
-                    .font(.caption)
-                    .foregroundColor(CalmTheme.textSecondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(CalmTheme.surface)
-        .cornerRadius(CalmTheme.rSmall)
-    }
-}
 
 // MARK: - MainTabView
 struct MainTabView: View {

@@ -5,7 +5,9 @@ struct HomeView: View {
     @EnvironmentObject var hk: HealthKitManager
     @EnvironmentObject var access: AccessManager
     @EnvironmentObject var store: StoreKitManager
-    @State private var authorized = false
+    // [2026-08-14] `authorized` foi removido junto com a `healthSection`. Era
+    // lido só por ela; o resultado da autorização agora é consumido direto no
+    // `.task`, que é onde ele sempre foi decidido.
     @State private var showMoodChat = false
     @State private var showInsightShare = false
     @State private var navigateToPraticas = false
@@ -82,10 +84,15 @@ struct HomeView: View {
                 // ── Sound Suggestions (acesso mínimo gratuito) ──
                 soundSection
 
-                // ── Health Dashboard (Premium) ─────────────────
-                if access.isPremium {
-                    healthSection
-                }
+                // [2026-08-14] A seção "Saúde hoje" saiu daqui a pedido do
+                // Assis: os mesmos números já aparecem no Insights e no módulo
+                // Corpo, e repetir na Início não acrescentava nada.
+                //
+                // O que NÃO saiu, de propósito: a autorização do HealthKit
+                // (`.task`, abaixo), o `HealthKitManager` (a seção de Sons lê
+                // `stressLevel` dele) e a flag `setHealthConnected`, que passou
+                // para o `.task` — ver o comentário lá. Tirar da Início não é
+                // desligar saúde.
 
                 // ── Saúde Feminina (Premium + apenas mulheres) ──
                 if access.isPremium && UserMemoryManager.shared.isFemale {
@@ -130,8 +137,26 @@ struct HomeView: View {
                 showCorpoModule = true
             }
             #endif
-            authorized = await hk.requestAuthorization()
-            if authorized { await hk.loadAll() }
+            // [2026-08-14] `setHealthConnected(true)` vinha de dentro da
+            // `healthSection` (era a linha 552), e aquele era o ÚNICO lugar do
+            // app inteiro a chamá-la. O `wellnessSummaryCard` do Insights usa a
+            // flag como portão (`InsightsView.swift:223` e `:231`): sem ela, a
+            // tela paga mostra "Ative o Apple Health" e quatro anéis vazios.
+            //
+            // Removida a seção sem mover a chamada, o Insights ficaria preso no
+            // estado vazio para SEMPRE em instalação nova — mesmo com
+            // autorização concedida e dado disponível. Tirar da Início teria
+            // desligado saúde no Insights.
+            //
+            // Este é o lugar certo, não apenas o que sobrou: o comentário A11
+            // do próprio Insights (`InsightsView.swift:247-250`) já afirmava que
+            // o portão "vira true pela AUTORIZAÇÃO, não por existir dado" — e a
+            // chamada morava no ramo do DADO, contradizendo a intenção escrita
+            // ao lado dela.
+            if await hk.requestAuthorization() {
+                await hk.loadAll()
+                UserMemoryManager.shared.setHealthConnected(true)
+            }
             #if DEBUG
             // [2026-08-04] `-soVisual 1` pula os harnesses pesados. A conferência
             // visual capturava a Home do Alma no lugar das abas do Corpo porque
@@ -468,107 +493,6 @@ struct HomeView: View {
         .navigationDestination(isPresented: $showChat) { ChatView() }
     }
 
-    // MARK: - Health Section
-    private var healthSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Saúde hoje")
-                    .font(.headline)
-                    .foregroundColor(CalmTheme.textPrimary)
-                Spacer()
-                // [2026-08-13] O portão era `averageHRV > 0 || hrv > 0 ||
-                // averageHeartRate > 0 || heartRate > 0` — aceitava FC — mas a
-                // conta do nível usa só HRV. Quem tem pulseira que grava FC e
-                // não grava HRV passava no portão e recebia o valor PADRÃO
-                // (`.low` = "Relaxado", folha verde) como se fosse leitura do
-                // corpo dele. Agora o portão É a conta: `stressLevel` só existe
-                // quando há HRV, e não há como os dois divergirem de novo.
-                if authorized, let stress = hk.stressLevel {
-                    HStack(spacing: 4) {
-                        Image(systemName: stress.icon)
-                            .font(.caption)
-                        Text(stress.label)
-                            .font(.caption.bold())
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(stress.color.opacity(0.12))
-                    .foregroundColor(stress.color)
-                    .cornerRadius(12)
-                }
-            }
-
-            if authorized {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 10) {
-                    // Mostra MEDIA do dia (mais robusto que ultimo valor instantaneo).
-                    // Exibe "—" quando não há dado (0 é enganoso).
-                    let hrVal    = hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate
-                    let hrvVal   = hk.averageHRV       > 0 ? hk.averageHRV       : hk.hrv
-                    let sleepVal = hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours
-
-                    HealthMetric(icon: "heart.fill", color: .red,
-                                 value: hrVal  > 0 ? "\(Int(hrVal))"  : "—",
-                                 unit: hrVal  > 0 ? "bpm" : "",
-                                 label: "Freq. média")
-                    HealthMetric(icon: "waveform.path", color: .purple,
-                                 value: hrvVal > 0 ? "\(Int(hrvVal))" : "—",
-                                 unit: hrvVal > 0 ? "ms"  : "",
-                                 label: "HRV")
-                    // Sono de ONTEM (janela 18h ontem -> 12h hoje, com fallback 48h)
-                    HealthMetric(icon: "moon.fill", color: .indigo,
-                                 value: sleepVal > 0 ? String(format: "%.1f", sleepVal) : "—",
-                                 unit: sleepVal > 0 ? "h" : "",
-                                 label: "Sono (ontem)")
-                    // Passos de HOJE — e só de hoje. Até 13/08 este card podia
-                    // exibir os passos de ONTEM (fallback silencioso dentro do
-                    // HealthKitManager) debaixo do título "Saúde hoje".
-                    HealthMetric(icon: "figure.walk", color: .green,
-                                 value: hk.stepsFormatted ?? "—",
-                                 unit: hk.stepsFormatted != nil ? "passos" : "",
-                                 label: "Passos")
-                }
-
-                // Dica quando o app Saúde não tem FC/HRV/sono (ex.: Garmin sem
-                // escrita habilitada no Apple Health) — dado ausente na FONTE,
-                // não é falha de leitura do Alma. [2026-07-14]
-                if (hk.averageHeartRate <= 0 && hk.heartRate <= 0)
-                    && (hk.averageHRV <= 0 && hk.hrv <= 0)
-                    && (hk.yesterdaySleepHours <= 0 && hk.sleepHours <= 0) {
-                    Text("O app Saúde ainda não tem dados de coração e sono. Usa Garmin ou outro relógio? Ative a escrita no Apple Health dentro do app do fabricante.")
-                        .font(.caption2)
-                        .foregroundColor(CalmTheme.textSecondary)
-                        .padding(.top, 2)
-                }
-
-                // Wellness bars (InsightsView style)
-                VStack(alignment: .leading, spacing: 12) {
-                    WellnessRow(label: "Sono (ontem)", value: hk.yesterdaySleepHours > 0 ? hk.yesterdaySleepHours : hk.sleepHours, max: 10, icon: "moon.fill", color: .indigo)
-                    WellnessRow(label: "Atividade", value: Double(hk.steps ?? 0) / 10000.0, max: 1.0, icon: "figure.walk", color: .green)
-                    WellnessRow(label: "Variabilidade", value: (hk.averageHRV > 0 ? hk.averageHRV : hk.hrv) / 100.0, max: 1.0, icon: "waveform.path", color: .purple)
-                    WellnessRow(label: "Freq. cardíaca", value: (hk.averageHeartRate > 0 ? hk.averageHeartRate : hk.heartRate) / 100.0, max: 1.0, icon: "heart.fill", color: .red)
-                }
-                .padding(.top, 8)
-                .onAppear {
-                    UserMemoryManager.shared.setHealthConnected(true)
-                }
-            } else {
-                Button(action: {
-                    Task {
-                        authorized = await hk.requestAuthorization()
-                        if authorized { await hk.loadAll() }
-                    }
-                }) {
-                    Label("Conectar dados de saúde", systemImage: "heart.circle")
-                        .frame(maxWidth: .infinity)
-                        .padding(14)
-                        .background(CalmTheme.primary.opacity(0.1))
-                        .foregroundColor(CalmTheme.primary)
-                        .cornerRadius(CalmTheme.rSmall)
-                }
-            }
-        }
-        .calmCard()
-    }
 
     // MARK: - Sound Suggestions
     private var soundSection: some View {
@@ -808,51 +732,6 @@ struct HomeView: View {
     }
 }
 
-// MARK: - Wellness Row
-struct WellnessRow: View {
-    let label: String
-    let value: Double
-    let max: Double
-    let icon: String
-    let color: Color
-
-    var progress: Double {
-        min(value / max, 1.0)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.caption)
-                    .foregroundColor(color)
-                Text(label)
-                    .font(.caption.bold())
-                    .foregroundColor(CalmTheme.textPrimary)
-                Spacer()
-                Text(String(format: "%.0f%%", progress * 100))
-                    .font(.caption)
-                    .foregroundColor(CalmTheme.textSecondary)
-            }
-
-            GeometryReader { g in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(CalmTheme.primary.opacity(0.1))
-
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [color.opacity(0.7), color]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ))
-                        .frame(width: g.size.width * progress)
-                }
-            }
-            .frame(height: 8)
-        }
-    }
-}
 
 // MARK: - SoundTile
 // [Build 77 — 12/05/2026] Migrado de BinauralTrack (frequencias <20 Hz inaudiveis)
