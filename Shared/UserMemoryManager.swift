@@ -41,12 +41,78 @@ class UserMemoryManager: ObservableObject {
         set { UserDefaults.standard.set(newValue, forKey: "alma_user_birthCountry") }
     }
 
-    // Compatibilidade retroativa com código que usa isFemale (FeminineHealthView, etc.)
-    var isFemale: Bool {
-        get { gender == "Feminino" }
-        set { gender = newValue ? "Feminino" : "Masculino" }
+    // MARK: - Fisiologia (sexo biológico)
+    //
+    // [2026-08-14] Substitui a pergunta de identidade do onboarding. Decisão do
+    // Assis: *"não deveria ser como se identifica, e sim sua fisiologia, homem
+    // ou mulher"*.
+    //
+    // **Chave NOVA, e o `alma_user_gender` acima fica intacto.** Não é apego a
+    // dado velho: é o que permite migrar na LEITURA. Quem já respondeu
+    // "Feminino" continua tendo o gênero gravado, `RegrasDeSaude.sexoEfetivo`
+    // o traduz na próxima abertura, e ninguém refaz onboarding nem perde o
+    // portão da saúde feminina. Reaproveitar a mesma chave apagaria a única
+    // pista que temos sobre quem já usa o app.
+    //
+    // ⚠️ Este dado é de OUTRA natureza que o de cima. O comentário do `gender`
+    // diz "não encriptada, não sensível", e para identidade isso era defensável.
+    // Sexo biológico coletado para calcular metabolismo é **dado de saúde**
+    // (LGPD Art. 11). Fica em `UserDefaults` local como o resto do perfil
+    // corporal (peso, altura, idade, que moram no `AppModel`), **nunca sai do
+    // aparelho**, e a tela promete exatamente isso.
+
+    /// Chave do `UserDefaults`. Pública para o `LocalDataCleanupService` e para
+    /// as asserções — que assim citam a constante em vez de repetir o literal e
+    /// ficarem cegas no dia em que ele mudar.
+    static let chaveSexoBiologico = "alma_user_biological_sex"
+
+    /// A resposta CRUA à pergunta de fisiologia, incluindo a recusa.
+    ///
+    /// Três estados, e os três importam:
+    /// - ausente/`""` — nunca perguntado (instalação anterior a 14/08);
+    /// - `"Feminino"` / `"Masculino"` — informou;
+    /// - `"Prefiro não informar"` — **respondeu, e recusou**.
+    ///
+    /// O terceiro é o motivo de guardar a string em vez de só o enum. Recusa e
+    /// silêncio dão o mesmo resultado no cálculo (estimativa, sem número
+    /// pessoal), mas são coisas diferentes na hora de perguntar de novo: quem
+    /// recusou já respondeu, e reperguntar seria não ouvir.
+    var sexoBiologicoBruto: String {
+        get { UserDefaults.standard.string(forKey: Self.chaveSexoBiologico) ?? "" }
+        set { UserDefaults.standard.set(newValue, forKey: Self.chaveSexoBiologico) }
     }
-    var genderSet: Bool { !gender.isEmpty }
+
+    /// O sexo utilizável pela fórmula. `nil` para recusa E para silêncio.
+    var sexoBiologico: BiologicalSex? { BiologicalSex(rawValue: sexoBiologicoBruto) }
+
+    /// `true` quando a pessoa já viu a pergunta e respondeu alguma coisa —
+    /// inclusive "Prefiro não informar". Serve para não reperguntar.
+    var respondeuFisiologia: Bool { !sexoBiologicoBruto.isEmpty }
+
+    /// Rótulo canônico da recusa. Um literal só, num lugar só.
+    static let recusaFisiologia = "Prefiro não informar"
+
+    /// Monta a cadeia de `RegrasDeSaude.sexoEfetivo` a partir de um `UserDefaults`.
+    ///
+    /// **Existe para haver UMA montagem só.** Dois consumidores precisam do
+    /// sexo efetivo — o `AppModel.init` (para a fórmula) e a `HomeView` (para o
+    /// portão da saúde feminina) — e a `HomeView` deliberadamente não tem um
+    /// `AppModel` (ver o comentário dela em :40-49, sobre a instância que era
+    /// recriada a cada redesenho). Se cada uma montasse a própria cadeia, elas
+    /// poderiam divergir, e o app voltaria a ter duas verdades sobre a mesma
+    /// pessoa — exatamente o defeito que hoje corrige, com o portão dizendo
+    /// "mulher" e a fórmula calculando "homem".
+    ///
+    /// Recebe o `store` em vez de usar `.standard` fixo para que os harnesses
+    /// exercitem a cadeia inteira numa suíte isolada — sem tocar no
+    /// `UserDefaults` real de ninguém.
+    static func sexoEfetivo(em store: UserDefaults) -> BiologicalSex? {
+        RegrasDeSaude.sexoEfetivo(
+            escolhidoNaDieta:      BiologicalSex(rawValue: store.string(forKey: "sexBiological") ?? ""),
+            informadoNoOnboarding: BiologicalSex(rawValue: store.string(forKey: chaveSexoBiologico) ?? ""),
+            generoLegado:          store.string(forKey: "alma_user_gender")
+        )
+    }
 
     // Salt fixo LEGADO — mantido apenas para descriptografar dados antigos
     // (derivação antiga: SHA256(UID + salt fixo)). Novos dados usam HKDF

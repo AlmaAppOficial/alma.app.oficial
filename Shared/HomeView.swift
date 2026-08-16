@@ -94,8 +94,24 @@ struct HomeView: View {
                 // para o `.task` — ver o comentário lá. Tirar da Início não é
                 // desligar saúde.
 
-                // ── Saúde Feminina (Premium + apenas mulheres) ──
-                if access.isPremium && UserMemoryManager.shared.isFemale {
+                // ── Saúde Feminina (Premium + fisiologia feminina) ──
+                //
+                // [2026-08-14] Era `access.isPremium && UserMemoryManager.shared.isFemale`,
+                // com `isFemale` sendo `gender == "Feminino"` — o portão lia o
+                // campo de IDENTIDADE. Passou a ler a fisiologia, pela função
+                // pura `RegrasDeSaude.mostrarSaudeFeminina`, que é a mesma
+                // decisão exercitável num harness sem encostar no Keychain onde
+                // ciclo e gravidez moram.
+                //
+                // **Ninguém perde acesso.** `sexoEfetivo` cai no gênero legado
+                // quando não há resposta nova, então quem marcou "Feminino"
+                // continua satisfazendo o portão sem refazer nada. E ninguém
+                // ganha acesso indevido: quem marcou "Não binário" ou "Prefiro
+                // não dizer" já não passava por `== "Feminino"` e continua não
+                // passando por `== .feminino`.
+                if RegrasDeSaude.mostrarSaudeFeminina(
+                    ehPremium: access.isPremium,
+                    sexoEfetivo: UserMemoryManager.sexoEfetivo(em: .standard)) {
                     feminineHealthCard
                 }
 

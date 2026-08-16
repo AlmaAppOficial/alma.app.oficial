@@ -170,8 +170,23 @@ final class AppModel: ObservableObject {
     @Published var goal: Goal { didSet { store.set(goal.rawValue, forKey: "goal") } }
 
     // [F4] Perfil para o cálculo da meta calórica (100% local, nunca sai do device)
-    @Published var sex: BiologicalSex { didSet { store.set(sex.rawValue, forKey: "sexBiological") } }
-    @Published var activityLevel: ActivityLevel { didSet { store.set(activityLevel.rawValue, forKey: "activityLevel") } }
+    //
+    // [2026-08-14] Os dois viraram OPCIONAIS. Eram não-opcionais com padrão
+    // calado no `init` (`?? .masculino`, `?? .leve`), e um tipo que não admite
+    // ausência obriga quem lê a inventar um valor — foi assim que toda mulher
+    // que nunca achou o seletor escondido de Dieta → Meta recebeu +228 kcal/dia
+    // durante meses, e todo mundo recebeu o fator "leve" sem ter dito nada.
+    //
+    // `nil` = **não informado**. A partir daqui a ausência é representável, e
+    // por isso a tela pode dizer a verdade sobre ela (ver `metaEhEstimada`).
+    @Published var sex: BiologicalSex? { didSet {
+        if let v = sex { store.set(v.rawValue, forKey: "sexBiological") }
+        else { store.removeObject(forKey: "sexBiological") }
+    } }
+    @Published var activityLevel: ActivityLevel? { didSet {
+        if let v = activityLevel { store.set(v.rawValue, forKey: "activityLevel") }
+        else { store.removeObject(forKey: "activityLevel") }
+    } }
     /// Meta definida manualmente pelo usuário. `nil` = usa a sugerida.
     @Published var customKcalGoal: Int? { didSet {
         if let v = customKcalGoal { store.set(v, forKey: "customKcalGoal") }
@@ -300,8 +315,24 @@ final class AppModel: ObservableObject {
         // adapta em vez de inventar.
         userName     = store.string(forKey: "userName") ?? UserProfileStore.nomeSalvo() ?? ""
         goal         = Goal(rawValue: store.string(forKey: "goal") ?? "") ?? .manter
-        sex          = BiologicalSex(rawValue: store.string(forKey: "sexBiological") ?? "") ?? .masculino
-        activityLevel = ActivityLevel(rawValue: store.string(forKey: "activityLevel") ?? "") ?? .leve
+        // [2026-08-14] Os dois `??` que moravam aqui eram o defeito inteiro.
+        //
+        // A resolução do sexo passa por `RegrasDeSaude.sexoEfetivo`, que é
+        // função pura e testável, e acontece na LEITURA — é isso que faz a
+        // correção alcançar quem já tem o app instalado, sem migração de disco
+        // e sem pedir nada a ninguém. Atribuir no `init` não dispara o `didSet`,
+        // então o valor derivado do onboarding ou do gênero legado **não** é
+        // gravado em `sexBiological`: aquela chave continua significando
+        // "a pessoa escolheu explicitamente na tela de Meta", que é o que a
+        // primeira posição da cadeia precisa que ela signifique.
+        //
+        // O `store` é `.standard` em produção — o mesmo do `UserMemoryManager`
+        // — e uma suíte isolada nos harnesses, onde as três chaves vêm vazias e
+        // o resultado é, corretamente, "não informado".
+        sex = UserMemoryManager.sexoEfetivo(em: store)
+        // Atividade não tem cadeia: ou a pessoa informou, ou não informou.
+        // Nunca foi perguntada em onboarding nenhum, nas duas plataformas.
+        activityLevel = ActivityLevel(rawValue: store.string(forKey: "activityLevel") ?? "")
         customKcalGoal = store.object(forKey: "customKcalGoal") as? Int
         let planTs = store.double(forKey: "planAppliedAt")
         planAppliedAt = planTs > 0 ? Date(timeIntervalSince1970: planTs) : nil
@@ -442,6 +473,23 @@ final class AppModel: ObservableObject {
         return NutritionEngine.suggestedKcal(weightKg: weightKg, heightCm: heightCm, ageYears: ageYears,
                                              sex: sex, activity: activityLevel, goal: goal)
     }
+
+    /// `true` quando a meta foi calculada sem saber o sexo **ou** sem saber a
+    /// atividade. A interface é obrigada a dizer isso.
+    ///
+    /// [2026-08-14] Este é o par do `metaEhEstimada` do Android
+    /// (`NutritionEngine.kt`), e é o que prende o segundo lado da fronteira:
+    /// quem informou recebe o termo certo da fórmula; quem **não** informou não
+    /// recebe um número que finja ser cálculo pessoal. Sem este rótulo, a
+    /// mudança de hoje trocaria um chute silencioso por outro chute silencioso.
+    var metaEhEstimada: Bool { RegrasDeSaude.metaEhEstimada(sex: sex, activity: activityLevel) }
+
+    /// O que falta para a meta deixar de ser estimativa, nomeado.
+    ///
+    /// Nomear é a diferença entre uma pessoa que pode agir e uma que só sabe
+    /// que algo está incompleto. A ordem é a do impacto na conta: atividade
+    /// primeiro (até 806 kcal/dia), sexo depois (228).
+    var oQueFaltaNaMeta: [String] { RegrasDeSaude.oQueFaltaNaMeta(sex: sex, activity: activityLevel) }
     /// Meta em uso — `nil` quando não há medidas nem meta manual.
     var kcalGoal: Int? { customKcalGoal ?? suggestedKcalGoal }
     var proteinGoal: Int? {
@@ -1035,12 +1083,20 @@ final class AppModel: ObservableObject {
                     Self.mealsKey, Self.mealsDateKey, "customWorkouts",
                     // [F4/F3/F5/F6] sexo, atividade, meta manual, alimentos, suplementos e plano
                     "sexBiological", "activityLevel", "customKcalGoal", "userFoods",
-                    "supplements", "planAppliedAt"]
+                    "supplements", "planAppliedAt",
+                    // [2026-08-14] A fisiologia informada no onboarding. Sem
+                    // esta linha, "excluir meus dados" deixava para trás um
+                    // dado de saúde e o app voltava a calcular com ele.
+                    UserMemoryManager.chaveSexoBiologico]
         keys.forEach { store.removeObject(forKey: $0) }
         OpenFoodFactsService.clearCache()
         meals = Self.emptyMealTemplates()
-        sex = .masculino
-        activityLevel = .leve
+        // [2026-08-14] Era `= .masculino` / `= .leve`: a faxina apagava as
+        // chaves e, na linha seguinte, reinstalava na memória exatamente o
+        // chute que a faxina tinha acabado de remover do disco. Depois de
+        // excluir os dados, o estado correto é "não informado".
+        sex = nil
+        activityLevel = nil
         customKcalGoal = nil
         userFoods = []
         supplements = []

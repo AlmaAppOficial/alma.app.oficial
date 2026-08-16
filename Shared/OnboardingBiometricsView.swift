@@ -21,7 +21,9 @@ struct OnboardingBiometricsView: View {
     @State private var alturaTexto = ""
 
     // Identity step state
-    @State private var selectedGender = ""
+    // [2026-08-14] `selectedGender` (identidade, 4 opções) saiu. No lugar,
+    // a fisiologia: "Feminino" | "Masculino" | "Prefiro não informar" | "".
+    @State private var selectedBiologicalSex = ""
     @State private var birthDate = Calendar.current.date(byAdding: .year, value: -30, to: Date()) ?? Date()
     @State private var hasBirthDate = false
     @State private var selectedBirthTimeSlot = ""
@@ -32,8 +34,10 @@ struct OnboardingBiometricsView: View {
     private let totalSteps = 5
 
     private var canAdvance: Bool {
-        // Identity step requires at minimum a gender selection
-        if currentStep == 1 { return !selectedGender.isEmpty }
+        // O passo 1 exige a fisiologia respondida — e "Prefiro não informar"
+        // satisfaz. O portão continua existindo para que a pergunta não passe
+        // batida, não para arrancar um dado de quem não quer dá-lo.
+        if currentStep == 1 { return !selectedBiologicalSex.isEmpty }
         return true
     }
 
@@ -104,7 +108,17 @@ struct OnboardingBiometricsView: View {
     private func precarregar() {
         let memoria = UserMemoryManager.shared
         if nomeDigitado.isEmpty { nomeDigitado = UserProfileStore.shared.nome ?? corpo.userName }
-        if selectedGender.isEmpty { selectedGender = memoria.gender }
+        // [2026-08-14] Ao REABRIR o onboarding (card "Complete seu perfil"), a
+        // resposta de fisiologia já dada é pré-selecionada. E quem só tem o
+        // gênero legado gravado vê a tradução dele já marcada — "Feminino" e
+        // "Masculino" viram a opção correspondente; "Não binário" e "Prefiro
+        // não dizer" NÃO viram nada, porque não carregam fisiologia, e a pessoa
+        // decide na hora. Mesma regra do cálculo, pela mesma função pura.
+        if selectedBiologicalSex.isEmpty {
+            selectedBiologicalSex = memoria.sexoBiologicoBruto.isEmpty
+                ? (RegrasDeSaude.sexoDoGeneroLegado(memoria.gender)?.rawValue ?? "")
+                : memoria.sexoBiologicoBruto
+        }
         if selectedBirthTimeSlot.isEmpty { selectedBirthTimeSlot = memoria.birthTimeSlot }
         if birthCity.isEmpty { birthCity = memoria.birthCity }
         if birthCountry.isEmpty { birthCountry = memoria.birthCountry }
@@ -183,19 +197,51 @@ struct OnboardingBiometricsView: View {
 
             Divider().opacity(0.3)
 
-            // ── Género ────────────────────────────────────────────────
+            // ── Sexo biológico ────────────────────────────────────────
+            //
+            // [2026-08-14] SUBSTITUI a pergunta de identidade ("Como você se
+            // identifica?", 4 opções, gravada em `alma_user_gender`). Decisão
+            // do Assis: *"não deveria ser como se identifica, e sim sua
+            // fisiologia, homem ou mulher"*.
+            //
+            // É substituição, não acréscimo: duas perguntas parecidas no mesmo
+            // passo criariam atrito e ambiguidade sobre qual manda no cálculo.
+            // A pergunta antiga tinha um único consumidor em todo o app — o
+            // portão da saúde feminina (`HomeView:98`) — e ele passou a ler a
+            // fisiologia. Nada mais lia o campo (enumerado em 14/08).
+            //
+            // A LINHA DE PROPÓSITO NÃO É ENFEITE. Pergunta de fisiologia em app
+            // de bem-estar, sem contexto, parece intrusiva e faz gente
+            // responder qualquer coisa para passar da tela — e aí o dado que
+            // motivou a mudança nasce errado. Dizer para que serve é o que
+            // torna a resposta confiável, e é literalmente verdade: metabolismo
+            // é o Mifflin-St Jeor, "acompanhar sua saúde" é ciclo e gravidez.
+            //
+            // A TERCEIRA OPÇÃO existe porque o passo é obrigatório para
+            // avançar. Com só duas saídas, quem não se encaixa escolhe qualquer
+            // uma para passar — e o dado nasce falso, sem que ninguém saiba
+            // quem. "Prefiro não informar" é resposta de verdade: ela distingue
+            // recusa de silêncio (ver `UserMemoryManager.respondeuFisiologia`)
+            // e leva à meta declarada como estimativa, nunca a um número
+            // apresentado como cálculo pessoal.
             VStack(alignment: .leading, spacing: 10) {
-                Text("Como você se identifica?")
+                Text("Sexo biológico")
                     .font(.subheadline.bold())
                     .foregroundColor(CalmTheme.textPrimary)
-                let genders = ["Feminino", "Masculino", "Não binário", "Prefiro não dizer"]
+                Text("Para calcular seu metabolismo e acompanhar sua saúde. A fórmula de calorias muda conforme a fisiologia.")
+                    .font(.caption)
+                    .foregroundColor(CalmTheme.textSecondary)
+                let opcoes = ["Feminino", "Masculino", UserMemoryManager.recusaFisiologia]
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                    ForEach(genders, id: \.self) { g in
-                        identityChoiceButton(g, selected: selectedGender == g) {
-                            selectedGender = g
+                    ForEach(opcoes, id: \.self) { opcao in
+                        identityChoiceButton(opcao, selected: selectedBiologicalSex == opcao) {
+                            selectedBiologicalSex = opcao
                         }
                     }
                 }
+                Text("Fica no seu aparelho. Você pode mudar depois em Dieta → Meta.")
+                    .font(.caption2)
+                    .foregroundColor(CalmTheme.textSecondary)
             }
 
             Divider().opacity(0.3)
@@ -434,9 +480,25 @@ struct OnboardingBiometricsView: View {
 
     private func advance() {
         if currentStep == 1 {
+            // [2026-08-14] A fisiologia vai para a chave nova
+            // (`alma_user_biological_sex`). O `alma_user_gender` NÃO é
+            // escrito nem apagado aqui: ele é a ponte que faz quem já usa o
+            // app manter a saúde feminina e ganhar a meta certa sem refazer
+            // nada (`RegrasDeSaude.sexoEfetivo`, terceira posição da cadeia).
+            //
+            // Vazio não sobrescreve — mesma guarda do `setIdentity`, pelo mesmo
+            // motivo: o onboarding pode ser reaberto pelo card "Complete seu
+            // perfil" e não pode apagar o que já foi respondido.
+            if !selectedBiologicalSex.isEmpty {
+                UserMemoryManager.shared.sexoBiologicoBruto = selectedBiologicalSex
+                // O AppModel resolve a cadeia no `init`; esta é a instância
+                // já viva, que precisa acompanhar na mesma hora.
+                corpo.sex = BiologicalSex(rawValue: selectedBiologicalSex)
+            }
+
             // Save identity data
             UserMemoryManager.shared.setIdentity(
-                gender: selectedGender,
+                gender: "",   // a pergunta de identidade saiu do onboarding
                 birthDate: hasBirthDate ? birthDate : nil,
                 birthTimeSlot: selectedBirthTimeSlot,
                 birthCity: birthCity,

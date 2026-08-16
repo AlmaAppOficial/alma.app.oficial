@@ -10,35 +10,21 @@
 
 import SwiftUI
 
-// MARK: - Sexo biológico (usado apenas na fórmula, 100% local)
-
-enum BiologicalSex: String, Codable, CaseIterable, Identifiable {
-    case masculino = "Masculino"
-    case feminino  = "Feminino"
-
-    var id: String { rawValue }
-}
-
-// MARK: - Nível de atividade
-
-enum ActivityLevel: String, Codable, CaseIterable, Identifiable {
-    case sedentario = "Sedentário"
-    case leve       = "Leve (1–3x/semana)"
-    case moderado   = "Moderado (3–5x/semana)"
-    case intenso    = "Intenso (6–7x/semana)"
-
-    var id: String { rawValue }
-
-    /// Fator multiplicador do gasto basal (valores clássicos de Harris/Mifflin).
-    var factor: Double {
-        switch self {
-        case .sedentario: return 1.2
-        case .leve:       return 1.375
-        case .moderado:   return 1.55
-        case .intenso:    return 1.725
-        }
-    }
-}
+// [2026-08-14] `BiologicalSex`, `ActivityLevel`, `termoDeSexo`,
+// `fatorQuandoNaoInformado`, `metaEhEstimada`, `oQueFaltaNaMeta` e `bmr`
+// MUDARAM DE ARQUIVO — foram para `Shared/RegrasDeSaude.swift`.
+//
+// **O motivo é o de sempre neste projeto: uma regra que só roda com SwiftUI
+// montado é uma regra que ninguém exercita.** Este arquivo tem uma `View` no
+// fim, então importa SwiftUI, então não compila sozinho — e nenhuma asserção
+// conseguia chamar a Mifflin-St Jeor sem subir o app inteiro. Com o termo de
+// sexo em `RegrasDeSaude` (que só importa Foundation), a decisão que dá `−161`
+// a uma mulher e `+5` a um homem passa a ser executável num binário de linha de
+// comando, e portanto reprovável por mutação (Regra 1 do `CLAUDE.md`).
+//
+// O que ficou aqui: `suggestedKcal` (depende de `Goal`, que mora em
+// `Models.swift`), `macros`, os limites, e a tela. Nada foi duplicado — os
+// nomes movidos não existem mais neste arquivo.
 
 // MARK: - Motor de cálculo
 
@@ -49,16 +35,15 @@ enum NutritionEngine {
     /// Teto de sanidade para meta manual.
     static let maxKcal = 6000
 
-    /// Taxa metabólica basal — Mifflin-St Jeor.
-    static func bmr(weightKg: Double, heightCm: Double, ageYears: Int, sex: BiologicalSex) -> Double {
-        let base = 10 * weightKg + 6.25 * heightCm - 5 * Double(ageYears)
-        return base + (sex == .masculino ? 5 : -161)
-    }
-
     /// Meta calórica sugerida: BMR × atividade, ajustada pelo objetivo.
+    ///
+    /// `sex` e `activity` são opcionais desde 14/08: `nil` = **não informado**,
+    /// e o valor declarado entra no lugar — sempre acompanhado do rótulo de
+    /// `metaEhEstimada`.
     static func suggestedKcal(weightKg: Double, heightCm: Double, ageYears: Int,
-                              sex: BiologicalSex, activity: ActivityLevel, goal: Goal) -> Int {
-        let tdee = bmr(weightKg: weightKg, heightCm: heightCm, ageYears: ageYears, sex: sex) * activity.factor
+                              sex: BiologicalSex?, activity: ActivityLevel?, goal: Goal) -> Int {
+        let tdee = RegrasDeSaude.bmr(weightKg: weightKg, heightCm: heightCm, ageYears: ageYears, sex: sex)
+            * RegrasDeSaude.fatorDeAtividade(activity)
         let adjust: Double
         switch goal {
         case .perder: adjust = -450
@@ -121,29 +106,85 @@ struct GoalEditorView: View {
                 .foregroundStyle(Theme.primary)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
-            Text("Calculada pelo seu peso, altura, idade, sexo, atividade e objetivo (\(model.goal.rawValue.lowercased())).")
-                .font(.caption)
-                .foregroundStyle(Theme.inkSoft)
-                .multilineTextAlignment(.center)
+            // [2026-08-14] A legenda passou a ter dois estados, e a diferença
+            // entre eles é o ponto inteiro da mudança de hoje.
+            //
+            // A frase antiga era única e afirmava que a meta fora "calculada
+            // pelo seu peso, altura, idade, SEXO, atividade e objetivo" —
+            // enquanto o `?? .masculino` e o `?? .leve` inventavam dois desses
+            // seis itens. O texto descrevia um cálculo pessoal que, para quem
+            // nunca abriu esta tela, não tinha acontecido.
+            //
+            // Agora: quem informou tudo continua vendo a frase de sempre; quem
+            // não informou vê um número honestamente rotulado como estimativa,
+            // com o que falta NOMEADO e um seletor logo abaixo para resolver.
+            if model.metaEhEstimada {
+                Text("Estimativa — ainda não sabemos \(Self.listarEmPortugues(model.oQueFaltaNaMeta)). O resto vem do seu peso, altura, idade e objetivo (\(model.goal.rawValue.lowercased())).")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+                    .multilineTextAlignment(.center)
+            } else {
+                Text("Calculada pelo seu peso, altura, idade, sexo, atividade e objetivo (\(model.goal.rawValue.lowercased())).")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+                    .multilineTextAlignment(.center)
+            }
         }
         .frame(maxWidth: .infinity)
         .cardStyle()
     }
 
+    /// "a e b" · "a" · "" — para a frase da estimativa não sair com vírgula solta.
+    static func listarEmPortugues(_ itens: [String]) -> String {
+        switch itens.count {
+        case 0:  return ""
+        case 1:  return itens[0]
+        default: return itens.dropLast().joined(separator: ", ") + " e " + itens[itens.count - 1]
+        }
+    }
+
     // Sexo + nível de atividade (entram na fórmula)
+    //
+    // [2026-08-14] ESTA SEÇÃO CONTINUA EXISTINDO, E É DECISÃO, NÃO INÉRCIA.
+    // A coleta do sexo subiu para o onboarding, o que tornaria tentador apagar
+    // daqui. Dois motivos concretos contra:
+    //
+    //  1. `sexBiological` é a PRIMEIRA posição da cadeia de `sexoEfetivo` — tem
+    //     precedência sobre o onboarding, porque é resposta direta à pergunta
+    //     que a fórmula faz. Existe gente com esse valor gravado. Apagar a tela
+    //     deixaria esse dado mandando no cálculo sem nenhuma tela que o mostre
+    //     ou permita corrigir: pior que hoje.
+    //  2. O seletor de atividade mora aqui e não tem outra casa. Apagar a seção
+    //     apagaria junto o único controle do maior chute da fórmula (806 kcal
+    //     contra 228 do sexo).
+    //
+    // O que mudou é o PAPEL: de fonte primária escondida para ajuste declarado.
+    // Por isso o título deixou de ser "Perfil para o cálculo" e os dois
+    // seletores passaram a admitir "não informado" em vez de exibir uma
+    // seleção que ninguém fez.
     private var profileSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Perfil para o cálculo").font(.headline).foregroundStyle(Theme.ink)
+            Text("Ajustar o cálculo").font(.headline).foregroundStyle(Theme.ink)
 
-            Picker("Sexo", selection: $model.sex) {
-                ForEach(BiologicalSex.allCases) { Text($0.rawValue).tag($0) }
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Sexo biológico").font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
+                // [2026-08-14] `selection` é `BiologicalSex?` e existe uma
+                // opção "Não informado" com `tag(nil)`. Sem ela, o Picker
+                // exibiria um dos dois lados marcado para quem nunca respondeu
+                // — que é a mentira de interface equivalente ao `?? .masculino`
+                // que acabou de sair do código.
+                Picker("Sexo biológico", selection: $model.sex) {
+                    Text("Não informado").tag(BiologicalSex?.none)
+                    ForEach(BiologicalSex.allCases) { Text($0.rawValue).tag(BiologicalSex?.some($0)) }
+                }
+                .pickerStyle(.segmented)
             }
-            .pickerStyle(.segmented)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("Nível de atividade").font(.caption.weight(.semibold)).foregroundStyle(Theme.inkSoft)
                 Picker("Atividade", selection: $model.activityLevel) {
-                    ForEach(ActivityLevel.allCases) { Text($0.rawValue).tag($0) }
+                    Text("Não informado").tag(ActivityLevel?.none)
+                    ForEach(ActivityLevel.allCases) { Text($0.rawValue).tag(ActivityLevel?.some($0)) }
                 }
                 .pickerStyle(.menu)
                 .tint(Theme.primary)

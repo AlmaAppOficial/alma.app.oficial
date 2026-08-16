@@ -185,6 +185,11 @@ enum LocalDataCleanupService {
 
             // UserMemoryManager — identidade e perfil
             "alma_user_gender",
+            // [2026-08-14] Fisiologia informada no onboarding. É dado de saúde
+            // (LGPD Art. 11) e tem de sair na exclusão como o resto. O
+            // `alma_user_gender` acima continua na lista: ele deixou de ser
+            // perguntado, mas quem já o tinha gravado continua tendo.
+            UserMemoryManager.chaveSexoBiologico,
             "alma_user_birthTimeSlot",
             "alma_user_birthCity",
             "alma_user_birthCountry",
