@@ -56,20 +56,33 @@ export async function apurarPendencias(
   db: FirebaseFirestore.Firestore,
   agoraMs: number,
   dias: number = DIAS_PADRAO,
+  /**
+   * [2026-08-13] Qual loja apurar. O parâmetro tem default para não quebrar as
+   * chamadas existentes — mas o `google_notifications` NÃO é opcional na
+   * prática: uma pendência do Android é exatamente a mesma falha de produto que
+   * uma da Apple (alguém pagou e não está recebendo), e um alerta que só olha
+   * metade das lojas é um alerta que dá "tudo certo" com gente pagando e
+   * trancada do outro lado.
+   */
+  colecao: 'apple_notifications' | 'google_notifications' = 'apple_notifications',
 ): Promise<ResumoPendencias> {
   const corte = admin.firestore.Timestamp.fromMillis(agoraMs - dias * DIA_MS);
 
   const snap = await db
-    .collection('apple_notifications')
+    .collection(colecao)
     .where('processada', '==', false)
     .where('recebidaEm', '<', corte)
     .orderBy('recebidaEm', 'asc')
     .get();
 
+  // A Apple identifica a compra por `originalTransactionId`; a Google, por
+  // `purchaseToken`. Um campo por loja, mesma pergunta.
+  const chave = colecao === 'google_notifications' ? 'purchaseToken' : 'originalTransactionId';
+
   const transacoes = [
     ...new Set(
       snap.docs
-        .map((d) => d.data()?.originalTransactionId)
+        .map((d) => d.data()?.[chave])
         .filter((t): t is string => typeof t === 'string' && t.length > 0),
     ),
   ];
@@ -98,7 +111,8 @@ export async function registrarPendencias(
     .then((d) => (d.data()?.diasPendencia as number | undefined) ?? DIAS_PADRAO)
     .catch(() => DIAS_PADRAO);
 
-  const r = await apurarPendencias(db, agoraMs, cfg);
+  const r = await apurarPendencias(db, agoraMs, cfg, 'apple_notifications');
+  const g = await apurarPendencias(db, agoraMs, cfg, 'google_notifications');
 
   await db.collection('alertas').doc('entitlement_pendentes').set({
     total: r.total,
@@ -106,22 +120,41 @@ export async function registrarPendencias(
     maisAntigaEm: r.maisAntigaEm
       ? admin.firestore.Timestamp.fromDate(r.maisAntigaEm)
       : null,
+    // Google em campos próprios, e não somado ao total: o conserto de cada lado
+    // é diferente (App Store Connect vs. Play Console), então juntar os números
+    // só faria alguém procurar no lugar errado.
+    totalGoogle: g.total,
+    comprasGoogle: g.transacoes.slice(0, 50),
+    maisAntigaGoogleEm: g.maisAntigaEm
+      ? admin.firestore.Timestamp.fromDate(g.maisAntigaEm)
+      : null,
     diasDeCorte: r.diasDeCorte,
     verificadoEm: admin.firestore.FieldValue.serverTimestamp(),
   });
 
+  // Marcador em MAIÚSCULA e sem acento de propósito: é o texto que o filtro
+  // do Cloud Logging procura, e filtro não deve depender de acentuação.
   if (r.total > 0) {
-    // Marcador em MAIÚSCULA e sem acento de propósito: é o texto que o filtro
-    // do Cloud Logging procura, e filtro não deve depender de acentuação.
     console.error(
       `[ALERTA-RECEITA] ${r.total} notificacao(oes) da Apple pendente(s) ha mais de ` +
         `${r.diasDeCorte} dia(s) — ha assinante pagando e NAO recebendo. ` +
         `transacoes=${r.transacoes.join(',')} ` +
         `maisAntiga=${r.maisAntigaEm?.toISOString() ?? '?'}`,
     );
-  } else {
+  }
+
+  if (g.total > 0) {
+    console.error(
+      `[ALERTA-RECEITA] ${g.total} notificacao(oes) da Google pendente(s) ha mais de ` +
+        `${g.diasDeCorte} dia(s) — ha assinante pagando e NAO recebendo. ` +
+        `compras=${g.transacoes.join(',')} ` +
+        `maisAntiga=${g.maisAntigaEm?.toISOString() ?? '?'}`,
+    );
+  }
+
+  if (r.total === 0 && g.total === 0) {
     console.info(
-      `[alerta-entitlement] nenhuma pendencia acima de ${r.diasDeCorte} dia(s).`,
+      `[alerta-entitlement] nenhuma pendencia acima de ${r.diasDeCorte} dia(s) (Apple nem Google).`,
     );
   }
 

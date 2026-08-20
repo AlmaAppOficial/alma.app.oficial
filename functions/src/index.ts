@@ -6,6 +6,7 @@ import OpenAI from 'openai';
 import * as crypto from 'crypto';
 import ogs from 'open-graph-scraper';
 import { ehAssinante } from './entitlementLeitura';
+import { LIMITES_ASSINANTE_PADRAO, limitesSeguros } from './limitesDoChat';
 
 admin.initializeApp();
 
@@ -17,11 +18,26 @@ const openaiApiKey = defineSecret('OPENAI_API_KEY');
 const metaPixelId = defineSecret('META_PIXEL_ID');
 const metaAccessToken = defineSecret('META_ACCESS_TOKEN');
 
-// WhatsApp Business API secrets
-// Setup: firebase functions:secrets:set WHATSAPP_ACCESS_TOKEN
-//        firebase functions:secrets:set WHATSAPP_VERIFY_TOKEN
-const whatsappAccessToken = defineSecret('WHATSAPP_ACCESS_TOKEN');
-const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
+/**
+ * [2026-08-13] O canal de WhatsApp foi REMOVIDO daqui — decisão do Assis:
+ * "não tem que ter whatsapp pra nada, apaga isso."
+ *
+ * O que existia: um `onRequest` público chamado `whatsapp`, sem NENHUMA
+ * verificação de assinatura da Meta (`X-Hub-Signature-256`), diferente de todo
+ * o resto deste arquivo, que exige `Authorization: Bearer <idToken>`. Quem
+ * soubesse a URL disparava chamadas à OpenAI na conta do dono e fazia o número
+ * de WhatsApp Business dele enviar mensagem para o destinatário que quisesse —
+ * o `to` saía do próprio corpo do pedido.
+ *
+ * Junto saíram os segredos `WHATSAPP_ACCESS_TOKEN`/`WHATSAPP_VERIFY_TOKEN` e o
+ * `ALMA_SYSTEM_PROMPT`, que só esse handler usava (o `chat` monta o dele).
+ *
+ * ⚠️ APAGAR O CÓDIGO NÃO REVOGA O TOKEN. Enquanto o `WHATSAPP_ACCESS_TOKEN`
+ * for válido na Meta, ele continua servindo para mandar mensagem pelo número —
+ * só não é mais este servidor que o usa. A revogação é no painel da Meta e a
+ * destruição do segredo é `firebase functions:secrets:destroy` (ver o relatório
+ * da sessão de 13/08).
+ */
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
@@ -58,9 +74,10 @@ const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
  *     total                        ≈ US$0,0005 por mensagem
  * Média real hoje: ~US$0,17 por usuário/mês (≈ 340 mensagens/mês).
  *
- * NÃO-ASSINANTE — 20/hora (inalterado).
- *   No modelo atual ele tem 0 mensagens grátis no cliente, então este limite é
- *   só guarda do endpoint contra quem chamar a função direto.
+ * NÃO-ASSINANTE — [2026-08-18] SEM ACESSO. Devolve 403 antes de qualquer
+ *   chamada paga. O `RATE_LIMIT = 20/hora` abaixo ficou como segunda linha de
+ *   defesa e cobre o único caso que ainda passa pelo gate: a corrida entre a
+ *   compra e a gravação do entitlement. Ver o bloco do gate mais abaixo.
  *
  * ASSINANTE — sem limite de uso, com três guardas invisíveis:
  *
@@ -71,25 +88,42 @@ const whatsappVerifyToken = defineSecret('WHATSAPP_VERIFY_TOKEN');
  *   2) TETO DIÁRIO: 300 mensagens/dia (≈ US$0,15/dia).
  *      Uma sessão longa de desabafo raramente passa de 50. 300 é 6× isso.
  *
- *   3) DISJUNTOR DE CUSTO: 3.000 mensagens/mês (≈ US$1,50/mês/usuário).
- *      É ~9× a média atual (US$0,17). Ninguém conversando de verdade encosta
- *      nisso; um script chega numa tarde. Ao atingir, o serviço não quebra:
- *      responde com uma mensagem humana e volta no dia seguinte.
+ *   3) DISJUNTOR DE CUSTO: [2026-08-18] 2.500 mensagens/mês, com teto absoluto
+ *      de 3.000 que o `config/limites` não pode ultrapassar.
+ *      Baixou de 3.000 porque a folga do pior caso era de R$ 1,64 — apertado
+ *      demais para um número que ninguém real encosta. Com 2.500 a folga vai a
+ *      R$ 5,72. ⚠️ "Ninguém real encosta" é PREMISSA: não há máximo de uso por
+ *      usuário medido no projeto. Ver `LIMITES_ASSINANTE_PADRAO` em
+ *      `limitesDoChat.ts`, onde isso está declarado com o número disponível.
+ *      Ao atingir, o serviço não quebra: responde com uma mensagem humana e
+ *      volta na virada do mês.
  *
- * Os três vivem em `config/limits` no Firestore (lidos abaixo), para ajuste
- * sem novo deploy.
+ * Os três vivem em `config/limites` no Firestore (lidos abaixo), para ajuste
+ * sem novo deploy — passando por `limitesSeguros`, que prende cada valor na
+ * faixa. Antes de 18/08 o documento era aplicado cru: um zero a mais no console
+ * apagava o teto de custo, e um valor em string o desligava em silêncio.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 const RATE_LIMIT = 20;               // não-assinante: por hora
 const WINDOW_MS = 3_600_000;         // 1 hour in ms
 
-/** Assinante: guardas anti-abuso. Sobrescrevíveis por `config/limits`. */
-const LIMITES_ASSINANTE_PADRAO = {
-  rajadaMax: 60,
-  rajadaJanelaMs: 300_000,      // 5 min
-  diarioMax: 300,
-  mensalMax: 3_000,
-};
+/**
+ * Orçamento do TTS (`tts-1`, US$ 15 por 1M de caracteres).
+ *
+ * [2026-08-18] Dimensionado pelo que o fallback existe para fazer, não pelo que
+ * caberia no orçamento. Um roteiro de meditação de 12 minutos tem ~7.000
+ * caracteres, então 40.000/mês são cinco a seis meditações sintetizadas — e
+ * este caminho só roda quando o `.m4a` correspondente FALTA no bundle, o que
+ * hoje não acontece em nenhuma das 30.
+ *
+ * Se este teto começar a ser atingido, a resposta certa é procurar o áudio que
+ * sumiu do bundle, não subir o número: US$ 0,60/mês é o preço de um bug, e
+ * US$ 6,00 seria o preço de ignorá-lo.
+ */
+const MAX_TTS_CHARS_POR_CHAMADA = 4_096;   // teto do provedor por requisição
+const TTS_CHARS_POR_DIA = 20_000;          // ≈ US$ 0,30/dia
+const TTS_CHARS_POR_MES = 40_000;          // ≈ US$ 0,60/mês
+
 
 /**
  * Entitlement do usuário — SEMPRE do servidor, nunca do cliente.
@@ -118,7 +152,9 @@ const LIMITES_ASSINANTE_PADRAO = {
  *
  *   • `appStore` → escrito pelo webhook da Apple e por `vincularAssinatura`;
  *   • `google`   → escrito por `validateAndroidPurchase`;
- *   • `web`      → NÃO escreve aqui. Vive só no custom claim;
+ *   • `web`      → NÃO escreve aqui. Vive só no custom claim — e desde
+ *                  18/08 o `ehAssinante` ACEITA esse claim, então esta origem
+ *                  deixou de ser um caso quebrado. Ver `entitlementLeitura.ts`;
  *   • `legado`   → NÃO escreve aqui, e NÃO PODERIA: ele é carimbado pelo
  *                  cliente em `users/{uid}` (`LegacyEntitlementStore.swift:67`),
  *                  documento que o próprio usuário pode editar. Ler premium de
@@ -126,8 +162,14 @@ const LIMITES_ASSINANTE_PADRAO = {
  *                  para fechar. Confiar no `legado` sem verificação de servidor
  *                  seria trocar um furo por outro.
  *
- * CONSEQUÊNCIA PRÁTICA: quem tem acesso por `web` ou `legado` vê "Premium" no
- * app e mesmo assim pega o limite de 20 mensagens/hora no chat.
+ * CONSEQUÊNCIA PRÁTICA — [ATUALIZADO 2026-08-18]: `web` foi resolvido pelo
+ * custom claim. Sobra `legado`, e para ele a consequência ficou MAIS DURA que
+ * antes: com o gate de premium valendo no servidor, ele não pega mais "20
+ * mensagens/hora" — ele é BLOQUEADO no chat e no scan.
+ *
+ * Quem precisar de acesso por essa via entra pelo custom claim, posto por
+ * servidor. É o caso da conta de demonstração da Apple: ver a seção do revisor
+ * no `CLAUDE.md` e o cabeçalho de `entitlementLeitura.ts`.
  *
  * POR QUE ISSO FICA ASSIM POR ORA (decisão do Assis, 06/08): o fluxo real é o
  * INVERSO do que se supunha — quem paga o Alma ganha o Corpo & Alma, não o
@@ -331,10 +373,12 @@ export const chat = onRequest(
 
     const idToken = authHeader.slice(7);
     let uid: string;
+    let claims: Record<string, unknown> = {};
 
     try {
       const decoded = await admin.auth().verifyIdToken(idToken);
       uid = decoded.uid;
+      claims = decoded as unknown as Record<string, unknown>;
     } catch {
       res.status(401).json({ error: 'Token inválido ou expirado.' });
       return;
@@ -374,11 +418,38 @@ export const chat = onRequest(
 
     // [2026-08-04] Entitlement verificado NO SERVIDOR. O cliente não envia e
     // não poderia enviar: o único dado dele aqui é o ID token, já validado.
-    const assinante = await ehAssinante(db, uid);
+    const assinante = await ehAssinante(db, uid, claims);
 
-    // Limites ajustáveis sem redeploy.
+    // ─────────────────────────────────────────────────────────────────────────
+    // [2026-08-18] GATE DE PREMIUM NO SERVIDOR — decisão do Assis:
+    // "usuário que não paga não tem e não deveria ter acesso a nada que custa
+    // dinheiro."
+    //
+    // Isto fecha o gap que o `STATE.md` rastreava desde maio ("tier gate
+    // client-side"). O gate existia só no `ChatView.swift`; aqui a função
+    // validava token e taxa, mas servia a resposta a qualquer conta autenticada.
+    // Quem chamasse a URL direto tinha chat ilimitado de graça — 20/hora, sem
+    // teto diário nem mensal (os contadores `diaCount`/`mesCount` só eram
+    // incrementados no ramo do assinante). No limite: 480 mensagens/dia por
+    // conta grátis, ~R$ 52/mês de custo com receita zero.
+    //
+    // 403 e não 429 de propósito: 429 significa "volte depois", e o
+    // `ChatView.errorMessage(for:)` trata 429 como limite temporário. Aqui não é
+    // temporário — é assinatura. O app 2.0.x já tranca o chat no cliente quando
+    // `!access.isPremium`, então nenhum usuário legítimo chega neste ponto; quem
+    // chega está chamando o endpoint direto.
+    // ─────────────────────────────────────────────────────────────────────────
+    if (!assinante) {
+      res.status(403).json({
+        error: 'Conversar com a Alma faz parte do plano completo.',
+        motivo: 'premium_obrigatorio',
+      });
+      return;
+    }
+
+    // Limites ajustáveis sem redeploy — com faixa validada, ver `limitesSeguros`.
     const cfg = await db.collection('config').doc('limites').get()
-      .then((d) => ({ ...LIMITES_ASSINANTE_PADRAO, ...(d.data() ?? {}) }))
+      .then((d) => limitesSeguros(d.data()))
       .catch(() => LIMITES_ASSINANTE_PADRAO);
 
     const chaveDia = new Date(now).toISOString().slice(0, 10);   // yyyy-mm-dd
@@ -653,8 +724,12 @@ export const tts = onRequest(
 
     const authHeader = (req.headers.authorization as string | undefined) ?? '';
     if (!authHeader.startsWith('Bearer ')) { res.status(401).json({ error: 'Não autorizado.' }); return; }
+    let uid: string;
+    let claims: Record<string, unknown> = {};
     try {
-      await admin.auth().verifyIdToken(authHeader.slice(7));
+      const decoded = await admin.auth().verifyIdToken(authHeader.slice(7));
+      uid = decoded.uid;
+      claims = decoded as unknown as Record<string, unknown>;
     } catch {
       res.status(401).json({ error: 'Token inválido.' }); return;
     }
@@ -664,8 +739,63 @@ export const tts = onRequest(
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       res.status(400).json({ error: 'Campo "text" é obrigatório.' }); return;
     }
-    if (text.length > 4096) {
-      res.status(400).json({ error: 'Texto muito longo (máx. 4096 caracteres).' }); return;
+    if (text.length > MAX_TTS_CHARS_POR_CHAMADA) {
+      res.status(400).json({ error: `Texto muito longo (máx. ${MAX_TTS_CHARS_POR_CHAMADA} caracteres).` }); return;
+    }
+
+    // ── Gate de premium + orçamento de caracteres ──────────────────────────
+    //
+    // [2026-08-18] ISTO NÃO EXISTIA. Esta função era o ÚNICO caminho do
+    // servidor com custo teoricamente ILIMITADO: bastava um token válido e ela
+    // sintetizava 4.096 caracteres por chamada, sem contador diário, mensal nem
+    // de rajada. A US$ 15 por milhão de caracteres, um laço de uma chamada por
+    // segundo custa US$ 221 por hora — R$ 1.150.
+    //
+    // Não estava sangrando: 0 chamadas em 30 dias (medido em 02/08), porque as
+    // 30 meditações tocam de `.m4a` do bundle e o `GuidedMeditationEngine.start()`
+    // sai antes de cogitar TTS. Mas "não está sendo explorado" não é controle.
+    //
+    // ⚠️ DECISÃO A REVER SE O BUNDLE MUDAR: exigir premium aqui só é inofensivo
+    // porque as 30 meditações — inclusive as 3 gratuitas — têm áudio no bundle,
+    // então este fallback é inalcançável. No dia em que uma meditação gratuita
+    // passar a depender de TTS (áudio sob demanda, On-Demand Resources), esta
+    // linha silencia a meditação de quem não paga. Consertar seria dar um
+    // orçamento pequeno ao não-assinante em vez de bloquear.
+    const db = admin.firestore();
+    if (!(await ehAssinante(db, uid, claims))) {
+      res.status(403).json({
+        error: 'A voz guiada faz parte do plano completo.',
+        motivo: 'premium_obrigatorio',
+      });
+      return;
+    }
+
+    // Orçamento em CARACTERES, não em chamadas: o provedor cobra por caractere,
+    // e contar chamadas deixaria 1 char e 4.096 chars valendo o mesmo.
+    const hojeTts = new Date().toISOString().slice(0, 10);
+    const mesTts = hojeTts.slice(0, 7);
+    const refTts = db.collection('rate_limits').doc(uid);
+    try {
+      await db.runTransaction(async (tx) => {
+        const d = (await tx.get(refTts)).data() ?? {};
+        const noDia = d.ttsDia === hojeTts ? ((d.ttsCharsDia as number) ?? 0) : 0;
+        const noMes = d.ttsMes === mesTts ? ((d.ttsCharsMes as number) ?? 0) : 0;
+        if (noDia + text.length > TTS_CHARS_POR_DIA) throw new RateLimitError('dia');
+        if (noMes + text.length > TTS_CHARS_POR_MES) throw new RateLimitError('mes');
+        tx.set(refTts, {
+          ttsDia: hojeTts, ttsCharsDia: noDia + text.length,
+          ttsMes: mesTts,  ttsCharsMes: noMes + text.length,
+        }, { merge: true });
+      });
+    } catch (err) {
+      if (err instanceof RateLimitError) {
+        res.status(429).json({ error: 'A voz guiada já foi bastante usada. Volte mais tarde.' });
+        return;
+      }
+      // Falha do contador não derruba o serviço — mas aqui, diferente do chat,
+      // ela é registrada como erro: este é o caminho caro, e um contador mudo
+      // significa orçamento sem guarda.
+      console.error('[tts] contador falhou:', sanitizeError(err));
     }
     const voice = (typeof body.voice === 'string' ? body.voice : 'nova') as
       'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
@@ -933,117 +1063,6 @@ async function deleteCollection(
     if (snapshot.size < batchSize) break;
   }
 }
-
-const WHATSAPP_PHONE_NUMBER_ID = '1008608272342824';
-
-const ALMA_SYSTEM_PROMPT =
-  'Você é Alma, uma mentora emocional empática e acolhedora. ' +
-  'Sempre responda em português do Brasil com calor humano, empatia e sabedoria. ' +
-  'Ajude o usuário a refletir sobre seus sentimentos de forma gentil e encorajadora. ' +
-  'Mantenha respostas concisas (máximo 3 parágrafos curtos). ' +
-  'Nunca faça diagnósticos médicos.';
-
-export const whatsapp = onRequest(
-  {
-    region: 'southamerica-east1',
-    secrets: [whatsappAccessToken, whatsappVerifyToken, openaiApiKey],
-    timeoutSeconds: 60,
-  },
-  async (req, res) => {
-    if (req.method === 'GET') {
-      const mode = req.query['hub.mode'] as string | undefined;
-      const token = req.query['hub.verify_token'] as string | undefined;
-      const challenge = req.query['hub.challenge'] as string | undefined;
-
-      if (mode === 'subscribe' && token === whatsappVerifyToken.value()) {
-        console.info('[whatsapp] Webhook verificado com sucesso.');
-        res.status(200).send(challenge ?? '');
-      } else {
-        console.warn('[whatsapp] Falha na verificação do webhook — token inválido.');
-        res.status(403).send('Forbidden');
-      }
-      return;
-    }
-
-    if (req.method !== 'POST') {
-      res.status(405).send('Method Not Allowed');
-      return;
-    }
-
-    res.status(200).send('OK');
-
-    try {
-      const body = req.body as {
-        object?: string;
-        entry?: Array<{
-          changes?: Array<{
-            value?: {
-              messages?: Array<{
-                from?: string;
-                type?: string;
-                text?: { body?: string };
-              }>;
-            };
-          }>;
-        }>;
-      };
-
-      if (body.object !== 'whatsapp_business_account') return;
-
-      const messages = body.entry?.[0]?.changes?.[0]?.value?.messages;
-      if (!messages || messages.length === 0) return;
-
-      const incoming = messages[0];
-      const senderPhone = incoming?.from;
-      const messageText = incoming?.text?.body;
-
-      if (!senderPhone || !messageText || incoming.type !== 'text') return;
-
-      console.info(`[whatsapp] Mensagem de ${senderPhone.slice(0, 6)}…: ${messageText.slice(0, 50)}`);
-
-      const openai = new OpenAI({ apiKey: openaiApiKey.value() });
-
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        max_tokens: 400,
-        messages: [
-          { role: 'system', content: ALMA_SYSTEM_PROMPT },
-          { role: 'user', content: messageText.trim() },
-        ],
-      });
-
-      const reply =
-        completion.choices[0]?.message?.content ??
-        'Olá! Não consegui processar tua mensagem agora. Tenta novamente em breve. 💜';
-
-      const graphResponse = await fetch(
-        `https://graph.facebook.com/v22.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${whatsappAccessToken.value()}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            to: senderPhone,
-            type: 'text',
-            text: { body: reply },
-          }),
-        },
-      );
-
-      if (!graphResponse.ok) {
-        const err = await graphResponse.text();
-        console.error('[whatsapp] Erro ao enviar resposta:', graphResponse.status, err);
-      } else {
-        console.info(`[whatsapp] ✅ Resposta enviada para ${senderPhone.slice(0, 6)}…`);
-      }
-    } catch (err) {
-      console.error('[whatsapp] Erro inesperado:', sanitizeError(err));
-    }
-  },
-);
 
 // ─── Feed admin (Build 77) ────────────────────────────────────────────────────
 //
@@ -1404,6 +1423,7 @@ export const notifyNewFeedPost = onDocumentCreated(
 
 // ─── Billing Android ──────────────────────────────────────────────────────────
 export * from './billing';
+export * from './googleNotifications';
 export { appleNotifications } from './appleNotifications';
 
 // ─── Entitlement Apple (vínculo transação→uid) ───────────────────────────────

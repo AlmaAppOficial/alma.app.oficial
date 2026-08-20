@@ -38,6 +38,7 @@ import * as admin from 'firebase-admin';
 import { onRequest } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import OpenAI from 'openai';
+import { ehAssinante } from './entitlementLeitura';
 
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
@@ -59,10 +60,66 @@ const MODELO_VISAO = 'gpt-4o';
 const MAX_BYTES_POR_FOTO = 4 * 1024 * 1024;
 const MAX_FOTOS = 2;
 
-/** Guarda anti-abuso: scan é caro, o chat não é. Contador próprio. */
-const SCANS_POR_DIA = 30;
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * COTAS DE SCAN — [2026-08-18, decisão do Assis]
+ *
+ * Antes: um contador ÚNICO de 30/dia, compartilhado entre comida e corpo. Dois
+ * defeitos, e o segundo é o caro:
+ *
+ *   1. Uma pessoa que fotografa as refeições do dia gastava a cota do scan
+ *      corporal sem saber, e vice-versa. Cota compartilhada entre coisas de
+ *      preços diferentes é cota que ninguém consegue prever.
+ *
+ *   2. 30/dia estava ACIMA do ponto de prejuízo. Medido em 18/08: o scan de
+ *      comida custa US$ 0,0082 e o corporal US$ 0,0104 (duas fotos, `gpt-4o`,
+ *      `detail: 'high'`). Com R$ 42,42 de receita líquida, o prejuízo começa
+ *      entre 24 e 33 scans/dia — ou seja, o teto do servidor ficava EM CIMA da
+ *      linha, não abaixo dela.
+ *
+ * Agora, dois contadores independentes, dimensionados pelo uso real:
+ *
+ *   COMIDA — 5 por dia. São 4 refeições; a quinta é a segunda tentativa de uma
+ *   foto que saiu ruim. Acima disso não é registro alimentar.
+ *
+ *   CORPO — 3 por SEMANA, não por dia. Composição corporal muda em semanas.
+ *   Um teto diário aqui não protegia de nada: ninguém escaneia o corpo 10 vezes
+ *   num dia, e quem faz isso é script. É também o scan mais caro (duas fotos),
+ *   então é onde o teto rende mais.
+ *
+ * Com estes números, o pior caso do assinante passa a dar LUCRO: ~US$ 2,26/mês
+ * de scan contra US$ 8,16 de receita líquida. Ver `MENSAL_MAX_ABSOLUTO` no
+ * `index.ts`, que fecha a outra metade da conta (o chat).
+ *
+ * A semana começa na SEGUNDA (ISO). Ver `chaveDaSemanaISO`.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+const SCANS_COMIDA_POR_DIA = 5;
+const SCANS_CORPO_POR_SEMANA = 3;
 
 type TipoDeScan = 'corpo' | 'comida';
+
+/**
+ * Chave `yyyy-Www` da semana ISO em UTC — segunda a domingo.
+ *
+ * Por que não `slice(0,10)` de uma data qualquer da semana: o dia da semana
+ * mudaria a chave, e o contador reiniciaria todo dia. Por que ISO e não
+ * "domingo a sábado": é a convenção do resto do projeto e a que não muda de
+ * significado entre locais.
+ *
+ * Exportada porque a regra é testável sozinha — sem tocar em Firestore, sem
+ * tocar em foto. Ver a Regra 4 do `CLAUDE.md`.
+ */
+export function chaveDaSemanaISO(agora: Date): string {
+  // Quinta-feira da mesma semana define o ano ISO (definição da norma).
+  const d = new Date(Date.UTC(agora.getUTCFullYear(), agora.getUTCMonth(), agora.getUTCDate()));
+  const diaISO = d.getUTCDay() === 0 ? 7 : d.getUTCDay();   // domingo = 7
+  d.setUTCDate(d.getUTCDate() + 4 - diaISO);
+  const anoISO = d.getUTCFullYear();
+  const primeiroDeJaneiro = new Date(Date.UTC(anoISO, 0, 1));
+  const semana = Math.ceil((((d.getTime() - primeiroDeJaneiro.getTime()) / 86_400_000) + 1) / 7);
+  return `${anoISO}-W${String(semana).padStart(2, '0')}`;
+}
 
 /** Motivos de recusa. Todos viram texto honesto na tela — nunca um número. */
 type MotivoFalha =
@@ -70,6 +127,7 @@ type MotivoFalha =
   | 'foto_nao_e_do_tipo'
   | 'ia_indisponivel'
   | 'limite_diario'
+  | 'premium_obrigatorio'
   | 'resposta_invalida'
   | 'resposta_incompleta';
 
@@ -634,11 +692,38 @@ export const analisarFoto = onRequest(
       return;
     }
     let uid: string;
+    let claims: Record<string, unknown> = {};
     try {
-      uid = (await admin.auth().verifyIdToken(authHeader.slice(7))).uid;
+      const decodificado = await admin.auth().verifyIdToken(authHeader.slice(7));
+      uid = decodificado.uid;
+      claims = decodificado as unknown as Record<string, unknown>;
     } catch {
       res.status(401).json({ ok: false, motivo: 'ia_indisponivel',
                              mensagem: 'Sessão expirada. Entre de novo e tente.' });
+      return;
+    }
+
+    // ── Gate de premium ────────────────────────────────────────────────────
+    //
+    // [2026-08-18] Isto NÃO existia. O gate vivia só no cliente
+    // (`CorpoAcesso.swift`), e aqui bastava um token válido do Firebase — o de
+    // qualquer conta, inclusive grátis. Medido em 18/08: 30 scans `gpt-4o`/dia
+    // custavam de R$ 38 a R$ 72/mês com receita ZERO. Não era falha de
+    // segurança (nenhum dado de terceiro vazava); era falha de margem — quem
+    // descobrisse a URL tinha o módulo Corpo de graça.
+    //
+    // Decisão do Assis: "usuário que não paga não tem e não deveria ter acesso
+    // a nada que custa dinheiro."
+    //
+    // A verificação vem ANTES de decodificar as fotos de propósito: recusar
+    // cedo evita carregar até 8 MB de base64 na memória de quem não vai ser
+    // atendido.
+    const db = admin.firestore();
+    if (!(await ehAssinante(db, uid, claims))) {
+      res.status(403).json({
+        ok: false, motivo: 'premium_obrigatorio',
+        mensagem: 'A análise por foto faz parte do plano completo.',
+      });
       return;
     }
 
@@ -710,28 +795,50 @@ export const analisarFoto = onRequest(
       fotos.push({ b64, mime });
     }
 
-    // ── Limite diário (scan é caro) ────────────────────────────────────────
-    const db = admin.firestore();
-    const hoje = new Date().toISOString().slice(0, 10);
+    // ── Cota por TIPO de scan (scan é caro; os dois preços são diferentes) ──
+    //
+    // [2026-08-18] Dois contadores independentes onde antes havia um só. Ver o
+    // bloco de `SCANS_COMIDA_POR_DIA` no topo do arquivo para os porquês.
+    //
+    // Campos novos em `rate_limits/{uid}` — os antigos `scanDia`/`scanCount`
+    // deixam de ser lidos e escritos. Não há migração a fazer: o pior efeito de
+    // um documento antigo é a pessoa começar o dia com a cota cheia, uma vez.
+    // Escrever migração para isso custaria mais do que o problema vale.
+    const janela = tipo === 'comida'
+      ? { campoChave: 'scanComidaDia',    campoConta: 'scanComidaCount',
+          chave: new Date().toISOString().slice(0, 10),
+          teto: SCANS_COMIDA_POR_DIA,
+          aoEstourar: 'Você já registrou bastantes refeições hoje. Amanhã tem mais.' }
+      : { campoChave: 'scanCorpoSemana',  campoConta: 'scanCorpoCount',
+          chave: chaveDaSemanaISO(new Date()),
+          teto: SCANS_CORPO_POR_SEMANA,
+          aoEstourar: 'Você já fez suas análises corporais desta semana. '
+                    + 'O corpo muda em semanas — na próxima tem mais.' };
+
     const contadorRef = db.doc(`rate_limits/${uid}`);
     // Só se DEBITOU de fato é que existe algo a devolver depois. Sem esta
     // bandeira, uma falha do contador (que é tolerada, não fatal) seguida de uma
     // falha da IA faria `devolverScan` decrementar um crédito que nunca foi
-    // cobrado — roubando o scan de um sucesso anterior do mesmo dia.
+    // cobrado — roubando o scan de um sucesso anterior da mesma janela.
     let cobrado = false;
     try {
       await db.runTransaction(async (tx) => {
         const d = (await tx.get(contadorRef)).data() ?? {};
-        const usados = d.scanDia === hoje ? ((d.scanCount as number) ?? 0) : 0;
-        if (usados >= SCANS_POR_DIA) throw new Error('LIMITE');
-        tx.set(contadorRef, { scanDia: hoje, scanCount: usados + 1 }, { merge: true });
+        const usados = d[janela.campoChave] === janela.chave
+          ? ((d[janela.campoConta] as number) ?? 0)
+          : 0;
+        if (usados >= janela.teto) throw new Error('LIMITE');
+        tx.set(contadorRef, {
+          [janela.campoChave]: janela.chave,
+          [janela.campoConta]: usados + 1,
+        }, { merge: true });
       });
       cobrado = true;
     } catch (e) {
       if ((e as Error).message === 'LIMITE') {
         res.status(429).json({
           ok: false, motivo: 'limite_diario',
-          mensagem: 'Você já fez bastantes análises hoje. Amanhã tem mais.',
+          mensagem: janela.aoEstourar,
         });
         return;
       }
@@ -776,7 +883,7 @@ export const analisarFoto = onRequest(
     } catch (e) {
       // Recusa do provedor, timeout, cota — tudo cai aqui e vira texto honesto.
       console.error('[analisarFoto] provedor falhou:', (e as Error).message);
-      if (cobrado) await devolverScan(db, uid, hoje);
+      if (cobrado) await devolverScan(db, uid, janela);
       await recibo(db, uid, tipo, false, 'ia_indisponivel');
       res.status(502).json({
         ok: false, motivo: 'ia_indisponivel',
@@ -790,7 +897,7 @@ export const analisarFoto = onRequest(
       dados = JSON.parse(bruto);
     } catch {
       console.error('[analisarFoto] resposta não é JSON', { tipo, bytes: bruto.length });
-      if (cobrado) await devolverScan(db, uid, hoje);
+      if (cobrado) await devolverScan(db, uid, janela);
       await recibo(db, uid, tipo, false, 'resposta_invalida');
       res.status(502).json({
         ok: false, motivo: 'resposta_invalida',
@@ -855,7 +962,7 @@ export const analisarFoto = onRequest(
         console.error('[analisarFoto] resposta sem resumo', {
           tipo, temGordura: typeof dados.gorduraEstimada === 'number',
         });
-        if (cobrado) await devolverScan(db, uid, hoje);
+        if (cobrado) await devolverScan(db, uid, janela);
         await recibo(db, uid, tipo, false, 'resposta_incompleta', ['resumo']);
         res.status(502).json({
           ok: false, motivo: 'resposta_incompleta',
@@ -917,16 +1024,23 @@ export const analisarFoto = onRequest(
  * continua contando: ali houve chamada, houve custo, e houve resposta útil.
  */
 async function devolverScan(
-  db: admin.firestore.Firestore, uid: string, dia: string,
+  db: admin.firestore.Firestore,
+  uid: string,
+  janela: { campoChave: string; campoConta: string; chave: string },
 ) {
   try {
     await db.runTransaction(async (tx) => {
       const ref = db.doc(`rate_limits/${uid}`);
       const d = (await tx.get(ref)).data() ?? {};
-      if (d.scanDia !== dia) return;                 // já virou o dia: nada a devolver
-      const usados = (d.scanCount as number) ?? 0;
+      // A janela já virou (outro dia, outra semana): não há o que devolver, e
+      // devolver aqui daria um crédito a mais na janela NOVA.
+      if (d[janela.campoChave] !== janela.chave) return;
+      const usados = (d[janela.campoConta] as number) ?? 0;
       if (usados <= 0) return;
-      tx.set(ref, { scanDia: dia, scanCount: usados - 1 }, { merge: true });
+      tx.set(ref, {
+        [janela.campoChave]: janela.chave,
+        [janela.campoConta]: usados - 1,
+      }, { merge: true });
     });
   } catch (e) {
     console.warn('[analisarFoto] devolução do scan falhou (não fatal):',

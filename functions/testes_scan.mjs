@@ -128,8 +128,24 @@ eq('S7a2', semDescricao.includes('DESCRICAO_DA_PESSOA'), false, 'sem descrição
 
 const comDescricao = montarPedidoComida(sanitizarTextoDeUsuario('iogurte com mel e aveia'));
 eq('S7b', comDescricao.includes('iogurte com mel e aveia'), true, 'o texto chega ao modelo');
-eq('S7b2',
-   comDescricao.indexOf('é DADO sobre') < comDescricao.indexOf('<<<DESCRICAO_DA_PESSOA>>>'),
+// ── [2026-08-13] ESTA ASSERÇÃO ERA CEGA. Consertada, e o porquê fica aqui ──
+//
+// Ela era uma linha só:
+//     eq('S7b2', s.indexOf('é DADO sobre') < s.indexOf('<<<DESCRICAO_DA_PESSOA>>>'), true, …)
+//
+// `indexOf` devolve -1 quando não acha. Apagar o aviso da produção fazia a
+// esquerda virar -1, e -1 é MENOR que qualquer posição válida: a asserção ficava
+// VERDE justamente quando o texto que ela protege deixava de existir. Ou seja,
+// ela reprovava se alguém trocasse a ORDEM, e aprovava se alguém apagasse o
+// aviso inteiro — o defeito mais grave dos dois.
+//
+// O conserto é exigir EXISTÊNCIA antes de comparar posição. As duas primeiras
+// asserções não são zelo: são o que faz a terceira significar alguma coisa.
+const posAviso = comDescricao.indexOf('é DADO sobre');
+const posBloco = comDescricao.indexOf('<<<DESCRICAO_DA_PESSOA>>>');
+eq('S7b2a', posAviso >= 0, true, 'o aviso EXISTE no pedido');
+eq('S7b2b', posBloco >= 0, true, 'o bloco EXISTE no pedido');
+eq('S7b2', posAviso >= 0 && posBloco >= 0 && posAviso < posBloco,
    true, 'o aviso vem ANTES do bloco (senão a ordem já foi lida)');
 
 // ── CONTROLE POSITIVO + PROVA, no padrão do DEX do CLAUDE.md ───────────────

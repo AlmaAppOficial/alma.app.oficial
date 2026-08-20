@@ -1,37 +1,51 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// DRAFT — validação server-side de compras Android (Google Play Billing).
-//
-// ⚠️  NÃO DEPLOYADO. O deploy é do Felipe (ver passos no fim deste arquivo).
+// Validação server-side de compras Android (Google Play Billing).
 //
 // O que esta função faz:
 //   1. Recebe `purchaseToken` + `productId` do app Android (chamada autenticada).
-//   2. Valida a assinatura com a Google Play Developer API (purchases.subscriptionsv2).
-//   3. Se ativa, **seta o custom claim `isPremium: true`** no Firebase Auth.
-//   4. Grava um registro de auditoria em `users/{uid}` (Firestore).
+//   2. Confere a assinatura com a Google Play Developer API (subscriptionsv2).
+//   3. Grava o VÍNCULO `google_purchase_links/{purchaseToken} → { uid }`.
+//   4. Aplica o entitlement (Firestore + custom claim) pelo caminho compartilhado.
 //
-// 🔑  POR QUE CUSTOM CLAIM (e não só Firestore):
-//   O gate premium do app — iOS (`AccessManager`) e Android (`AccessRepository`)
-//   — lê o **custom claim `isPremium` do ID token**, NÃO um campo do Firestore.
-//   Setar só o Firestore (como no rascunho inicial do M5) NÃO destravaria nada.
-//   Por isso a verdade do entitlement aqui é o claim; o Firestore é só auditoria.
-//   Depois de setar o claim, o cliente força `getIdToken(refresh=true)` para ele
-//   valer na hora (BillingRepository.validatePending faz isso).
+// ─────────────────────────────────────────────────────────────────────────────
+// [2026-08-13] O QUE MUDOU, E POR QUÊ — leia antes de mexer
 //
-// Padrão: firebase-functions v2 (`onCall`), igual ao resto do index.ts.
+// Esta função foi reescrita para deixar de ser um caminho paralelo. Antes ela
+// tinha regra própria (lista de estados da API embutida, gravação do Firestore
+// na mão, claim só subindo) e era o ÚNICO lugar que concedia acesso no Android.
+// Três defeitos vinham disso:
+//
+//   1. O CLAIM SÓ SUBIA. `isPremium` era setado como `true` e nada, em lugar
+//      nenhum, o rebaixava. Como `AccessRepository.currentAccess` lê SÓ o claim,
+//      quem fosse reembolsado continuava premium no app para sempre. O comentário
+//      que ficava aqui reconhecia isso e chamava de "dívida conhecida e aceita".
+//      A dívida está paga: `googleApply.sincronizarClaim` desce o claim quando o
+//      entitlement morre, e a decisão de subir/descer/não-mexer é uma função pura
+//      (`decidirClaim`) exercitada por asserção.
+//
+//   2. NÃO HAVIA VÍNCULO. Nada guardava de quem era o `purchaseToken`, então uma
+//      notificação da Google (reembolso, expiração) não teria a quem se aplicar
+//      nem que já existisse o RTDN. O vínculo é o passo 3 acima.
+//
+//   3. O NOME DO PACOTE ESTAVA ERRADO — ver `googleApi.ts`. Consultava
+//      `com.almaapp.app` (o app antigo, suspenso) em vez de `com.almaapp.android`.
+//
+// A regra de acesso agora vive em `googleEstado.decidirEstadoGoogle`, a mesma que
+// o RTDN usa. Dois caminhos, uma regra: é o que impede o app e a Google de terem
+// opiniões diferentes sobre quem é assinante.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import * as admin from 'firebase-admin';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { google } from 'googleapis';
+import { consultarAssinatura } from './googleApi';
+import { vincularEAplicarGoogle } from './googleApply';
+import { EventoGoogle, TIPO_VALIDACAO_APP } from './googleEstado';
 
 // admin.initializeApp() já roda no index.ts ao importar este módulo. O guard
 // cobre o caso de este arquivo ser carregado isoladamente (testes/scripts).
 if (admin.apps.length === 0) {
   admin.initializeApp();
 }
-
-/** Package name do app Android (= applicationId do build.gradle.kts). */
-const ANDROID_PACKAGE = 'com.almaapp.app';
 
 export const validateAndroidPurchase = onCall(
   {
@@ -58,140 +72,81 @@ export const validateAndroidPurchase = onCall(
       throw new HttpsError('invalid-argument', 'purchaseToken e productId são obrigatórios.');
     }
 
-    // ── Cliente autenticado da Google Play Developer API ──────────────────
-    // Credencial: Application Default Credentials da conta de serviço das
-    // Functions. Essa conta precisa ter acesso concedido no Play Console
-    // (ver passos de deploy no fim do arquivo). Sem esse acesso, a chamada
-    // falha com 401/403.
-    const auth = new google.auth.GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/androidpublisher'],
-    });
-    const androidpublisher = google.androidpublisher({ version: 'v3', auth });
-
-    let isActive = false;
-    let expiryTimeMillis: number | null = null;
-
+    // ── O que a Google diz sobre esta compra ──────────────────────────────
+    //
+    // O `productId` que o app mandou NÃO é usado para decidir nada: quem diz o
+    // que foi comprado é a Google. Um cliente adulterado poderia mandar qualquer
+    // string aqui, e a única coisa que ele não controla é a resposta da API.
+    let fatos;
     try {
-      // subscriptionsv2 expõe `subscriptionState` (enum) — mais robusto que a
-      // API v1 (paymentState + comparação de strings de expiryTimeMillis, que
-      // era a fonte do bug no rascunho original).
-      const res = await androidpublisher.purchases.subscriptionsv2.get({
-        packageName: ANDROID_PACKAGE,
-        token: purchaseToken,
-      });
-
-      const state = res.data.subscriptionState ?? '';
-
-      // Expiração: maior expiryTime entre os line items (RFC3339 → millis).
-      const expiries = (res.data.lineItems ?? [])
-        .map((li) => (li.expiryTime ? Date.parse(li.expiryTime) : NaN))
-        .filter((n) => !Number.isNaN(n));
-      expiryTimeMillis = expiries.length ? Math.max(...expiries) : null;
-
-      const notExpired = expiryTimeMillis === null || expiryTimeMillis > Date.now();
-
-      // Ativo: ACTIVE/GRACE liberam direto; CANCELED (auto-renovação desligada)
-      // ainda dá acesso até expirar.
-      isActive =
-        state === 'SUBSCRIPTION_STATE_ACTIVE' ||
-        state === 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD' ||
-        (state === 'SUBSCRIPTION_STATE_CANCELED' && notExpired);
+      fatos = await consultarAssinatura(purchaseToken);
     } catch (err) {
       console.error('[billing] Falha ao validar compra com a Google Play API:', err);
       throw new HttpsError('internal', 'Não foi possível validar a compra agora.');
     }
 
-    // ── Aplica o entitlement ──────────────────────────────────────────────
-    //
-    // [2026-08-06 — decisão do Assis: "mínimo agora, RTDN depois"]
-    //
-    // ANTES: esta função escrevia SÓ o custom claim e `users/{uid}`. A função
-    // `chat` não lê nenhum dos dois — ela lê `entitlements/{uid}`. Então o
-    // assinante Android era validado com sucesso e mesmo assim caía no limite
-    // de 20 mensagens/hora do não-assinante, igualzinho ao iOS, por um caminho
-    // diferente.
-    //
-    // AGORA: `entitlements/{uid}` é a fonte de verdade ÚNICA do servidor, e a
-    // Google escreve nela como a Apple escreve. Com `expiresAt` real, o acesso
-    // EXPIRA SOZINHO — que é a metade barata de consertar do problema abaixo.
-    //
-    // ⚠️ DÍVIDA CONHECIDA E ACEITA — RTDN (Real-time Developer Notifications)
-    // Esta função só roda quando o APP a chama. Reembolso, cancelamento e
-    // expiração acontecem no servidor da Google e nunca chegam aqui. Sem RTDN:
-    //   • o `expiresAt` limita o estrago a, no máximo, um ciclo de cobrança
-    //     (antes era acesso eterno — o claim subia e ninguém nunca o derrubava);
-    //   • um REEMBOLSO no meio do ciclo continua sem cortar o acesso na hora.
-    // Fechar isso exige endpoint Pub/Sub + configuração no Play Console.
-    //
-    // ⚠️ O CLAIM CONTINUA SÓ SUBINDO, de propósito. `isPremium` é o gate do
-    // CLIENTE Android (`AccessRepository`), não do servidor. Rebaixá-lo aqui
-    // seria mexer no acesso de gente em campo sem poder testar num device —
-    // e o device de teste não está disponível nesta sessão. O servidor, que é
-    // o que estava sangrando, já passa a ver a verdade por `entitlements`.
-    const db = admin.firestore();
+    const evento: EventoGoogle = {
+      tipo: TIPO_VALIDACAO_APP,
+      purchaseToken,
+      estadoApi: fatos.estado,
+      expiraEmMs: fatos.expiraEmMs,
+      productId: fatos.productId ?? productId,
+      // Sem `eventoMs`: a validação vinda do app não é um evento datado pela
+      // Google, e carimbá-la com o relógio do servidor a faria vencer, na guarda
+      // de ordem, notificações legítimas mais recentes. Sem data, ela passa pela
+      // guarda sem MOVER o relógio — que é o comportamento correto para uma
+      // reconciliação. O que a protege de reabrir acesso indevido é a marca de
+      // estorno (`reconcessaoBloqueada`), não a data.
+    };
 
-    await db.doc(`entitlements/${uid}`).set(
+    const db = admin.firestore();
+    const r = await vincularEAplicarGoogle(db, uid, evento);
+
+    if (!r.ok) {
+      console.warn(`[billing] vínculo recusado para ${uid}: ${r.motivo}`);
+      throw new HttpsError('failed-precondition', r.motivo);
+    }
+
+    console.info(
+      `[billing] compra ${purchaseToken.slice(0, 12)}… → ${uid}; ativo=${r.ativo}; ` +
+        `${r.pendentesAplicadas} pendente(s) aplicada(s); ${r.motivo}`,
+    );
+
+    // Auditoria no Firestore (não é fonte de verdade de nada — a verdade do
+    // servidor é `entitlements/{uid}`, e a do cliente é o custom claim).
+    await db.doc(`users/${uid}`).set(
       {
-        active: isActive,
-        productId,
-        expiresAt: expiryTimeMillis
-          ? admin.firestore.Timestamp.fromMillis(expiryTimeMillis)
-          : null,
-        origem: 'google',
-        motivo: isActive
-          ? `assinatura Google ativa${expiryTimeMillis ? ` até ${new Date(expiryTimeMillis).toISOString()}` : ''}`
-          : 'assinatura Google não está ativa',
-        atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        isPremium: r.ativo,
+        subscriptionSource: 'android',
+        subscriptionProductId: fatos.productId ?? productId,
+        subscriptionExpiryMillis: fatos.expiraEmMs,
+        subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true },
     );
 
-    if (isActive) {
-      // Custom claim — gate do cliente Android (preserva claims já existentes).
-      const userRecord = await admin.auth().getUser(uid);
-      const existingClaims = userRecord.customClaims ?? {};
-      await admin.auth().setCustomUserClaims(uid, {
-        ...existingClaims,
-        isPremium: true,
-      });
-
-      // Auditoria no Firestore (não é fonte de verdade de nada).
-      await db.doc(`users/${uid}`).set(
-        {
-          isPremium: true,
-          subscriptionSource: 'android',
-          subscriptionProductId: productId,
-          subscriptionExpiryMillis: expiryTimeMillis,
-          subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      );
-    }
-
-    return { isPremium: isActive, expiryTimeMillis };
+    return { isPremium: r.ativo, expiryTimeMillis: fatos.expiraEmMs };
   },
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PASSOS DE DEPLOY (Felipe) — fazer só quando o produto estiver no Play Console:
+// PENDÊNCIAS DO ASSIS — sem elas, este código roda e não serve para nada.
+// O roteiro completo, com os nomes exatos, está em
+// `PLANO_RTDN_GOOGLE_20260813.md` (raiz do ALMA). Resumo:
 //
-//   1. Expor a função no index.ts:
-//        adicionar  ->  export * from './billing';
+//   1. Criar a assinatura no Play Console com o productId
+//        alma_premium_monthly   (= BillingRepository.SUBSCRIPTION_ID)
+//      ⚠️ Em 05/08 o Console dizia "O app ainda não tem assinaturas"
+//      (`PLAY_CONSOLE_ESTADO_REAL_20260805.md`). Enquanto não existir, o paywall
+//      do Android não funciona e NADA aqui é exercitado.
 //
-//   2. Instalar a dependência da Google API (ainda não está no package.json):
-//        cd functions && npm install googleapis
+//   2. Dar acesso à conta de serviço das Functions no Play Console:
+//      Users and permissions → "View financial data" + "Manage orders and
+//      subscriptions". Pode levar ~24h para propagar.
 //
-//   3. Dar acesso à conta de serviço das Functions no Play Console:
-//        Play Console → Users and permissions → conceder à service account
-//        (a do projeto Firebase, normalmente
-//         <project>@appspot.gserviceaccount.com) a permissão
-//        "View financial data / Manage orders & subscriptions".
-//        (Pode levar até ~24h para propagar.)
+//   3. Ativar as Notificações do desenvolvedor em tempo real apontando para o
+//      tópico Pub/Sub `alma-play-rtdn` (nome em `googleNotifications.TOPICO_RTDN`).
 //
-//   4. Criar a assinatura no Play Console com o productId:
-//        alma_premium_monthly   (= BillingRepository.SUBSCRIPTION_ID no Android)
-//        com base plan mensal a R$ 24,90.
-//
-//   5. Deploy:
-//        firebase deploy --only functions:validateAndroidPurchase
+//   4. Deploy (gate do Assis):
+//        firebase deploy --only functions:validateAndroidPurchase,functions:googleNotifications
 // ─────────────────────────────────────────────────────────────────────────────
