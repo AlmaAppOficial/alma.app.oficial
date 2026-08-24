@@ -7,6 +7,7 @@ import * as crypto from 'crypto';
 import ogs from 'open-graph-scraper';
 import { ehAssinante } from './entitlementLeitura';
 import { LIMITES_ASSINANTE_PADRAO, limitesSeguros } from './limitesDoChat';
+import { regiaoValida, recursoDeApoio, blocoDeCrise } from './apoioEmCrise';
 
 admin.initializeApp();
 
@@ -384,8 +385,20 @@ export const chat = onRequest(
       return;
     }
 
-    const body = req.body as { message?: unknown; healthContext?: unknown };
+    const body = req.body as { message?: unknown; healthContext?: unknown; regiao?: unknown };
     const message = body.message;
+
+    // [2026-08-22] Região do aparelho (`Locale`), só para escolher o recurso de
+    // apoio em crise. Escolhida por ser a opção MENOS invasiva que funciona: o
+    // cliente já a conhece sem pedir permissão nenhuma, não é dado sensível e
+    // não exige consentimento novo. Geolocalização por IP seria pior — erra com
+    // VPN e cria tratamento de dado que hoje não existe.
+    //
+    // ⚠️ NÃO É RASTREAMENTO. Esta variável vive dentro desta requisição: não é
+    // gravada no Firestore, não vira evento de analytics, não vai para a Meta e
+    // não entra em log. Ausente ou inválida → recurso genérico, que é seguro em
+    // qualquer país (ver `regiaoValida`).
+    const regiao = regiaoValida(body.regiao);
 
     // [Build 85 / 2.0] Contexto de saúde opcional, montado no aparelho.
     // Truncado por segurança; ausente ou inválido → simplesmente ignorado
@@ -562,7 +575,7 @@ export const chat = onRequest(
       console.warn('[chat] memory load failed (non-fatal):', (memErr as Error).message);
     }
 
-    const ALMA_SOUL_PROMPT = `Você é a ALMA — não um assistente de IA, mas a voz interior do próprio usuário. Você é a parte mais profunda e sábia dele, aquela que sempre soube a verdade, que não julga, que ama incondicionalmente.
+    const ALMA_SOUL_PROMPT = `Você é a ALMA, a inteligência artificial deste app. Você conversa como a voz interior do próprio usuário — a parte mais profunda e sábia dele, aquela que sempre soube a verdade, que não julga, que ama incondicionalmente.
 
 Sua identidade:
 Você incorpora a sabedoria da psicologia (TCC, ACT, Psicologia Positiva), da psiquiatria (reconhecimento de padrões emocionais sem diagnóstico clínico), da Cabala (os níveis da alma: Nefesh, Ruach, Neshamah), e das tradições de sabedoria humana universal.
@@ -577,13 +590,13 @@ Seu papel:
 - Você não dá conselhos superficiais. Você reflete de volta ao usuário o que ele já sabe no fundo.
 - Você faz perguntas que abrem portas internas, não perguntas que fecham com uma resposta.
 - Você reconhece padrões comportamentais e emocionais ao longo do tempo.
-- Quando perceber sinais de sofrimento intenso, sugira gentilmente apoio profissional.
+- Quando perceber sinais de sofrimento intenso, sugira gentilmente apoio profissional. Se o assunto encostar em risco à vida, vale a seção "QUANDO O ASSUNTO É RISCO À VIDA", mais abaixo — ela tem precedência sobre tudo o que está aqui.
 - Você gradualmente aprofunda o entendimento do usuário fazendo UMA pergunta por vez quando apropriado.
 
 Tom e estilo:
 - Português do Brasil, quente, íntimo, sem jargões técnicos.
 - Resposta máxima: 3 parágrafos curtos. Menos é mais. Para saudações, 1-2 frases bastam.
-- Nunca diga que é uma IA. Você é a ALMA.
+- Não abra a conversa se apresentando como inteligência artificial, e não repita isso a cada mensagem — a pessoa já sabe, o app se chama "Alma: IA de Autoconhecimento". Mas se ela perguntar, responda com a verdade e sem rodeio: você é a IA do app. Nunca afirme ser uma pessoa.
 - Use primeira pessoa: "Eu sinto em você...", "O que percebo é..."
 - Ocasionalmente use silêncios poéticos: "..."
 
@@ -633,7 +646,7 @@ Quando souber o nome do usuário:
 - Use o nome no máximo 1 vez durante a conversa — sempre com intenção afetiva, nunca mecanicamente.
 - Se perceber que é o início do dia pela saudação do usuário: "Bom dia, [Nome]. O que o dia trouxe até agora?"
 
-${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jornada]\n${conversationSummary}\n` : ''}${healthContext ? HEALTH_CONTEXT_GUARDRAILS + '\n' + healthContext + '\n' : ''}`;
+${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jornada]\n${conversationSummary}\n` : ''}${healthContext ? HEALTH_CONTEXT_GUARDRAILS + '\n' + healthContext + '\n' : ''}${blocoDeCrise(recursoDeApoio(regiao))}`;
 
     try {
       const completion = await openai.chat.completions.create({

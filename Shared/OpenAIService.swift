@@ -91,6 +91,23 @@ class OpenAIService {
         if let healthContext, !healthContext.isEmpty {
             body["healthContext"] = healthContext
         }
+        // [2026-08-22] Região do aparelho, e SÓ para o servidor escolher qual
+        // linha de apoio em crise oferecer (`functions/src/apoioEmCrise.ts`).
+        // Dar o número do país errado é pior do que não dar número: a pessoa
+        // liga e não atende.
+        //
+        // O `Locale` foi escolhido por ser o caminho MENOS invasivo que funciona
+        // — já está no aparelho, não pede permissão, não é dado sensível.
+        // Geolocalização por IP no servidor seria pior (erra com VPN e cria
+        // tratamento de dado que hoje não existe).
+        //
+        // ⚠️ NÃO É RASTREAMENTO. Vai no corpo desta requisição e acaba aí: não
+        // é gravado, não vira evento de analytics, não vai para a Meta (ver
+        // `MetaEventsManager`) e não entra em log.
+        if let regiao = Locale.current.region?.identifier,
+           regiao.count == 2 {
+            body["regiao"] = regiao.uppercased()
+        }
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {

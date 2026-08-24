@@ -183,6 +183,8 @@ struct ChatView: View {
     // deu lugar a uso limitado grátis — FreemiumLimits.chatMessagesPerDay
     // mensagens/dia. Ao esgotar, CTA → paywall (sheet). Assinante: sem limite.
     @State private var showPaywall = false
+    /// Apoio em crise: aberto só por toque no rodapé, nunca automaticamente.
+    @State private var showApoio = false
     @State private var freeUsedToday = FreemiumLimits.chatMessagesUsedToday()
 
     private var freeRemaining: Int {
@@ -240,6 +242,14 @@ struct ChatView: View {
 
             // Input bar
             inputBar
+
+            // [2026-08-22] Apoio em crise, sempre à mão. Não depende de
+            // detecção nenhuma, e é por isso que está aqui: é a única camada
+            // que funciona mesmo se o modelo errar. Ver `ApoioEmCrise.swift`.
+            LinkDeApoio { showApoio = true }
+        }
+        .sheet(isPresented: $showApoio) {
+            ApoioEmCriseView()
         }
         .background(CalmTheme.background)
         .navigationBarHidden(true)
