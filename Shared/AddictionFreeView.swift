@@ -17,6 +17,8 @@ struct AddictionFreeView: View {
     @State private var showSetupSheet = false
     @State private var tempDate = Date()
     @State private var showCravingAlert = false
+    /// Apoio em crise: aberto só por toque, nunca automaticamente.
+    @State private var showApoio = false
     @State private var lastCravingResisted = false
     // Tipo em edição quando o sheet é aberto pelo "Editar vício" (nil = primeiro setup).
     // Permite preservar a jornada se o usuário só ajustar quantidade/preço.
@@ -48,10 +50,27 @@ struct AddictionFreeView: View {
                     addictionTypesSection
                 }
 
+                // [2026-08-22] Aviso + apoio em crise.
+                //
+                // No Android esta tela já tinha o disclaimer
+                // (`saude_vicio_disclaimer`); no iOS não tinha nenhum — a
+                // varredura de 22/08 devolveu zero. Entram os dois aqui.
+                //
+                // TOM, que aqui importa mais que nas outras telas: recaída é o
+                // momento de maior risco e é exatamente quando a pessoa mais
+                // evita o app. Por isso é "precisa falar com alguém agora?" e
+                // não um alerta — tem de parecer porta aberta, nunca
+                // vigilância, cobrança ou julgamento. Nunca aparece sozinho:
+                // só quando ela toca.
+                AvisoDeApoio { showApoio = true }
+
                 Spacer(minLength: 32)
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)
+        }
+        .sheet(isPresented: $showApoio) {
+            ApoioEmCriseView()
         }
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationTitle("Livre de Vícios")

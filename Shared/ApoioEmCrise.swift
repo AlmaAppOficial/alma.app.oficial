@@ -105,6 +105,42 @@ struct LinkDeApoio: View {
     }
 }
 
+/// Aviso curto + link, para as telas que ainda não têm disclaimer próprio.
+///
+/// O chat usa só o `LinkDeApoio` (a conversa não é registro clínico). Aqui vão
+/// os dois juntos — check-in de humor e Livre de Vícios, que no iOS não tinham
+/// aviso nenhum.
+///
+/// ── POR QUE NÃO É CONDICIONAL ──────────────────────────────────────────────
+/// No check-in de humor existe um sinal que o chat não tem: a pessoa ESCOLHE um
+/// estado, e daria para mostrar isto só no extremo negativo. Foi considerado e
+/// rejeitado, por três motivos:
+///
+///  1. o link vira sinal. A pessoa aprende que marcar "muito mal" faz o app
+///     reagir — e passa a marcar menos mal do que está, para não ser tratada
+///     como caso. Aí some justamente o registro honesto, que é o motivo de a
+///     tela existir;
+///  2. é um detector com os mesmos falsos positivos de sempre, só que mudados
+///     de texto para toque: um dia ruim de trabalho vira tela de crise;
+///  3. contraria o argumento inteiro que fez esta camada valer a pena. Ela
+///     funciona PORQUE não detecta nada.
+struct AvisoDeApoio: View {
+    let acao: () -> Void
+
+    init(acao: @escaping () -> Void) { self.acao = acao }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Text("A Alma é apoio de bem-estar, não atendimento de saúde.")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+            LinkDeApoio(acao: acao)
+        }
+    }
+}
+
 /// A tela do recurso, aberta pelo `LinkDeApoio`.
 struct ApoioEmCriseView: View {
     @Environment(\.dismiss) private var dismiss

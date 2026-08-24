@@ -14,6 +14,8 @@ struct InsightsView: View {
     @State private var showInsightShare = false
     /// [2026-08-04 — B-4] Paywall vira sheet: a aba deixa de SER o paywall.
     @State private var showPaywallSheet = false
+    /// Apoio em crise: aberto só por toque, nunca automaticamente.
+    @State private var showApoio = false
 
     // [2026-08-03] Os rótulos passam a vir do enum `Mood`, que é a MESMA fonte
     // que o classificador de humor usa. Enquanto eram uma lista solta aqui, a
@@ -182,8 +184,19 @@ struct InsightsView: View {
                     Spacer()
                 }
             }
+
+            // [2026-08-22] Apoio em crise. Permanente e discreto, e NUNCA
+            // condicionado ao humor escolhido: se aparecesse só em "Triste",
+            // marcar tristeza viraria um gesto que faz o app reagir — e a
+            // pessoa passaria a marcar melhor do que está. Some o registro
+            // honesto, que é a razão de esta tela existir. Ver `AvisoDeApoio`.
+            AvisoDeApoio { showApoio = true }
         }
         .calmCard()
+        // A folha fica no PRÓPRIO card, e não no corpo da tela, porque
+        // `moodCheckInCard` é usado nos dois ramos do `body` (assinante e não
+        // assinante). Preso a um ramo só, o link ficaria morto no outro.
+        .sheet(isPresented: $showApoio) { ApoioEmCriseView() }
     }
 
     private func moodIcon(for mood: String) -> String {
