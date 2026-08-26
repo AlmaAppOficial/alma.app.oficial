@@ -1,0 +1,101 @@
+// jejum_firestore_20260826.rules
+// Alma — regras que o módulo de jejum PRECISARIA, entregues em arquivo à parte.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LEIA ISTO ANTES DE COLAR QUALQUER COISA NO `firestore.rules`
+//
+// **HOJE, O MÓDULO DE JEJUM NÃO PRECISA DE NENHUMA REGRA.**
+//
+// Ele é 100 % local. `JejumStore` grava em `UserDefaults` nas chaves
+// `jejumEmCurso`, `jejumHistorico`, `jejumProtocoloPreferido`,
+// `jejumAvisoDeSaudeVisto` e `jejumNotificacoes`. Nenhuma linha do módulo
+// escreve ou lê no Firestore, e nenhum campo novo foi acrescentado a documento
+// existente. Se o `firestore.rules` for para produção sem nenhuma mudança, o
+// módulo continua funcionando exatamente igual.
+//
+// A escolha foi deliberada, por três motivos:
+//
+// 1. **É o padrão do módulo Corpo.** O diário alimentar, a água, o peso e os
+//    suplementos são todos locais. Um histórico de jejum na nuvem, sozinho,
+//    criaria a única parte da Dieta que sobrevive à reinstalação — e a
+//    inconsistência confunde mais do que ajuda.
+//
+// 2. **É dado de saúde.** Histórico de jejum é padrão alimentar: LGPD Art. 5º,
+//    II. Subir isso é decisão de produto e de política de privacidade (que esta
+//    frente foi instruída a não tocar), não consequência técnica de escrever um
+//    cronômetro.
+//
+// 3. **Não daria para verificar.** Esta frente não pode fazer deploy nem editar
+//    `functions/src/index.ts`. Regra escrita e não testada é regra que ninguém
+//    sabe se funciona.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// SE E QUANDO A SINCRONIZAÇÃO FOR DECIDIDA
+//
+// O bloco abaixo é o que seria necessário — pronto para revisão, não para
+// colar sem ler. Ele segue o formato do `firestore.rules` atual: subcoleção sob
+// `users/{uid}`, dono acessa só o que é dele.
+//
+// Quem é dono do `firestore.rules` decide onde encaixar. Duas observações que
+// custam caro se passarem batido:
+//
+//   · `allow delete` é OBRIGATÓRIO aqui. `AccountDeletionService` e
+//     `LocalDataCleanupService` precisam apagar isto na exclusão de conta, e o
+//     `addiction_*` órfão já mostrou o que acontece quando um dado sobrevive ao
+//     dono: o próximo usuário do aparelho recebe o histórico de outra pessoa.
+//
+//   · A validação de campo abaixo é intencionalmente frouxa em `duracao` (só
+//     exige número não-negativo) e estrita em `protocolo`. Motivo: a duração é
+//     calculada no cliente e vai mudar de precisão com o tempo; o `protocolo` é
+//     um enum fechado cujo `rawValue` está no disco dos aparelhos, e um valor
+//     fora da lista significa cliente adulterado ou bug de migração.
+
+rules_version = '2';
+
+// ┌─────────────────────────────────────────────────────────────────────────┐
+// │ TRECHO PROPOSTO — para ser inserido DENTRO do bloco                     │
+// │ `match /databases/{database}/documents { ... }` já existente,           │
+// │ ao lado das outras subcoleções de `users/{uid}`.                        │
+// └─────────────────────────────────────────────────────────────────────────┘
+
+//    // Histórico de jejum intermitente. Um documento por jejum encerrado.
+//    // Só o dono lê, escreve e apaga. Nunca listado por outro usuário.
+//    match /users/{uid}/jejuns/{jejumId} {
+//
+//      function ehDono() {
+//        return request.auth != null && request.auth.uid == uid;
+//      }
+//
+//      function protocoloValido(v) {
+//        // Os rawValue de `ProtocoloDeJejum` (Shared/Corpo/Jejum.swift).
+//        // ⚠️ Estão no disco dos aparelhos — se mudarem lá, mudam aqui.
+//        return v in ['16/8', '18/6', '20/4', '5:2', 'OMAD'];
+//      }
+//
+//      function corpoValido() {
+//        return request.resource.data.keys().hasOnly(
+//                 ['protocolo', 'comecouEm', 'terminouEm', 'duracao'])
+//            && protocoloValido(request.resource.data.protocolo)
+//            && request.resource.data.comecouEm is timestamp
+//            && request.resource.data.terminouEm is timestamp
+//            && request.resource.data.duracao is number
+//            && request.resource.data.duracao >= 0
+//            // Teto de sanidade: 7 dias. Não é regra de saúde — é para um
+//            // cliente com relógio maluco não gravar 4.000 horas.
+//            && request.resource.data.duracao <= 604800;
+//      }
+//
+//      allow read:   if ehDono();
+//      allow create: if ehDono() && corpoValido();
+//      allow update: if ehDono() && corpoValido();
+//      // Obrigatório — ver a observação no cabeçalho.
+//      allow delete: if ehDono();
+//    }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ÍNDICE
+//
+// Se a listagem for por data (o provável: "meus últimos 30 jejuns"), o
+// `firestore.indexes.json` precisa de um índice composto em
+// `users/{uid}/jejuns` por `terminouEm DESC`. Aquele arquivo também tem dono
+// nesta rodada, então fica aqui como aviso e não como edição.

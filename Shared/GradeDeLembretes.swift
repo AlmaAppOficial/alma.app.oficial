@@ -25,6 +25,15 @@ enum DonoDoLembrete: String, CaseIterable {
     case corpo    // água, refeições, treino, suplementos
     case alma     // meditação, sequência, marcos
     case vicio    // marcos do contador de tempo sem vício
+    // [2026-08-26] Dono novo, e ele existe pelo motivo 1 deste arquivo.
+    //
+    // O jejum precisa avisar quando a janela abre e quando ela fecha. Se esses
+    // avisos usassem prefixo `meal-`, eles pertenceriam ao dono `.corpo` — e
+    // `NotificationManager.sync` limpa o dono `.corpo` INTEIRO toda vez que
+    // alguém mexe no interruptor de água. O aviso de fim do jejum sumiria em
+    // silêncio, que é exatamente o bug da fusão descrito lá em cima, cometido
+    // de novo três semanas depois de ele ser documentado.
+    case jejum    // abertura e fechamento da janela alimentar
 
     /// Prefixos dos identificadores que pertencem a este dono. É o que permite
     /// limpar sem atropelar o outro lado.
@@ -32,6 +41,7 @@ enum DonoDoLembrete: String, CaseIterable {
         switch self {
         case .corpo: return ["water-", "meal-", "workout", "supplement-"]
         case .alma:  return ["daily_", "personalized_", "streak_", "milestone_"]
+        case .jejum: return ["jejum_"]
         // [2026-08-03 — A3] `addiction_*` era órfão: agendado por
         // AddictionFreeView e sem NENHUM ponto de cancelamento no app inteiro.
         // Sobrevivia a resetar o contador, ao logout e à exclusão de conta — o
@@ -53,6 +63,14 @@ enum GradeDeLembretes {
     /// suplemento), e a conta é verificada pela auditoria automática.
     ///
     /// Se alguém acrescentar categoria sem rever este número, a auditoria falha.
+    ///
+    /// [2026-08-26] O jejum acrescentou uma categoria e **não** mudou este
+    /// número, e a razão não é descuido: os dois avisos do jejum são de disparo
+    /// único (`UNTimeIntervalNotificationTrigger`, `repeats: false`), porque um
+    /// jejum começa quando a pessoa aperta o botão e não todo dia às 9 h. Eles
+    /// não são lembretes diários, não entram na conta de `totalDiario()` — que
+    /// filtra por `repeats == true` — e não podem furar um teto do qual não
+    /// fazem parte. Ver o cabeçalho do `JejumStore`.
     static let tetoDiario = 9
 
     /// Horários de água. Eram 7 (9,11,13,15,17,19,21h). Quatro pontos cobrem o

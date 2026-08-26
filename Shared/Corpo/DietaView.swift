@@ -34,6 +34,17 @@ struct DietaView: View {
 
                     macrosCard
 
+                    // [2026-08-26] O jejum entra AQUI, entre a meta do dia e as
+                    // refeições, e a posição é argumento.
+                    //
+                    // Ele não é uma aba nova nem um módulo ao lado: a janela
+                    // alimentar e o que se come dentro dela são a mesma decisão,
+                    // e separá-las produziria dois lugares para o mesmo assunto.
+                    // Acima das refeições porque a janela é a moldura delas —
+                    // quem está em jejum precisa ver isso antes de ver o botão
+                    // de adicionar alimento, não depois de rolar até o fim.
+                    JejumCard()
+
                     SectionTitle(text: "Refeições")
                     VStack(spacing: 12) {
                         ForEach(MealType.allCases) { type in

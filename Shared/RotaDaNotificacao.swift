@@ -134,6 +134,14 @@ enum RotaDaNotificacao {
         ("daily_morning", .almaAba(.praticas)),
         ("daily_evening", .almaAba(.praticas)),
 
+        // [2026-08-26] Jejum: os dois avisos levam à Dieta, que é onde o
+        // módulo mora (card dentro da `DietaView`, tela empilhada a partir
+        // dele). Não há aba nova nem destino novo — acrescentar caso em
+        // `DestinoDaNotificacao` obrigaria a tratar o caso em todo `switch` do
+        // app, e o jejum não precisa disso: ele é parte da Dieta.
+        ("jejum_fim",    .corpoAba(.dieta)),
+        ("jejum_janela", .corpoAba(.dieta)),
+
         // Marcos do contador de tempo sem vício.
         ("addiction_1",   .livreDeVicios),
         ("addiction_12",  .livreDeVicios),
@@ -152,6 +160,7 @@ enum RotaDaNotificacao {
         ("water-",      .corpoAba(.inicio)),
         ("meal-",       .corpoAba(.dieta)),
         ("supplement-", .corpoAba(.dieta)),
+        ("jejum_",      .corpoAba(.dieta)),
         ("workout",     .corpoAba(.treino)),
         ("daily_",      .almaAba(.praticas)),
         ("addiction_",  .livreDeVicios),

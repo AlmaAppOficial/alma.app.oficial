@@ -220,6 +220,118 @@ enum SmokeTestTelas {
             renderizar("5 Insights", CorpoInsightsView(), esquema)
         }
         log("═════ FIM APARÊNCIA ═════")
+
+        conferenciaDoJejum(model: model, renderizar: renderizar)
+    }
+
+    // MARK: - Conferência do módulo de jejum [2026-08-26]
+    //
+    // Reaproveita o `renderizar` da conferência de aparência — mesmo `UIWindow`,
+    // mesmo caminho pelo qual o SwiftUI resolve o `body`, mesma limitação
+    // declarada lá em cima (`drawHierarchy` não reproduz blur nem vidro).
+    //
+    // O jejum tem estados que a tela só mostra com dado semeado: cronômetro
+    // correndo, meta atingida, histórico com linhas. Sem semear, três das telas
+    // deste módulo sairiam vazias no print e ninguém veria o que foi construído
+    // — que é o modo de falha do "Alma · Feed" documentado no detector de tela
+    // vazia. Por isso `JejumStore.semearParaCapturas`, que só existe em DEBUG.
+    private static func conferenciaDoJejum(
+        model: AppModel,
+        renderizar: (String, AnyView, ColorScheme) -> Void
+    ) {
+        log("═════ JEJUM — TELAS × 2 ═════")
+
+        let loja = JejumStore.shared
+        let agora = Date()
+        let cal = Calendar.current
+
+        // Histórico plausível: quatro dias seguidos, um deles abaixo da meta —
+        // porque o histórico precisa mostrar que encerrar antes da meta também
+        // é registrado, sem rótulo de fracasso.
+        func diaAtras(_ n: Int) -> Date { cal.date(byAdding: .day, value: -n, to: agora) ?? agora }
+        let historico: [JejumConcluido] = [
+            JejumConcluido(protocolo: .dezesseisPorOito, comecouEm: diaAtras(1),
+                           terminouEm: diaAtras(1), duracao: 16 * 3600 + 900),
+            JejumConcluido(protocolo: .dezoitoPorSeis, comecouEm: diaAtras(2),
+                           terminouEm: diaAtras(2), duracao: 18 * 3600 + 2400),
+            JejumConcluido(protocolo: .dezesseisPorOito, comecouEm: diaAtras(3),
+                           terminouEm: diaAtras(3), duracao: 13 * 3600),   // abaixo da meta
+            JejumConcluido(protocolo: .dezesseisPorOito, comecouEm: diaAtras(4),
+                           terminouEm: diaAtras(4), duracao: 16 * 3600 + 120)
+        ]
+
+        let emCurso = JejumEmCurso(protocolo: .dezoitoPorSeis,
+                                   comecouEm: agora.addingTimeInterval(-14 * 3600 - 1920))
+        let naMeta = JejumEmCurso(protocolo: .dezesseisPorOito,
+                                  comecouEm: agora.addingTimeInterval(-16 * 3600 - 2700))
+
+        for esquema in [ColorScheme.light, .dark] {
+
+            // 1. Sem jejum: a Dieta com o card parado, e a escolha de protocolo.
+            loja.semearParaCapturas(emCurso: nil, historico: [])
+            renderizar("J1 Dieta sem jejum", AnyView(DietaView()), esquema)
+            renderizar("J2 Escolher protocolo", AnyView(JejumView()), esquema)
+
+            // 2. Jejum correndo.
+            loja.semearParaCapturas(emCurso: emCurso, historico: historico)
+            renderizar("J3 Dieta com jejum em curso", AnyView(DietaView()), esquema)
+            renderizar("J4 Cronometro em curso", AnyView(JejumView()), esquema)
+
+            // 3. Meta atingida — o estado em que a ação principal é QUEBRAR,
+            //    e em que não existe botão de estender.
+            loja.semearParaCapturas(emCurso: naMeta, historico: historico)
+            renderizar("J5 Meta atingida", AnyView(JejumView()), esquema)
+
+            // 4. Conteúdo e histórico.
+            renderizar("J6 Saber mais", AnyView(JejumView(abaInicial: .saber)), esquema)
+            renderizar("J7 Historico", AnyView(JejumView(abaInicial: .historico)), esquema)
+
+            // 5. A quebra, nos dois regimes: jejum longo (dois pratos) e jejum
+            //    curto (um prato só). É a diferença de desenho inteira num par
+            //    de imagens.
+            //
+            //    O primeiro par sai SEM medidas de propósito — é o estado em
+            //    que a tela precisa dizer "porção padrão" em vez de fingir
+            //    cálculo pessoal, e um print é a única forma de conferir que
+            //    ela diz. `semearPerfil` roda depois desta função, no
+            //    `HomeView.task`, então aqui o perfil está mesmo vazio.
+            renderizar("J8 Quebra 19h sem medidas", AnyView(QuebraDeJejumView(duracao: 19 * 3600)), esquema)
+            renderizar("J9 Quebra 12h prato unico", AnyView(QuebraDeJejumView(duracao: 12 * 3600)), esquema)
+
+            // 6. Contraindicações.
+            renderizar("J10 Quando nao jejuar", AnyView(AvisoDeSaudeDoJejum()), esquema)
+
+            // 7. A MESMA quebra, agora com medidas — o caminho principal, em
+            //    que o orçamento sai da meta da pessoa e a tela diz isso. Sem
+            //    este par, a única imagem da quebra seria a do estado
+            //    degradado.
+            model.weightKg = 78
+            model.heightCm = 178
+            model.ageYears = 38
+            model.sex = .masculino
+            model.activityLevel = .moderado
+            renderizar("J11 Quebra 19h com meta", AnyView(QuebraDeJejumView(duracao: 19 * 3600)), esquema)
+
+            // 8. E com restrição alimentar declarada — inclusive uma que o
+            //    leitor NÃO sabe interpretar, que é o aviso que esta tela é
+            //    obrigada a mostrar.
+            model.dietaryRestrictions = "sem lactose, alergia a jaracatiá"
+            renderizar("J12 Quebra com restricao", AnyView(QuebraDeJejumView(duracao: 19 * 3600)), esquema)
+
+            // Devolve o modelo ao estado em que ele chegou, para a volta do
+            // laço (o esquema escuro) começar igual ao claro.
+            model.dietaryRestrictions = ""
+            model.weightKg = 0
+            model.heightCm = 0
+            model.ageYears = 0
+            model.sex = nil
+            model.activityLevel = nil
+        }
+
+        // Não deixa o estado semeado para trás: o app segue a sessão com o
+        // jejum zerado, como numa instalação limpa.
+        loja.semearParaCapturas(emCurso: nil, historico: [])
+        log("═════ FIM JEJUM ═════")
     }
 
     static func executar() {

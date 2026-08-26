@@ -274,10 +274,22 @@ enum AuditoriaBloqueadores {
         // quando a linha de produção que ela protege é apagada. Nenhuma das
         // duas passava nesse teste, e nenhuma delas protege um bloqueador.
         // Voltam se e quando houver um agendador real para exercitar.
+        // [2026-08-26] Eram 3 donos, agora são 4 — o jejum ganhou o dele. A
+        // asserção NÃO foi afrouxada: o número continua fixo (dono novo sem
+        // passar por aqui fica vermelho) e a checagem de sobreposição de
+        // prefixo, que é o que ela existe para proteger, passou a valer para
+        // TODOS os pares em vez de só alma×corpo. Antes, um prefixo repetido
+        // entre `corpo` e `vicio` passaria despercebido.
+        let paresDeDonos = DonoDoLembrete.allCases.enumerated().flatMap { i, a in
+            DonoDoLembrete.allCases.dropFirst(i + 1).map { (a, $0) }
+        }
+        let prefixosSobrepostos = paresDeDonos.filter { a, b in
+            a.prefixos.contains(where: { b.prefixos.contains($0) })
+        }
         checa("N3", "cada dono limpa só o que é seu",
-              DonoDoLembrete.allCases.count == 3
-                && !DonoDoLembrete.alma.prefixos.contains(where: { DonoDoLembrete.corpo.prefixos.contains($0) }),
-              "donos: \(DonoDoLembrete.allCases.map(\.rawValue).joined(separator: ", "))")
+              DonoDoLembrete.allCases.count == 4 && prefixosSobrepostos.isEmpty,
+              "donos: \(DonoDoLembrete.allCases.map(\.rawValue).joined(separator: ", "))"
+                + (prefixosSobrepostos.isEmpty ? "" : " · SOBREPOSTOS: \(prefixosSobrepostos.map { "\($0.0.rawValue)×\($0.1.rawValue)" })"))
 
         // ── A16 · truncamento por linha, priorizando alergia ────────────────
         let longas = [
@@ -1417,14 +1429,179 @@ enum AuditoriaBloqueadores {
         // `LembretesDaAlma` ou `AddictionFreeView` sem passar pelo catálogo,
         // ela cai fora deste conjunto e a asserção acusa.
         let prefixosVivos = Set(prefixosDaGrade).subtracting(orfaosConhecidos)
+        // [2026-08-26] `jejum_` entrou aqui junto com o dono novo. A asserção
+        // continua pegando o caso que ela existe para pegar: quem acrescentar
+        // categoria sem carimbar o destino no catálogo cai fora deste conjunto.
         let esperadosVivos: Set<String> = ["water-", "meal-", "workout",
-                                           "supplement-", "daily_", "addiction_"]
+                                           "supplement-", "daily_", "addiction_",
+                                           "jejum_"]
         checa("R7b", "todo prefixo vivo da grade está roteado",
               prefixosVivos == esperadosVivos
                 && prefixosVivos.allSatisfy { RotaDaNotificacao.destinoPorIdentificador($0 + "0") != nil },
               "vivos=\(prefixosVivos.sorted())")
 
         roteador.zerarParaAuditoria()
+
+        // ═══════════════════════════════════════════════════════════════════
+        // J · JEJUM INTERMITENTE
+        //
+        // Prefixo J, livre — não colide com nenhum existente.
+        //
+        // Cada uma destas fica VERMELHA quando a linha de produção que ela
+        // protege é apagada; é a regra que N1/N2 não passaram e por isso foram
+        // removidas. Duas delas (J1b e J5b) são guardas anti-cegueira, pela
+        // lição do A26d: asserção de AUSÊNCIA sem canário passa para sempre.
+        // ═══════════════════════════════════════════════════════════════════
+
+        // J1 · a pausa não come tempo. Um jejum que correu 2 h, pausou 1 h e
+        // voltou a correr por 1 h tem 3 h de jejum, não 4.
+        let t0 = Date(timeIntervalSince1970: 1_000_000)
+        let jejumBase = JejumEmCurso(protocolo: .dezesseisPorOito, comecouEm: t0)
+        let pausado = jejumBase.pausando(agora: t0.addingTimeInterval(2 * 3600))
+        let retomado = pausado.retomando(agora: t0.addingTimeInterval(3 * 3600))
+        let decorridoComPausa = retomado.decorrido(agora: t0.addingTimeInterval(4 * 3600))
+        checa("J1", "a pausa não conta como jejum",
+              Int(decorridoComPausa) == 3 * 3600,
+              "correu \(textoDaDuracao(decorridoComPausa)) em 4 h de relógio")
+
+        // J1b · anti-cegueira de J1. Um cronômetro que devolvesse sempre zero
+        // faria J1 passar se ela olhasse só "não é 4 h".
+        checa("J1b", "o cronômetro anda quando ninguém pausa",
+              jejumBase.decorrido(agora: t0.addingTimeInterval(4 * 3600)) == 4 * 3600,
+              "4 h de relógio → \(textoDaDuracao(jejumBase.decorrido(agora: t0.addingTimeInterval(4 * 3600))))")
+
+        // J2 · relógio para trás não vira número negativo na tela. Acontece de
+        // verdade: fuso de viagem e acerto manual do relógio.
+        let comRelogioAtrasado = jejumBase.decorrido(agora: t0.addingTimeInterval(-7200))
+        checa("J2", "relógio para trás não produz jejum negativo",
+              comRelogioAtrasado >= 0 && jejumBase.progresso(agora: t0.addingTimeInterval(-7200)) >= 0,
+              "decorrido=\(comRelogioAtrasado)")
+
+        // ── J3 · O INVARIANTE ANTI-ESCALADA ────────────────────────────────
+        //
+        // O pedido do Assis: "não gamifique jejum mais longo sem teto". A
+        // tradução em código é que a métrica celebrada conta DIAS, e um jejum
+        // longo vale o mesmo que um curto. Se alguém trocar `Sequencia.dias`
+        // por algo que pontue duração, esta fica vermelha.
+        let ontem = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        let umDezesseisOito = JejumConcluido(protocolo: .dezesseisPorOito, comecouEm: ontem,
+                                             terminouEm: ontem, duracao: 16 * 3600)
+        let umOmadLonguissimo = JejumConcluido(protocolo: .omad, comecouEm: Date(),
+                                               terminouEm: Date(), duracao: 30 * 3600)
+        checa("J3", "um jejum longo vale o mesmo que um curto na sequência",
+              Sequencia.dias([umDezesseisOito]) == Sequencia.dias([umOmadLonguissimo]),
+              "16/8=\(Sequencia.dias([umDezesseisOito])) · OMAD 30 h=\(Sequencia.dias([umOmadLonguissimo]))")
+
+        // J3b · e a sequência de fato conta dias seguidos (anti-cegueira: uma
+        // função que devolvesse sempre 1 faria J3 passar).
+        checa("J3b", "dois dias seguidos contam dois",
+              Sequencia.dias([umDezesseisOito, umOmadLonguissimo]) == 2,
+              "\(Sequencia.dias([umDezesseisOito, umOmadLonguissimo]))")
+
+        // J4 · o app não OFERECE jejum prolongado. Nenhum protocolo do menu
+        // passa de 24 h.
+        let maisLongoOferecido = ProtocoloDeJejum.allCases.map(\.horasDeJejum).max() ?? 0
+        checa("J4", "nenhum protocolo oferecido passa de 24 h",
+              maisLongoOferecido <= 24 && !ProtocoloDeJejum.allCases.isEmpty,
+              "maior=\(maisLongoOferecido) h em \(ProtocoloDeJejum.allCases.count) protocolos")
+
+        // ── J5 · RESTRIÇÃO ALIMENTAR SOME DA SUGESTÃO ──────────────────────
+        //
+        // "Sugerir amendoim a quem tem alergia seria pior que não sugerir
+        // nada" — CorpoContextSnapshot. Aqui isso vira asserção.
+        let comAlergia = QuebraDeJejum.montar(
+            duracao: 20 * 3600, horasDeJanela: 4, kcalGoal: 2000, kcalConsumidas: 0,
+            restricoesTextoLivre: "alergia a lactose, sem frango",
+            catalogo: foodDatabase)
+        let nomesComAlergia = (comAlergia.primeiroPrato + comAlergia.pratoPrincipal).map(\.nome)
+        let vazouRestricao = nomesComAlergia.filter {
+            let n = LeitorDeRestricoes.normalizar($0)
+            return n.contains("iogurte") || n.contains("queijo") || n.contains("frango")
+                || n.contains("peru") || n.contains("whey")
+        }
+        checa("J5", "restrição declarada não aparece na sugestão",
+              vazouRestricao.isEmpty && !nomesComAlergia.isEmpty,
+              vazouRestricao.isEmpty ? "sugeriu \(nomesComAlergia.joined(separator: ", "))"
+                                     : "VAZOU: \(vazouRestricao)")
+
+        // J5b · ANTI-CEGUEIRA de J5, e ela é obrigatória: um motor que
+        // devolvesse lista vazia faria J5 passar para sempre. Sem restrição, os
+        // mesmos alimentos TÊM de aparecer.
+        let semAlergia = QuebraDeJejum.montar(
+            duracao: 20 * 3600, horasDeJanela: 4, kcalGoal: 2000, kcalConsumidas: 0,
+            restricoesTextoLivre: "", catalogo: foodDatabase)
+        let nomesSemAlergia = (semAlergia.primeiroPrato + semAlergia.pratoPrincipal).map(\.nome)
+        let apareceOQueSeriaBarrado = nomesSemAlergia.contains {
+            let n = LeitorDeRestricoes.normalizar($0)
+            return n.contains("iogurte") || n.contains("frango")
+        }
+        checa("J5b", "sem restrição, o alimento barrado em J5 aparece",
+              apareceOQueSeriaBarrado,
+              "sugeriu \(nomesSemAlergia.joined(separator: ", "))")
+
+        // J5c · o que o leitor NÃO entendeu é confessado, não engolido.
+        let comTextoEstranho = QuebraDeJejum.montar(
+            duracao: 16 * 3600, horasDeJanela: 8, kcalGoal: 2000, kcalConsumidas: 0,
+            restricoesTextoLivre: "alergia a jaracatiá", catalogo: foodDatabase)
+        checa("J5c", "restrição não interpretada é reportada",
+              comTextoEstranho.restricoesNaoLidas.contains { $0.contains("jaracatia") },
+              "não lidas: \(comTextoEstranho.restricoesNaoLidas)")
+
+        // J6 · jejum curto não recebe primeiro prato; jejum longo recebe, e ele
+        // é pequeno. É a regra de desenho inteira da quebra, em dois números.
+        let quebraCurta = QuebraDeJejum.montar(
+            duracao: 12 * 3600, horasDeJanela: 12, kcalGoal: 2000, kcalConsumidas: 0,
+            catalogo: foodDatabase)
+        checa("J6", "abaixo de 14 h não há primeiro prato; acima de 18 h há, e é leve",
+              !quebraCurta.temPrimeiroPrato
+                && semAlergia.temPrimeiroPrato
+                && semAlergia.kcalDoPrimeiroPrato <= 250
+                && semAlergia.kcalDoPrimeiroPrato > 0,
+              "12 h → \(quebraCurta.kcalDoPrimeiroPrato) kcal · 20 h → \(semAlergia.kcalDoPrimeiroPrato) kcal")
+
+        // J7 · o total da sugestão é a soma dos componentes. Mesmo invariante da
+        // `Meal` — e ele importa aqui porque esta sugestão VIRA uma `Meal` no
+        // diário da pessoa.
+        let somaDeComponentes = (semAlergia.primeiroPrato + semAlergia.pratoPrincipal)
+            .reduce(0) { $0 + $1.kcal }
+        checa("J7", "o total da quebra é a soma dos componentes",
+              semAlergia.kcalTotal == somaDeComponentes && somaDeComponentes > 0,
+              "total=\(semAlergia.kcalTotal) soma=\(somaDeComponentes)")
+
+        // ── J8 · NENHUMA PROMESSA DE RESULTADO ─────────────────────────────
+        //
+        // A varredura de política de loja, rodando dentro do app sobre o texto
+        // que o app de fato exibe. O lint `_scripts/check_promessas_jejum.py`
+        // faz o mesmo sobre a FONTE e prende o commit; esta aqui prende o
+        // conteúdo montado em runtime, que é o que a pessoa lê.
+        let textoDoModulo: [String] =
+            JejumConteudo.oQueALiteraturaObserva.flatMap { [$0.titulo, $0.corpo] }
+            + JejumConteudo.dicas.flatMap { [$0.titulo, $0.corpo] }
+            + JejumConteudo.contraindicacoes.values.flatMap { [$0.titulo, $0.corpo] }
+            + [JejumConteudo.sobreAQuebra.titulo, JejumConteudo.sobreAQuebra.corpo,
+               JejumConteudo.disclaimer, JejumConteudo.disclaimerCurto]
+            + ProtocoloDeJejum.allCases.map(\.detalhe)
+        let promessas = ["emagre", "cura ", "curar", "reverte", "reverter", "garante",
+                         "garantido", "queima gordura", "desintoxic", "detox",
+                         "acelera o metabolismo", "elimina toxinas", "perca ", "perde peso"]
+        let achadas = textoDoModulo.flatMap { frase -> [String] in
+            let n = LeitorDeRestricoes.normalizar(frase)
+            return promessas.filter { n.contains($0) }
+        }
+        checa("J8", "o módulo de jejum não promete resultado",
+              achadas.isEmpty && textoDoModulo.count > 20,
+              achadas.isEmpty ? "\(textoDoModulo.count) textos varridos, nenhuma promessa"
+                              : "PROMESSA: \(Set(achadas).sorted())")
+
+        // J9 · toda afirmação de saúde carrega fonte e URL. O tipo já obriga a
+        // preencher; esta asserção pega o preenchimento vazio.
+        let semFonte = (JejumConteudo.oQueALiteraturaObserva + [JejumConteudo.sobreAQuebra])
+            .filter { $0.fonte.trimmingCharacters(in: .whitespaces).isEmpty
+                        || !$0.url.hasPrefix("http") }
+        checa("J9", "toda afirmação de saúde tem fonte e URL",
+              semFonte.isEmpty && JejumConteudo.oQueALiteraturaObserva.count >= 4,
+              semFonte.isEmpty ? "\(JejumConteudo.oQueALiteraturaObserva.count + 1) afirmações, todas com fonte"
+                               : "SEM FONTE: \(semFonte.map(\.titulo))")
 
         // ── H · a tela e o registro contam a MESMA coisa ────────────────────
         //
