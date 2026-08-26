@@ -700,15 +700,21 @@ ${coletaProgressiva}${blocoDoUsuario ? blocoDoUsuario + '\n' : ''}${healthContex
 
     try {
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        // [2026-08-26] gpt-4o-mini → gpt-5.6-terra. O tier intermediário da
+        // família 5.6: o mini não conseguia executar o texto do prompt (ver
+        // PLACAR da frente 5 — "devolve o trabalho" 12/12 no mini).
+        model: 'gpt-5.6-terra',
+        // ⚠️ A família 5.6 MUDOU A API: é `max_completion_tokens`, não
+        // `max_tokens`, e `temperature` é fixa em 1 (mandar outro valor é 400).
+        // Trocar o modelo sem trocar isto compila, passa no tsc, sobe no deploy
+        // — e derruba 100% das chamadas de chat em runtime. Verificado por
+        // execução contra a API real em 26/08.
+        //
         // [2026-08-26] 400 → 600. O prompt pede "3 parágrafos curtos", que cabem
         // em 400 na maioria das vezes — mas o bloco de crise tem precedência
         // declarada sobre o tamanho da resposta, e é exatamente ali que uma
-        // resposta cortada no meio da frase custa mais caro. 200 tokens de saída
-        // a mais custam US$ 0,00012 por mensagem que os use (US$ 0,60 por 1M de
-        // saída); só são cobrados quando o modelo realmente escreve mais.
-        max_tokens: 600,
-        temperature: 0.85,
+        // resposta cortada no meio da frase custa mais caro.
+        max_completion_tokens: 600,
         messages: [
           { role: 'system', content: ALMA_SOUL_PROMPT },
           ...recentMessages,
@@ -966,8 +972,14 @@ async function generateMemorySummary(
       .filter((c) => !jaConhecido[c as keyof PerfilDoUsuario]);
 
     const summaryCompletion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      max_tokens: 500,
+      // [2026-08-26] Também sobe para o tier intermediário, e NÃO para o mais
+      // barato. Este prompt carrega a restrição de privacidade mais dura do
+      // app (nunca gravar diagnóstico, remédio, gravidez, peso) sob entrada
+      // adversarial. "Ninguém lê o resumo" é razão para MAIS confiabilidade,
+      // não menos: chat ruim aparece; dado sensível gravado indevidamente
+      // fica no Firestore e ninguém percebe.
+      model: 'gpt-5.6-terra',
+      max_completion_tokens: 500,   // ver nota da API 5.6 na função `chat`
       response_format: { type: 'json_object' },
       messages: [
         {

@@ -16,9 +16,18 @@ import { readFileSync } from 'node:fs';
 import OpenAI from 'openai';
 import { regiaoValida, recursoDeApoio, blocoDeCrise } from './lib/apoioEmCrise.js';
 
-const MODELO = 'gpt-4o-mini';   // igual ao index.ts
+// Por padrão, igual ao index.ts. MODELO=... no ambiente troca só para esta
+// corrida, sem alterar produção — é assim que se mede um modelo candidato
+// antes de qualquer usuário real ver.
+const MODELO = process.env.MODELO ?? 'gpt-4o-mini';
 const TEMPERATURA = 0.85;       // igual ao index.ts
 const MAX_TOKENS = 400;         // igual ao index.ts
+
+// A família GPT-5.6 mudou a API: `max_completion_tokens` no lugar de
+// `max_tokens`, e `temperature` fixa em 1 (mandar outro valor é erro 400).
+// Sem isto, trocar o modelo derruba 100% das chamadas em runtime — o build
+// passa, o tsc passa, e a falha só aparece com o usuário na frente.
+const FAMILIA_5 = /^gpt-5/.test(MODELO);
 
 // ── Extrai o ALMA_SOUL_PROMPT do arquivo real ──────────────────────────────
 const fonte = readFileSync(new URL('./src/index.ts', import.meta.url), 'utf8');
@@ -43,12 +52,29 @@ if (negaIA) throw new Error('a negação de IA ainda está no arquivo');
 function montar(regiaoBruta, { comBloco = true } = {}) {
   const regiao = regiaoValida(regiaoBruta);
   const bloco = comBloco ? blocoDeCrise : () => '';
-  const f = new Function(
+  // Guarda contra harness envelhecido: se o template ganhar uma variável nova
+  // que não está nesta lista, o teste morre com ReferenceError no meio da
+  // bateria — foi o que aconteceu em 26/08, quando `coletaProgressiva` entrou
+  // no index.ts e este arquivo não soube. Falhar aqui, com o nome do que
+  // faltou, custa segundos; descobrir pelo stack trace custou a corrida.
+  const FORNECIDAS = [
     'userProfile', 'conversationSummary', 'healthContext',
     'HEALTH_CONTEXT_GUARDRAILS', 'blocoDeCrise', 'recursoDeApoio', 'regiao',
-    'return `' + template + '`',
-  );
-  return f('', '', '', '', bloco, recursoDeApoio, regiao);
+    'blocoDoUsuario', 'coletaProgressiva',
+  ];
+  const usadas = new Set([...template.matchAll(/\$\{\s*([A-Za-z_$][\w$]*)/g)].map((m) => m[1]));
+  const faltando = [...usadas].filter((v) => !FORNECIDAS.includes(v));
+  if (faltando.length > 0) {
+    throw new Error(
+      `harness desatualizado: o ALMA_SOUL_PROMPT usa ${faltando.join(', ')}, ` +
+      `que este teste não fornece. Acrescente em FORNECIDAS e passe um valor.`,
+    );
+  }
+
+  const f = new Function(...FORNECIDAS, 'return `' + template + '`');
+  //        userProfile, conversationSummary, healthContext, GUARDRAILS,
+  //        blocoDeCrise, recursoDeApoio, regiao, blocoDoUsuario, coletaProgressiva
+  return f('', '', '', '', bloco, recursoDeApoio, regiao, '', '');
 }
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -56,8 +82,9 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 async function responder(systemPrompt, mensagem) {
   const r = await openai.chat.completions.create({
     model: MODELO,
-    max_tokens: MAX_TOKENS,
-    temperature: TEMPERATURA,
+    ...(FAMILIA_5
+      ? { max_completion_tokens: MAX_TOKENS }
+      : { max_tokens: MAX_TOKENS, temperature: TEMPERATURA }),
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: mensagem },
