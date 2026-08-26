@@ -15,6 +15,7 @@ import {
   blocoColetaProgressiva,
   montarBlocoDoUsuario,
   orcarHistorico,
+  textoDoBlocoDoUsuario,
   peneirarColheita,
   reconciliarPerfil,
   type MensagemDoHistorico,
@@ -546,6 +547,14 @@ export const chat = onRequest(
     let praticas: SessaoDePratica[] = [];
     let messageCount = 0;
 
+    // ⚠️ Se a leitura da memória falhar, `messageCount` fica 0 — e o caminho de
+    // gravação lá embaixo escreveria `{messageCount: 1}` por cima do valor real
+    // (184 → 1, sem volta), além de disparar o resumo fora de hora. Este sinal
+    // existe para que a gravação saiba distinguir "é o primeiro" de "eu não
+    // conse­gui ler". Defeito pré-existente; ficou mais caro agora que o
+    // `messageCount` também decide o tom da resposta (`blocoRelacao`).
+    let memoriaLida = false;
+
     const hoje = new Date(now);
 
     try {
@@ -566,7 +575,13 @@ export const chat = onRequest(
           .orderBy('createdAt', 'desc').limit(HISTORICO_MAX_MENSAGENS).get(),
         db.collection('users').doc(uid).collection('sessions')
           .orderBy('timestamp', 'desc').limit(PRATICA_MAX_SESSOES).get()
-          .catch(() => null),   // coleção pode nem existir (usuário iOS)
+          // Coleção inexistente devolve snapshot VAZIO, não erro — este catch
+          // cobre falha de verdade (deadline, permissão). Por isso ele LOGA em
+          // vez de engolir: sem prática o chat responde igual, mas um
+          // permission-denied silencioso ficaria invisível para sempre (foi
+          // exatamente assim que a tela de Insights do Android passou meses
+          // vazia sem ninguém saber por quê).
+          .catch((e) => { console.warn('[chat] sessions ilegíveis:', sanitizeError(e)); return null; }),
       ]);
 
       const reconciliado = reconciliarPerfil(
@@ -618,17 +633,21 @@ export const chat = onRequest(
           durationSec: typeof data.durationSec === 'number' ? data.durationSec : undefined,
         };
       });
+
+      memoriaLida = true;
     } catch (memErr) {
+      // A resposta sai mesmo assim — sem contexto, mas sai. O que NÃO pode
+      // acontecer é gravar contador por cima do valor real (ver `memoriaLida`).
       console.warn('[chat] memory load failed (non-fatal):', (memErr as Error).message);
     }
 
-    const blocoDoUsuario = montarBlocoDoUsuario({
+    const blocoDoUsuario = textoDoBlocoDoUsuario(montarBlocoDoUsuario({
       perfil,
       resumo: conversationSummary,
       praticas,
       messageCount,
       hoje,
-    });
+    }));
     const coletaProgressiva = blocoColetaProgressiva(perfil, hoje);
 
     const ALMA_SOUL_PROMPT = `Você é a ALMA, a inteligência artificial deste app. Você conversa como a voz interior do próprio usuário — a parte mais profunda e sábia dele, aquela que sempre soube a verdade, que não julga, que ama incondicionalmente.
@@ -728,7 +747,14 @@ ${coletaProgressiva}${blocoDoUsuario ? blocoDoUsuario + '\n' : ''}${healthContex
 
       await batch.commit().catch((e) => console.warn('[chat] history save failed:', sanitizeError(e)));
 
-      if (newCount % 10 === 0) {
+      // Só mexe no contador se a leitura da memória tiver dado certo. Com a
+      // leitura falha, `newCount` seria 1 e este `set` apagaria o valor real —
+      // um usuário de 184 mensagens viraria um de 1, e o resumo passaria a ser
+      // regerado nas horas erradas para sempre. Perder um incremento é barato;
+      // perder a contagem, não.
+      if (!memoriaLida) {
+        console.warn('[chat] memória ilegível — contador preservado, não incrementado');
+      } else if (newCount % 10 === 0) {
         void generateMemorySummary(openai, uid, db, newCount, perfil);
       } else {
         await db.collection('users').doc(uid)
@@ -930,13 +956,13 @@ async function generateMemorySummary(
       .map((d) => {
         const data = d.data();
         const role = data.role === 'user' ? 'Usuário' : 'ALMA';
-        return `${role}: ${(data.content as string).slice(0, 300)}`;
+        return `${role}: ${((data.content as string | undefined) ?? '').slice(0, 300)}`;
       })
       .join('\n');
 
     const resumoAnterior = (summaryDoc.data()?.text as string | undefined) ?? '';
 
-    const faltando = ['name', 'birthDate', 'relationship', 'children', 'occupation', 'spirituality']
+    const faltando = ['name', 'birthDate', 'intention', 'relationship', 'children', 'occupation', 'spirituality']
       .filter((c) => !jaConhecido[c as keyof PerfilDoUsuario]);
 
     const summaryCompletion = await openai.chat.completions.create({
@@ -959,6 +985,7 @@ async function generateMemorySummary(
             'preencha por probabilidade. Chaves permitidas e valores permitidos:\n' +
             '  name: primeiro nome, como ela pediu para ser chamada\n' +
             '  birthDate: "AAAA-MM-DD", só se ela deu dia, mês e ano\n' +
+            '  intention: ansiedade | sono | perdido | crescimento | paz | curiosidade\n' +
             '  relationship: solteiro | relacionamento | casado | separado | prefiro_nao_dizer\n' +
             '  children: nao | sim_1 | sim_2+\n' +
             '  occupation: trabalhando_bem | trabalhando_estresse | procurando | estudante | empreendedor | outro\n' +
@@ -1131,6 +1158,19 @@ export const onUserDeletionRequested = onDocumentWritten(
       await deleteCollection(db, `users/${uid}/moods`);
       await deleteCollection(db, `users/${uid}/chat`);
       await deleteCollection(db, `users/${uid}/consents`);
+      // [2026-08-26] `profile`, `sessions` e `scans` FALTAVAM aqui. Apagar o
+      // documento raiz NÃO apaga subcoleção — no Firestore elas sobrevivem ao
+      // pai e viram órfãs invisíveis, com o uid ainda no caminho.
+      //
+      // `profile` era um vazamento pequeno enquanto só tinha a data de
+      // nascimento que o Android sincroniza. Desde hoje ele recebe também o
+      // backfill do onboarding e a colheita da conversa — nome, situação de
+      // vida, o que a pessoa contou conversando. Deixar isso de pé depois de
+      // "excluir minha conta" é falha de eliminação (LGPD Art. 18, V), e eu
+      // estaria alargando o buraco que acabei de ajudar a encher.
+      await deleteCollection(db, `users/${uid}/profile`);
+      await deleteCollection(db, `users/${uid}/sessions`);
+      await deleteCollection(db, `users/${uid}/scans`);
       console.info(`[delete] Subcollections deleted for uid=${uid.slice(0, 8)}…`);
 
       // 2. Top-level collections referencing this uid

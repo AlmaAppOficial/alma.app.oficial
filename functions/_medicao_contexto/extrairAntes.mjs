@@ -13,12 +13,32 @@ import { readFileSync } from 'node:fs';
 
 const RAIZ = new URL('../..', import.meta.url).pathname;
 
+const git = (args) => execFileSync('git', args, {
+  cwd: RAIZ, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
+}).trim();
+
+/**
+ * O commit da linha de base — o último ANTES desta frente encostar no arquivo.
+ *
+ * ⚠️ Isto já foi `HEAD` e estava errado: depois do primeiro commit da mudança,
+ * `HEAD` virou o "depois", e o harness passou a comparar o depois com ele
+ * mesmo (na prática, quebrou com `coletaProgressiva is not defined`). Um
+ * harness que só funciona antes de você commitar é um harness que ninguém
+ * consegue conferir.
+ *
+ * Agora resolve sozinho: o pai do primeiro commit que introduziu
+ * `contextoDoUsuario.ts`. Continua valendo depois de mais commits em cima.
+ */
+export function commitDaLinhaDeBase() {
+  const introducao = git(['rev-list', '--max-parents=1', 'HEAD', '--', 'functions/src/contextoDoUsuario.ts'])
+    .split('\n').filter(Boolean).pop();
+  if (!introducao) throw new Error('não achei o commit que criou contextoDoUsuario.ts');
+  return git(['rev-parse', `${introducao}^`]);
+}
+
 export function fonteDeHead() {
-  return execFileSync('git', ['show', 'HEAD:functions/src/index.ts'], {
-    cwd: RAIZ,
-    encoding: 'utf8',
-    maxBuffer: 32 * 1024 * 1024,
-  });
+  const base = commitDaLinhaDeBase();
+  return git(['show', `${base}:functions/src/index.ts`]);
 }
 
 /** O `index.ts` como está na árvore — o "depois". */

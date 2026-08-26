@@ -21,12 +21,13 @@
  *
  * Uso:
  *   node medir.mjs            → tabela + gravação dos payloads crus
- *   node medir.mjs --mutacao  → repete o "depois" com a reconciliação desligada
+ *
+ * A mutação da reconciliação roda sempre — não é opcional.
  */
 
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { fonteDeHead, fonteDaArvore, montarSystemPrompt, montarUserProfileAntes } from './extrairAntes.mjs';
+import { fonteDeHead, fonteDaArvore, montarSystemPrompt, montarUserProfileAntes, commitDaLinhaDeBase } from './extrairAntes.mjs';
 import { PERSONAS, HOJE } from './fixtures.mjs';
 
 const require = createRequire(import.meta.url);
@@ -38,7 +39,6 @@ const AQUI = new URL('.', import.meta.url).pathname;
 const SAIDA = `${AQUI}payloads`;
 mkdirSync(SAIDA, { recursive: true });
 
-const MUTACAO = process.argv.includes('--mutacao');
 
 /** Sobrecarga do protocolo de chat da OpenAI: 3 tokens por mensagem + 3 de priming. */
 const POR_MENSAGEM = 3;
@@ -113,13 +113,13 @@ function montarDepois(p, { semReconciliacao = false } = {}) {
     ? ctx.reconciliarPerfil(p.mapa, undefined)
     : ctx.reconciliarPerfil(p.mapa, p.sub);
 
-  const blocoDoUsuario = ctx.montarBlocoDoUsuario({
+  const blocoDoUsuario = ctx.textoDoBlocoDoUsuario(ctx.montarBlocoDoUsuario({
     perfil: rec.perfil,
     resumo: p.resumo ?? '',
     praticas: p.praticas ?? [],
     messageCount: p.messageCount ?? 0,
     hoje: HOJE,
-  });
+  }));
   const coletaProgressiva = ctx.blocoColetaProgressiva(rec.perfil, HOJE);
   const historico = ctx.orcarHistorico(p.conversa.slice(-ctx.HISTORICO_MAX_MENSAGENS));
 
@@ -134,7 +134,23 @@ function montarDepois(p, { semReconciliacao = false } = {}) {
   const { segs, systemPrompt } = segmentar(
     SRC_DEPOIS, vars, ['blocoDoUsuario', 'healthContext'],
   );
-  return { segs, systemPrompt, historico, maxTokens: 600, backfill: rec.aBackfillar };
+
+  // O cabeçalho do bloco ("Isto não é ficha…") é INSTRUÇÃO minha, fixa, igual
+  // para todo mundo. Contá-la como "fala do usuário" seria inflar o número com
+  // texto que eu mesmo escrevi. Quebra em dois: cabeçalho estático, dados do
+  // usuário. Sem isto o ganho medido vinha ~50 tokens maior de graça.
+  const partidos = [];
+  for (const s of segs) {
+    if (s.chave === 'blocoDoUsuario' && s.texto.startsWith(ctx.CABECALHO_DO_BLOCO)) {
+      partidos.push({ origem: 'estatico', chave: 'prompt', texto: ctx.CABECALHO_DO_BLOCO });
+      partidos.push({ origem: 'usuario', chave: 'blocoDoUsuario', texto: s.texto.slice(ctx.CABECALHO_DO_BLOCO.length) });
+    } else partidos.push(s);
+  }
+  if (partidos.map((s) => s.texto).join('') !== segs.map((s) => s.texto).join('')) {
+    throw new Error('quebra do cabeçalho alterou o prompt');
+  }
+
+  return { segs: partidos, systemPrompt, historico, maxTokens: 600, backfill: rec.aBackfillar };
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -192,7 +208,7 @@ const reprovar = (m) => { falhas++; console.log(`   ✗✗ ${m}`); };
 
 console.log('\n══ MEDIÇÃO DO CANO DE CONTEXTO ═══════════════════════════════════════\n');
 console.log(`tokenizador: o200k_base (gpt-4o-mini) · hoje fixado em ${HOJE.toISOString().slice(0, 10)}`);
-console.log(`antes: git show HEAD:functions/src/index.ts · depois: árvore de trabalho\n`);
+console.log(`antes: ${commitDaLinhaDeBase().slice(0,7)} (pai do commit que criou contextoDoUsuario.ts) · depois: árvore\n`);
 
 for (const p of PERSONAS) {
   const a = montarAntes(p);
@@ -205,8 +221,8 @@ for (const p of PERSONAS) {
 
   console.log(`── ${p.titulo}`);
   console.log(`   ${p.nota}`);
-  console.log(`   ANTES : total ${ca.total}  · sobre a pessoa ${ca.porPessoa} (${ca.pctComHistorico.toFixed(1)}%)  [${ca.detalhe || 'nada'} historico=${ca.historico}]`);
-  console.log(`   DEPOIS: total ${cd.total}  · sobre a pessoa ${cd.porPessoa} (${cd.pctComHistorico.toFixed(1)}%)  [${cd.detalhe || 'nada'} historico=${cd.historico}]`);
+  console.log(`   ANTES : total ${ca.total} · contexto ${ca.contexto} (${ca.pctSoContexto.toFixed(1)}%) + histórico ${ca.historico} = ${ca.porPessoa} (${ca.pctComHistorico.toFixed(1)}%)  [${ca.detalhe || 'nada'}]`);
+  console.log(`   DEPOIS: total ${cd.total} · contexto ${cd.contexto} (${cd.pctSoContexto.toFixed(1)}%) + histórico ${cd.historico} = ${cd.porPessoa} (${cd.pctComHistorico.toFixed(1)}%)  [${cd.detalhe || 'nada'}]`);
   console.log(`   estático: ${ca.estatico} → ${cd.estatico}   backfill: ${Object.keys(d.backfill).join(',') || '—'}`);
 
   for (const [nome, c] of [['antes', ca], ['depois', cd]]) {
@@ -251,7 +267,7 @@ else console.log(`   ✓ novo-android: 0 → ${novoAndroid.depois.porPessoa} tok
  * reconciliação não é o que está fazendo o trabalho e o relatório está
  * creditando a peça errada.
  */
-if (MUTACAO || true) {
+{
   console.log('\n── MUTAÇÃO: reconciliação desligada (lê só o mapa, como HEAD) ─────────');
   for (const id of ['android', 'web+android']) {
     const p = PERSONAS.find((x) => x.id === id);
@@ -264,12 +280,15 @@ if (MUTACAO || true) {
 }
 
 console.log('\n══ RESUMO ════════════════════════════════════════════════════════════');
-console.log('persona            total antes → depois   sobre a pessoa antes → depois     %');
+console.log('                     total          contexto (sem hist.)      contexto + histórico');
+console.log('persona            antes→depois     antes → depois       %      antes → depois       %');
 for (const l of linhas) {
   console.log(
-    `${l.persona.padEnd(18)} ${String(l.antes.total).padStart(5)} → ${String(l.depois.total).padStart(5)}   ` +
-    `${String(l.antes.porPessoa).padStart(5)} → ${String(l.depois.porPessoa).padStart(5)}   ` +
-    `${l.antes.pctComHistorico.toFixed(1).padStart(5)}% → ${l.depois.pctComHistorico.toFixed(1).padStart(5)}%`,
+    `${l.persona.padEnd(18)} ${String(l.antes.total).padStart(4)}→${String(l.depois.total).padStart(4)}   ` +
+    `${String(l.antes.contexto).padStart(4)} → ${String(l.depois.contexto).padStart(4)}  ` +
+    `${l.antes.pctSoContexto.toFixed(1).padStart(4)}%→${l.depois.pctSoContexto.toFixed(1).padStart(5)}%   ` +
+    `${String(l.antes.porPessoa).padStart(4)} → ${String(l.depois.porPessoa).padStart(4)}  ` +
+    `${l.antes.pctComHistorico.toFixed(1).padStart(4)}%→${l.depois.pctComHistorico.toFixed(1).padStart(5)}%`,
   );
 }
 

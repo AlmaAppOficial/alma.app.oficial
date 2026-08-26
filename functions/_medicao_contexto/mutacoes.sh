@@ -64,6 +64,16 @@ mutar "M4" "sem janela do Ano-Novo Lunar" \
   '' \
   'chinês: 05/02/1988 devolve null (janela do Ano-Novo Lunar)'
 
+mutar "M6" "sem higiene de texto livre" \
+  'MARCADOR_DE_SECAO.test(linha)' \
+  'false' \
+  'neutraliza abertura de seção falsa'
+
+mutar "M7" "moodPattern volta a ser backfillado" \
+  "if (campo === 'moodPattern') continue;" \
+  '' \
+  'moodPattern NUNCA é backfillado (corregedoria)'
+
 mutar "M5" "sem teto total do histórico" \
   'while (total > maxTotalChars && i < cortadas.length) {' \
   'while (false && total > maxTotalChars && i < cortadas.length) {' \
@@ -75,7 +85,7 @@ saida=$(node _medicao_contexto/testes.mjs 2>&1 | tail -1)
 echo "restaurado: $saida"
 echo
 if [ "$falhas" -eq 0 ]; then
-  echo "✓ 5 mutações, 5 vermelhas. As asserções enxergam."
+  echo "✓ 7 mutações, 7 vermelhas. As asserções enxergam."
 else
   echo "✗✗ $falhas mutação(ões) não acusaram."
 fi
