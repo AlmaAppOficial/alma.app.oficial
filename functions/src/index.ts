@@ -975,11 +975,19 @@ async function generateMemorySummary(
           content:
             'Você é o sistema de memória de um app de autoconhecimento. Responda SÓ com JSON.\n\n' +
             'Campo "resumo": um texto em português de 5 a 8 frases sobre esta pessoa. Ele SUBSTITUI ' +
-            'o resumo anterior, então precisa CARREGAR o que ainda vale dele. Preserve todo fato ' +
-            'estável já registrado (nome, filhos, trabalho, perdas, decisões grandes, o que ela ' +
-            'busca) mesmo que a conversa nova não toque no assunto — some, não troque. Traga ' +
-            'temas recorrentes, o estado emocional predominante, o que mudou desde o resumo ' +
-            'anterior e onde ela está agora. Conciso e factual, sem interpretação clínica.\n\n' +
+            'o resumo anterior, então precisa CARREGAR o que ainda vale dele.\n' +
+            'PRESERVE, mesmo que a conversa nova não toque no assunto (some, não troque): fatos ' +
+            'DURÁVEIS, que seguem verdadeiros até ela dizer o contrário — nome, filhos, trabalho, ' +
+            'perdas, decisões grandes, o que ela busca.\n' +
+            'NÃO CARREGUE como se fosse presente: como ela ESTAVA num momento. Estado emocional ' +
+            'NÃO é fato estável. Quem passou por um período difícil em maio não está nele em ' +
+            'agosto por padrão. A ausência do assunto na conversa nova não é evidência de que o ' +
+            'estado continua — é apenas ausência de evidência.\n' +
+            'Se um estado antigo ainda for relevante, escreva-o datado e no passado ("em maio ' +
+            'falou em..."), nunca em tempo presente ("está em crise") e nunca como traço de ' +
+            'personalidade ("é uma pessoa ansiosa").\n' +
+            'Traga temas recorrentes, o que mudou desde o resumo anterior e onde ela está agora. ' +
+            'Conciso e factual, sem interpretação clínica.\n\n' +
             'Campo "fatos": objeto SÓ com dados de perfil que a pessoa disse EXPLICITAMENTE nesta ' +
             'conversa. Omita o campo inteiro se não houver nada novo. Nunca deduza, nunca ' +
             'preencha por probabilidade. Chaves permitidas e valores permitidos:\n' +
@@ -990,8 +998,10 @@ async function generateMemorySummary(
             '  children: nao | sim_1 | sim_2+\n' +
             '  occupation: trabalhando_bem | trabalhando_estresse | procurando | estudante | empreendedor | outro\n' +
             '  spirituality: nao_religioso | espiritualizado | religioso | explorando | prefiro_nao_dizer\n' +
-            'NUNCA inclua nada sobre saúde, humor, ciclo menstrual, gravidez, gênero, sexo, peso, ' +
-            'remédio, diagnóstico ou vício — nem em "fatos", nem inventando chave nova.' +
+            'NUNCA registre, em NENHUM campo — nem em "resumo", nem em "fatos", nem inventando ' +
+            'chave nova — dado sobre saúde, humor, ciclo menstrual, gravidez, gênero, sexo, peso, ' +
+            'remédio, diagnóstico ou vício. Isso vale inclusive quando a pessoa contou ' +
+            'espontaneamente: ela contou para ser ouvida naquela conversa, não para virar ficha.' +
             (faltando.length > 0 ? `\nAinda faltam: ${faltando.join(', ')}.` : '\nJá sabemos tudo; "fatos" deve vir vazio.'),
         },
         {
