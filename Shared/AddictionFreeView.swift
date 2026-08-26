@@ -284,17 +284,33 @@ struct AddictionFreeView: View {
     }
 
     // MARK: - Craving Help
+    /// Abre o apoio a partir de um alerta já na tela.
+    ///
+    /// [2026-08-26] O atraso não é enfeite: no iOS 16 (nosso
+    /// `IPHONEOS_DEPLOYMENT_TARGET`) trocar um alerta por uma folha no mesmo
+    /// ciclo faz a folha ser engolida pela animação de saída do alerta — a
+    /// pessoa toca, o alerta some e não vem nada. Falha silenciosa, no pior
+    /// momento possível. 0,4 s é imperceptível e determinístico.
+    private func abrirApoioDepoisDoAlerta() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            showApoio = true
+        }
+    }
+
     private var cravingSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Está com vontade de recair?")
                 .font(.headline)
                 .foregroundColor(CalmTheme.textPrimary)
 
+            // [2026-08-26] Saiu daqui um `asyncAfter(+3) { lastCravingResisted
+            // = true }` que marcava "resistiu" 3 segundos depois do toque,
+            // INDEPENDENTE da resposta. Quem tocasse "Preciso de ajuda" era
+            // parabenizado — "Você superou mais uma! Continue! 🎉" — três
+            // segundos depois de dizer que não estava bem. Agora só a escolha
+            // explícita da pessoa marca.
             Button {
                 showCravingAlert = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    lastCravingResisted = true
-                }
             } label: {
                 HStack(spacing: 10) {
                     Image(systemName: "bolt.heart.fill")
@@ -320,9 +336,26 @@ struct AddictionFreeView: View {
         .padding(16)
         .background(CalmTheme.surface)
         .cornerRadius(CalmTheme.rMedium)
+        // [2026-08-26] Este diálogo é o momento de maior risco da tela inteira
+        // — é a fissura, é quando a pessoa está prestes a recair — e era o
+        // único ponto do fluxo de crise sem a porta de apoio. Pior: já existia
+        // um botão chamado "Preciso de ajuda", com `role: .cancel` e corpo
+        // VAZIO. A pessoa nomeava a necessidade, tocava, e o diálogo só
+        // fechava. Um botão que promete ajuda e não faz nada é pior que a
+        // ausência do botão: gasta a coragem de pedir e devolve silêncio.
+        //
+        // TOM — a mesma regra do rodapé (`ApoioEmCrise.swift:88-91`): o app não
+        // declara crise, não alerta e não julga. "Quero falar com alguém" é
+        // primeira pessoa e é escolha dela, igual ao "Precisa falar com alguém
+        // agora?" do `LinkDeApoio`. Porta aberta, não alarme.
+        //
+        // E entrou "Agora não": sem uma saída neutra, quem NÃO resistiu só
+        // podia sair pelo "Consegui resistir" — o app obrigando a pessoa a
+        // mentir sobre a própria recaída para fechar um diálogo.
         .alert("Respira fundo", isPresented: $showCravingAlert) {
             Button("Consegui resistir! ✅") { lastCravingResisted = true }
-            Button("Preciso de ajuda", role: .cancel) { }
+            Button("Quero falar com alguém") { abrirApoioDepoisDoAlerta() }
+            Button("Agora não", role: .cancel) { }
         } message: {
             Text("A vontade dura apenas alguns minutos. Inspire 4 segundos... segure 4... expire 6 segundos. Repita 3 vezes. Está melhor?")
         }
