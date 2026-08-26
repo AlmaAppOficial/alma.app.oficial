@@ -18,9 +18,20 @@ cp Shared/Corpo/UnidadeDeMedida.swift Shared/Corpo/Refeicao.swift \
    Shared/Corpo/QuebraDeJejum.swift "$ORIG/"
 cp _scripts/testes_jejum.swift "$ORIG/main.swift"
 
-verdes=0; vermelhas=0; furos=(); naocompilou=()
+verdes=0; vermelhas=0; furos=(); naocompilou=(); naoaplicou=()
+MUTOK=0
 
 roda() {          # $1 = descrição
+  # [26/08] Uma mutação que NÃO FOI APLICADA (padrão não encontrado, porque o
+  # texto de produção mudou) rodava a base intocada e passava verde — e era
+  # contada como FURO. Isso é pior que inútil: acusa de cega uma asserção que
+  # está perfeita, e foi o que aconteceu com a M11 depois da reescrita do texto.
+  # Um caso que não é "asserção cega" não pode entrar na conta de furos.
+  if [ "$MUTOK" != "1" ]; then
+    echo "  ⚠ NÃO APLICADA (padrão sumiu do código) — $1"
+    naoaplicou+=("$1")
+    return
+  fi
   local T=$(mktemp -d)
   cp "$ORIG"/*.swift "$T/"
   cp "$MUT/"*.swift "$T/" 2>/dev/null
@@ -48,7 +59,7 @@ roda() {          # $1 = descrição
 mutar() {         # $1 = arquivo · $2 = de · $3 = para
   MUT=$(mktemp -d)
   cp "$ORIG/$1" "$MUT/$1"
-  python3 - "$MUT/$1" "$2" "$3" <<'PY'
+  if python3 - "$MUT/$1" "$2" "$3" <<'PY'
 import sys
 p, de, para = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p, encoding='utf-8').read()
@@ -57,6 +68,7 @@ if de not in s:
     sys.exit(9)
 open(p, 'w', encoding='utf-8').write(s.replace(de, para, 1))
 PY
+  then MUTOK=1; else MUTOK=0; fi
 }
 
 echo "═══ MUTAÇÃO — MÓDULO DE JEJUM ═══"
@@ -158,10 +170,33 @@ mutar QuebraDeJejum.swift \
 roda "padrão rotulado como meta da pessoa"
 
 echo
+echo "── M13 · o carboidrato deixa de ser o último (a regra da sequência) ──"
+mutar QuebraDeJejum.swift \
+  'public static let ordemDeComer: [PapelNoPrato] = [.proteina, .vegetal, .gordura, .carboidrato]' \
+  'public static let ordemDeComer: [PapelNoPrato] = [.carboidrato, .proteina, .vegetal, .gordura]'
+roda "carboidrato volta a vir primeiro"
+
+echo
+echo "── M14 · fruta volta a abrir a quebra (o que saiu em 26/08) ──"
+mutar QuebraDeJejum.swift \
+  '        CandidatoDeQuebra(nome: "Queijo cottage",           quantidadeBase: 150, grupos: [.lactose]),' \
+  '        CandidatoDeQuebra(nome: "Banana",                   quantidadeBase: 150, grupos: []),'
+roda "carboidrato abre a quebra"
+
+echo
+echo "── M15 · o primeiro prato deixa de ser proteína pura ──"
+mutar QuebraDeJejum.swift \
+  '            primeiro = ajustarPara(kcal: alvo, componentes: [leve])
+                .map { ItemDaQuebra(componente: $0, papel: .proteina) }' \
+  '            primeiro = ajustarPara(kcal: alvo, componentes: [leve])
+                .map { ItemDaQuebra(componente: $0, papel: .carboidrato) }'
+roda "primeiro prato rotulado como carboidrato"
+
+echo
 echo "── M11 · uma promessa de resultado entra no conteúdo ──"
 mutar JejumConteudo.swift \
-  'É a informação mais útil desta tela:' \
-  'Com ele você emagrece de verdade. É a informação mais útil desta tela:'
+  'O que isso quer dizer na prática:' \
+  'Com ele você emagrece de verdade. O que isso quer dizer na prática:'
 roda "promessa de resultado no texto"
 
 echo
@@ -173,7 +208,7 @@ roda "afirmação de saúde sem URL"
 
 echo
 echo "══════════════════════════════════════════════"
-echo "  $vermelhas vermelhas · ${#furos[@]} furos · ${#naocompilou[@]} não compilaram"
+echo "  $vermelhas vermelhas · ${#furos[@]} furos · ${#naocompilou[@]} não compilaram · ${#naoaplicou[@]} não aplicadas"
 if [ ${#furos[@]} -gt 0 ]; then
   echo "  FUROS (asserção cega — a garantia não é garantida):"
   printf '    · %s\n' "${furos[@]}"
@@ -181,6 +216,10 @@ fi
 if [ ${#naocompilou[@]} -gt 0 ]; then
   echo "  NÃO COMPILARAM (mutação inválida, não prova nem desprova):"
   printf '    · %s\n' "${naocompilou[@]}"
+fi
+if [ ${#naoaplicou[@]} -gt 0 ]; then
+  echo "  NÃO APLICADAS (o padrão sumiu — conserte a mutação, não a asserção):"
+  printf '    · %s\n' "${naoaplicou[@]}"
 fi
 echo
 echo "  O QUE ESTE SCRIPT NÃO EXECUTA, declarado:"

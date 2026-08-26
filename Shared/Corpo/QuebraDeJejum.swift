@@ -34,19 +34,37 @@
 // do dia, e é uma limitação declarada em vez de escondida.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// A BASE DA DIVISÃO EM DOIS PRATOS
+// AS DUAS REGRAS QUE GOVERNAM O PRATO — E DE ONDE ELAS VÊM
 //
-// Não é folclore, e não é síndrome de realimentação (ver o aviso no
-// `JejumConteudo`, que explica por que emprestar o nome de uma emergência
-// clínica para uma janela de 16 h seria desonesto).
+// [26/08] O Assis pediu: *"o que é colocado na boca após a quebra do jejum deve
+// ser proteína"*. Foi apurado antes de mexer no código, a evidência sustenta, e
+// por isso este arquivo MUDOU — não só o texto da tela.
 //
-// Vem da literatura de Ramadã, onde há mais gente quebrando jejum longo do que
-// em qualquer ensaio clínico: refeição de quebra muito grande, com carboidrato
-// de absorção rápida e fritura, aparece associada a pico glicêmico acentuado e
-// a sintoma gastrointestinal — saciedade precoce, distensão, náusea. Programas
-// que orientam dividir a quebra numa porção leve seguida da principal
-// registram menor variabilidade glicêmica. A citação está em
-// `JejumConteudo.sobreAQuebra`; aqui fica só a consequência de desenho.
+// REGRA 1 — COMEÇAR PEQUENO. Vem da literatura de Ramadã, onde há mais gente
+// quebrando jejum longo do que em qualquer ensaio clínico: refeição de quebra
+// muito grande, com carboidrato rápido e fritura, aparece junto com pico de
+// açúcar no sangue, enjoo, inchaço e saciedade cedo demais. Programas que
+// mandam comer pouco primeiro registram menos oscilação de açúcar.
+//
+// REGRA 2 — PROTEÍNA (E VEGETAL) ANTES DO CARBOIDRATO. Vem dos estudos de
+// sequência de alimentos. A MESMA refeição, comida em ordens diferentes, produz
+// picos de açúcar diferentes: com proteína e vegetal primeiro, cerca de 29 %
+// menos aos 30 minutos e 37 % menos aos 60 (Shukla, Diabetes Care 2015).
+// Repetido em vários estudos cruzados.
+//
+// As duas viram código assim:
+//   · `primeiroPrato` é SÓ PROTEÍNA. A fruta que ele tinha até 26/08 saiu — ela
+//     era o carboidrato, e abrir a quebra com carboidrato contradiz a regra 2
+//     que a própria tela ensina duas telas adiante;
+//   · `pratoPrincipal` sai ORDENADO, com o carboidrato por último, e a View
+//     numera os itens. A ordem é dado, não decoração — a asserção `J10` prova
+//     que o carboidrato é o último item da lista.
+//
+// A ressalva que não pode sumir: é "pequeno E proteína", nunca "muita
+// proteína". Porção grande de qualquer coisa cai mal depois de jejum longo, e é
+// por isso que `tetoDoPrimeiroPrato` existe e não subiu.
+//
+// A citação completa está em `JejumConteudo.sobreAQuebra`.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // ⚠️ RESTRIÇÃO ALIMENTAR: O QUE ESTE ARQUIVO NÃO PODE ERRAR
@@ -177,6 +195,50 @@ public enum LeitorDeRestricoes {
     }
 }
 
+// MARK: - Papel no prato
+
+/// O que cada item cumpre — e, no prato principal, em que ORDEM ele deve ser
+/// comido.
+///
+/// A ordem dos `case` NÃO é livre: `ordemDeComer` a usa para montar o prato
+/// principal, e o carboidrato é o último de propósito (regra 2 do cabeçalho).
+/// Reordenar aqui muda o que a tela manda a pessoa comer primeiro.
+public enum PapelNoPrato: String, CaseIterable, Equatable {
+    case proteina
+    case vegetal
+    case gordura
+    case carboidrato
+
+    /// Ordem de consumo do prato principal. Carboidrato por último.
+    public static let ordemDeComer: [PapelNoPrato] = [.proteina, .vegetal, .gordura, .carboidrato]
+
+    public var rotulo: String {
+        switch self {
+        case .proteina:    return "proteína"
+        case .vegetal:     return "vegetal"
+        case .gordura:     return "gordura"
+        case .carboidrato: return "carboidrato"
+        }
+    }
+}
+
+/// Um item da sugestão: o alimento e o papel que ele cumpre.
+///
+/// Existe porque a ORDEM virou informação de produto em 26/08. Antes bastava
+/// uma lista de `ComponenteDaRefeicao`; agora a tela precisa saber qual item é
+/// o carboidrato para poder dizer "este por último", e a asserção precisa
+/// conseguir verificar isso sem adivinhar pelo nome do alimento.
+public struct ItemDaQuebra: Identifiable, Equatable {
+    public let componente: ComponenteDaRefeicao
+    public let papel: PapelNoPrato
+    public var id: UUID { componente.id }
+
+    public init(componente: ComponenteDaRefeicao, papel: PapelNoPrato) {
+        self.componente = componente
+        self.papel = papel
+    }
+}
+
 // MARK: - Candidato
 
 /// Um alimento que o motor pode escolher, com o papel que ele cumpre no prato.
@@ -232,11 +294,11 @@ public enum GentilezaDaQuebra: String, Equatable {
     public var explicacao: String {
         switch self {
         case .direta:
-            return "Menos de 14 horas é um intervalo comum entre refeições. Não há motivo para tratar esta como diferente das outras."
+            return "Menos de 14 horas é um intervalo normal entre refeições. Não precisa de cuidado especial. Só coma o carboidrato por último."
         case .moderada:
-            return "Depois de 14 a 18 horas, uma porção leve antes do prato principal costuma cair melhor do que sentar direto para a refeição inteira."
+            return "Depois de 14 a 18 horas, uma porção pequena de proteína antes do prato principal cai melhor do que sentar e comer tudo de uma vez."
         case .cuidadosa:
-            return "Acima de 18 horas, a refeição de quebra é a que mais pesa no desconforto. Uma porção pequena primeiro, o prato principal meia hora depois."
+            return "Depois de 18 horas, a refeição da quebra é a que mais dá desconforto. Comece com pouca proteína e espere meia hora antes do prato principal."
         }
     }
 }
@@ -245,9 +307,12 @@ public enum GentilezaDaQuebra: String, Equatable {
 
 public struct SugestaoDeQuebra: Equatable {
     public let gentileza: GentilezaDaQuebra
-    /// Vazio quando `gentileza == .direta`.
-    public let primeiroPrato: [ComponenteDaRefeicao]
-    public let pratoPrincipal: [ComponenteDaRefeicao]
+    /// Vazio quando `gentileza == .direta`. Quando existe, é **só proteína** —
+    /// ver a regra 2 do cabeçalho.
+    public let primeiroPrato: [ItemDaQuebra]
+    /// **Já na ordem de comer**, com o carboidrato por último. A View mostra a
+    /// lista como está; reordenar na tela desfaria a regra.
+    public let pratoPrincipal: [ItemDaQuebra]
     public let intervaloEmMinutos: Int
     /// Orçamento calórico usado, e se ele veio da meta da pessoa ou de um
     /// padrão. O app não finge que um padrão é cálculo pessoal — mesma régua do
@@ -260,13 +325,32 @@ public struct SugestaoDeQuebra: Equatable {
     /// Grupos efetivamente evitados, para a tela poder dizer o que respeitou.
     public let gruposEvitados: [GrupoAlimentar]
 
-    public var kcalDoPrimeiroPrato: Int { primeiroPrato.reduce(0) { $0 + $1.kcal } }
-    public var kcalDoPratoPrincipal: Int { pratoPrincipal.reduce(0) { $0 + $1.kcal } }
+    public var kcalDoPrimeiroPrato: Int { primeiroPrato.reduce(0) { $0 + $1.componente.kcal } }
+    public var kcalDoPratoPrincipal: Int { pratoPrincipal.reduce(0) { $0 + $1.componente.kcal } }
     public var kcalTotal: Int { kcalDoPrimeiroPrato + kcalDoPratoPrincipal }
     public var proteinaTotal: Int {
-        primeiroPrato.reduce(0) { $0 + $1.proteina } + pratoPrincipal.reduce(0) { $0 + $1.proteina }
+        (primeiroPrato + pratoPrincipal).reduce(0) { $0 + $1.componente.proteina }
     }
     public var temPrimeiroPrato: Bool { !primeiroPrato.isEmpty }
+
+    /// Todos os componentes, na ordem — para quem só precisa dos números.
+    public var componentes: [ComponenteDaRefeicao] {
+        (primeiroPrato + pratoPrincipal).map(\.componente)
+    }
+
+    /// O primeiro prato é de proteína? Deve ser sempre `true` quando existe.
+    /// A asserção `J11` vive disto.
+    public var primeiroPratoEhProteico: Bool {
+        !primeiroPrato.isEmpty && primeiroPrato.allSatisfy { $0.papel == .proteina }
+    }
+
+    /// O carboidrato é o último item do prato principal? A regra da sequência
+    /// de alimentos, verificável. `true` também quando não há carboidrato.
+    public var carboidratoPorUltimo: Bool {
+        guard let indice = pratoPrincipal.lastIndex(where: { $0.papel == .carboidrato })
+        else { return true }
+        return indice == pratoPrincipal.count - 1
+    }
 }
 
 // MARK: - O motor
@@ -279,21 +363,31 @@ public enum QuebraDeJejum {
     // existe, ele é pulado — e é por isso que cada papel tem mais de uma opção:
     // o catálogo pode mudar sem deixar a sugestão vazia.
 
-    /// Proteína do primeiro prato: leve, líquida ou macia, pouca gordura.
+    /// Proteína do primeiro prato: macia, fácil de digerir, pouca gordura.
+    ///
+    /// Ordenada por densidade de proteína, não por gosto: o primeiro prato tem
+    /// teto calórico apertado (200 kcal na faixa cuidadosa), então o que rende
+    /// mais proteína por caloria vem primeiro. A lentilha fecha a lista porque
+    /// é a única que sobrevive a "vegano".
     static let proteinasLeves: [CandidatoDeQuebra] = [
-        CandidatoDeQuebra(nome: "Iogurte natural integral", quantidadeBase: 170, grupos: [.lactose]),
-        CandidatoDeQuebra(nome: "Queijo cottage",           quantidadeBase: 100, grupos: [.lactose]),
-        CandidatoDeQuebra(nome: "Ovo cozido",               quantidadeBase: 50,  grupos: [.ovo]),
-        CandidatoDeQuebra(nome: "Lentilha cozida",          quantidadeBase: 100, grupos: [])
+        CandidatoDeQuebra(nome: "Queijo cottage",           quantidadeBase: 150, grupos: [.lactose]),
+        CandidatoDeQuebra(nome: "Ovo cozido",               quantidadeBase: 100, grupos: [.ovo]),
+        CandidatoDeQuebra(nome: "Iogurte natural integral", quantidadeBase: 200, grupos: [.lactose]),
+        CandidatoDeQuebra(nome: "Lentilha cozida",          quantidadeBase: 130, grupos: [])
     ]
 
-    /// Fruta do primeiro prato: água, potássio, fácil de digerir.
-    static let frutas: [CandidatoDeQuebra] = [
-        CandidatoDeQuebra(nome: "Mamão papaia", quantidadeBase: 150, grupos: []),
-        CandidatoDeQuebra(nome: "Banana",       quantidadeBase: 100, grupos: []),
-        CandidatoDeQuebra(nome: "Morango",      quantidadeBase: 150, grupos: []),
-        CandidatoDeQuebra(nome: "Maçã",         quantidadeBase: 130, grupos: [])
-    ]
+    // [26/08] A LISTA `frutas` FOI REMOVIDA, e a remoção é o ponto.
+    //
+    // Ela existia para o primeiro prato: fruta dá água, potássio e digere
+    // fácil. Tudo verdade — e irrelevante diante do problema: fruta é
+    // carboidrato, e abrir a quebra com carboidrato é exatamente o contrário do
+    // que a regra 2 manda, a mesma regra que a tela de "Saber mais" ensina duas
+    // telas adiante. O app não pode dizer "deixe o carboidrato por último" e
+    // servir carboidrato primeiro.
+    //
+    // A hidratação continua coberta, e melhor: pela dica "Água, café e chá não
+    // quebram o jejum", que vale para as 16 horas inteiras e não só para o
+    // primeiro garfo.
 
     /// Proteína do prato principal.
     static let proteinas: [CandidatoDeQuebra] = [
@@ -402,32 +496,49 @@ public enum QuebraDeJejum {
             return Double(proteinaConsumida) / Double(alvo) < 0.6
         }()
 
-        // ── Primeiro prato ────────────────────────────────────────────────
-        var primeiro: [ComponenteDaRefeicao] = []
-        if gentileza != .direta {
-            let leve = escolher(proteinasLeves, evitar: evitar, jaComidos: jaComidos, catalogo: catalogo)
-            let fruta = escolher(frutas, evitar: evitar, jaComidos: jaComidos, catalogo: catalogo)
-            let base = [leve, fruta].compactMap { $0 }
+        // ── Primeiro prato: SÓ PROTEÍNA ───────────────────────────────────
+        //
+        // A regra 2 do cabeçalho, em três linhas. Nada de fruta, nada de
+        // carboidrato: o que entra primeiro é proteína, e pouca.
+        var primeiro: [ItemDaQuebra] = []
+        if gentileza != .direta,
+           let leve = escolher(proteinasLeves, evitar: evitar, jaComidos: jaComidos, catalogo: catalogo) {
             let alvo = min(gentileza.tetoDoPrimeiroPrato,
                            max(120, Int(Double(orcamentoTotal) * 0.2)))
-            primeiro = ajustarPara(kcal: alvo, componentes: base)
+            primeiro = ajustarPara(kcal: alvo, componentes: [leve])
+                .map { ItemDaQuebra(componente: $0, papel: .proteina) }
         }
 
-        // ── Prato principal ───────────────────────────────────────────────
-        let alvoPrincipal = max(orcamentoMinimo - primeiro.reduce(0) { $0 + $1.kcal },
-                                orcamentoTotal - primeiro.reduce(0) { $0 + $1.kcal })
+        // ── Prato principal, JÁ NA ORDEM DE COMER ─────────────────────────
+        let jaNoPrimeiro = primeiro.reduce(0) { $0 + $1.componente.kcal }
+        let alvoPrincipal = max(orcamentoMinimo - jaNoPrimeiro, orcamentoTotal - jaNoPrimeiro)
 
-        var basePrincipal: [ComponenteDaRefeicao] = []
-        if var proteina = escolher(proteinas, evitar: evitar, jaComidos: jaComidos, catalogo: catalogo) {
+        // Não repetir no principal o que já foi servido no primeiro prato.
+        var servidos = jaComidos
+        for item in primeiro { servidos.insert(LeitorDeRestricoes.normalizar(item.componente.nome)) }
+
+        // O dicionário é montado por papel e depois percorrido na ordem de
+        // `PapelNoPrato.ordemDeComer`. Montar já ordenado seria mais curto e
+        // esconderia a regra dentro da sequência de `append` — que é
+        // exatamente como ela se perderia numa refatoração distraída.
+        var porPapel: [PapelNoPrato: ComponenteDaRefeicao] = [:]
+
+        if var proteina = escolher(proteinas, evitar: evitar, jaComidos: servidos, catalogo: catalogo) {
             // Objetivo e proteína atrasada mexem na porção da proteína, não na
             // escolha do alimento. Mexer na escolha faria a sugestão saltar de
             // frango para lentilha por causa de meio grama — instável e
             // inexplicável para quem olha.
             let reforco = (proteinaAtrasada ? 1.25 : 1.0) * (objetivo == .perder ? 1.15 : 1.0)
             proteina = proteina.com(quantidade: Int((Double(proteina.quantidade) * reforco).rounded()))
-            basePrincipal.append(proteina)
+            porPapel[.proteina] = proteina
         }
-        if var carbo = escolher(carboidratos, evitar: evitar, jaComidos: jaComidos, catalogo: catalogo) {
+        if let vegetal = escolher(vegetais, evitar: evitar, jaComidos: servidos, catalogo: catalogo) {
+            porPapel[.vegetal] = vegetal
+        }
+        if let gordura = escolher(gorduras, evitar: evitar, jaComidos: servidos, catalogo: catalogo) {
+            porPapel[.gordura] = gordura
+        }
+        if var carbo = escolher(carboidratos, evitar: evitar, jaComidos: servidos, catalogo: catalogo) {
             let fator: Double
             switch objetivo {
             case .perder: fator = 0.75
@@ -435,16 +546,14 @@ public enum QuebraDeJejum {
             case .ganhar: fator = 1.3
             }
             carbo = carbo.com(quantidade: Int((Double(carbo.quantidade) * fator).rounded()))
-            basePrincipal.append(carbo)
-        }
-        if let vegetal = escolher(vegetais, evitar: evitar, jaComidos: jaComidos, catalogo: catalogo) {
-            basePrincipal.append(vegetal)
-        }
-        if let gordura = escolher(gorduras, evitar: evitar, jaComidos: jaComidos, catalogo: catalogo) {
-            basePrincipal.append(gordura)
+            porPapel[.carboidrato] = carbo
         }
 
-        let principal = ajustarPara(kcal: alvoPrincipal, componentes: basePrincipal)
+        let papeisPresentes = PapelNoPrato.ordemDeComer.filter { porPapel[$0] != nil }
+        let basePrincipal = papeisPresentes.compactMap { porPapel[$0] }
+        let principal = zip(ajustarPara(kcal: alvoPrincipal, componentes: basePrincipal),
+                            papeisPresentes)
+            .map { ItemDaQuebra(componente: $0, papel: $1) }
 
         return SugestaoDeQuebra(
             gentileza: gentileza,

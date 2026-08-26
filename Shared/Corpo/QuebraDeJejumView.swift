@@ -78,20 +78,23 @@ struct QuebraDeJejumView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     cabecalho
                     if sugestao.temPrimeiroPrato {
-                        prato(titulo: "1. Comece por aqui",
-                              legenda: "Porção leve, para o estômago voltar ao trabalho.",
-                              componentes: sugestao.primeiroPrato,
-                              tint: Theme.violet)
+                        prato(titulo: "Comece pela proteína",
+                              legenda: "Pouca comida, e proteína. É o que cai melhor depois de horas sem comer.",
+                              itens: sugestao.primeiroPrato,
+                              tint: Theme.violet,
+                              numerar: false)
                         intervalo
-                        prato(titulo: "2. Depois, o prato principal",
-                              legenda: "Proteína, carboidrato de absorção mais lenta e vegetal.",
-                              componentes: sugestao.pratoPrincipal,
-                              tint: Theme.primary)
+                        prato(titulo: "Depois, o prato principal",
+                              legenda: "Coma nesta ordem. O carboidrato por último.",
+                              itens: sugestao.pratoPrincipal,
+                              tint: Theme.primary,
+                              numerar: true)
                     } else {
                         prato(titulo: "Sua refeição",
-                              legenda: "Proteína, carboidrato de absorção mais lenta e vegetal.",
-                              componentes: sugestao.pratoPrincipal,
-                              tint: Theme.primary)
+                              legenda: "Coma nesta ordem. O carboidrato por último.",
+                              itens: sugestao.pratoPrincipal,
+                              tint: Theme.primary,
+                              numerar: true)
                     }
 
                     orcamentoCard
@@ -139,15 +142,21 @@ struct QuebraDeJejumView: View {
 
     // MARK: Prato
 
+    /// `numerar` liga os números 1, 2, 3 ao lado dos itens.
+    ///
+    /// Só o prato principal é numerado, e não é enfeite: a ordem vem calculada
+    /// do motor (`PapelNoPrato.ordemDeComer`, carboidrato por último) e o número
+    /// é como ela chega à pessoa. Um prato de um item só não é numerado —
+    /// "1." sozinho não informa nada.
     private func prato(titulo: String, legenda: String,
-                       componentes: [ComponenteDaRefeicao], tint: Color) -> some View {
+                       itens: [ItemDaQuebra], tint: Color, numerar: Bool) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(titulo)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
-                Text("\(componentes.reduce(0) { $0 + $1.kcal }) kcal")
+                Text("\(itens.reduce(0) { $0 + $1.componente.kcal }) kcal")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(tint)
             }
@@ -155,23 +164,33 @@ struct QuebraDeJejumView: View {
                 .font(.caption2)
                 .foregroundStyle(Theme.inkSoft)
 
-            ForEach(componentes) { item in
-                HStack(spacing: 10) {
-                    Circle().fill(tint.opacity(0.5)).frame(width: 6, height: 6)
-                    Text(item.descricao)
+            ForEach(Array(itens.enumerated()), id: \.element.id) { posicao, item in
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    if numerar && itens.count > 1 {
+                        Text("\(posicao + 1)")
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(tint)
+                            .frame(width: 18, height: 18)
+                            .background(tint.opacity(0.14))
+                            .clipShape(Circle())
+                    } else {
+                        Circle().fill(tint.opacity(0.5)).frame(width: 6, height: 6)
+                    }
+                    Text(item.componente.descricao)
                         .font(.caption)
                         .foregroundStyle(Theme.ink)
                     Spacer(minLength: 0)
-                    Text("\(item.kcal) kcal")
+                    Text("\(item.componente.kcal) kcal")
                         .font(.caption2)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
 
-            let p = componentes.reduce(0) { $0 + $1.proteina }
-            let c = componentes.reduce(0) { $0 + $1.carbo }
-            let g = componentes.reduce(0) { $0 + $1.gordura }
-            Text("P\(p) · C\(c) · G\(g)")
+            let comps = itens.map(\.componente)
+            let p = comps.reduce(0) { $0 + $1.proteina }
+            let c = comps.reduce(0) { $0 + $1.carbo }
+            let g = comps.reduce(0) { $0 + $1.gordura }
+            Text("Proteína \(p) g · Carboidrato \(c) g · Gordura \(g) g")
                 .font(.caption2)
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -184,7 +203,7 @@ struct QuebraDeJejumView: View {
             Image(systemName: "hourglass")
                 .font(.footnote)
                 .foregroundStyle(Theme.gold)
-            Text("Espere cerca de \(sugestao.intervaloEmMinutos) minutos entre os dois.")
+            Text("Espere uns \(sugestao.intervaloEmMinutos) minutos antes do prato principal.")
                 .font(.caption)
                 .foregroundStyle(Theme.inkSoft)
             Spacer(minLength: 0)
@@ -200,13 +219,13 @@ struct QuebraDeJejumView: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Theme.ink)
             if sugestao.orcamentoVeioDaMeta, let meta = model.kcalGoal {
-                Text("Você já registrou \(model.kcalConsumed) kcal das \(meta) de hoje. Esta sugestão usa parte do que resta, dividido pelas refeições que ainda cabem na sua janela.")
+                Text("Hoje você já registrou \(model.kcalConsumed) kcal de \(meta). Esta sugestão usa parte do que sobrou, dividido pelas refeições que ainda cabem na sua janela.")
                     .font(.caption2)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 // Honestidade: sem medidas não há meta, e o app não inventa uma.
-                Text("Você ainda não tem meta calórica — sem peso, altura e idade não dá para calcular uma. Usei uma porção padrão. Complete suas medidas na aba Saúde para esta sugestão passar a ser sua.")
+                Text("Você ainda não tem meta de calorias. Sem peso, altura e idade não dá para calcular. Usei uma porção padrão. Preencha suas medidas na aba Saúde e a sugestão passa a ser sua.")
                     .font(.caption2)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
@@ -231,7 +250,7 @@ struct QuebraDeJejumView: View {
                 }
                 if !sugestao.restricoesNaoLidas.isEmpty {
                     // A confissão. Ver o item 3 do cabeçalho.
-                    Label("Você registrou \"\(sugestao.restricoesNaoLidas.joined(separator: ", "))\" e eu não sei interpretar isso automaticamente. Confira a sugestão antes de registrar.",
+                    Label("Você escreveu \"\(sugestao.restricoesNaoLidas.joined(separator: ", "))\" nas suas restrições e eu não entendi. Confira a sugestão antes de registrar.",
                           systemImage: "exclamationmark.triangle")
                         .font(.caption)
                         .foregroundStyle(Theme.coral)
@@ -268,7 +287,7 @@ struct QuebraDeJejumView: View {
             .buttonStyle(.plain)
             .disabled(registrado)
 
-            Text("Depois de registrar, cada item continua editável na Dieta — dá para mudar a quantidade de qualquer um.")
+            Text("Depois de registrar, dá para mudar a quantidade de cada item na aba Dieta.")
                 .font(.caption2)
                 .foregroundStyle(Theme.inkSoft)
                 .multilineTextAlignment(.center)
@@ -284,13 +303,13 @@ struct QuebraDeJejumView: View {
         let tipo = Self.refeicaoDaHora()
         let s = sugestao
         if !s.primeiroPrato.isEmpty {
-            model.registrarPrato(nome: "Quebra do jejum · porção leve",
-                                 componentes: s.primeiroPrato, to: tipo)
+            model.registrarPrato(nome: "Quebra do jejum · proteína",
+                                 componentes: s.primeiroPrato.map(\.componente), to: tipo)
         }
         if !s.pratoPrincipal.isEmpty {
             model.registrarPrato(nome: s.temPrimeiroPrato ? "Quebra do jejum · prato principal"
                                                           : "Quebra do jejum",
-                                 componentes: s.pratoPrincipal, to: tipo)
+                                 componentes: s.pratoPrincipal.map(\.componente), to: tipo)
         }
         if encerrandoJejum { jejum.encerrar() }
         registrado = true

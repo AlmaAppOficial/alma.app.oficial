@@ -121,15 +121,15 @@ public enum ProtocoloDeJejum: String, CaseIterable, Identifiable, Codable, Equat
     public var detalhe: String {
         switch self {
         case .dezesseisPorOito:
-            return "16 horas sem comer, 8 horas de janela alimentar. É o formato mais estudado."
+            return "16 horas sem comer e 8 horas para comer. É o formato mais estudado."
         case .dezoitoPorSeis:
-            return "18 horas sem comer, 6 horas de janela alimentar."
+            return "18 horas sem comer e 6 horas para comer."
         case .vintePorQuatro:
-            return "20 horas sem comer, 4 horas de janela alimentar."
+            return "20 horas sem comer e 4 horas para comer."
         case .cincoTrintaSeis:
-            return "Padrão semanal: cinco dias de alimentação habitual e dois dias de ingestão bem reduzida. O cronômetro conta o intervalo do dia reduzido."
+            return "Cinco dias comendo normal e dois dias comendo bem pouco. Não é janela de horas: o cronômetro conta o intervalo do dia de comer pouco."
         case .omad:
-            return "Uma refeição por dia, janela de cerca de 1 hora."
+            return "Uma refeição por dia. A janela dura cerca de 1 hora."
         }
     }
 

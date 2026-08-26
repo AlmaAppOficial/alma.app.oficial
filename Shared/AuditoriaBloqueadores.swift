@@ -1513,11 +1513,11 @@ enum AuditoriaBloqueadores {
             duracao: 20 * 3600, horasDeJanela: 4, kcalGoal: 2000, kcalConsumidas: 0,
             restricoesTextoLivre: "alergia a lactose, sem frango",
             catalogo: foodDatabase)
-        let nomesComAlergia = (comAlergia.primeiroPrato + comAlergia.pratoPrincipal).map(\.nome)
+        let nomesComAlergia = comAlergia.componentes.map(\.nome)
         let vazouRestricao = nomesComAlergia.filter {
             let n = LeitorDeRestricoes.normalizar($0)
-            return n.contains("iogurte") || n.contains("queijo") || n.contains("frango")
-                || n.contains("peru") || n.contains("whey")
+            return n.contains("iogurte") || n.contains("queijo") || n.contains("cottage")
+                || n.contains("frango") || n.contains("peru") || n.contains("whey")
         }
         checa("J5", "restrição declarada não aparece na sugestão",
               vazouRestricao.isEmpty && !nomesComAlergia.isEmpty,
@@ -1530,10 +1530,10 @@ enum AuditoriaBloqueadores {
         let semAlergia = QuebraDeJejum.montar(
             duracao: 20 * 3600, horasDeJanela: 4, kcalGoal: 2000, kcalConsumidas: 0,
             restricoesTextoLivre: "", catalogo: foodDatabase)
-        let nomesSemAlergia = (semAlergia.primeiroPrato + semAlergia.pratoPrincipal).map(\.nome)
+        let nomesSemAlergia = semAlergia.componentes.map(\.nome)
         let apareceOQueSeriaBarrado = nomesSemAlergia.contains {
             let n = LeitorDeRestricoes.normalizar($0)
-            return n.contains("iogurte") || n.contains("frango")
+            return n.contains("cottage") || n.contains("frango")
         }
         checa("J5b", "sem restrição, o alimento barrado em J5 aparece",
               apareceOQueSeriaBarrado,
@@ -1562,11 +1562,33 @@ enum AuditoriaBloqueadores {
         // J7 · o total da sugestão é a soma dos componentes. Mesmo invariante da
         // `Meal` — e ele importa aqui porque esta sugestão VIRA uma `Meal` no
         // diário da pessoa.
-        let somaDeComponentes = (semAlergia.primeiroPrato + semAlergia.pratoPrincipal)
-            .reduce(0) { $0 + $1.kcal }
+        let somaDeComponentes = semAlergia.componentes.reduce(0) { $0 + $1.kcal }
         checa("J7", "o total da quebra é a soma dos componentes",
               semAlergia.kcalTotal == somaDeComponentes && somaDeComponentes > 0,
               "total=\(semAlergia.kcalTotal) soma=\(somaDeComponentes)")
+
+        // ── J10 e J11 · A ORDEM DOS ALIMENTOS [26/08] ──────────────────────
+        //
+        // As duas regras que o pedido do Assis ("o que é colocado na boca após
+        // a quebra do jejum deve ser proteína") virou depois de a evidência ser
+        // apurada. Sem estas asserções, uma refatoração que reordenasse a
+        // montagem desfaria a regra em silêncio — e a tela continuaria dizendo
+        // "o carboidrato por último" enquanto o carboidrato viria primeiro.
+        checa("J10", "no prato principal, o carboidrato é o ÚLTIMO",
+              semAlergia.carboidratoPorUltimo
+                && semAlergia.pratoPrincipal.contains { $0.papel == .carboidrato },
+              "ordem: " + semAlergia.pratoPrincipal.map { $0.papel.rotulo }.joined(separator: " → "))
+
+        checa("J11", "a porção que abre a quebra é SÓ proteína",
+              semAlergia.primeiroPratoEhProteico,
+              "primeiro prato: " + semAlergia.primeiroPrato
+                .map { "\($0.componente.nome) (\($0.papel.rotulo))" }.joined(separator: ", "))
+
+        // J11b · anti-cegueira: um prato principal vazio faria J10 passar
+        // (`carboidratoPorUltimo` devolve `true` quando não há carboidrato).
+        checa("J11b", "o prato principal tem os quatro papéis",
+              Set(semAlergia.pratoPrincipal.map(\.papel)).count == 4,
+              "papéis: \(Set(semAlergia.pratoPrincipal.map { $0.papel.rotulo }).sorted())")
 
         // ── J8 · NENHUMA PROMESSA DE RESULTADO ─────────────────────────────
         //

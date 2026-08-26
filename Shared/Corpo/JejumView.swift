@@ -274,7 +274,7 @@ struct JejumView: View {
                     // convite do rodapé, aparecendo onde faz mais sentido. O
                     // rodapé continua lá independentemente disso.
                     if decorrido >= 24 * 3600 {
-                        Text("Passou de 24 horas. Jejum longo costuma pedir acompanhamento — e se quiser conversar com alguém, o rodapé desta tela tem por onde.")
+                        Text("Passou de 24 horas. Jejum longo costuma pedir acompanhamento médico. Se quiser falar com alguém, tem um caminho no rodapé desta tela.")
                             .font(.caption)
                             .foregroundStyle(Theme.inkSoft)
                             .multilineTextAlignment(.center)
@@ -398,8 +398,8 @@ struct JejumView: View {
             // O texto explica a régua de propósito: quem lê entende que não há
             // ponto extra por jejuar mais tempo, e por isso não tenta.
             Text(seq > 0
-                 ? "Dias seguidos com uma janela cumprida. Um 16/8 conta igual a um OMAD — a conta aqui é de constância, não de duração."
-                 : "A sequência conta dias com uma janela cumprida. Um 16/8 conta igual a um OMAD.")
+                 ? "Dias seguidos em que você fechou a janela. Um 16/8 vale o mesmo que um OMAD: aqui a conta é de constância, não de duração."
+                 : "A sequência conta os dias em que você fechou a janela. Um 16/8 vale o mesmo que um OMAD.")
                 .font(.caption)
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -460,10 +460,10 @@ struct JejumView: View {
             .cardStyle()
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("O que a literatura observa")
+                Text("O que os estudos mostram")
                     .font(.headline)
                     .foregroundStyle(Theme.ink)
-                Text("Descrições do que foi medido em estudos — não previsões sobre você. O rótulo diz o quanto se pode afirmar.")
+                Text("O que foi medido em pesquisa. Não é previsão sobre você. O rótulo de cada card diz o quanto dá para afirmar.")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
@@ -506,7 +506,7 @@ struct JejumView: View {
                     Text("Nada registrado ainda")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.ink)
-                    Text("Cada jejum encerrado entra aqui, com a duração que teve — inclusive os que terminaram antes da meta.")
+                    Text("Todo jejum que você encerra entra aqui, com o tempo que durou. Inclusive os que pararam antes da meta.")
                         .font(.caption)
                         .foregroundStyle(Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
@@ -687,7 +687,7 @@ struct AvisoDeSaudeDoJejum: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Jejuar não serve para todo mundo, e em algumas situações não é seguro. Vale ler uma vez.")
+                    Text("Jejuar não serve para todo mundo. Em algumas situações não é seguro. Leia uma vez e siga.")
                         .font(.subheadline)
                         .foregroundStyle(Theme.ink)
                         .fixedSize(horizontal: false, vertical: true)

@@ -21,30 +21,39 @@
 //    projeto já teve problema de política de loja por promessa, e vai declarar
 //    categoria de saúde no Play. Com o texto num arquivo só, a proibição vira
 //    uma varredura de uma linha — `_scripts/check_promessas_jejum.py` reprova o
-//    commit. Se o texto estivesse nas Views, a varredura teria de entender
-//    SwiftUI para não dar falso positivo em nome de variável.
+//    commit.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// A REGRA DE ESCRITA
+// A REGRA DE ESCRITA — REVISADA EM 26/08/2026
 //
-// Toda frase desta lista descreve **o que foi observado**, com quem, em que
-// desenho de estudo — e nunca o que vai acontecer com quem está lendo. A
-// diferença não é de estilo:
+// A primeira versão deste arquivo foi reprovada pelo Assis, e com razão:
+// *"as escritas estão em um português muito arcaico e pouco claras para os
+// usuários"*. Exemplos do que saiu: "o líquido que vem da comida some junto com
+// ela", "quebrou é quebrado", "refeições de quebra muito grandes, carregadas de
+// carboidrato de absorção rápida e fritura, aparecem associadas a picos de
+// glicose acentuados e a sintomas como saciedade precoce, distensão e náusea".
+// A última é frase de artigo científico colada numa tela de celular.
 //
-//   ✗ "O jejum 16/8 emagrece."
-//   ✓ "Em ensaios clínicos, jejum e restrição calórica diária produziram perda
-//      de peso semelhante quando o total de calorias foi o mesmo."
+// As regras agora, e elas valem para toda frase nova:
 //
-// A segunda é verdadeira, é verificável, e é MAIS útil — porque diz à pessoa a
-// coisa que ninguém diz: o jejum é uma forma de organizar o dia, não um efeito
-// extra em cima da conta das calorias.
+//   1. UMA IDEIA POR FRASE. Frase curta. Voz ativa.
+//   2. PALAVRA DO DIA A DIA. "açúcar no sangue", não "variabilidade glicêmica".
+//      "enjoo", não "náusea". "inchaço", não "distensão".
+//   3. A INFORMAÇÃO PRIMEIRO, o contexto depois — se vier.
+//   4. SE PRECISA DE DUAS LEITURAS, ESTÁ ERRADA. A pessoa está no celular,
+//      rolando a tela, com fome.
+//
+// O QUE **NÃO** MUDOU, e não pode mudar: o rótulo de força da evidência, a
+// fonte, a URL e as ressalvas. Simplificar a língua não é apagar o
+// "resultados mistos". Clareza não é infantilizar — quem lê é adulto, só não
+// está com tempo.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // FONTES CONFERIDAS EM 26/08/2026.
 //
 // Este é o tipo de arquivo que envelhece calado: a literatura muda e o texto
 // continua parecendo certo. Quem revisar: confira na fonte em vez de confiar
-// neste cabeçalho, e atualize `conferidoEm` abaixo.
+// neste cabeçalho, e atualize `jejumFontesConferidasEm`.
 
 import Foundation
 
@@ -58,29 +67,28 @@ public let jejumFontesConferidasEm = "26/08/2026"
 /// O quanto se pode dizer sobre uma afirmação. Existe porque juntar tudo sob
 /// "estudos mostram" é a mentira mais comum deste assunto.
 public enum ForcaDaEvidencia: String, Codable, CaseIterable {
-    /// Ensaios randomizados ou meta-análises com achado repetido.
+    /// Ensaios controlados ou meta-análises, com achado que se repetiu.
     case consolidado
     /// Estudado, com resultados que não fecham entre si.
     case misto
-    /// Sobretudo animal, laboratório ou observacional. Não dá para afirmar em
-    /// humanos.
+    /// Sobretudo animal, laboratório ou observação. Não dá para afirmar em
+    /// pessoas.
     case preliminar
 
     public var rotulo: String {
         switch self {
-        case .consolidado: return "Consolidado"
+        case .consolidado: return "Bem estabelecido"
         case .misto:       return "Resultados mistos"
-        case .preliminar:  return "Preliminar"
+        case .preliminar:  return "Ainda em estudo"
         }
     }
 
-    /// Uma linha explicando o rótulo — porque "preliminar" não quer dizer nada
-    /// para quem não trabalha com isso.
+    /// Uma linha explicando o rótulo, em português de gente.
     public var explicacao: String {
         switch self {
-        case .consolidado: return "Ensaios controlados, achado repetido."
-        case .misto:       return "Estudado, mas os resultados não fecham entre si."
-        case .preliminar:  return "Sobretudo em animais ou laboratório. Não dá para afirmar em pessoas."
+        case .consolidado: return "Vários estudos, com o mesmo resultado."
+        case .misto:       return "Bastante estudado. Os resultados não batem entre si."
+        case .preliminar:  return "Quase tudo em animais ou laboratório. Não dá para afirmar em pessoas."
         }
     }
 }
@@ -115,8 +123,8 @@ public struct AfirmacaoComFonte: Identifiable, Equatable {
 // MARK: - Dica prática
 
 /// Uma dica de uso. Sem fonte obrigatória: são coisas de operação (beber água,
-/// planejar a janela), não afirmações de saúde. As que TÊM base entram na lista
-/// de cima, não nesta.
+/// escolher o horário), não afirmações de saúde. As que TÊM base entram na
+/// lista de cima, não nesta.
 public struct DicaDeJejum: Identifiable, Equatable {
     public var id: String { titulo }
     public let titulo: String
@@ -144,90 +152,125 @@ public enum JejumConteudo {
     public static let oQueALiteraturaObserva: [AfirmacaoComFonte] = [
 
         AfirmacaoComFonte(
-            titulo: "Jejum e contar calorias dão resultado parecido",
+            titulo: "Jejum e contar calorias dão o mesmo resultado",
             corpo: """
-            Num ensaio clínico de 12 meses com 139 adultos com obesidade, o grupo \
-            que juntou janela alimentar de 8 horas à restrição calórica não perdeu \
-            mais peso nem mais gordura do que o grupo que só fez a restrição \
-            calórica. Quando o total de calorias é o mesmo, o horário não somou \
-            efeito.
+            Um estudo acompanhou 139 adultos com obesidade durante 12 meses. \
+            Metade comia só dentro de uma janela de 8 horas e fazia dieta de \
+            menos calorias. A outra metade só fazia a dieta. Os dois grupos \
+            terminaram com praticamente a mesma perda de peso e de gordura.
 
-            É a informação mais útil desta tela: o jejum é uma forma de organizar \
-            o dia — para muita gente, uma forma mais fácil de comer menos sem \
-            pesar comida. O que ele não é: um efeito extra por cima da conta.
+            O que isso quer dizer na prática: o jejum não é um efeito a mais. \
+            Ele é um jeito de organizar o dia. Para muita gente, é um jeito mais \
+            fácil de comer menos sem ficar pesando comida.
             """,
             forca: .consolidado,
-            fonte: "Liu et al., New England Journal of Medicine, 2022 (ensaio randomizado, 12 meses)",
+            fonte: "Liu e colegas, New England Journal of Medicine, 2022. Estudo com sorteio, 12 meses, 139 pessoas.",
             url: "https://www.nejm.org/doi/full/10.1056/NEJMoa2114833"
         ),
 
         AfirmacaoComFonte(
-            titulo: "O efeito medido é modesto, e nem tudo se move",
+            titulo: "A ordem em que você come muda o pico de açúcar",
             corpo: """
-            Uma revisão sistemática com meta-análise de 2025, em mulheres com \
-            sobrepeso e obesidade, observou redução do peso corporal e da insulina \
-            de jejum com alimentação em tempo restrito. No mesmo trabalho, não \
-            houve efeito significativo sobre IMC, massa gorda, massa magra, \
-            gordura visceral, lipídios do sangue, glicose, HOMA-IR ou pressão \
-            arterial.
+            Comer a proteína e o vegetal antes do carboidrato deixa o açúcar no \
+            sangue mais baixo nas horas seguintes.
 
-            Duas leituras honestas cabem aqui, e as duas importam: alguma coisa se \
-            move, e menos coisas se movem do que a internet promete.
+            Num estudo com pessoas com diabetes tipo 2, a mesma refeição foi \
+            comida em duas ordens diferentes. Com a proteína e o vegetal \
+            primeiro, o açúcar no sangue ficou cerca de 29% mais baixo aos 30 \
+            minutos e 37% mais baixo aos 60 minutos.
+
+            O que ainda não foi mostrado: que essa ordem melhore o controle do \
+            diabetes a longo prazo. Os estudos são pequenos e mediram o que \
+            acontece logo depois da refeição.
+            """,
+            forca: .consolidado,
+            fonte: "Shukla e colegas, Diabetes Care, 2015. A mesma refeição, em duas ordens.",
+            url: "https://diabetesjournals.org/care/article/38/7/e98/30914/Food-Order-Has-a-Significant-Impact-on"
+        ),
+
+        AfirmacaoComFonte(
+            titulo: "Proteína segura a fome por mais tempo",
+            corpo: """
+            Uma refeição com mais proteína costuma tirar a fome por mais tempo \
+            do que uma refeição com as mesmas calorias e menos proteína. É um \
+            achado antigo, que apareceu várias vezes.
+
+            A ressalva: os estudos usam métodos muito diferentes entre si e \
+            boa parte tem risco de viés. Dá para confiar na direção. No tamanho \
+            do efeito, não.
             """,
             forca: .misto,
-            fonte: "Frontiers in Nutrition, 2025 (revisão sistemática e meta-análise)",
+            fonte: "Revisão sistemática sobre proteína e apetite, 2020.",
+            url: "https://pubmed.ncbi.nlm.nih.gov/32648023/"
+        ),
+
+        AfirmacaoComFonte(
+            titulo: "O efeito é pequeno, e nem tudo muda",
+            corpo: """
+            Uma revisão de 2025 juntou vários estudos com mulheres acima do \
+            peso que comiam dentro de uma janela.
+
+            Duas coisas melhoraram: o peso e a insulina em jejum.
+
+            Estas não mudaram: IMC, gordura corporal, massa magra, gordura da \
+            barriga, colesterol, glicose e pressão.
+
+            Ou seja, alguma coisa se move. Bem menos coisas do que a internet \
+            promete.
+            """,
+            forca: .misto,
+            fonte: "Revisão de vários estudos, Frontiers in Nutrition, 2025.",
             url: "https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1664412/full"
         ),
 
         AfirmacaoComFonte(
-            titulo: "Nos ensaios, não apareceu mais efeito adverso",
+            titulo: "Nos estudos, não apareceu mais efeito ruim",
             corpo: """
-            Uma meta-análise de 15 ensaios randomizados, somando 1.365 adultos com \
-            sobrepeso ou obesidade, não encontrou risco maior de eventos adversos \
-            no jejum intermitente em comparação com os grupos de controle. Fadiga \
-            e dor de cabeça não diferiram entre os grupos.
+            Juntando 15 estudos com 1.365 adultos acima do peso, quem jejuou \
+            não teve mais efeitos indesejados do que quem não jejuou. Cansaço e \
+            dor de cabeça apareceram igual nos dois grupos.
 
-            Isso vale para adultos saudáveis dentro de um estudo, com \
-            acompanhamento. Não é um salvo-conduto: ver as contraindicações.
+            Isso vale para adultos saudáveis, dentro de um estudo, com \
+            acompanhamento. Não vale para todo mundo — veja "Quando não jejuar".
             """,
             forca: .consolidado,
-            fonte: "Meta-análise de 15 ensaios randomizados (n = 1.365), 2024",
+            fonte: "15 estudos com sorteio, somando 1.365 pessoas, 2024.",
             url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11234547/"
         ),
 
         AfirmacaoComFonte(
-            titulo: "\"Autofagia começa em X horas\" não tem base em humanos",
+            titulo: "\"Autofagia às 16 horas\" não tem base em gente",
             corpo: """
-            As tabelas que circulam marcando a hora exata em que a autofagia \
-            começaria vêm, quase todas, de estudos em animais. Em pessoas vivas a \
-            autofagia é muito difícil de medir — exige amostra de tecido e técnicas \
-            de laboratório — e o momento provavelmente varia por órgão, idade e \
-            saúde metabólica.
+            Você já viu aquelas tabelas com a hora exata em que a autofagia \
+            começaria. Quase todas vêm de estudos com animais.
 
-            Por isso este app não mostra nenhuma linha do tempo de "fases \
-            metabólicas". O cronômetro conta horas, que é o que ele sabe contar.
+            Em pessoas, medir autofagia exige tirar um pedaço de tecido e \
+            analisar no laboratório. E a hora provavelmente muda de órgão para \
+            órgão e de pessoa para pessoa.
+
+            Por isso este app não mostra nenhuma linha do tempo de "fases do \
+            jejum". O cronômetro conta horas. É o que ele sabe contar.
             """,
             forca: .preliminar,
-            fonte: "Cleveland Clinic — Autophagy",
+            fonte: "Cleveland Clinic, página sobre autofagia.",
             url: "https://my.clevelandclinic.org/health/articles/24058-autophagy"
         ),
 
         AfirmacaoComFonte(
-            titulo: "Há associação com comportamento alimentar de risco",
+            titulo: "Jejum aparece junto com risco alimentar",
             corpo: """
-            Num estudo canadense com cerca de 2.700 adolescentes e jovens adultos \
-            de 16 a 30 anos, quem relatou jejum intermitente no último ano \
-            apresentou, entre as mulheres, associação com todos os comportamentos \
-            de transtorno alimentar avaliados e pontuação mais alta no EDE-Q. \
-            Entre os homens, a associação apareceu com exercício compulsivo e \
-            jejum.
+            Um estudo no Canadá ouviu cerca de 2.700 pessoas de 16 a 30 anos. \
+            Entre as mulheres que tinham jejuado no último ano, apareceram mais \
+            comportamentos ligados a transtorno alimentar. Entre os homens, \
+            apareceu mais exercício em excesso.
 
-            É um estudo transversal: mostra que as duas coisas andam juntas, não \
-            que uma cause a outra. Está aqui porque quem usa um cronômetro de \
-            jejum merece saber disso antes, e não depois.
+            O estudo mostra que as duas coisas andam juntas. Não mostra que uma \
+            causa a outra.
+
+            Está aqui porque é informação que faz diferença antes de começar.
             """,
             forca: .misto,
-            fonte: "Ganson et al., Eating Behaviors, 2022 (transversal, n ≈ 2.700)",
+            fonte: "Ganson e colegas, Eating Behaviors, 2022. Cerca de 2.700 pessoas, num único momento.",
             url: "https://www.sciencedirect.com/science/article/abs/pii/S1471015322000873"
         )
     ]
@@ -235,83 +278,97 @@ public enum JejumConteudo {
     // ═══════════════════════════════════════════════════════════════════════
     // COMO QUEBRAR O JEJUM
     //
-    // A parte que o Assis apontou como onde dá para ganhar — e ele está certo,
-    // porque quase todo app trata a quebra como "acabou, coma".
+    // [26/08] O Assis pediu: *"o que é colocado na boca após a quebra do jejum
+    // deve ser proteína"*. Foi apurado antes de escrever, e a evidência
+    // sustenta — com um recorte que importa e que está no texto abaixo.
     //
-    // A base real vem de onde existe mais dado sobre quebrar jejum de verdade:
-    // a literatura de Ramadã, com milhões de pessoas quebrando jejum longo todo
-    // dia durante um mês. O achado é consistente e é o oposto do que o costume
-    // manda: refeições de quebra muito grandes, com carboidrato de alto índice
-    // glicêmico e fritura, produzem hiperglicemia pós-prandial severa e
-    // sintomas gastrointestinais — saciedade precoce, distensão, náusea.
-    // Programas com orientação estruturada, que dividem a quebra em uma porção
-    // leve seguida da refeição principal, mostram menor variabilidade
-    // glicêmica.
+    // O que sustenta:
+    //   · SEQUÊNCIA DE ALIMENTOS. Proteína e vegetal antes do carboidrato
+    //     baixam o pico de açúcar depois da refeição. Repetido em vários
+    //     estudos cruzados. O motor `QuebraDeJejum` foi MUDADO por causa disto:
+    //     a porção que abre a quebra passou a ser de proteína, e o prato
+    //     principal passou a vir ordenado com o carboidrato por último.
+    //   · SACIEDADE. Proteína segura a fome por mais tempo — direção confiável,
+    //     tamanho do efeito não.
     //
-    // ⚠️ O QUE ESTE APP NÃO VAI FAZER: assustar com síndrome de realimentação.
-    // Ela é real e é grave, mas o contexto dela é desnutrição severa e jejum
-    // prolongado sob acompanhamento — os fatores de risco do NICE são IMC
-    // baixo, perda de peso não intencional, dias sem ingestão, eletrólitos já
-    // baixos. Nada disso descreve alguém fechando uma janela de 16 horas.
-    // Emprestar o nome de uma emergência clínica para vender cuidado com uma
-    // janela de 16 h seria exatamente a desonestidade que este arquivo existe
-    // para impedir. Ela aparece uma vez, na contraindicação certa, e só.
+    // O que o texto NÃO deixa passar batido: depois de jejum longo, porção
+    // GRANDE de qualquer coisa cai mal. A orientação é "pequeno E proteína",
+    // nunca "muita proteína". Sem essa ressalva, a intuição certa vira
+    // conselho ruim.
+    //
+    // ⚠️ O QUE ESTE APP CONTINUA NÃO FAZENDO: assustar com síndrome de
+    // realimentação. Ela é real e grave, mas o contexto dela é desnutrição
+    // séria e jejum prolongado com acompanhamento. Não descreve alguém
+    // fechando uma janela de 16 horas. Ela aparece uma vez, na contraindicação
+    // certa, e só.
     // ═══════════════════════════════════════════════════════════════════════
 
     public static let sobreAQuebra = AfirmacaoComFonte(
-        titulo: "Por que a primeira refeição importa",
+        titulo: "Por que começar pequeno e pela proteína",
         corpo: """
-        Na literatura de Ramadã — onde muita gente quebra jejum longo todos os \
-        dias — refeições de quebra muito grandes, carregadas de carboidrato de \
-        absorção rápida e fritura, aparecem associadas a picos de glicose \
-        acentuados e a sintomas como saciedade precoce, distensão e náusea. \
-        Programas que orientam dividir a quebra numa porção leve seguida da \
-        refeição principal registram menor variabilidade glicêmica.
+        São duas coisas diferentes, e cada uma tem estudo por trás.
 
-        É por isso que a sugestão desta tela vem em duas partes, e cresce com a \
-        duração do seu jejum em vez de ser sempre igual.
+        COMEÇAR PEQUENO. No Ramadã, milhões de pessoas quebram jejum longo \
+        todos os dias. Nesses estudos, refeições de quebra muito grandes — com \
+        muito carboidrato rápido e fritura — aparecem junto com pico de açúcar \
+        no sangue, enjoo, inchaço e aquela sensação de estômago cheio rápido \
+        demais. Programas que orientam comer pouco primeiro e o prato principal \
+        depois registram menos oscilação de açúcar no sangue.
+
+        PROTEÍNA PRIMEIRO. É a mesma ordem que os estudos de sequência de \
+        alimentos testaram: proteína e vegetal antes do carboidrato deixam o \
+        pico de açúcar menor. Proteína também segura a fome por mais tempo, o \
+        que ajuda a não exagerar no prato principal.
+
+        Por isso a sugestão vem em duas partes, a primeira é de proteína, e ela \
+        é pequena de propósito. Pequena E proteína — não "muita proteína".
         """,
         forca: .misto,
-        fonte: "Revisões sobre nutrição e controle glicêmico no Ramadã",
+        fonte: "Estudos sobre alimentação e açúcar no sangue no Ramadã, mais os estudos de sequência de alimentos citados acima.",
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11943218/"
     )
 
     // ═══════════════════════════════════════════════════════════════════════
     // DICAS PRÁTICAS
     //
-    // Operação, não afirmação de saúde. Nenhuma delas promete resultado e
-    // nenhuma delas manda a pessoa aguentar mais tempo — ver a última.
+    // Operação, não afirmação de saúde. Nenhuma promete resultado e nenhuma
+    // manda a pessoa aguentar mais tempo — ver "Se passar mal, coma".
     // ═══════════════════════════════════════════════════════════════════════
 
     public static let dicas: [DicaDeJejum] = [
         DicaDeJejum(
-            titulo: "Água conta, e conta muito",
-            corpo: "Água, café e chá sem açúcar não quebram a janela. Boa parte do mal-estar das primeiras semanas é desidratação simples — o líquido que vem da comida some junto com ela.",
+            titulo: "Água, café e chá não quebram o jejum",
+            corpo: "Desde que sejam sem açúcar e sem leite. Beba mais do que o normal. Boa parte da água do seu dia vem da comida, e nas horas de jejum ela não vem. Muito do mal-estar do começo é sede, não fome.",
             simbolo: "drop.fill"
         ),
         DicaDeJejum(
-            titulo: "Não mude tudo no mesmo dia",
-            corpo: "Cortar o café ao mesmo tempo em que se começa a jejuar transforma abstinência de cafeína em \"o jejum não funciona para mim\". Uma coisa de cada vez.",
+            titulo: "Deixe o carboidrato por último",
+            corpo: "Coma a proteína e o vegetal primeiro. O arroz, o pão e a batata no fim. Nos estudos, essa ordem deixa o pico de açúcar no sangue menor. Vale para qualquer refeição, não só para a quebra do jejum.",
+            simbolo: "list.number"
+        ),
+        DicaDeJejum(
+            titulo: "Não corte o café no mesmo dia",
+            corpo: "Se você parar com o café junto com o começo do jejum, vai ter dor de cabeça — e vai achar que a culpa foi do jejum. Mude uma coisa de cada vez.",
             simbolo: "cup.and.saucer.fill"
         ),
         DicaDeJejum(
-            titulo: "A janela precisa caber na sua vida",
-            corpo: "Uma janela que cai em cima do jantar de domingo em família não vai durar um mês. Escolha o horário pela sua rotina, não pelo que rende melhor no papel.",
+            titulo: "Escolha o horário pela sua rotina",
+            corpo: "Se a sua janela fechar antes do jantar de domingo em família, você não vai manter. O melhor horário é o que cabe na sua semana.",
             simbolo: "calendar.badge.clock"
         ),
         DicaDeJejum(
-            titulo: "Proteína na janela, não só na quebra",
-            corpo: "Comprimir as refeições costuma comprimir também a proteína do dia. A aba Dieta mostra a sua — vale olhar depois de fechar a janela.",
+            titulo: "Olhe a proteína do dia",
+            corpo: "Comer em menos horas costuma fazer a pessoa comer menos proteína sem perceber. A aba Dieta mostra quanto você já comeu hoje.",
             simbolo: "fork.knife"
         ),
         DicaDeJejum(
             titulo: "Se passar mal, coma",
-            corpo: "Tontura, tremor, dor de cabeça forte ou mal-estar que não passa são motivo para encerrar o jejum, e não para \"aguentar mais um pouco\". Encerrar antes da meta não desfaz nada do que já foi feito.",
+            corpo: "Tontura, tremor, dor de cabeça forte ou mal-estar que não passa: encerre o jejum. Não é para aguentar. Parar antes da meta não apaga o que você já fez.",
             simbolo: "hand.raised.fill"
         ),
         DicaDeJejum(
-            titulo: "Um dia fora não apaga o resto",
-            corpo: "A sequência aqui conta dias com janela cumprida, e quebrou é quebrado — não existe punição, não existe recuperar dobrando amanhã. Amanhã é um dia novo e vale exatamente o mesmo que qualquer outro.",
+            titulo: "Um dia fora não estraga nada",
+            corpo: "A sequência conta os dias em que você fechou a janela. Se perder um dia, a conta começa de novo. Só isso. Não tem castigo e não tem compensar em dobro amanhã.",
             simbolo: "arrow.counterclockwise"
         )
     ]
@@ -319,8 +376,7 @@ public enum JejumConteudo {
     // ═══════════════════════════════════════════════════════════════════════
     // CONTRAINDICAÇÕES
     //
-    // "Informe de forma clara e sem drama, uma vez, e siga." — o pedido do
-    // Assis, literal. Por isso:
+    // "Informe de forma clara e sem drama, uma vez, e siga." Por isso:
     //   · aparece UMA vez, no primeiro acesso, e depois vive numa aba onde quem
     //     quiser encontra (`JejumStore.avisoDeSaudeVisto`);
     //   · não pergunta nada. O app já sabe parte disto — sexo, ciclo, gravidez,
@@ -328,10 +384,6 @@ public enum JejumConteudo {
     //     questionário de triagem que ninguém pediu;
     //   · não bloqueia ninguém. Informar é diferente de barrar, e barrar seria
     //     tratar adulto como incapaz.
-    //
-    // `destacarQuando` é o único uso do que o app sabe: a linha que se aplica à
-    // pessoa sobe para o topo e ganha destaque. Nada é enviado para lugar
-    // nenhum, e nada é gravado — ver `JejumStore.contraindicacoesDestacadas`.
     // ═══════════════════════════════════════════════════════════════════════
 
     public struct Contraindicacao: Identifiable, Equatable {
@@ -359,27 +411,27 @@ public enum JejumConteudo {
     public static let contraindicacoes: [ChaveDeContraindicacao: Contraindicacao] = [
         .gravidezEAmamentacao: Contraindicacao(
             titulo: "Gravidez e amamentação",
-            corpo: "Nos dois casos a necessidade de energia e de nutrientes aumenta, e restringir horário de comer trabalha contra isso. A orientação clínica é não jejuar."
+            corpo: "Nos dois casos o corpo precisa de mais energia e mais nutrientes. Restringir o horário de comer vai na direção contrária. A orientação médica é não jejuar."
         ),
         .diabetesEInsulina: Contraindicacao(
             titulo: "Diabetes tipo 1 ou uso de insulina",
-            corpo: "O risco aqui é hipoglicemia grave, e ele é imediato. Jejum com insulina ou com secretagogos exige ajuste de dose e acompanhamento — é conversa com quem prescreve, antes de começar."
+            corpo: "O risco é o açúcar no sangue cair demais, e cai rápido. Quem usa insulina, ou remédio que faz o corpo soltar mais insulina, precisa ajustar a dose antes de jejuar. Isso é conversa com o médico que receita, não com um app."
         ),
         .transtornoAlimentar: Contraindicacao(
             titulo: "Histórico de transtorno alimentar",
-            corpo: "Jejuar envolve restringir de propósito e ignorar sinal de fome, que são exatamente os comportamentos de um transtorno alimentar. Para quem já passou por isso, um cronômetro pode reacender o que foi difícil apagar."
+            corpo: "Jejuar é restringir de propósito e ignorar a fome. São os mesmos comportamentos de um transtorno alimentar. Para quem já passou por isso, um cronômetro pode reacender o que custou a passar."
         ),
         .adolescentes: Contraindicacao(
             titulo: "Adolescentes",
-            corpo: "Corpo em crescimento tem demanda que não combina com janela restrita, e a adolescência é o período de maior incidência de transtorno alimentar."
+            corpo: "Corpo em crescimento precisa comer mais vezes, não menos. E a adolescência é a fase em que mais aparece transtorno alimentar."
         ),
         .pesoMuitoBaixo: Contraindicacao(
             titulo: "Peso muito baixo",
-            corpo: "Com IMC baixo ou perda de peso recente não intencional, restringir mais tem risco real — inclusive de complicações na retomada da alimentação, que precisam de acompanhamento."
+            corpo: "Com IMC baixo, ou depois de perder peso sem querer, restringir mais tem risco de verdade. Inclusive na hora de voltar a comer, que nesses casos precisa de acompanhamento."
         ),
         .outrasCondicoes: Contraindicacao(
-            titulo: "Outras situações que pedem conversa antes",
-            corpo: "Uso de medicação com horário preso à refeição, doença renal ou hepática, histórico de cálculo biliar, e qualquer quadro em acompanhamento. Não é proibição — é uma pergunta a fazer a quem cuida de você."
+            titulo: "Outras situações: converse antes",
+            corpo: "Remédio que precisa ser tomado junto com comida. Doença nos rins ou no fígado. Pedra na vesícula. Qualquer tratamento em andamento. Não é proibição. É uma pergunta para fazer a quem cuida de você."
         )
     ]
 
@@ -397,8 +449,8 @@ public enum JejumConteudo {
 
     /// Curto, como o resto do módulo Corpo já tem (ver `GoalEditorView.disclaimer`).
     public static let disclaimer = """
-    O jejum aqui é um cronômetro e um registro seu. A Alma é apoio de bem-estar \
-    e não substitui a orientação de um médico ou nutricionista.
+    Aqui o jejum é um cronômetro e um registro seu. A Alma cuida do seu \
+    bem-estar e não substitui médico nem nutricionista.
     """
 
     /// A linha que aparece junto do cronômetro. Menor ainda.

@@ -48,10 +48,10 @@ ARQUIVOS = [
     'Shared/Corpo/JejumStore.swift',
 ]
 
-# Pisos do coletor. Calibrados na primeira execução, 26/08/2026: 291 literais
-# de uma linha e 54 linhas dentro de `"""`. Os números são bem abaixo do real,
-# para não ficar vermelho a cada frase editada, mas altos o bastante para pegar
-# "o regex parou de casar".
+# Pisos do coletor. Recalibrados em 26/08/2026 depois da reescrita para
+# linguagem clara: 301 literais de uma linha e 78 linhas dentro de `"""`. Os
+# números são bem abaixo do real, para não ficar vermelho a cada frase editada,
+# mas altos o bastante para pegar "o regex parou de casar".
 #
 # ⚠️ SÃO DOIS PISOS, E ISSO FOI DESCOBERTO POR MUTAÇÃO.
 #
@@ -65,8 +65,8 @@ ARQUIVOS = [
 # escrita no único lugar onde ela seria escrita.
 #
 # Com dois pisos, cegar metade do coletor fica vermelho.
-PISO_DE_LITERAIS = 120
-PISO_DE_MULTILINHA = 25
+PISO_DE_LITERAIS = 150
+PISO_DE_MULTILINHA = 40
 
 # As palavras proibidas, já sem acento (a comparação normaliza os dois lados).
 #

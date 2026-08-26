@@ -205,16 +205,17 @@ confere(q20.intervaloEmMinutos == 30 && q16.intervaloEmMinutos == 20 && q12.inte
 print("\n═══ T4 · QUEBRA — RESTRIÇÃO ALIMENTAR ═══")
 
 func nomes(_ s: SugestaoDeQuebra) -> [String] {
-    (s.primeiroPrato + s.pratoPrincipal).map { LeitorDeRestricoes.normalizar($0.nome) }
+    s.componentes.map { LeitorDeRestricoes.normalizar($0.nome) }
 }
 
 let semRestricao = montar(20)
-confere(nomes(semRestricao).contains { $0.contains("iogurte") },
-        "ANTI-CEGUEIRA: sem restrição, o iogurte aparece",
+confere(nomes(semRestricao).contains { $0.contains("cottage") },
+        "ANTI-CEGUEIRA: sem restrição, o queijo cottage aparece",
         nomes(semRestricao).joined(separator: ", "))
 
 let semLactose = montar(20, restricoes: "sem lactose")
-confere(!nomes(semLactose).contains { $0.contains("iogurte") || $0.contains("queijo") },
+confere(!nomes(semLactose).contains { $0.contains("iogurte") || $0.contains("queijo")
+                                        || $0.contains("cottage") },
         "com 'sem lactose', iogurte e queijo somem",
         nomes(semLactose).joined(separator: ", "))
 confere(!semLactose.pratoPrincipal.isEmpty,
@@ -231,7 +232,8 @@ confere(!vegano.pratoPrincipal.isEmpty && vegano.kcalTotal > 0,
         "\(vegano.kcalTotal) kcal em \(nomes(vegano).joined(separator: ", "))")
 
 let vegetariano = montar(20, restricoes: "vegetariana")
-confere(nomes(vegetariano).contains { $0.contains("iogurte") || $0.contains("ovo") },
+confere(nomes(vegetariano).contains { $0.contains("cottage") || $0.contains("ovo")
+                                        || $0.contains("iogurte") },
         "'vegetariana' NÃO tira ovo nem laticínio",
         nomes(vegetariano).joined(separator: ", "))
 
@@ -285,22 +287,70 @@ confere(cheio.orcamentoVeioDaMeta,
         "ANTI-CEGUEIRA: com meta, o rótulo diz que veio da meta")
 
 // O INVARIANTE: o número da tela é a soma dos componentes.
-let soma = (cheio.primeiroPrato + cheio.pratoPrincipal).reduce(0) { $0 + $1.kcal }
+let soma = cheio.componentes.reduce(0) { $0 + $1.kcal }
 confere(cheio.kcalTotal == soma && soma > 0,
         "o total é a soma dos componentes", "total=\(cheio.kcalTotal) soma=\(soma)")
 
 // Objetivo mexe no carboidrato.
 let perder = montar(20, objetivo: .perder)
 let ganhar = montar(20, objetivo: .ganhar)
-func carbo(_ s: SugestaoDeQuebra) -> Int { s.pratoPrincipal.reduce(0) { $0 + $1.carbo } }
+func carbo(_ s: SugestaoDeQuebra) -> Int {
+    s.pratoPrincipal.reduce(0) { $0 + $1.componente.carbo }
+}
 confere(carbo(perder) < carbo(ganhar),
         "objetivo 'perder' traz menos carboidrato que 'ganhar'",
         "perder=\(carbo(perder))g ganhar=\(carbo(ganhar))g")
 
 // Nenhuma quantidade absurda.
-let todasAsQuantidades = (cheio.primeiroPrato + cheio.pratoPrincipal).map(\.quantidade)
+let todasAsQuantidades = cheio.componentes.map(\.quantidade)
 confere(todasAsQuantidades.allSatisfy { $0 > 0 && $0 <= 400 },
         "nenhuma porção impossível de servir", "\(todasAsQuantidades)")
+
+// ═══ T5b · A ORDEM DOS ALIMENTOS [26/08] ═══
+//
+// A mudança que veio do pedido do Assis, depois de a evidência ser apurada.
+// Duas regras, e cada uma tem a sua asserção — mais o canário que impede a
+// primeira de passar por prato vazio.
+print("\n═══ T5b · ORDEM DOS ALIMENTOS ═══")
+
+for horas in [12.0, 16.0, 20.0] {
+    let s = montar(horas)
+    confere(s.carboidratoPorUltimo,
+            "\(Int(horas)) h: o carboidrato é o último do prato principal",
+            s.pratoPrincipal.map { $0.papel.rotulo }.joined(separator: " → "))
+}
+
+confere(cheio.pratoPrincipal.contains { $0.papel == .carboidrato }
+            && Set(cheio.pratoPrincipal.map(\.papel)).count == 4,
+        "ANTI-CEGUEIRA: o prato principal tem os quatro papéis",
+        "\(Set(cheio.pratoPrincipal.map { $0.papel.rotulo }).sorted())")
+
+confere(cheio.primeiroPratoEhProteico,
+        "a porção que abre a quebra é SÓ proteína",
+        cheio.primeiroPrato.map { "\($0.componente.nome) (\($0.papel.rotulo))" }.joined(separator: ", "))
+
+// Nada de fruta nem de carboidrato no primeiro prato — a regra que a lista
+// `frutas` violava antes de ser removida.
+let nomesDoPrimeiro = cheio.primeiroPrato.map { LeitorDeRestricoes.normalizar($0.componente.nome) }
+confere(!nomesDoPrimeiro.contains { n in
+            ["banana", "mamao", "maca", "morango", "arroz", "batata", "pao", "cuscuz"]
+                .contains { n.contains($0) }
+        },
+        "nenhuma fruta ou carboidrato abre a quebra",
+        nomesDoPrimeiro.joined(separator: ", "))
+
+// A proteína do primeiro prato tem de ser proteína de verdade, e não um
+// alimento qualquer rotulado como tal.
+let proteinaDoPrimeiro = cheio.primeiroPrato.reduce(0) { $0 + $1.componente.proteina }
+confere(proteinaDoPrimeiro >= 10,
+        "o primeiro prato entrega proteína de verdade",
+        "\(proteinaDoPrimeiro) g em \(cheio.kcalDoPrimeiroPrato) kcal")
+
+// E o primeiro prato não repete no principal.
+let nomesDoPrincipal = cheio.pratoPrincipal.map { LeitorDeRestricoes.normalizar($0.componente.nome) }
+confere(Set(nomesDoPrimeiro).isDisjoint(with: Set(nomesDoPrincipal)),
+        "o alimento do primeiro prato não se repete no principal",
+        "primeiro=\(nomesDoPrimeiro) principal=\(nomesDoPrincipal)")
 
 print("\n═══ T6 · CONTEÚDO ═══")
 
