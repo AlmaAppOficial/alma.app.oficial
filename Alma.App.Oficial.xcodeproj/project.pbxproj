@@ -7,17 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2C6E7DC9AF0F80B508FFCD73 /* beethoven_pastoral.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */; };
-		3B3DBF0CFCB3CCAD55ED2BC3 /* sleep_forest.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4E8212392CD1E71B620535EF /* sleep_forest.mp3 */; };
-		4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
 		0C2652A53797000000000000 /* RegrasDeSaude.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */; };
 		0C2652A53797000000000001 /* RegrasDeSaude.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */; };
+		1196E89B07459B5A46E4E900 /* Corpo/CorpoContextFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15929ECA09E51DEFD86FCA91 /* Corpo/CorpoContextFormat.swift */; };
+		155C4512DD68000000000000 /* GestaoDoPlanoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */; };
+		2270F96C6B6CA37E2A0A3445 /* Corpo/TestePersistencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22125E08D23CEE6A3878453B /* Corpo/TestePersistencia.swift */; };
+		2732DDA22F4A000000000000 /* Corpo/UnidadeDeMedida.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10493D45C7AB1E82E3B60930 /* Corpo/UnidadeDeMedida.swift */; };
+		2C6E7DC9AF0F80B508FFCD73 /* beethoven_pastoral.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */; };
+		3B3DBF0CFCB3CCAD55ED2BC3 /* sleep_forest.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4E8212392CD1E71B620535EF /* sleep_forest.mp3 */; };
+		3C05FAB203B1000000000000 /* AlmaEntitlementBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */; };
+		45C8D95929E4000000000000 /* Corpo/TextoDaPessoa.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB66B126BEFE6197A6D1E77 /* Corpo/TextoDaPessoa.swift */; };
+		4DEB49D825344E9DA8CA235B /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
 		51AAFE1E9BDF372601C72D4C /* AppleAuthCodeKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */; };
 		65AE642A66D2D2A1AC049C94 /* sleep_water.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 41FFC8A153FE4E23B4B7C375 /* sleep_water.mp3 */; };
+		69CE1AD710AD000000000000 /* RotaDaNotificacao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A8051AB10A3E1BE8945BFC /* RotaDaNotificacao.swift */; };
 		7650A7659DAE7293791FAC46 /* bach_goldberg.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B0931D3CA21F8310F5571932 /* bach_goldberg.mp3 */; };
 		76891EB20C9D18D6E4692BAF /* LocalDataCleanupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */; };
 		8828C327CEFC0B9B076D3F6D /* mozart_k467.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 57807D2FD00320D19F3B9A25 /* mozart_k467.mp3 */; };
 		9A7045ACB39443178EA04B8F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */; };
+		9DDD6B17B676EFDC4E623F98 /* Corpo/PaywallDoCorpo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A36A94710244B30FA36BFB /* Corpo/PaywallDoCorpo.swift */; };
 		9ECED0BB2F588F21009412A7 /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BA2F588F21009412A7 /* Tests_iOS.swift */; };
 		9ECED0BD2F588F21009412A7 /* Tests_iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0BC2F588F21009412A7 /* Tests_iOSLaunchTests.swift */; };
 		9ECED0C72F588F21009412A7 /* Tests_macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0C62F588F21009412A7 /* Tests_macOS.swift */; };
@@ -54,8 +62,6 @@
 		9ECED1042F589030009412A7 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECED0F02F58902F009412A7 /* InsightsView.swift */; };
 		9ECED1072F589311009412A7 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1062F589311009412A7 /* FirebaseAnalytics */; };
 		9ECED1092F589311009412A7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9ECED1082F589311009412A7 /* FirebaseAuth */; };
-		AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001001AA001001AA001001 /* AlmaWatchApp.swift */; };
-		AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001002AA001002AA001002 /* AlmaWatchContentView.swift */; };
 		A11AWB010000000000000000 /* WatchTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF010000000000000000 /* WatchTheme.swift */; };
 		A11AWB020000000000000000 /* WatchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF020000000000000000 /* WatchState.swift */; };
 		A11AWB030000000000000000 /* WatchSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF030000000000000000 /* WatchSync.swift */; };
@@ -70,12 +76,20 @@
 		A11AWB120000000000000000 /* MeditationsWatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF120000000000000000 /* MeditationsWatchView.swift */; };
 		A11AWB130000000000000000 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF130000000000000000 /* NotificationController.swift */; };
 		A11AWB99000000000000000B /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF99000000000000000F /* WatchBridge.swift */; };
+		AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001001AA001001AA001001 /* AlmaWatchApp.swift */; };
+		AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001002AA001002AA001002 /* AlmaWatchContentView.swift */; };
 		AA009003AA009003AA009003 /* Alma Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E25ED1DA2F77018D0089226E /* Alma Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA0804AUD100000000000000A /* Corpo/TesteAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804AUD10000000000002B /* Corpo/TesteAudio.swift */; };
+		AA0804DIT100000000000000A /* Corpo/AcumuladorDeDitado.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804DIT10000000000002B /* Corpo/AcumuladorDeDitado.swift */; };
+		AA0804PES100000000000000A /* Corpo/PesoVigente.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804PES10000000000002B /* Corpo/PesoVigente.swift */; };
+		AA0804SON100000000000000A /* Corpo/PontuacaoDeSono.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804SON10000000000002B /* Corpo/PontuacaoDeSono.swift */; };
 		ALMA00FCM2026MAY15FFFF01 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FCM2026MAY15FFFF02 /* FirebaseMessaging */; };
 		ALMA00FF0001FEED0001FFFF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ALMA00FF0002FEED0002FFFF /* FirebaseFirestore */; };
 		B77C73E51A5C2F88B7710001 /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
 		BB001001BB001001BB001001 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB100001BB100001BB100001 /* GoogleService-Info.plist */; };
+		BB1E40B1DFF1000000000000 /* Corpo/AnaliseDeFotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477B7C6D4F645FF8265F0706 /* Corpo/AnaliseDeFotoService.swift */; };
+		BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */; };
 		BED02FA0BABE00CAFE000B02 /* meditation_02.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */; };
 		BED03FA0BABE00CAFE000B03 /* meditation_03.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */; };
 		BED04FA0BABE00CAFE000B04 /* meditation_04.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */; };
@@ -106,6 +120,13 @@
 		BED29FA0BABE00CAFE000B29 /* meditation_29.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */; };
 		BED30FA0BABE00CAFE000B30 /* meditation_30.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */; };
 		C63FF451FA7A99DD13A6089E /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
+		CAF57DF067CF000000000000 /* Corpo/Refeicao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A7135E42C049DD21DB8EC4 /* Corpo/Refeicao.swift */; };
+		98F3617FB74D000000000000 /* Corpo/QuebraDeJejumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E655D2B964BFD012753CB9B8 /* Corpo/QuebraDeJejumView.swift */; };
+		8FA6E4543761000000000000 /* Corpo/JejumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632187A48393692BF1808F8F /* Corpo/JejumView.swift */; };
+		6E86FA43B51C000000000000 /* Corpo/JejumStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FD5B6B084F725FE13F6B62 /* Corpo/JejumStore.swift */; };
+		B374745077D9000000000000 /* Corpo/QuebraDeJejum.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24655EE7855E4356362D2FF /* Corpo/QuebraDeJejum.swift */; };
+		92C5FE6D3CA3000000000000 /* Corpo/JejumConteudo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096B054603D5CB837C33C21D /* Corpo/JejumConteudo.swift */; };
+		A794EAB2133B000000000000 /* Corpo/Jejum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004A1B381381B79242047733 /* Corpo/Jejum.swift */; };
 		CC001001CC001001CC001001 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		CC001002CC001002CC001002 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		DA8DC37B7FC02DF5CB40AF71 /* pachelbel_canon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */; };
@@ -129,76 +150,24 @@
 		DD011001DD011001DD011001 /* FeminineHealthSecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */; };
 		DD012001DD012001DD012001 /* CorpoAlmaBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */; };
 		DD013001DD013001DD013001 /* CycleCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD013000DD013000DD013000 /* CycleCalculator.swift */; };
+		DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD014000DD014000DD014000 /* ChatHistoryStore.swift */; };
 		DD015001DD015001DD015001 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD015000DD015000DD015000 /* HealthContextBuilder.swift */; };
+		DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD016000DD016000DD016000 /* HealthContextConsent.swift */; };
 		DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */; };
-		3C05FAB203B1000000000000 /* AlmaEntitlementBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */; };
 		DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD018000DD018000DD018000 /* CorpoModuleView.swift */; };
-		BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */; };
-		CAF57DF067CF000000000000 /* Refeicao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A7135E42C049DD21DB8EC4 /* Refeicao.swift */; };
-		45C8D95929E4000000000000 /* TextoDaPessoa.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB66B126BEFE6197A6D1E77 /* TextoDaPessoa.swift */; };
-		2732DDA22F4A000000000000 /* UnidadeDeMedida.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10493D45C7AB1E82E3B60930 /* UnidadeDeMedida.swift */; };
-		BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */; };
-		2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22125E08D23CEE6A3878453B /* TestePersistencia.swift */; };
-		155C4512DD68000000000000 /* GestaoDoPlanoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */; };
-		AA0804DIT100000000000000A /* AcumuladorDeDitado.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804DIT10000000000002B /* AcumuladorDeDitado.swift */; };
-		AA0804PES100000000000000A /* PesoVigente.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804PES10000000000002B /* PesoVigente.swift */; };
-		AA0804SON100000000000000A /* PontuacaoDeSono.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804SON10000000000002B /* PontuacaoDeSono.swift */; };
-		AA0804AUD100000000000000A /* TesteAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0804AUD10000000000002B /* TesteAudio.swift */; };
-		9DDD6B17B676EFDC4E623F98 /* PaywallDoCorpo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */; };
-		1196E89B07459B5A46E4E900 /* CorpoContextFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */; };
-		DD025001DD025001DD025001 /* CorpoAcesso.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD025000DD025000DD025000 /* CorpoAcesso.swift */; };
 		DD019001DD019001DD019001 /* MoodSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD019000DD019000DD019000 /* MoodSignal.swift */; };
+		DD020001DD020001DD020001 /* Corpo/CorpoContextSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD020000DD020000DD020000 /* Corpo/CorpoContextSnapshot.swift */; };
 		DD021001DD021001DD021001 /* DebugContextDump.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD021000DD021000DD021000 /* DebugContextDump.swift */; };
 		DD022001DD022001DD022001 /* UserProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD022000DD022000DD022000 /* UserProfileStore.swift */; };
 		DD024001DD024001DD024001 /* GradeDeLembretes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD024000DD024000DD024000 /* GradeDeLembretes.swift */; };
+		DD025001DD025001DD025001 /* Corpo/CorpoAcesso.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD025000DD025000DD025000 /* Corpo/CorpoAcesso.swift */; };
 		DD026001DD026001DD026001 /* LembretesDaAlma.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD026000DD026000DD026000 /* LembretesDaAlma.swift */; };
-		69CE1AD710AD000000000000 /* RotaDaNotificacao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A8051AB10A3E1BE8945BFC /* RotaDaNotificacao.swift */; };
 		DD027001DD027001DD027001 /* SmokeTestTelas.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD027000DD027000DD027000 /* SmokeTestTelas.swift */; };
 		DD028001DD028001DD028001 /* AuditoriaBloqueadores.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD028000DD028000DD028000 /* AuditoriaBloqueadores.swift */; };
-		DD020001DD020001DD020001 /* CorpoContextSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */; };
-		FA900401AA00401BB004111 /* BotaoVoltarParaAlma.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */; };
-		FA900701AA00701BB0071110 /* CorpoInsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */; };
-		FA900801AA00801BB008111 /* CorpoInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900800AA00800BB008000 /* CorpoInsightsView.swift */; };
-		FA900001FA900001FA90001 /* AIBodyScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900000FA900000FA90000 /* AIBodyScan.swift */; };
-		FA900101FA900101FA90011 /* AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900100FA900100FA90010 /* AddFoodView.swift */; };
-		FA900201FA900201FA90021 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900200FA900200FA90020 /* BarcodeScannerView.swift */; };
-		FA900301FA900301FA90031 /* BodyScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900300FA900300FA90030 /* BodyScanView.swift */; };
-		FA900401FA900401FA90041 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400FA900400FA90040 /* CameraPickerView.swift */; };
-		FA900501FA900501FA90051 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900500FA900500FA90050 /* Components.swift */; };
-		FA900601FA900601FA90061 /* CorpoHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900600FA900600FA90060 /* CorpoHomeView.swift */; };
-		FA900801FA900801FA90081 /* CorpoPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900800FA900800FA90080 /* CorpoPaywallView.swift */; };
-		FA900901FA900901FA90091 /* CorpoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900900FA900900FA90090 /* CorpoTheme.swift */; };
-		FA901001FA901001FA90101 /* DietaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901000FA901000FA90100 /* DietaView.swift */; };
-		FA901101FA901101FA90111 /* EditAssessmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901100FA901100FA90110 /* EditAssessmentView.swift */; };
-		FA901201FA901201FA90121 /* ExerciseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901200FA901200FA90120 /* ExerciseDetailView.swift */; };
-		FA901301FA901301FA90131 /* ExerciseLibraryV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901300FA901300FA90130 /* ExerciseLibraryV2.swift */; };
-		FA901401FA901401FA90141 /* ExerciseListV2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901400FA901400FA90140 /* ExerciseListV2View.swift */; };
-		FA901501FA901501FA90151 /* FoodScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901500FA901500FA90150 /* FoodScanView.swift */; };
-		FA901601FA901601FA90161 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901600FA901600FA90160 /* GeminiService.swift */; };
-		FA901701FA901701FA90171 /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901700FA901700FA90170 /* HealthManager.swift */; };
-		FA901801FA901801FA90181 /* InsightDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901800FA901800FA90180 /* InsightDetailView.swift */; };
-		FA901901FA901901FA90191 /* MealDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901900FA901900FA90190 /* MealDetailView.swift */; };
-		FA902001FA902001FA90201 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902000FA902000FA90200 /* Models.swift */; };
-		FA902101FA902101FA90211 /* MuscleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902100FA902100FA90210 /* MuscleMapView.swift */; };
-		FA902201FA902201FA90221 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902200FA902200FA90220 /* NotificationManager.swift */; };
-		FA902301FA902301FA90231 /* NutritionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902300FA902300FA90230 /* NutritionEngine.swift */; };
-		FA902401FA902401FA90241 /* OpenFoodFacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902400FA902400FA90240 /* OpenFoodFacts.swift */; };
-		FA902501FA902501FA90251 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902500FA902500FA90250 /* RootTabView.swift */; };
-		FA902601FA902601FA90261 /* SaudeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902600FA902600FA90260 /* SaudeView.swift */; };
-		FA902701FA902701FA90271 /* ScanResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902700FA902700FA90270 /* ScanResultView.swift */; };
-		FA902801FA902801FA90281 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902800FA902800FA90280 /* SettingsView.swift */; };
-		FA902901FA902901FA90291 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902900FA902900FA90290 /* StoreManager.swift */; };
-		FA903001FA903001FA90301 /* SupplementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903000FA903000FA90300 /* SupplementsView.swift */; };
-		FA903101FA903101FA90311 /* TreinoBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903100FA903100FA90310 /* TreinoBuilderView.swift */; };
-		FA903201FA903201FA90321 /* TreinoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903200FA903200FA90320 /* TreinoView.swift */; };
-		FA903301FA903301FA90331 /* WorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903300FA903300FA90330 /* WorkoutDetailView.swift */; };
-		FA903401FA903401FA90341 /* WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903400FA903400FA90340 /* WorkoutSessionView.swift */; };
-		FA800001FA800001FA80001 /* exercises_v2.json in Resources */ = {isa = PBXBuildFile; fileRef = FA800000FA800000FA80000 /* exercises_v2.json */; };
-		DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD016000DD016000DD016000 /* HealthContextConsent.swift */; };
-		DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD014000DD014000DD014000 /* ChatHistoryStore.swift */; };
 		DDB10001DDB10001DDB10001 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
 		DDB10002DDB10002DDB10002 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB10000DDB10000DDB10000 /* StreakManager.swift */; };
 		DDB20001DDB20001DDB20001 /* PaywallTriggerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */; };
+		E250A750303D560E007C4C24 /* ApoioEmCrise.swift in Sources */ = {isa = PBXBuildFile; fileRef = E250A74F303D560E007C4C24 /* ApoioEmCrise.swift */; };
 		E267314C2FE19BD20003BE9F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E267314B2FE19BD20003BE9F /* WidgetKit.framework */; };
 		E267314E2FE19BD20003BE9F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E267314D2FE19BD20003BE9F /* SwiftUI.framework */; };
 		E26731592FE19BD30003BE9F /* AlmaComplicationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -230,6 +199,44 @@
 		F16C4AD6C69CBD015232BCED /* sleep_pink_noise.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 747D23548A27853E9A52C7D7 /* sleep_pink_noise.mp3 */; };
 		F42310F69DAAC831FB709625 /* sleep_fireplace.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */; };
 		F6C4D3274F65C38F029D2EC8 /* OnboardingBiometricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */; };
+		FA800001FA800001FA80001 /* Corpo/exercises_v2.json in Resources */ = {isa = PBXBuildFile; fileRef = FA800000FA800000FA80000 /* Corpo/exercises_v2.json */; };
+		FA900001FA900001FA90001 /* Corpo/AIBodyScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900000FA900000FA90000 /* Corpo/AIBodyScan.swift */; };
+		FA900101FA900101FA90011 /* Corpo/AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900100FA900100FA90010 /* Corpo/AddFoodView.swift */; };
+		FA900201FA900201FA90021 /* Corpo/BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900200FA900200FA90020 /* Corpo/BarcodeScannerView.swift */; };
+		FA900301FA900301FA90031 /* Corpo/BodyScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900300FA900300FA90030 /* Corpo/BodyScanView.swift */; };
+		FA900401AA00401BB004111 /* Corpo/BotaoVoltarParaAlma.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400AA00400BB004000 /* Corpo/BotaoVoltarParaAlma.swift */; };
+		FA900401FA900401FA90041 /* Corpo/CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900400FA900400FA90040 /* Corpo/CameraPickerView.swift */; };
+		FA900501FA900501FA90051 /* Corpo/Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900500FA900500FA90050 /* Corpo/Components.swift */; };
+		FA900601FA900601FA90061 /* Corpo/CorpoHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900600FA900600FA90060 /* Corpo/CorpoHomeView.swift */; };
+		FA900701AA00701BB0071110 /* Corpo/CorpoInsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900700AA00700BB0070000 /* Corpo/CorpoInsightsEngine.swift */; };
+		FA900801AA00801BB008111 /* Corpo/CorpoInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900800AA00800BB008000 /* Corpo/CorpoInsightsView.swift */; };
+		FA900801FA900801FA90081 /* Corpo/CorpoPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900800FA900800FA90080 /* Corpo/CorpoPaywallView.swift */; };
+		FA900901FA900901FA90091 /* Corpo/CorpoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900900FA900900FA90090 /* Corpo/CorpoTheme.swift */; };
+		FA901001FA901001FA90101 /* Corpo/DietaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901000FA901000FA90100 /* Corpo/DietaView.swift */; };
+		FA901101FA901101FA90111 /* Corpo/EditAssessmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901100FA901100FA90110 /* Corpo/EditAssessmentView.swift */; };
+		FA901201FA901201FA90121 /* Corpo/ExerciseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901200FA901200FA90120 /* Corpo/ExerciseDetailView.swift */; };
+		FA901301FA901301FA90131 /* Corpo/ExerciseLibraryV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901300FA901300FA90130 /* Corpo/ExerciseLibraryV2.swift */; };
+		FA901401FA901401FA90141 /* Corpo/ExerciseListV2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901400FA901400FA90140 /* Corpo/ExerciseListV2View.swift */; };
+		FA901501FA901501FA90151 /* Corpo/FoodScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901500FA901500FA90150 /* Corpo/FoodScanView.swift */; };
+		FA901601FA901601FA90161 /* Corpo/GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901600FA901600FA90160 /* Corpo/GeminiService.swift */; };
+		FA901701FA901701FA90171 /* Corpo/HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901700FA901700FA90170 /* Corpo/HealthManager.swift */; };
+		FA901801FA901801FA90181 /* Corpo/InsightDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901800FA901800FA90180 /* Corpo/InsightDetailView.swift */; };
+		FA901901FA901901FA90191 /* Corpo/MealDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA901900FA901900FA90190 /* Corpo/MealDetailView.swift */; };
+		FA902001FA902001FA90201 /* Corpo/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902000FA902000FA90200 /* Corpo/Models.swift */; };
+		FA902101FA902101FA90211 /* Corpo/MuscleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902100FA902100FA90210 /* Corpo/MuscleMapView.swift */; };
+		FA902201FA902201FA90221 /* Corpo/NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902200FA902200FA90220 /* Corpo/NotificationManager.swift */; };
+		FA902301FA902301FA90231 /* Corpo/NutritionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902300FA902300FA90230 /* Corpo/NutritionEngine.swift */; };
+		FA902401FA902401FA90241 /* Corpo/OpenFoodFacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902400FA902400FA90240 /* Corpo/OpenFoodFacts.swift */; };
+		FA902501FA902501FA90251 /* Corpo/RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902500FA902500FA90250 /* Corpo/RootTabView.swift */; };
+		FA902601FA902601FA90261 /* Corpo/SaudeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902600FA902600FA90260 /* Corpo/SaudeView.swift */; };
+		FA902701FA902701FA90271 /* Corpo/ScanResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902700FA902700FA90270 /* Corpo/ScanResultView.swift */; };
+		FA902801FA902801FA90281 /* Corpo/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902800FA902800FA90280 /* Corpo/SettingsView.swift */; };
+		FA902901FA902901FA90291 /* Corpo/StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA902900FA902900FA90290 /* Corpo/StoreManager.swift */; };
+		FA903001FA903001FA90301 /* Corpo/SupplementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903000FA903000FA90300 /* Corpo/SupplementsView.swift */; };
+		FA903101FA903101FA90311 /* Corpo/TreinoBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903100FA903100FA90310 /* Corpo/TreinoBuilderView.swift */; };
+		FA903201FA903201FA90321 /* Corpo/TreinoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903200FA903200FA90320 /* Corpo/TreinoView.swift */; };
+		FA903301FA903301FA90331 /* Corpo/WorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903300FA903300FA90330 /* Corpo/WorkoutDetailView.swift */; };
+		FA903401FA903401FA90341 /* Corpo/WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA903400FA903400FA90340 /* Corpo/WorkoutSessionView.swift */; };
 		FB4F3FB4EF8265C8B340D982 /* OAuthRevocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357884C4D09FF75933EB433D /* OAuthRevocationService.swift */; };
 		FF001002FF001002FF001002 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF001000FF001000FF001000 /* StoreKitManager.swift */; };
 		FF0099FF0099FF0099FF0005 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FF0099FF0099FF0099FF0003 /* GoogleSignIn */; };
@@ -294,15 +301,28 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01A7135E42C049DD21DB8EC4 /* Corpo/Refeicao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/Refeicao.swift; sourceTree = "<group>"; };
+		E655D2B964BFD012753CB9B8 /* Corpo/QuebraDeJejumView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/QuebraDeJejumView.swift"; sourceTree = "<group>"; };
+		632187A48393692BF1808F8F /* Corpo/JejumView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumView.swift"; sourceTree = "<group>"; };
+		37FD5B6B084F725FE13F6B62 /* Corpo/JejumStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumStore.swift"; sourceTree = "<group>"; };
+		A24655EE7855E4356362D2FF /* Corpo/QuebraDeJejum.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/QuebraDeJejum.swift"; sourceTree = "<group>"; };
+		096B054603D5CB837C33C21D /* Corpo/JejumConteudo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumConteudo.swift"; sourceTree = "<group>"; };
+		004A1B381381B79242047733 /* Corpo/Jejum.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Jejum.swift"; sourceTree = "<group>"; };
+		10493D45C7AB1E82E3B60930 /* Corpo/UnidadeDeMedida.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/UnidadeDeMedida.swift; sourceTree = "<group>"; };
+		15929ECA09E51DEFD86FCA91 /* Corpo/CorpoContextFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoContextFormat.swift; sourceTree = "<group>"; };
+		22125E08D23CEE6A3878453B /* Corpo/TestePersistencia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/TestePersistencia.swift; sourceTree = "<group>"; };
 		357884C4D09FF75933EB433D /* OAuthRevocationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OAuthRevocationService.swift; sourceTree = "<group>"; };
+		3AB66B126BEFE6197A6D1E77 /* Corpo/TextoDaPessoa.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/TextoDaPessoa.swift; sourceTree = "<group>"; };
 		41FFC8A153FE4E23B4B7C375 /* sleep_water.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_water.mp3; sourceTree = "<group>"; };
+		477B7C6D4F645FF8265F0706 /* Corpo/AnaliseDeFotoService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AnaliseDeFotoService.swift; sourceTree = "<group>"; };
 		48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = pachelbel_canon.mp3; sourceTree = "<group>"; };
 		4E8212392CD1E71B620535EF /* sleep_forest.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_forest.mp3; sourceTree = "<group>"; };
+		54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegrasDeSaude.swift; sourceTree = "<group>"; };
 		57807D2FD00320D19F3B9A25 /* mozart_k467.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mozart_k467.mp3; sourceTree = "<group>"; };
 		6A127C11F0D237183E338677 /* LocalDataCleanupService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataCleanupService.swift; sourceTree = "<group>"; };
 		6A3E9BA091AE463CBF8FE8CD /* HealthKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
-		54A7351D755A25B8B87DA1C1 /* RegrasDeSaude.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegrasDeSaude.swift; sourceTree = "<group>"; };
 		747D23548A27853E9A52C7D7 /* sleep_pink_noise.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_pink_noise.mp3; sourceTree = "<group>"; };
+		92A8051AB10A3E1BE8945BFC /* RotaDaNotificacao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RotaDaNotificacao.swift; sourceTree = "<group>"; };
 		956E41B5C6A3993C96A984E0 /* AppleAuthCodeKeychainStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleAuthCodeKeychainStore.swift; sourceTree = "<group>"; };
 		99CA67A019B508DE8AD4385B /* beethoven_pastoral.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = beethoven_pastoral.mp3; sourceTree = "<group>"; };
 		9ECED0A22F588F1D009412A7 /* Alma_App_OficialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alma_App_OficialApp.swift; sourceTree = "<group>"; };
@@ -329,8 +349,6 @@
 		9ECED0EE2F58902E009412A7 /* SubscriptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
 		9ECED0EF2F58902F009412A7 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		9ECED0F02F58902F009412A7 /* InsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
-		AA001001AA001001AA001001 /* AlmaWatchApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchApp.swift; sourceTree = "<group>"; };
-		AA001002AA001002AA001002 /* AlmaWatchContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchContentView.swift; sourceTree = "<group>"; };
 		A11AWF010000000000000000 /* WatchTheme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchTheme.swift; sourceTree = "<group>"; };
 		A11AWF020000000000000000 /* WatchState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchState.swift; sourceTree = "<group>"; };
 		A11AWF030000000000000000 /* WatchSync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchSync.swift; sourceTree = "<group>"; };
@@ -345,6 +363,13 @@
 		A11AWF120000000000000000 /* MeditationsWatchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeditationsWatchView.swift; sourceTree = "<group>"; };
 		A11AWF130000000000000000 /* NotificationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
 		A11AWF99000000000000000F /* WatchBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchBridge.swift; sourceTree = "<group>"; };
+		A7A36A94710244B30FA36BFB /* Corpo/PaywallDoCorpo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/PaywallDoCorpo.swift; sourceTree = "<group>"; };
+		AA001001AA001001AA001001 /* AlmaWatchApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchApp.swift; sourceTree = "<group>"; };
+		AA001002AA001002AA001002 /* AlmaWatchContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaWatchContentView.swift; sourceTree = "<group>"; };
+		AA0804AUD10000000000002B /* Corpo/TesteAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/TesteAudio.swift; sourceTree = "<group>"; };
+		AA0804DIT10000000000002B /* Corpo/AcumuladorDeDitado.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AcumuladorDeDitado.swift; sourceTree = "<group>"; };
+		AA0804PES10000000000002B /* Corpo/PesoVigente.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/PesoVigente.swift; sourceTree = "<group>"; };
+		AA0804SON10000000000002B /* Corpo/PontuacaoDeSono.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/PontuacaoDeSono.swift; sourceTree = "<group>"; };
 		AED02FA0BABE00CAFE000A02 /* meditation_02.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_02.m4a; sourceTree = "<group>"; };
 		AED03FA0BABE00CAFE000A03 /* meditation_03.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_03.m4a; sourceTree = "<group>"; };
 		AED04FA0BABE00CAFE000A04 /* meditation_04.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_04.m4a; sourceTree = "<group>"; };
@@ -375,6 +400,7 @@
 		AED29FA0BABE00CAFE000A29 /* meditation_29.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_29.m4a; sourceTree = "<group>"; };
 		AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = meditation_30.m4a; sourceTree = "<group>"; };
 		B0931D3CA21F8310F5571932 /* bach_goldberg.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = bach_goldberg.mp3; sourceTree = "<group>"; };
+		B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GestaoDoPlanoView.swift; sourceTree = "<group>"; };
 		BB100001BB100001BB100001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BB300001BB300001BB300001 /* iOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iOS-Info.plist"; sourceTree = "<group>"; };
 		C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingBiometricsView.swift; sourceTree = "<group>"; };
@@ -393,75 +419,24 @@
 		DD011000DD011000DD011000 /* FeminineHealthSecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeminineHealthSecureStore.swift; sourceTree = "<group>"; };
 		DD012000DD012000DD012000 /* CorpoAlmaBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoAlmaBannerView.swift; sourceTree = "<group>"; };
 		DD013000DD013000DD013000 /* CycleCalculator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CycleCalculator.swift; sourceTree = "<group>"; };
+		DD014000DD014000DD014000 /* ChatHistoryStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatHistoryStore.swift; sourceTree = "<group>"; };
 		DD015000DD015000DD015000 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
+		DD016000DD016000DD016000 /* HealthContextConsent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextConsent.swift; sourceTree = "<group>"; };
 		DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementStore.swift; sourceTree = "<group>"; };
-		EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaEntitlementBridge.swift; sourceTree = "<group>"; };
 		DD018000DD018000DD018000 /* CorpoModuleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorpoModuleView.swift; sourceTree = "<group>"; };
-		477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AnaliseDeFotoService.swift"; sourceTree = "<group>"; };
-		01A7135E42C049DD21DB8EC4 /* Refeicao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Refeicao.swift"; sourceTree = "<group>"; };
-		3AB66B126BEFE6197A6D1E77 /* TextoDaPessoa.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TextoDaPessoa.swift"; sourceTree = "<group>"; };
-		10493D45C7AB1E82E3B60930 /* UnidadeDeMedida.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/UnidadeDeMedida.swift"; sourceTree = "<group>"; };
-		DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AparenciaDoApp.swift"; sourceTree = "<group>"; };
-		22125E08D23CEE6A3878453B /* TestePersistencia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TestePersistencia.swift"; sourceTree = "<group>"; };
-		B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GestaoDoPlanoView.swift; sourceTree = "<group>"; };
-		AA0804DIT10000000000002B /* AcumuladorDeDitado.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AcumuladorDeDitado.swift"; sourceTree = "<group>"; };
-		AA0804PES10000000000002B /* PesoVigente.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/PesoVigente.swift"; sourceTree = "<group>"; };
-		AA0804SON10000000000002B /* PontuacaoDeSono.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/PontuacaoDeSono.swift"; sourceTree = "<group>"; };
-		AA0804AUD10000000000002B /* TesteAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TesteAudio.swift"; sourceTree = "<group>"; };
-		A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/PaywallDoCorpo.swift"; sourceTree = "<group>"; };
-		15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoContextFormat.swift"; sourceTree = "<group>"; };
-		DD025000DD025000DD025000 /* CorpoAcesso.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoAcesso.swift"; sourceTree = "<group>"; };
 		DD019000DD019000DD019000 /* MoodSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoodSignal.swift; sourceTree = "<group>"; };
+		DD020000DD020000DD020000 /* Corpo/CorpoContextSnapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoContextSnapshot.swift; sourceTree = "<group>"; };
 		DD021000DD021000DD021000 /* DebugContextDump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugContextDump.swift; sourceTree = "<group>"; };
 		DD022000DD022000DD022000 /* UserProfileStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserProfileStore.swift; sourceTree = "<group>"; };
 		DD024000DD024000DD024000 /* GradeDeLembretes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradeDeLembretes.swift; sourceTree = "<group>"; };
+		DD025000DD025000DD025000 /* Corpo/CorpoAcesso.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoAcesso.swift; sourceTree = "<group>"; };
 		DD026000DD026000DD026000 /* LembretesDaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LembretesDaAlma.swift; sourceTree = "<group>"; };
-		92A8051AB10A3E1BE8945BFC /* RotaDaNotificacao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RotaDaNotificacao.swift; sourceTree = "<group>"; };
 		DD027000DD027000DD027000 /* SmokeTestTelas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmokeTestTelas.swift; sourceTree = "<group>"; };
 		DD028000DD028000DD028000 /* AuditoriaBloqueadores.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuditoriaBloqueadores.swift; sourceTree = "<group>"; };
-		DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoContextSnapshot.swift"; sourceTree = "<group>"; };
-		FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BotaoVoltarParaAlma.swift"; sourceTree = "<group>"; };
-		FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsEngine.swift"; sourceTree = "<group>"; };
-		FA900800AA00800BB008000 /* CorpoInsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoInsightsView.swift"; sourceTree = "<group>"; };
-		FA900000FA900000FA90000 /* AIBodyScan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AIBodyScan.swift"; sourceTree = "<group>"; };
-		FA900100FA900100FA90010 /* AddFoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/AddFoodView.swift"; sourceTree = "<group>"; };
-		FA900200FA900200FA90020 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BarcodeScannerView.swift"; sourceTree = "<group>"; };
-		FA900300FA900300FA90030 /* BodyScanView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/BodyScanView.swift"; sourceTree = "<group>"; };
-		FA900400FA900400FA90040 /* CameraPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CameraPickerView.swift"; sourceTree = "<group>"; };
-		FA900500FA900500FA90050 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Components.swift"; sourceTree = "<group>"; };
-		FA900600FA900600FA90060 /* CorpoHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoHomeView.swift"; sourceTree = "<group>"; };
-		FA900800FA900800FA90080 /* CorpoPaywallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoPaywallView.swift"; sourceTree = "<group>"; };
-		FA900900FA900900FA90090 /* CorpoTheme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/CorpoTheme.swift"; sourceTree = "<group>"; };
-		FA901000FA901000FA90100 /* DietaView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/DietaView.swift"; sourceTree = "<group>"; };
-		FA901100FA901100FA90110 /* EditAssessmentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/EditAssessmentView.swift"; sourceTree = "<group>"; };
-		FA901200FA901200FA90120 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ExerciseDetailView.swift"; sourceTree = "<group>"; };
-		FA901300FA901300FA90130 /* ExerciseLibraryV2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ExerciseLibraryV2.swift"; sourceTree = "<group>"; };
-		FA901400FA901400FA90140 /* ExerciseListV2View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ExerciseListV2View.swift"; sourceTree = "<group>"; };
-		FA901500FA901500FA90150 /* FoodScanView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/FoodScanView.swift"; sourceTree = "<group>"; };
-		FA901600FA901600FA90160 /* GeminiService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/GeminiService.swift"; sourceTree = "<group>"; };
-		FA901700FA901700FA90170 /* HealthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/HealthManager.swift"; sourceTree = "<group>"; };
-		FA901800FA901800FA90180 /* InsightDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/InsightDetailView.swift"; sourceTree = "<group>"; };
-		FA901900FA901900FA90190 /* MealDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/MealDetailView.swift"; sourceTree = "<group>"; };
-		FA902000FA902000FA90200 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Models.swift"; sourceTree = "<group>"; };
-		FA902100FA902100FA90210 /* MuscleMapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/MuscleMapView.swift"; sourceTree = "<group>"; };
-		FA902200FA902200FA90220 /* NotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/NotificationManager.swift"; sourceTree = "<group>"; };
-		FA902300FA902300FA90230 /* NutritionEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/NutritionEngine.swift"; sourceTree = "<group>"; };
-		FA902400FA902400FA90240 /* OpenFoodFacts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/OpenFoodFacts.swift"; sourceTree = "<group>"; };
-		FA902500FA902500FA90250 /* RootTabView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/RootTabView.swift"; sourceTree = "<group>"; };
-		FA902600FA902600FA90260 /* SaudeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/SaudeView.swift"; sourceTree = "<group>"; };
-		FA902700FA902700FA90270 /* ScanResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/ScanResultView.swift"; sourceTree = "<group>"; };
-		FA902800FA902800FA90280 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/SettingsView.swift"; sourceTree = "<group>"; };
-		FA902900FA902900FA90290 /* StoreManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/StoreManager.swift"; sourceTree = "<group>"; };
-		FA903000FA903000FA90300 /* SupplementsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/SupplementsView.swift"; sourceTree = "<group>"; };
-		FA903100FA903100FA90310 /* TreinoBuilderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TreinoBuilderView.swift"; sourceTree = "<group>"; };
-		FA903200FA903200FA90320 /* TreinoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/TreinoView.swift"; sourceTree = "<group>"; };
-		FA903300FA903300FA90330 /* WorkoutDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/WorkoutDetailView.swift"; sourceTree = "<group>"; };
-		FA903400FA903400FA90340 /* WorkoutSessionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/WorkoutSessionView.swift"; sourceTree = "<group>"; };
-		FA800000FA800000FA80000 /* exercises_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Corpo/exercises_v2.json"; sourceTree = "<group>"; };
-		DD016000DD016000DD016000 /* HealthContextConsent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthContextConsent.swift; sourceTree = "<group>"; };
-		DD014000DD014000DD014000 /* ChatHistoryStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatHistoryStore.swift; sourceTree = "<group>"; };
 		DDB10000DDB10000DDB10000 /* StreakManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
 		DDB20000DDB20000DDB20000 /* PaywallTriggerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaywallTriggerManager.swift; sourceTree = "<group>"; };
+		DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AparenciaDoApp.swift; sourceTree = "<group>"; };
+		E250A74F303D560E007C4C24 /* ApoioEmCrise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApoioEmCrise.swift; sourceTree = "<group>"; };
 		E25ED1DA2F77018D0089226E /* Alma Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alma Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AlmaComplicationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E267314B2FE19BD20003BE9F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -478,9 +453,48 @@
 		EE015000EE015000EE015000 /* Feed/FeedCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedCardView.swift; sourceTree = "<group>"; };
 		EE017000EE017000EE017000 /* Feed/PostDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/PostDetailView.swift; sourceTree = "<group>"; };
 		EE018000EE018000EE018000 /* Feed/FeedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed/FeedView.swift; sourceTree = "<group>"; };
+		EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlmaEntitlementBridge.swift; sourceTree = "<group>"; };
 		F1001000F1001000F1001000 /* InsightShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareCardView.swift; sourceTree = "<group>"; };
 		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
 		F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_fireplace.mp3; sourceTree = "<group>"; };
+		FA800000FA800000FA80000 /* Corpo/exercises_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Corpo/exercises_v2.json; sourceTree = "<group>"; };
+		FA900000FA900000FA90000 /* Corpo/AIBodyScan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AIBodyScan.swift; sourceTree = "<group>"; };
+		FA900100FA900100FA90010 /* Corpo/AddFoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AddFoodView.swift; sourceTree = "<group>"; };
+		FA900200FA900200FA90020 /* Corpo/BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/BarcodeScannerView.swift; sourceTree = "<group>"; };
+		FA900300FA900300FA90030 /* Corpo/BodyScanView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/BodyScanView.swift; sourceTree = "<group>"; };
+		FA900400AA00400BB004000 /* Corpo/BotaoVoltarParaAlma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/BotaoVoltarParaAlma.swift; sourceTree = "<group>"; };
+		FA900400FA900400FA90040 /* Corpo/CameraPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CameraPickerView.swift; sourceTree = "<group>"; };
+		FA900500FA900500FA90050 /* Corpo/Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/Components.swift; sourceTree = "<group>"; };
+		FA900600FA900600FA90060 /* Corpo/CorpoHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoHomeView.swift; sourceTree = "<group>"; };
+		FA900700AA00700BB0070000 /* Corpo/CorpoInsightsEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoInsightsEngine.swift; sourceTree = "<group>"; };
+		FA900800AA00800BB008000 /* Corpo/CorpoInsightsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoInsightsView.swift; sourceTree = "<group>"; };
+		FA900800FA900800FA90080 /* Corpo/CorpoPaywallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoPaywallView.swift; sourceTree = "<group>"; };
+		FA900900FA900900FA90090 /* Corpo/CorpoTheme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoTheme.swift; sourceTree = "<group>"; };
+		FA901000FA901000FA90100 /* Corpo/DietaView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/DietaView.swift; sourceTree = "<group>"; };
+		FA901100FA901100FA90110 /* Corpo/EditAssessmentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/EditAssessmentView.swift; sourceTree = "<group>"; };
+		FA901200FA901200FA90120 /* Corpo/ExerciseDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/ExerciseDetailView.swift; sourceTree = "<group>"; };
+		FA901300FA901300FA90130 /* Corpo/ExerciseLibraryV2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/ExerciseLibraryV2.swift; sourceTree = "<group>"; };
+		FA901400FA901400FA90140 /* Corpo/ExerciseListV2View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/ExerciseListV2View.swift; sourceTree = "<group>"; };
+		FA901500FA901500FA90150 /* Corpo/FoodScanView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/FoodScanView.swift; sourceTree = "<group>"; };
+		FA901600FA901600FA90160 /* Corpo/GeminiService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/GeminiService.swift; sourceTree = "<group>"; };
+		FA901700FA901700FA90170 /* Corpo/HealthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/HealthManager.swift; sourceTree = "<group>"; };
+		FA901800FA901800FA90180 /* Corpo/InsightDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/InsightDetailView.swift; sourceTree = "<group>"; };
+		FA901900FA901900FA90190 /* Corpo/MealDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/MealDetailView.swift; sourceTree = "<group>"; };
+		FA902000FA902000FA90200 /* Corpo/Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/Models.swift; sourceTree = "<group>"; };
+		FA902100FA902100FA90210 /* Corpo/MuscleMapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/MuscleMapView.swift; sourceTree = "<group>"; };
+		FA902200FA902200FA90220 /* Corpo/NotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/NotificationManager.swift; sourceTree = "<group>"; };
+		FA902300FA902300FA90230 /* Corpo/NutritionEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/NutritionEngine.swift; sourceTree = "<group>"; };
+		FA902400FA902400FA90240 /* Corpo/OpenFoodFacts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/OpenFoodFacts.swift; sourceTree = "<group>"; };
+		FA902500FA902500FA90250 /* Corpo/RootTabView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/RootTabView.swift; sourceTree = "<group>"; };
+		FA902600FA902600FA90260 /* Corpo/SaudeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/SaudeView.swift; sourceTree = "<group>"; };
+		FA902700FA902700FA90270 /* Corpo/ScanResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/ScanResultView.swift; sourceTree = "<group>"; };
+		FA902800FA902800FA90280 /* Corpo/SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/SettingsView.swift; sourceTree = "<group>"; };
+		FA902900FA902900FA90290 /* Corpo/StoreManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/StoreManager.swift; sourceTree = "<group>"; };
+		FA903000FA903000FA90300 /* Corpo/SupplementsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/SupplementsView.swift; sourceTree = "<group>"; };
+		FA903100FA903100FA90310 /* Corpo/TreinoBuilderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/TreinoBuilderView.swift; sourceTree = "<group>"; };
+		FA903200FA903200FA90320 /* Corpo/TreinoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/TreinoView.swift; sourceTree = "<group>"; };
+		FA903300FA903300FA90330 /* Corpo/WorkoutDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/WorkoutDetailView.swift; sourceTree = "<group>"; };
+		FA903400FA903400FA90340 /* Corpo/WorkoutSessionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/WorkoutSessionView.swift; sourceTree = "<group>"; };
 		FF001000FF001000FF001000 /* StoreKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		FF001001FF001001FF001001 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
 		PP001001PP001001PP001001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -608,6 +622,7 @@
 				9ECED0EF2F58902F009412A7 /* ProfileView.swift */,
 				9ECED0E72F58902C009412A7 /* RootView.swift */,
 				9ECED0EE2F58902E009412A7 /* SubscriptionView.swift */,
+				E250A74F303D560E007C4C24 /* ApoioEmCrise.swift */,
 				FF001000FF001000FF001000 /* StoreKitManager.swift */,
 				9ECED0E82F58902C009412A7 /* Theme.swift */,
 				CC001000CC001000CC001000 /* PraticasView.swift */,
@@ -630,21 +645,27 @@
 				DD017000DD017000DD017000 /* LegacyEntitlementStore.swift */,
 				EFE529D30B21D052B963FCA9 /* AlmaEntitlementBridge.swift */,
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
-				477B7C6D4F645FF8265F0706 /* AnaliseDeFotoService.swift */,
-				01A7135E42C049DD21DB8EC4 /* Refeicao.swift */,
-				3AB66B126BEFE6197A6D1E77 /* TextoDaPessoa.swift */,
-				10493D45C7AB1E82E3B60930 /* UnidadeDeMedida.swift */,
+				477B7C6D4F645FF8265F0706 /* Corpo/AnaliseDeFotoService.swift */,
+				01A7135E42C049DD21DB8EC4 /* Corpo/Refeicao.swift */,
+				E655D2B964BFD012753CB9B8 /* Corpo/QuebraDeJejumView.swift */,
+				632187A48393692BF1808F8F /* Corpo/JejumView.swift */,
+				37FD5B6B084F725FE13F6B62 /* Corpo/JejumStore.swift */,
+				A24655EE7855E4356362D2FF /* Corpo/QuebraDeJejum.swift */,
+				096B054603D5CB837C33C21D /* Corpo/JejumConteudo.swift */,
+				004A1B381381B79242047733 /* Corpo/Jejum.swift */,
+				3AB66B126BEFE6197A6D1E77 /* Corpo/TextoDaPessoa.swift */,
+				10493D45C7AB1E82E3B60930 /* Corpo/UnidadeDeMedida.swift */,
 				DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */,
-				22125E08D23CEE6A3878453B /* TestePersistencia.swift */,
+				22125E08D23CEE6A3878453B /* Corpo/TestePersistencia.swift */,
 				B357B6758A29ABD9334F869C /* GestaoDoPlanoView.swift */,
-				AA0804DIT10000000000002B /* AcumuladorDeDitado.swift */,
-				AA0804PES10000000000002B /* PesoVigente.swift */,
+				AA0804DIT10000000000002B /* Corpo/AcumuladorDeDitado.swift */,
+				AA0804PES10000000000002B /* Corpo/PesoVigente.swift */,
 				A11AWF99000000000000000F /* WatchBridge.swift */,
-				AA0804SON10000000000002B /* PontuacaoDeSono.swift */,
-				AA0804AUD10000000000002B /* TesteAudio.swift */,
-				A7A36A94710244B30FA36BFB /* PaywallDoCorpo.swift */,
-				15929ECA09E51DEFD86FCA91 /* CorpoContextFormat.swift */,
-				DD025000DD025000DD025000 /* CorpoAcesso.swift */,
+				AA0804SON10000000000002B /* Corpo/PontuacaoDeSono.swift */,
+				AA0804AUD10000000000002B /* Corpo/TesteAudio.swift */,
+				A7A36A94710244B30FA36BFB /* Corpo/PaywallDoCorpo.swift */,
+				15929ECA09E51DEFD86FCA91 /* Corpo/CorpoContextFormat.swift */,
+				DD025000DD025000DD025000 /* Corpo/CorpoAcesso.swift */,
 				DD019000DD019000DD019000 /* MoodSignal.swift */,
 				DD021000DD021000DD021000 /* DebugContextDump.swift */,
 				DD022000DD022000DD022000 /* UserProfileStore.swift */,
@@ -653,45 +674,45 @@
 				92A8051AB10A3E1BE8945BFC /* RotaDaNotificacao.swift */,
 				DD027000DD027000DD027000 /* SmokeTestTelas.swift */,
 				DD028000DD028000DD028000 /* AuditoriaBloqueadores.swift */,
-				DD020000DD020000DD020000 /* CorpoContextSnapshot.swift */,
-				FA900400AA00400BB004000 /* BotaoVoltarParaAlma.swift */,
-				FA900700AA00700BB0070000 /* CorpoInsightsEngine.swift */,
-				FA900800AA00800BB008000 /* CorpoInsightsView.swift */,
-				FA900000FA900000FA90000 /* AIBodyScan.swift */,
-				FA900100FA900100FA90010 /* AddFoodView.swift */,
-				FA900200FA900200FA90020 /* BarcodeScannerView.swift */,
-				FA900300FA900300FA90030 /* BodyScanView.swift */,
-				FA900400FA900400FA90040 /* CameraPickerView.swift */,
-				FA900500FA900500FA90050 /* Components.swift */,
-				FA900600FA900600FA90060 /* CorpoHomeView.swift */,
-				FA900800FA900800FA90080 /* CorpoPaywallView.swift */,
-				FA900900FA900900FA90090 /* CorpoTheme.swift */,
-				FA901000FA901000FA90100 /* DietaView.swift */,
-				FA901100FA901100FA90110 /* EditAssessmentView.swift */,
-				FA901200FA901200FA90120 /* ExerciseDetailView.swift */,
-				FA901300FA901300FA90130 /* ExerciseLibraryV2.swift */,
-				FA901400FA901400FA90140 /* ExerciseListV2View.swift */,
-				FA901500FA901500FA90150 /* FoodScanView.swift */,
-				FA901600FA901600FA90160 /* GeminiService.swift */,
-				FA901700FA901700FA90170 /* HealthManager.swift */,
-				FA901800FA901800FA90180 /* InsightDetailView.swift */,
-				FA901900FA901900FA90190 /* MealDetailView.swift */,
-				FA902000FA902000FA90200 /* Models.swift */,
-				FA902100FA902100FA90210 /* MuscleMapView.swift */,
-				FA902200FA902200FA90220 /* NotificationManager.swift */,
-				FA902300FA902300FA90230 /* NutritionEngine.swift */,
-				FA902400FA902400FA90240 /* OpenFoodFacts.swift */,
-				FA902500FA902500FA90250 /* RootTabView.swift */,
-				FA902600FA902600FA90260 /* SaudeView.swift */,
-				FA902700FA902700FA90270 /* ScanResultView.swift */,
-				FA902800FA902800FA90280 /* SettingsView.swift */,
-				FA902900FA902900FA90290 /* StoreManager.swift */,
-				FA903000FA903000FA90300 /* SupplementsView.swift */,
-				FA903100FA903100FA90310 /* TreinoBuilderView.swift */,
-				FA903200FA903200FA90320 /* TreinoView.swift */,
-				FA903300FA903300FA90330 /* WorkoutDetailView.swift */,
-				FA903400FA903400FA90340 /* WorkoutSessionView.swift */,
-				FA800000FA800000FA80000 /* exercises_v2.json */,
+				DD020000DD020000DD020000 /* Corpo/CorpoContextSnapshot.swift */,
+				FA900400AA00400BB004000 /* Corpo/BotaoVoltarParaAlma.swift */,
+				FA900700AA00700BB0070000 /* Corpo/CorpoInsightsEngine.swift */,
+				FA900800AA00800BB008000 /* Corpo/CorpoInsightsView.swift */,
+				FA900000FA900000FA90000 /* Corpo/AIBodyScan.swift */,
+				FA900100FA900100FA90010 /* Corpo/AddFoodView.swift */,
+				FA900200FA900200FA90020 /* Corpo/BarcodeScannerView.swift */,
+				FA900300FA900300FA90030 /* Corpo/BodyScanView.swift */,
+				FA900400FA900400FA90040 /* Corpo/CameraPickerView.swift */,
+				FA900500FA900500FA90050 /* Corpo/Components.swift */,
+				FA900600FA900600FA90060 /* Corpo/CorpoHomeView.swift */,
+				FA900800FA900800FA90080 /* Corpo/CorpoPaywallView.swift */,
+				FA900900FA900900FA90090 /* Corpo/CorpoTheme.swift */,
+				FA901000FA901000FA90100 /* Corpo/DietaView.swift */,
+				FA901100FA901100FA90110 /* Corpo/EditAssessmentView.swift */,
+				FA901200FA901200FA90120 /* Corpo/ExerciseDetailView.swift */,
+				FA901300FA901300FA90130 /* Corpo/ExerciseLibraryV2.swift */,
+				FA901400FA901400FA90140 /* Corpo/ExerciseListV2View.swift */,
+				FA901500FA901500FA90150 /* Corpo/FoodScanView.swift */,
+				FA901600FA901600FA90160 /* Corpo/GeminiService.swift */,
+				FA901700FA901700FA90170 /* Corpo/HealthManager.swift */,
+				FA901800FA901800FA90180 /* Corpo/InsightDetailView.swift */,
+				FA901900FA901900FA90190 /* Corpo/MealDetailView.swift */,
+				FA902000FA902000FA90200 /* Corpo/Models.swift */,
+				FA902100FA902100FA90210 /* Corpo/MuscleMapView.swift */,
+				FA902200FA902200FA90220 /* Corpo/NotificationManager.swift */,
+				FA902300FA902300FA90230 /* Corpo/NutritionEngine.swift */,
+				FA902400FA902400FA90240 /* Corpo/OpenFoodFacts.swift */,
+				FA902500FA902500FA90250 /* Corpo/RootTabView.swift */,
+				FA902600FA902600FA90260 /* Corpo/SaudeView.swift */,
+				FA902700FA902700FA90270 /* Corpo/ScanResultView.swift */,
+				FA902800FA902800FA90280 /* Corpo/SettingsView.swift */,
+				FA902900FA902900FA90290 /* Corpo/StoreManager.swift */,
+				FA903000FA903000FA90300 /* Corpo/SupplementsView.swift */,
+				FA903100FA903100FA90310 /* Corpo/TreinoBuilderView.swift */,
+				FA903200FA903200FA90320 /* Corpo/TreinoView.swift */,
+				FA903300FA903300FA90330 /* Corpo/WorkoutDetailView.swift */,
+				FA903400FA903400FA90340 /* Corpo/WorkoutSessionView.swift */,
+				FA800000FA800000FA80000 /* Corpo/exercises_v2.json */,
 				DD016000DD016000DD016000 /* HealthContextConsent.swift */,
 				DD014000DD014000DD014000 /* ChatHistoryStore.swift */,
 				EE011000EE011000EE011000 /* Feed/FeedModels.swift */,
@@ -1020,7 +1041,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA800001FA800001FA80001 /* exercises_v2.json in Resources */,
+				FA800001FA800001FA80001 /* Corpo/exercises_v2.json in Resources */,
 				9ECED0CE2F588F21009412A7 /* Assets.xcassets in Resources */,
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
@@ -1148,21 +1169,27 @@
 				DD017001DD017001DD017001 /* LegacyEntitlementStore.swift in Sources */,
 				3C05FAB203B1000000000000 /* AlmaEntitlementBridge.swift in Sources */,
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
-				BB1E40B1DFF1000000000000 /* AnaliseDeFotoService.swift in Sources */,
-				CAF57DF067CF000000000000 /* Refeicao.swift in Sources */,
-				45C8D95929E4000000000000 /* TextoDaPessoa.swift in Sources */,
-				2732DDA22F4A000000000000 /* UnidadeDeMedida.swift in Sources */,
+				BB1E40B1DFF1000000000000 /* Corpo/AnaliseDeFotoService.swift in Sources */,
+				CAF57DF067CF000000000000 /* Corpo/Refeicao.swift in Sources */,
+				98F3617FB74D000000000000 /* Corpo/QuebraDeJejumView.swift in Sources */,
+				8FA6E4543761000000000000 /* Corpo/JejumView.swift in Sources */,
+				6E86FA43B51C000000000000 /* Corpo/JejumStore.swift in Sources */,
+				B374745077D9000000000000 /* Corpo/QuebraDeJejum.swift in Sources */,
+				92C5FE6D3CA3000000000000 /* Corpo/JejumConteudo.swift in Sources */,
+				A794EAB2133B000000000000 /* Corpo/Jejum.swift in Sources */,
+				45C8D95929E4000000000000 /* Corpo/TextoDaPessoa.swift in Sources */,
+				2732DDA22F4A000000000000 /* Corpo/UnidadeDeMedida.swift in Sources */,
 				BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */,
-				2270F96C6B6CA37E2A0A3445 /* TestePersistencia.swift in Sources */,
+				2270F96C6B6CA37E2A0A3445 /* Corpo/TestePersistencia.swift in Sources */,
 				155C4512DD68000000000000 /* GestaoDoPlanoView.swift in Sources */,
-				AA0804DIT100000000000000A /* AcumuladorDeDitado.swift in Sources */,
-				AA0804PES100000000000000A /* PesoVigente.swift in Sources */,
+				AA0804DIT100000000000000A /* Corpo/AcumuladorDeDitado.swift in Sources */,
+				AA0804PES100000000000000A /* Corpo/PesoVigente.swift in Sources */,
 				A11AWB99000000000000000B /* WatchBridge.swift in Sources */,
-				AA0804SON100000000000000A /* PontuacaoDeSono.swift in Sources */,
-				AA0804AUD100000000000000A /* TesteAudio.swift in Sources */,
-				9DDD6B17B676EFDC4E623F98 /* PaywallDoCorpo.swift in Sources */,
-				1196E89B07459B5A46E4E900 /* CorpoContextFormat.swift in Sources */,
-				DD025001DD025001DD025001 /* CorpoAcesso.swift in Sources */,
+				AA0804SON100000000000000A /* Corpo/PontuacaoDeSono.swift in Sources */,
+				AA0804AUD100000000000000A /* Corpo/TesteAudio.swift in Sources */,
+				9DDD6B17B676EFDC4E623F98 /* Corpo/PaywallDoCorpo.swift in Sources */,
+				1196E89B07459B5A46E4E900 /* Corpo/CorpoContextFormat.swift in Sources */,
+				DD025001DD025001DD025001 /* Corpo/CorpoAcesso.swift in Sources */,
 				DD019001DD019001DD019001 /* MoodSignal.swift in Sources */,
 				DD021001DD021001DD021001 /* DebugContextDump.swift in Sources */,
 				DD022001DD022001DD022001 /* UserProfileStore.swift in Sources */,
@@ -1171,44 +1198,45 @@
 				69CE1AD710AD000000000000 /* RotaDaNotificacao.swift in Sources */,
 				DD027001DD027001DD027001 /* SmokeTestTelas.swift in Sources */,
 				DD028001DD028001DD028001 /* AuditoriaBloqueadores.swift in Sources */,
-				DD020001DD020001DD020001 /* CorpoContextSnapshot.swift in Sources */,
-				FA900401AA00401BB004111 /* BotaoVoltarParaAlma.swift in Sources */,
-				FA900701AA00701BB0071110 /* CorpoInsightsEngine.swift in Sources */,
-				FA900801AA00801BB008111 /* CorpoInsightsView.swift in Sources */,
-				FA900001FA900001FA90001 /* AIBodyScan.swift in Sources */,
-				FA900101FA900101FA90011 /* AddFoodView.swift in Sources */,
-				FA900201FA900201FA90021 /* BarcodeScannerView.swift in Sources */,
-				FA900301FA900301FA90031 /* BodyScanView.swift in Sources */,
-				FA900401FA900401FA90041 /* CameraPickerView.swift in Sources */,
-				FA900501FA900501FA90051 /* Components.swift in Sources */,
-				FA900601FA900601FA90061 /* CorpoHomeView.swift in Sources */,
-				FA900801FA900801FA90081 /* CorpoPaywallView.swift in Sources */,
-				FA900901FA900901FA90091 /* CorpoTheme.swift in Sources */,
-				FA901001FA901001FA90101 /* DietaView.swift in Sources */,
-				FA901101FA901101FA90111 /* EditAssessmentView.swift in Sources */,
-				FA901201FA901201FA90121 /* ExerciseDetailView.swift in Sources */,
-				FA901301FA901301FA90131 /* ExerciseLibraryV2.swift in Sources */,
-				FA901401FA901401FA90141 /* ExerciseListV2View.swift in Sources */,
-				FA901501FA901501FA90151 /* FoodScanView.swift in Sources */,
-				FA901601FA901601FA90161 /* GeminiService.swift in Sources */,
-				FA901701FA901701FA90171 /* HealthManager.swift in Sources */,
-				FA901801FA901801FA90181 /* InsightDetailView.swift in Sources */,
-				FA901901FA901901FA90191 /* MealDetailView.swift in Sources */,
-				FA902001FA902001FA90201 /* Models.swift in Sources */,
-				FA902101FA902101FA90211 /* MuscleMapView.swift in Sources */,
-				FA902201FA902201FA90221 /* NotificationManager.swift in Sources */,
-				FA902301FA902301FA90231 /* NutritionEngine.swift in Sources */,
-				FA902401FA902401FA90241 /* OpenFoodFacts.swift in Sources */,
-				FA902501FA902501FA90251 /* RootTabView.swift in Sources */,
-				FA902601FA902601FA90261 /* SaudeView.swift in Sources */,
-				FA902701FA902701FA90271 /* ScanResultView.swift in Sources */,
-				FA902801FA902801FA90281 /* SettingsView.swift in Sources */,
-				FA902901FA902901FA90291 /* StoreManager.swift in Sources */,
-				FA903001FA903001FA90301 /* SupplementsView.swift in Sources */,
-				FA903101FA903101FA90311 /* TreinoBuilderView.swift in Sources */,
-				FA903201FA903201FA90321 /* TreinoView.swift in Sources */,
-				FA903301FA903301FA90331 /* WorkoutDetailView.swift in Sources */,
-				FA903401FA903401FA90341 /* WorkoutSessionView.swift in Sources */,
+				DD020001DD020001DD020001 /* Corpo/CorpoContextSnapshot.swift in Sources */,
+				FA900401AA00401BB004111 /* Corpo/BotaoVoltarParaAlma.swift in Sources */,
+				FA900701AA00701BB0071110 /* Corpo/CorpoInsightsEngine.swift in Sources */,
+				FA900801AA00801BB008111 /* Corpo/CorpoInsightsView.swift in Sources */,
+				FA900001FA900001FA90001 /* Corpo/AIBodyScan.swift in Sources */,
+				FA900101FA900101FA90011 /* Corpo/AddFoodView.swift in Sources */,
+				FA900201FA900201FA90021 /* Corpo/BarcodeScannerView.swift in Sources */,
+				FA900301FA900301FA90031 /* Corpo/BodyScanView.swift in Sources */,
+				FA900401FA900401FA90041 /* Corpo/CameraPickerView.swift in Sources */,
+				FA900501FA900501FA90051 /* Corpo/Components.swift in Sources */,
+				FA900601FA900601FA90061 /* Corpo/CorpoHomeView.swift in Sources */,
+				FA900801FA900801FA90081 /* Corpo/CorpoPaywallView.swift in Sources */,
+				FA900901FA900901FA90091 /* Corpo/CorpoTheme.swift in Sources */,
+				FA901001FA901001FA90101 /* Corpo/DietaView.swift in Sources */,
+				FA901101FA901101FA90111 /* Corpo/EditAssessmentView.swift in Sources */,
+				FA901201FA901201FA90121 /* Corpo/ExerciseDetailView.swift in Sources */,
+				FA901301FA901301FA90131 /* Corpo/ExerciseLibraryV2.swift in Sources */,
+				FA901401FA901401FA90141 /* Corpo/ExerciseListV2View.swift in Sources */,
+				FA901501FA901501FA90151 /* Corpo/FoodScanView.swift in Sources */,
+				FA901601FA901601FA90161 /* Corpo/GeminiService.swift in Sources */,
+				E250A750303D560E007C4C24 /* ApoioEmCrise.swift in Sources */,
+				FA901701FA901701FA90171 /* Corpo/HealthManager.swift in Sources */,
+				FA901801FA901801FA90181 /* Corpo/InsightDetailView.swift in Sources */,
+				FA901901FA901901FA90191 /* Corpo/MealDetailView.swift in Sources */,
+				FA902001FA902001FA90201 /* Corpo/Models.swift in Sources */,
+				FA902101FA902101FA90211 /* Corpo/MuscleMapView.swift in Sources */,
+				FA902201FA902201FA90221 /* Corpo/NotificationManager.swift in Sources */,
+				FA902301FA902301FA90231 /* Corpo/NutritionEngine.swift in Sources */,
+				FA902401FA902401FA90241 /* Corpo/OpenFoodFacts.swift in Sources */,
+				FA902501FA902501FA90251 /* Corpo/RootTabView.swift in Sources */,
+				FA902601FA902601FA90261 /* Corpo/SaudeView.swift in Sources */,
+				FA902701FA902701FA90271 /* Corpo/ScanResultView.swift in Sources */,
+				FA902801FA902801FA90281 /* Corpo/SettingsView.swift in Sources */,
+				FA902901FA902901FA90291 /* Corpo/StoreManager.swift in Sources */,
+				FA903001FA903001FA90301 /* Corpo/SupplementsView.swift in Sources */,
+				FA903101FA903101FA90311 /* Corpo/TreinoBuilderView.swift in Sources */,
+				FA903201FA903201FA90321 /* Corpo/TreinoView.swift in Sources */,
+				FA903301FA903301FA90331 /* Corpo/WorkoutDetailView.swift in Sources */,
+				FA903401FA903401FA90341 /* Corpo/WorkoutSessionView.swift in Sources */,
 				DD016001DD016001DD016001 /* HealthContextConsent.swift in Sources */,
 				DD014001DD014001DD014001 /* ChatHistoryStore.swift in Sources */,
 				EE011001EE011001EE011001 /* Feed/FeedModels.swift in Sources */,
@@ -1475,7 +1503,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1509,7 +1537,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1545,7 +1573,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1574,7 +1602,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1599,7 +1627,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -1618,7 +1646,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -1638,7 +1666,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1657,7 +1685,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1678,7 +1706,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1708,7 +1736,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1737,10 +1765,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1775,10 +1803,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
