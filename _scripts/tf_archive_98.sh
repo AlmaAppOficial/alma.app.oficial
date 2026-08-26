@@ -29,46 +29,38 @@ ESPERADO_VERSAO="2.0.3"
 
 [ -f "$KEY" ] || { echo "SEM CHAVE em $KEY — parando"; exit 2; }
 
-rm -rf /tmp/alma98.xcarchive /tmp/alma98_ipa
+rm -rf /tmp/alma98_ipa
 echo "=== DISCO ANTES ==="; df -H /System/Volumes/Data | tail -1
 
 echo "=== 1. ARCHIVE (Release, generic/platform=iOS) ==="
-xcodebuild -project Alma.App.Oficial.xcodeproj \
-  -scheme "Alma.App.Oficial (iOS)" \
-  -configuration Release \
-  -destination "generic/platform=iOS" \
-  -archivePath /tmp/alma98.xcarchive \
-  -allowProvisioningUpdates \
-  archive > /tmp/alma98_archive.log 2>&1
-echo "ARCHIVE_EXIT:$?"
-echo "  arquivos Swift compilados: $(grep -c '^ *SwiftCompile ' /tmp/alma98_archive.log)"
-grep -m1 "ARCHIVE SUCCEEDED\|ARCHIVE FAILED" /tmp/alma98_archive.log
-grep -m5 "error:" /tmp/alma98_archive.log
+if [ -d /tmp/alma98.xcarchive ] \
+   && bash _prova_20260826/conferir_versoes.sh /tmp/alma98.xcarchive "$ESPERADO_VERSAO" "$ESPERADO_BUILD" >/dev/null 2>&1; then
+  echo "  archive de $ESPERADO_VERSAO ($ESPERADO_BUILD) ja existe e confere — reaproveitando."
+  echo "  arquivos Swift compilados na geracao: $(grep -c '^ *SwiftCompile ' /tmp/alma98_archive.log 2>/dev/null)"
+else
+  rm -rf /tmp/alma98.xcarchive
+  xcodebuild -project Alma.App.Oficial.xcodeproj \
+    -scheme "Alma.App.Oficial (iOS)" \
+    -configuration Release \
+    -destination "generic/platform=iOS" \
+    -archivePath /tmp/alma98.xcarchive \
+    -allowProvisioningUpdates \
+    archive > /tmp/alma98_archive.log 2>&1
+  echo "ARCHIVE_EXIT:$?"
+  echo "  arquivos Swift compilados: $(grep -c '^ *SwiftCompile ' /tmp/alma98_archive.log)"
+  grep -m1 "ARCHIVE SUCCEEDED\|ARCHIVE FAILED" /tmp/alma98_archive.log
+  grep -m5 "error:" /tmp/alma98_archive.log
+fi
 [ -d /tmp/alma98.xcarchive ] || { echo "SEM ARCHIVE — parando"; exit 3; }
 
 echo ""
 echo "=== 2. VERSOES DE CADA ALVO (tem de dizer $ESPERADO_VERSAO ($ESPERADO_BUILD) em TODOS) ==="
-# Esta e a prova das 12 ocorrencias. Se o Watch ou a complicacao sairem em 97,
-# o bump pegou 8 e nao 12, e este script para aqui.
-DIVERGENTE=0
-while IFS= read -r p; do
-  ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$p" 2>/dev/null)
-  V=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$p" 2>/dev/null)
-  B=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$p" 2>/dev/null)
-  printf '  %-52s %s (%s)' "$ID" "$V" "$B"
-  if [ "$B" != "$ESPERADO_BUILD" ] || [ "$V" != "$ESPERADO_VERSAO" ]; then
-    printf '   <<< DIVERGENTE'; DIVERGENTE=1
-  fi
-  printf '\n'
-done < <(find /tmp/alma98.xcarchive/Products/Applications -name Info.plist 2>/dev/null)
-
-if [ "$DIVERGENTE" -ne 0 ]; then
-  echo ""
-  echo "PARANDO: algum alvo ficou fora de $ESPERADO_VERSAO ($ESPERADO_BUILD)."
-  echo "E o modo de falha das 8-vs-12 ocorrencias. NAO vou subir."
-  exit 5
-fi
-echo "  todos os alvos em $ESPERADO_VERSAO ($ESPERADO_BUILD)."
+# Esta e a prova das 12 ocorrencias: se o Watch ou a complicacao sairem em 97, o
+# bump pegou 8 e nao 12, e o script para aqui. A conferencia mora em
+# _prova_20260826/conferir_versoes.sh porque ela mesma ja errou duas vezes hoje
+# (resource bundle do SPM contado como alvo; espaco em "Alma Watch App.app").
+bash _prova_20260826/conferir_versoes.sh /tmp/alma98.xcarchive "$ESPERADO_VERSAO" "$ESPERADO_BUILD" \
+  || { echo "NAO vou subir."; exit 5; }
 
 echo ""
 echo "=== 3. EXPORT ==="
