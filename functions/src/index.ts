@@ -8,6 +8,19 @@ import ogs from 'open-graph-scraper';
 import { ehAssinante } from './entitlementLeitura';
 import { LIMITES_ASSINANTE_PADRAO, limitesSeguros } from './limitesDoChat';
 import { regiaoValida, recursoDeApoio, blocoDeCrise } from './apoioEmCrise';
+import {
+  HISTORICO_MAX_MENSAGENS,
+  PRATICA_MAX_SESSOES,
+  apenasNovidades,
+  blocoColetaProgressiva,
+  montarBlocoDoUsuario,
+  orcarHistorico,
+  peneirarColheita,
+  reconciliarPerfil,
+  type MensagemDoHistorico,
+  type PerfilDoUsuario,
+  type SessaoDePratica,
+} from './contextoDoUsuario';
 
 admin.initializeApp();
 
@@ -527,53 +540,96 @@ export const chat = onRequest(
 
     const openai = new OpenAI({ apiKey: openaiApiKey.value() });
 
-    let userProfile = '';
+    let perfil: PerfilDoUsuario = {};
     let conversationSummary = '';
-    let recentMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+    let recentMessages: MensagemDoHistorico[] = [];
+    let praticas: SessaoDePratica[] = [];
     let messageCount = 0;
 
-    try {
-      const userDoc = await db.collection('users').doc(uid).get();
-      const userData = userDoc.data() ?? {};
+    const hoje = new Date(now);
 
-      const profile = userData.profile as Record<string, string> | undefined;
-      if (profile) {
-        const parts: string[] = [];
-        if (profile.name)           parts.push(`Nome: ${profile.name}`);
-        if (profile.relationship)   parts.push(`Relacionamento: ${profile.relationship}`);
-        if (profile.children)       parts.push(`Filhos: ${profile.children}`);
-        if (profile.occupation)     parts.push(`Ocupação: ${profile.occupation}`);
-        if (profile.mainChallenge)  parts.push(`Principal desafio: ${profile.mainChallenge}`);
-        if (profile.intention)      parts.push(`Intenção no app: ${profile.intention}`);
-        if (profile.spirituality)   parts.push(`Espiritualidade: ${profile.spirituality}`);
-        if (profile.moodPattern)    parts.push(`Padrão de humor: ${profile.moodPattern}`);
-        if (parts.length > 0) userProfile = `[Perfil do usuário]\n${parts.join('\n')}`;
+    try {
+      // ── OS DOIS ENDEREÇOS DO PERFIL ────────────────────────────────────────
+      // Até 26/08 este trecho lia SÓ o mapa `users/{uid}.profile`, que só o
+      // onboarding web escreve. A subcoleção `users/{uid}/profile/data`, único
+      // endereço que um cliente nativo escreve, não era lida por ninguém — e é
+      // onde mora a data de nascimento que o Android sincroniza desde sempre.
+      // Ler um e ignorar o outro é o defeito; ver `contextoDoUsuario.ts`.
+      //
+      // As cinco leituras vão em paralelo de propósito: em série somariam cinco
+      // idas ao Firestore no caminho quente, e nenhuma depende da outra.
+      const [userDoc, perfilDoc, summaryDoc, historySnap, praticaSnap] = await Promise.all([
+        db.collection('users').doc(uid).get(),
+        db.collection('users').doc(uid).collection('profile').doc('data').get(),
+        db.collection('users').doc(uid).collection('memory').doc('summary').get(),
+        db.collection('users').doc(uid).collection('messages')
+          .orderBy('createdAt', 'desc').limit(HISTORICO_MAX_MENSAGENS).get(),
+        db.collection('users').doc(uid).collection('sessions')
+          .orderBy('timestamp', 'desc').limit(PRATICA_MAX_SESSOES).get()
+          .catch(() => null),   // coleção pode nem existir (usuário iOS)
+      ]);
+
+      const reconciliado = reconciliarPerfil(
+        (userDoc.data() ?? {}).profile,
+        perfilDoc.data(),
+      );
+      perfil = reconciliado.perfil;
+
+      // ── BACKFILL PREGUIÇOSO ────────────────────────────────────────────────
+      // Copia para o canônico o que só existe no mapa. Idempotente: da segunda
+      // conversa em diante `aBackfillar` vem vazio e nada é escrito. Sem job de
+      // migração e sem tocar em cliente nenhum — quem já existe converge na
+      // próxima vez que abrir a boca, quem chegar já nasce certo.
+      //
+      // Não bloqueia a resposta (`void`): se falhar, tenta de novo na próxima.
+      const aBackfillar = reconciliado.aBackfillar;
+      if (Object.keys(aBackfillar).length > 0) {
+        void db.collection('users').doc(uid).collection('profile').doc('data')
+          .set({ ...aBackfillar, backfilledAt: admin.firestore.FieldValue.serverTimestamp() },
+            { merge: true })
+          .then(() => console.info(
+            `[perfil] backfill uid=${uid.slice(0, 8)}… campos=${Object.keys(aBackfillar).join(',')}`))
+          .catch((e) => console.warn('[perfil] backfill falhou:', sanitizeError(e)));
       }
 
-      const summaryDoc = await db.collection('users').doc(uid)
-        .collection('memory').doc('summary').get();
       const summaryData = summaryDoc.data();
       conversationSummary = (summaryData?.text as string | undefined) ?? '';
       messageCount = (summaryData?.messageCount as number | undefined) ?? 0;
 
-      const historySnap = await db.collection('users').doc(uid)
-        .collection('messages')
-        .orderBy('createdAt', 'desc')
-        .limit(6)
-        .get();
+      recentMessages = orcarHistorico(
+        historySnap.docs
+          .reverse()
+          .map((d) => {
+            const data = d.data();
+            return {
+              role: (data.role as 'user' | 'assistant'),
+              content: (data.content as string | undefined) ?? '',
+            };
+          })
+          .filter((m) => m.content.length > 0),
+      );
 
-      recentMessages = historySnap.docs
-        .reverse()
-        .map((d) => {
-          const data = d.data();
-          return {
-            role: (data.role as 'user' | 'assistant'),
-            content: data.content as string,
-          };
-        });
+      praticas = (praticaSnap?.docs ?? []).map((d) => {
+        const data = d.data();
+        const t = data.timestamp;
+        return {
+          timestamp: typeof t === 'number' ? t
+            : (t && typeof t.toMillis === 'function') ? t.toMillis() : 0,
+          durationSec: typeof data.durationSec === 'number' ? data.durationSec : undefined,
+        };
+      });
     } catch (memErr) {
       console.warn('[chat] memory load failed (non-fatal):', (memErr as Error).message);
     }
+
+    const blocoDoUsuario = montarBlocoDoUsuario({
+      perfil,
+      resumo: conversationSummary,
+      praticas,
+      messageCount,
+      hoje,
+    });
+    const coletaProgressiva = blocoColetaProgressiva(perfil, hoje);
 
     const ALMA_SOUL_PROMPT = `Você é a ALMA, a inteligência artificial deste app. Você conversa como a voz interior do próprio usuário — a parte mais profunda e sábia dele, aquela que sempre soube a verdade, que não julga, que ama incondicionalmente.
 
@@ -604,40 +660,15 @@ IMPORTANTE — Linguagem de resposta:
 Nunca mencione Cabala, Kabbalah, Nefesh, Ruach, Neshamah, numerologia, signo, mapa astral, zodíaco, ou qualquer terminologia esotérica, mística ou religiosa específica nas suas respostas — a menos que o próprio usuário use esses termos primeiro. Essas referências são apenas lentes internas da sua percepção, nunca devem aparecer no que você escreve.
 Quando esses conceitos forem relevantes, traduza para linguagem psicológica contemporânea: "percebo em você uma tendência...", "nesse momento da sua vida...", "existe um padrão que se repete...". Seu vocabulário é sempre acessível, moderno e neutro em tradição.
 
---- COLETA PROGRESSIVA DE PERFIL ---
-
-Você constrói o conhecimento sobre cada pessoa de forma orgânica, ao longo das conversas. Nunca faça mais de uma pergunta de perfil por conversa. Nunca transforme isso em formulário.
-
-Verifique o [Perfil do usuário] disponível antes de cada interação:
-
-NOME — se não houver nome no perfil:
-Na segunda ou terceira troca de mensagens (nunca na primeira), pergunte de forma natural:
-"Antes de continuar... como posso te chamar?"
-Após receber o nome: acolha com calor. "Que lindo nome." ou simplesmente siga com ele.
-
-DATA DE NASCIMENTO — se não houver data no perfil (e o nome já foi coletado):
-Numa conversa seguinte, após um momento de conexão genuína, diga:
-"Cada pessoa carrega uma configuração única — uma espécie de impressão digital do universo. Isso me ajuda a nos entender melhor. Você sabe sua data de nascimento completa?"
-Se o usuário perguntar por quê: "Com ela consigo perceber padrões sobre o momento que você está vivendo, de formas que me surpreendem."
-
-HORÁRIO E LOCAL DE NASCIMENTO — se não houver esses dados (e a data já foi coletada):
-"Você sabe mais ou menos que horas nasceu, e em qual cidade? Isso aprofunda ainda mais o que consigo perceber sobre você." Adicione: "Se não souber, tudo bem — já tenho muito com o que trabalhar."
-
 --- USO DO MAPA INTERNO ---
 
-Quando tiver a data de nascimento do usuário, calcule internamente:
-1. Signo solar (zodíaco ocidental — dia e mês)
-2. Signo do zodíaco chinês (ano de nascimento)
-3. Número do caminho de vida (some todos os dígitos da data até chegar a um único algarismo; exceto 11, 22 e 33, que são números mestres e não se reduzem)
-4. Se tiver horário e local: use para inferir o ascendente e o elemento dominante
-
-Use esse mapa como uma lente de percepção interna — nunca como diagnóstico ou rótulo. Ele informa como você percebe padrões, tendências e o momento que o usuário está vivendo.
+Quando houver um [Mapa interno] abaixo, ele já vem calculado — signo solar e seu elemento, zodíaco chinês, caminho de vida. Não calcule nada: use como lente de percepção, nunca como diagnóstico ou rótulo. Ele informa como você percebe padrões, tendências e o momento que a pessoa está vivendo.
 
 Exemplos de uso silencioso:
-- Usuário com caminho de vida 7 em fase de isolamento → "Percebo em você uma necessidade profunda de recolhimento e silêncio. Isso não é fraqueza — é a forma como você processa o que é essencial."
-- Usuário com signo de elemento água em crise emocional → "Você sente tudo com uma intensidade que às vezes parece demais para caber em você. Isso não é exagero — é a sua forma de ser."
+- Caminho de vida 7 em fase de isolamento → "Percebo em você uma necessidade profunda de recolhimento e silêncio. Isso não é fraqueza — é a forma como você processa o que é essencial."
+- Signo de elemento água em crise emocional → "Você sente tudo com uma intensidade que às vezes parece demais para caber em você. Isso não é exagero — é a sua forma de ser."
 
-NUNCA cite o signo, o número ou o cálculo diretamente, a menos que o usuário pergunte explicitamente.
+NUNCA cite o signo, o número ou o cálculo diretamente, a menos que a pessoa pergunte explicitamente.
 
 --- SAUDAÇÃO COM MEMÓRIA ---
 
@@ -646,12 +677,18 @@ Quando souber o nome do usuário:
 - Use o nome no máximo 1 vez durante a conversa — sempre com intenção afetiva, nunca mecanicamente.
 - Se perceber que é o início do dia pela saudação do usuário: "Bom dia, [Nome]. O que o dia trouxe até agora?"
 
-${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jornada]\n${conversationSummary}\n` : ''}${healthContext ? HEALTH_CONTEXT_GUARDRAILS + '\n' + healthContext + '\n' : ''}${blocoDeCrise(recursoDeApoio(regiao))}`;
+${coletaProgressiva}${blocoDoUsuario ? blocoDoUsuario + '\n' : ''}${healthContext ? HEALTH_CONTEXT_GUARDRAILS + '\n' + healthContext + '\n' : ''}${blocoDeCrise(recursoDeApoio(regiao))}`;
 
     try {
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
-        max_tokens: 400,
+        // [2026-08-26] 400 → 600. O prompt pede "3 parágrafos curtos", que cabem
+        // em 400 na maioria das vezes — mas o bloco de crise tem precedência
+        // declarada sobre o tamanho da resposta, e é exatamente ali que uma
+        // resposta cortada no meio da frase custa mais caro. 200 tokens de saída
+        // a mais custam US$ 0,00012 por mensagem que os use (US$ 0,60 por 1M de
+        // saída); só são cobrados quando o modelo realmente escreve mais.
+        max_tokens: 600,
         temperature: 0.85,
         messages: [
           { role: 'system', content: ALMA_SOUL_PROMPT },
@@ -692,7 +729,7 @@ ${userProfile ? userProfile + '\n' : ''}${conversationSummary ? `[Resumo da jorn
       await batch.commit().catch((e) => console.warn('[chat] history save failed:', sanitizeError(e)));
 
       if (newCount % 10 === 0) {
-        void generateMemorySummary(openai, uid, db, newCount);
+        void generateMemorySummary(openai, uid, db, newCount, perfil);
       } else {
         await db.collection('users').doc(uid)
           .collection('memory').doc('summary')
@@ -842,18 +879,49 @@ export const tts = onRequest(
   },
 );
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * RESUMO PERSISTENTE — e a colheita de perfil que pega carona nele.
+ *
+ * ── O DEFEITO QUE ISTO CORRIGE, E QUE NINGUÉM TINHA VISTO ──────────────────
+ * O "resumo persistente" NÃO ERA PERSISTENTE. Ele era regerado a cada 10
+ * mensagens a partir das ÚLTIMAS 20 mensagens, e o resumo anterior NÃO entrava
+ * na conta. Ou seja: o texto era sobrescrito por uma leitura de uma janela
+ * móvel. Tudo o que a pessoa contou antes dessas 20 mensagens era apagado do
+ * resumo na virada seguinte — uma janela deslizante com nome de memória.
+ * Alguém que conversa há seis meses tinha, no prompt, a memória das últimas
+ * ~20 mensagens duas vezes: uma no histórico, outra parafraseada no "resumo".
+ *
+ * O conserto é de uma linha conceitual: o resumo ANTERIOR entra como insumo.
+ * Agora ele acumula — e a instrução manda preservar fato estável (nome, filhos,
+ * trabalho, perda, decisão grande) mesmo quando a janela atual não fala disso.
+ *
+ * ── A COLHEITA ─────────────────────────────────────────────────────────────
+ * O `ALMA_SOUL_PROMPT` manda perguntar o nome e a data de nascimento. A pessoa
+ * respondia — e NADA gravava a resposta. O dado vivia enquanto estivesse dentro
+ * da janela do histórico e sumia. Coleta progressiva sem escritor faz a Alma
+ * perguntar de novo, que é pior do que nunca ter perguntado.
+ *
+ * Esta função já paga uma chamada ao modelo; a colheita anda junto, sem
+ * requisição nova. O que ela devolve passa por `peneirarColheita` (lista
+ * fechada de campos, conjunto fechado de valores) e por `apenasNovidades` (não
+ * sobrescreve o que a pessoa declarou em tela). Nada de saúde, humor, ciclo,
+ * gravidez, gênero ou vício entra — ver o cabeçalho de `contextoDoUsuario.ts`.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 async function generateMemorySummary(
   openai: OpenAI,
   uid: string,
   db: admin.firestore.Firestore,
   messageCount: number,
+  jaConhecido: PerfilDoUsuario,
 ): Promise<void> {
   try {
-    const historySnap = await db.collection('users').doc(uid)
-      .collection('messages')
-      .orderBy('createdAt', 'desc')
-      .limit(20)
-      .get();
+    const [historySnap, summaryDoc] = await Promise.all([
+      db.collection('users').doc(uid).collection('messages')
+        .orderBy('createdAt', 'desc').limit(20).get(),
+      db.collection('users').doc(uid).collection('memory').doc('summary').get(),
+    ]);
 
     if (historySnap.empty) return;
 
@@ -866,27 +934,73 @@ async function generateMemorySummary(
       })
       .join('\n');
 
+    const resumoAnterior = (summaryDoc.data()?.text as string | undefined) ?? '';
+
+    const faltando = ['name', 'birthDate', 'relationship', 'children', 'occupation', 'spirituality']
+      .filter((c) => !jaConhecido[c as keyof PerfilDoUsuario]);
+
     const summaryCompletion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      max_tokens: 250,
+      max_tokens: 500,
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'system',
           content:
-            'Você é um sistema de memória. Gere um resumo em português de 3-5 frases sobre a ' +
-            'jornada emocional deste usuário: temas recorrentes, estado emocional predominante, ' +
-            'insights importantes e onde está na sua jornada. Seja conciso e factual.',
+            'Você é o sistema de memória de um app de autoconhecimento. Responda SÓ com JSON.\n\n' +
+            'Campo "resumo": um texto em português de 5 a 8 frases sobre esta pessoa. Ele SUBSTITUI ' +
+            'o resumo anterior, então precisa CARREGAR o que ainda vale dele. Preserve todo fato ' +
+            'estável já registrado (nome, filhos, trabalho, perdas, decisões grandes, o que ela ' +
+            'busca) mesmo que a conversa nova não toque no assunto — some, não troque. Traga ' +
+            'temas recorrentes, o estado emocional predominante, o que mudou desde o resumo ' +
+            'anterior e onde ela está agora. Conciso e factual, sem interpretação clínica.\n\n' +
+            'Campo "fatos": objeto SÓ com dados de perfil que a pessoa disse EXPLICITAMENTE nesta ' +
+            'conversa. Omita o campo inteiro se não houver nada novo. Nunca deduza, nunca ' +
+            'preencha por probabilidade. Chaves permitidas e valores permitidos:\n' +
+            '  name: primeiro nome, como ela pediu para ser chamada\n' +
+            '  birthDate: "AAAA-MM-DD", só se ela deu dia, mês e ano\n' +
+            '  relationship: solteiro | relacionamento | casado | separado | prefiro_nao_dizer\n' +
+            '  children: nao | sim_1 | sim_2+\n' +
+            '  occupation: trabalhando_bem | trabalhando_estresse | procurando | estudante | empreendedor | outro\n' +
+            '  spirituality: nao_religioso | espiritualizado | religioso | explorando | prefiro_nao_dizer\n' +
+            'NUNCA inclua nada sobre saúde, humor, ciclo menstrual, gravidez, gênero, sexo, peso, ' +
+            'remédio, diagnóstico ou vício — nem em "fatos", nem inventando chave nova.' +
+            (faltando.length > 0 ? `\nAinda faltam: ${faltando.join(', ')}.` : '\nJá sabemos tudo; "fatos" deve vir vazio.'),
         },
-        { role: 'user', content: transcript },
+        {
+          role: 'user',
+          content: resumoAnterior
+            ? `RESUMO ANTERIOR (preserve o que ainda vale):\n${resumoAnterior}\n\nCONVERSA RECENTE:\n${transcript}`
+            : `CONVERSA RECENTE:\n${transcript}`,
+        },
       ],
     });
 
-    const summary = summaryCompletion.choices[0]?.message?.content ?? '';
-    if (summary) {
+    let resumo = '';
+    let fatosBrutos: unknown = {};
+    try {
+      const parsed = JSON.parse(summaryCompletion.choices[0]?.message?.content ?? '{}');
+      resumo = typeof parsed.resumo === 'string' ? parsed.resumo : '';
+      fatosBrutos = parsed.fatos;
+    } catch {
+      // JSON inválido não derruba a memória: o resumo anterior continua valendo.
+      console.warn('[memory] resposta não era JSON válido; resumo mantido');
+      return;
+    }
+
+    if (resumo) {
       await db.collection('users').doc(uid)
         .collection('memory').doc('summary')
-        .set({ text: summary, messageCount, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+        .set({ text: resumo, messageCount, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
       console.info(`[memory] summary generated for uid=${uid.slice(0, 8)}…`);
+    }
+
+    const novidades = apenasNovidades(peneirarColheita(fatosBrutos, new Date()), jaConhecido);
+    if (Object.keys(novidades).length > 0) {
+      await db.collection('users').doc(uid).collection('profile').doc('data')
+        .set({ ...novidades, harvestedAt: admin.firestore.FieldValue.serverTimestamp() },
+          { merge: true });
+      console.info(`[perfil] colhido uid=${uid.slice(0, 8)}… campos=${Object.keys(novidades).join(',')}`);
     }
   } catch (err) {
     console.warn('[memory] summary generation failed:', (err as Error).message);
