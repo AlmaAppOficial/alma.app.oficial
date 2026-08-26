@@ -28,6 +28,7 @@ struct ScanResultView: View {
                 mealsSection
                 weekSection
                 applyButton
+                rodapeDeHonestidade
             }
             .padding(20)
         }
@@ -253,6 +254,41 @@ struct ScanResultView: View {
             }
         }
         .padding(.top, 4)
+    }
+
+    // [2026-08-26] A ressalva existia no DADO (AnaliseDeFotoService.swift:243)
+    // e NUNCA era renderizada — `grep -rn '\.notes' Shared/` não devolvia
+    // nenhuma view. O comentário do serviço afirmava "e a tela diz isso, no
+    // `notes` logo abaixo"; a tela não dizia. Comentário descrevendo
+    // comportamento inexistente, na única tela onde a pessoa vê o percentual de
+    // gordura dela, o plano de refeições e a meta calórica.
+    //
+    // Cobre os dois caminhos, porque os dois passam por aqui: o scan recém-feito
+    // (BodyScanView:47) e o "Ver meu plano atual" (SaudeView:174) — este último
+    // nunca passa pela tela de captura, onde o disclaimer morava sozinho.
+    //
+    // Duas escolhas ditas de propósito:
+    // - `.footnote`, não `.caption2`. caption2 é o tamanho de quem escreve
+    //   ressalva para não ser lida. Se a frase importa, ela precisa ser legível.
+    // - A segunda frase é FIXA, não vem de `notes`. `notes` chega vazio no
+    //   caminho sem IA (AIBodyScan) e no resultado salvo de builds antigos. A
+    //   ressalva não pode depender do que o serviço preencheu.
+    @ViewBuilder
+    private var rodapeDeHonestidade: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Divider().padding(.vertical, 4)
+
+            if !plan.notes.isEmpty {
+                Text(plan.notes)
+            }
+
+            Text("Esta avaliação é uma estimativa a partir de fotos e medidas, não uma medição. "
+                 + "Ela não substitui um profissional de saúde.")
+        }
+        .font(.footnote)
+        .foregroundStyle(Theme.inkSoft)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 8)
     }
 }
 

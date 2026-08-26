@@ -26,6 +26,42 @@ struct BodyScanView: View {
     @State private var showGallerySide  = false
     /// [2026-08-05] Consentimento por envio — ver `analyze()`.
     @State private var mostrarConsentimento = false
+    /// [2026-08-26] Saída do gate de perfil — ver `canAnalyze`.
+    @State private var mostrarEdicaoDePerfil = false
+
+    // [2026-08-26] Fotos semeadas — SÓ para a conferência visual, e só em DEBUG.
+    //
+    // Existe pelo mesmo motivo de `JejumStore.semearParaCapturas`: sem estado
+    // semeado a captura não mostra o que precisa ser conferido. Aqui o problema
+    // é mais duro que "print vazio" — é print MENTIROSO.
+    //
+    // `AIService.isRealAI` é `true` fixo (AIBodyScan:261), então sem foto
+    // `canAnalyze` já é falso pelo gate de FOTO. A tela sai idêntica com e sem
+    // o `guard model.hasBodyProfile`, e a mutação passa nos dois mundos — foi
+    // exatamente o que aconteceu na primeira rodada de 26/08: os dois PNGs
+    // deram o mesmo md5. Um teste que fica verde nos dois mundos é cego, e a
+    // única maneira de enxergar o gate de perfil é satisfazer o de foto.
+    private let fotosSemeadas: Bool
+
+    init(fotosSemeadas: Bool = false) {
+        self.fotosSemeadas = fotosSemeadas
+        if fotosSemeadas {
+            let png = Self.pngDeConferencia()
+            _frontData = State(initialValue: png)
+            _sideData  = State(initialValue: png)
+        }
+    }
+
+    /// Imagem chapada, só para ocupar os dois slots na conferência.
+    private static func pngDeConferencia() -> Data {
+        let lado = CGSize(width: 40, height: 40)
+        let r = UIGraphicsImageRenderer(size: lado)
+        let img = r.image { ctx in
+            UIColor(white: 0.72, alpha: 1).setFill()
+            ctx.fill(CGRect(origin: .zero, size: lado))
+        }
+        return img.pngData() ?? Data()
+    }
 
     var body: some View {
         ScrollView {
@@ -52,6 +88,7 @@ struct BodyScanView: View {
         )) {
             Button("OK", role: .cancel) {}
         } message: { Text(errorMessage ?? "") }
+        .sheet(isPresented: $mostrarEdicaoDePerfil) { EditAssessmentView() }
         .sheet(isPresented: $showCameraFront) {
             CameraPickerView { image in
                 frontData = image.jpegData(compressionQuality: 0.8)
@@ -245,8 +282,21 @@ struct BodyScanView: View {
         return missing
     }
 
+    // [2026-08-26] O perfil entrou no gate junto com as fotos.
+    //
+    // Sem peso/altura/idade o plano local calcula com ZERO, e aí o piso de
+    // segurança `max(…, 1300)` do AIBodyScan:361 vira fabricador de meta: quem
+    // nunca informou nada lia "Meta diária 1300 kcal" e "Proteína 0 g" em
+    // .largeTitle. Restrição calórica severa entregue justamente a quem o app
+    // não conhece.
+    //
+    // É o mesmo esqueleto do somatotipo "Ectomorfo": ausência de medida virando
+    // número. O app já sabe fazer isto certo — `suggestedKcalGoal` devolve nil
+    // sem perfil (Models.swift:471). O scan era o único caminho da casa que
+    // contornava a regra.
     private var canAnalyze: Bool {
-        AIService.isRealAI ? missingPhotos.isEmpty : true
+        guard model.hasBodyProfile else { return false }
+        return AIService.isRealAI ? missingPhotos.isEmpty : true
     }
 
     private var analyzeButton: some View {
@@ -263,6 +313,32 @@ struct BodyScanView: View {
                     .opacity(canAnalyze ? 1 : 0.45)
             }
             .disabled(analyzing || !canAnalyze)
+
+            // [2026-08-26] O aviso do perfil vem ANTES do aviso das fotos: sem
+            // medida não existe plano, com ou sem foto. E ele diz o que falta
+            // pelo nome e abre onde se preenche — travar o botão sem dar a
+            // saída é só um beco.
+            if !model.hasBodyProfile {
+                VStack(spacing: 8) {
+                    Label("Falta informar: \(model.missingProfileFields.joined(separator: ", ")).",
+                          systemImage: "exclamationmark.circle")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Theme.coral)
+
+                    Text("Sem isso não dá para calcular sua meta — e um número inventado é pior que nenhum.")
+                        .font(.caption)
+                        .foregroundStyle(Theme.inkSoft)
+                        .multilineTextAlignment(.center)
+
+                    Button { mostrarEdicaoDePerfil = true } label: {
+                        Label("Completar minhas medidas", systemImage: "square.and.pencil")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.primary)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
 
             if AIService.isRealAI && !missingPhotos.isEmpty {
                 Label("Falta: \(missingPhotos.joined(separator: " e "))",

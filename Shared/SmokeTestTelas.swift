@@ -222,6 +222,7 @@ enum SmokeTestTelas {
         log("═════ FIM APARÊNCIA ═════")
 
         conferenciaDoJejum(model: model, renderizar: renderizar)
+        conferenciaDoScan(model: model, renderizar: renderizar)
     }
 
     // MARK: - Conferência do módulo de jejum [2026-08-26]
@@ -332,6 +333,85 @@ enum SmokeTestTelas {
         // jejum zerado, como numa instalação limpa.
         loja.semearParaCapturas(emCurso: nil, historico: [])
         log("═════ FIM JEJUM ═════")
+    }
+
+    // MARK: - Conferência do scan corporal [2026-08-26]
+    //
+    // Prova visual dos achados P0-2 e P0-3 da auditoria de 26/08.
+    //
+    // P0-2: com perfil vazio o scan devolvia "Meta diária 1300 kcal" e
+    //       "Proteína 0 g" — o piso de segurança `max(…, 1300)` do
+    //       `AIBodyScan:361` virando fabricador de meta. S1 tem de mostrar o
+    //       botão INATIVO e o que falta, pelo nome.
+    // P0-3: a ressalva era escrita em `plan.notes` e nenhuma view a renderizava.
+    //       S3 tem de mostrar as duas frases do rodapé.
+    //
+    // Estas telas dependem do perfil, então o modelo é mexido de propósito e
+    // devolvido ao fim — mesma disciplina do laço do jejum acima.
+    private static func conferenciaDoScan(
+        model: AppModel,
+        renderizar: (String, AnyView, ColorScheme) -> Void
+    ) {
+        log("═════ SCAN CORPORAL — P0-2 e P0-3 ═════")
+
+        let planoComRessalva = GeneratedPlan(
+            dailyKcal: 1904, proteinG: 126, carbsG: 190, fatG: 53,
+            meals: [], week: [],
+            notes: "As metas de calorias e macros são calculadas no seu aparelho "
+                 + "a partir das suas medidas e da estimativa da análise. "
+                 + "Ajuste conforme fome e energia, e reavalie a cada 2–4 semanas."
+        )
+        let resultado = ScanResult(
+            analysis: BodyAnalysis(
+                somatotype: .mesomorfo,
+                estimatedBodyFat: 22,
+                summary: "Estimativa a partir das fotos enviadas.",
+                observations: ["Postura ereta", "Distribuição equilibrada"],
+                focusAreas: ["Força de pernas", "Resistência de core"]
+            ),
+            plan: planoComRessalva,
+            isAIGenerated: true
+        )
+
+        for esquema in [ColorScheme.light, .dark] {
+
+            // 1. O estado do achado: perfil vazio. O botão fica inativo e a tela
+            //    diz o que falta. Antes de hoje ele liberava e devolvia 1300/0 g.
+            model.weightKg = 0
+            model.heightCm = 0
+            model.ageYears = 0
+            renderizar("S1 Scan SEM medidas", AnyView(BodyScanView()), esquema)
+
+            // S4 é A prova do P0-2, e S1 não é.
+            //
+            // Sem foto, `canAnalyze` já é falso pelo gate de FOTO
+            // (`AIService.isRealAI` é true fixo), então S1 sai IDÊNTICO com e
+            // sem o `guard model.hasBodyProfile` — na primeira rodada de 26/08
+            // os dois PNGs deram o mesmo md5. Cego.
+            //
+            // Com as duas fotos satisfeitas e o perfil ainda vazio, sobra um
+            // único motivo para o botão continuar travado: o perfil. É o estado
+            // em que a mutação TEM de ficar vermelha.
+            renderizar("S4 Scan com fotos e SEM medidas",
+                       AnyView(BodyScanView(fotosSemeadas: true)), esquema)
+
+            // 2. Preencheu: o botão libera. Sem este par, a prova do S1 não
+            //    distingue "gate funcionando" de "botão quebrado".
+            model.weightKg = 78
+            model.heightCm = 178
+            model.ageYears = 38
+            renderizar("S2 Scan COM medidas", AnyView(BodyScanView()), esquema)
+
+            // 3. O rodapé de honestidade, na tela onde a pessoa vê o % de
+            //    gordura e a meta.
+            renderizar("S3 Resultado com ressalva", AnyView(ScanResultView(result: resultado)), esquema)
+
+            model.weightKg = 0
+            model.heightCm = 0
+            model.ageYears = 0
+        }
+
+        log("═════ FIM SCAN ═════")
     }
 
     static func executar() {

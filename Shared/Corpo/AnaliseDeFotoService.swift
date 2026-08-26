@@ -221,6 +221,12 @@ enum AnaliseDeFotoService {
         // local, alimentado pela gordura que a IA estimou em vez da informada —
         // e a tela diz isso, no `notes` logo abaixo.
         //
+        // [2026-08-26] Até hoje esta frase era falsa. O `notes` era escrito aqui
+        // e NENHUMA view o renderizava — a auditoria pegou o comentário
+        // descrevendo comportamento inexistente. Quem renderiza agora:
+        // `ScanResultView.rodapeDeHonestidade`. Se alguém remover aquele
+        // rodapé, esta frase volta a mentir.
+        //
         // O `base` serve SÓ para os números do plano. Nenhum texto dele
         // atravessa para cá: o `MockAIPlanService` escreve para a tela do
         // caminho SEM IA ("sem análise de fotos", "adicione foto de frente e de
