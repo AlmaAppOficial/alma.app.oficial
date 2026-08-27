@@ -207,10 +207,22 @@ struct SettingsView: View {
             // /corpo-e-alma/terms — as páginas do app DESCONTINUADO. Dentro do
             // Alma, a política que vale é a do Alma; mandar o usuário para a
             // página de outro produto é informação legal errada.
-            Link(destination: URL(string: "https://almaappoficial.com/politica")!) {
+            //
+            // [2026-08-27] E o conserto de 03/08 quebrou o que consertava:
+            // trocou /corpo-e-alma/* — que respondia 200 — por /politica e
+            // /termos, que NÃO EXISTEM no site e dão 404. O destino certo
+            // estava a um caractere de distância o tempo todo. Conferido ao
+            // vivo em 27/08: /privacy e /terms respondem 200 com as páginas
+            // do Alma; /politica, /termos e /privacy-policy respondem 404.
+            // O site é servido pela Vercel e não há rewrite que salve — o
+            // `firebase.json` deste repositório não serve este domínio.
+            //
+            // Régua: rota de documento legal não se escreve de memória. Ou
+            // sai de um fetch que devolveu 200, ou não entra em build.
+            Link(destination: URL(string: "https://almaappoficial.com/privacy")!) {
                 Label("Política de privacidade", systemImage: "hand.raised.fill")
             }
-            Link(destination: URL(string: "https://almaappoficial.com/termos")!) {
+            Link(destination: URL(string: "https://almaappoficial.com/terms")!) {
                 Label("Termos de uso", systemImage: "doc.text.fill")
             }
             HStack {

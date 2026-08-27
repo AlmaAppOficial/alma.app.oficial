@@ -243,8 +243,13 @@ struct PremiumWallView: View {
                          destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
                     Text("·")
                         .foregroundColor(.white.opacity(0.4))
+                    // [2026-08-27] Era /privacy-policy, que dá 404. A rota real
+                    // do site é /privacy — conferida ao vivo, responde 200 com
+                    // a Política de Privacidade do Alma. Este link é exigido
+                    // pela Guideline 3.1.2(c): um 404 aqui é a tela de compra
+                    // prometendo um documento legal que não abre.
                     Link("Política de Privacidade",
-                         destination: URL(string: "https://almaappoficial.com/privacy-policy")!)
+                         destination: URL(string: "https://almaappoficial.com/privacy")!)
                 }
                 .font(.caption2)
                 .foregroundColor(.white.opacity(0.6))

@@ -27,9 +27,24 @@ class StoreKitManager: ObservableObject {
 
     // MARK: - Product IDs
 
-    static let monthlyID = "com.almaapp.app.premium_monthly"
-    static let annualID  = "com.almaapp.app.premium_annual"
-    static let allIDs: Set<String> = [monthlyID, annualID]
+    // [2026-08-27] `nonisolated` porque a classe é `@MainActor` e estes três
+    // são lidos de fora do ator — `AlmaEntitlementBridge.sincronizar` roda em
+    // `Task.detached`. Sem isto o compilador avisa:
+    //   "main actor-isolated static property 'allIDs' cannot be accessed from
+    //    outside of the actor; this is an error in the Swift 6 language mode"
+    // Hoje é só aviso (o projeto está em SWIFT_VERSION = 5.0); no dia em que
+    // o modo Swift 6 entrar, vira erro e o app para de compilar.
+    //
+    // É seguro e não muda comportamento nenhum: são `let` imutáveis de tipos
+    // Sendable (String, Set<String>), sem estado mutável para proteger. E
+    // `nonisolated` só REMOVE uma restrição de acesso — nenhuma chamada que
+    // já existia pode quebrar por causa disto.
+    //
+    // Os três juntos, não só `allIDs`: o inicializador de `allIDs` lê os
+    // outros dois, então marcar só ele trocaria um aviso por dois.
+    nonisolated static let monthlyID = "com.almaapp.app.premium_monthly"
+    nonisolated static let annualID  = "com.almaapp.app.premium_annual"
+    nonisolated static let allIDs: Set<String> = [monthlyID, annualID]
 
     // MARK: - Published State
 
