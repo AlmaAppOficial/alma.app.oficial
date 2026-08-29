@@ -26,6 +26,24 @@
 // Os textos abaixo foram convertidos para PT-BR mesmo assim — não por serem
 // ouvidos, mas para que o fallback, se um dia rodar, não fale outro português.
 //
+// [2026-08-29] Essa frase acima estava VENCIDA e eu a corrigi na fonte.
+// A conversão de 03/08 foi parcial: uma varredura sistemática (literais Swift,
+// não grep de linha) achou 157 trechos ainda em português europeu espalhados
+// pelos 30 scripts — "foste", "eras", "terás", "permaneces", "está a falar",
+// "Sê gentil", "Habitas o vazio", "abdómen", "direcção", "até à", "fénix".
+// Foram convertidos agora, um a um. Registro do método porque é reaproveitável:
+// a auditoria de 03/08 mediu o alvo errado e a de hoje só apareceu porque a
+// busca olhou LITERAL DE STRING, não linha de arquivo.
+//
+// ⚠️ O QUE **NÃO** FOI CONSERTADO — e não é PT-PT:
+// estes scripts carregam dano de uma tradução automática antiga que ninguém
+// revisou. Sobraram erros de PT-BR: "testemha", "vidfluindo", "parrespirando",
+// "de volte" no lugar de "de volta", "à sua volte", "Traga o gratidão",
+// "Este é o seu festa", "Trazos de memória", "observe" onde cabia "observa".
+// Não toquei neles de propósito: manter o diff só de PT-PT deixa a mudança
+// auditável. A correção de verdade é a reformulação das 29/30 meditações que
+// está no CLAUDE.md como prioridade — não um remendo linha a linha aqui.
+//
 import Foundation
 import AVFoundation
 import Combine
@@ -376,7 +394,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
         ]
     }
 
-    // MARK: - Day 1: Respira e Acalma
+    // MARK: - Day 1: Respire e Acalma
     private static func buildDay1() -> MeditationScript {
         return MeditationScript(
             dayNumber: 1,
@@ -386,14 +404,14 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Encontre uma posição confortável. Deixe o seu corpo pousar completamente neste momento.", 4.0),
                 ("Feche os olhos suavemente. Não há nada a fazer agora. Nenhum lugar a ir. Apenas este momento.", 6.0),
                 ("Observe o seu corpo inteiro. Sinta o contato com a cadeira, com o chão. Está seguro. Está protegido.", 5.0),
-                ("Agora, traga a atenção para a sua respiração. Não a muda. Apenas observe. A respiração natural da sua vida.", 6.0),
+                ("Agora, traga a atenção para a sua respiração. Não a mude. Apenas observe. A respiração natural da sua vida.", 6.0),
                 ("Inspire lentamente pelo nariz. Sinta o ar fresco entrando. Sinta a sua barriga se expandindo.", 5.0),
                 ("Expire lentamente pela boca. Deixe ir. Deixe ir tudo o que não serve.", 7.0),
                 ("Inspire novamente. Traga a calma e a paz para dentro de você.", 5.0),
                 ("Expire. Solte a tensão, a preocupação, a pressa.", 8.0),
                 ("Continue assim. Respire. Com cada respiração, se acalme mais. E mais. E mais.", 7.0),
                 ("Grande silêncio agora. Apenas a respiração. Apenas este momento de paz profunda.", 25.0),
-                ("Começa a sentir o corpo novamente. Os dedos dos pés. As mãos. O rosto.", 5.0),
+                ("Comece a sentir o corpo novamente. Os dedos dos pés. As mãos. O rosto.", 5.0),
                 ("Num ritmo próprio, abra os olhos. Traga a calma com você. Este presente é seu.", 4.0)
             ]
         )
@@ -410,14 +428,14 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Feche os olhos. Respire lentamente. Deixe cada respiração ser uma vinda a casa.", 6.0),
                 ("Sinta a base da coluna. Raízes profundas que te ancoram à terra.", 5.0),
                 ("Sinta o seu coração. Esse espaço central onde a vida pulsa. Onde o calor habita.", 6.0),
-                ("Agora, faz um varrimento atento. Começa na sua coroa. A cabeça, face, boca, queixo.", 5.0),
-                ("Desce pelo pescoço. Sinta os ombros. Que carregam histórias, memórias, esperanças.", 6.0),
+                ("Agora, faça uma varredura atenta. Comece pela sua coroa. A cabeça, face, boca, queixo.", 5.0),
+                ("Desça pelo pescoço. Sinta os ombros. Que carregam histórias, memórias, esperanças.", 6.0),
                 ("O peito. Os pulmões. O coração. Este espaço aberto onde a vida respire dentro de você.", 6.0),
-                ("Desce pelo abdómen. O lugar da criatividade. O centro da sua força.", 5.0),
-                ("As costas. Estas estruturas fortes que te sustêm e protegem.", 5.0),
+                ("Desça pelo abdômen. O lugar da criatividade. O centro da sua força.", 5.0),
+                ("As costas. Essas estruturas fortes que te sustentam e protegem.", 5.0),
                 ("As pernas. Do quadril até os pés. Raízes que te ligam ao chão.", 5.0),
                 ("Sinta o corpo inteiro agora. Uma unidade. Uma casa. Um templo de vida.", 8.0),
-                ("Silêncio profundo. Habita este lar sagrado.", 20.0),
+                ("Silêncio profundo. Habite este lar sagrado.", 20.0),
                 ("Traga a consciência lentamente. Traga o gratidão pelo corpo que serve. Pelo lar que é.", 5.0),
                 ("Abra os olhos com reverência.", 3.0)
             ]
@@ -431,19 +449,19 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "Observar sem Julgar",
             durationMinutes: 6,
             segments: [
-                ("Instala confortavelmente. Respire profundamente. Este é um lugar de não-julgamento.", 5.0),
+                ("Instale-se confortavelmente. Respire profundamente. Este é um lugar de não-julgamento.", 5.0),
                 ("Observe os pensamentos que surgem. Deixe-os vir como nuvens no céu.", 6.0),
-                ("Não tem de os seguir. Não tem de os empurrar. Apenas observe.", 6.0),
-                ("Um pensamento: \"Tenho de fazer isto.\" Note-o. Uma nuvem cinzenta que passa.", 5.0),
+                ("Você não precisa segui-los. Não precisa empurrá-los. Apenas observe.", 6.0),
+                ("Um pensamento: \"Tenho que fazer isso.\" Note-o. Uma nuvem cinzenta que passa.", 5.0),
                 ("Outro: \"Não estou bem.\" Observe-o sem concordância. Apenas note. Uma nuvem mais.", 6.0),
                 ("Agora uma sensação: peso, tensão, dor. Olhe para ela sem atacar ou acariciar.", 6.0),
                 ("A mente é como o céu. Os pensamentos e sensações são como o tempo. Vêm e vão.", 6.0),
-                ("Você é como o céu. Vasto. Espaçoso. Capaz de acolher tudo sem te seres afetado.", 7.0),
+                ("Você é como o céu. Vasto. Espaçoso. Capaz de acolher tudo sem ser afetado.", 7.0),
                 ("Não é seu pensamento: é apenas um pensamento, passando pelo espaço da sua consciência.", 6.0),
                 ("Não é a sua emoção: é apenas uma onda de energia, fluindo, transformando-se.", 6.0),
-                ("Permanece como a testemha silenciosa. Observe tudo. Julgues nada.", 8.0),
+                ("Permaneça como a testemunha silenciosa. Observe tudo. Não julgue nada.", 8.0),
                 ("Silêncio vasto. Apenas observação. Apenas presença.", 22.0),
-                ("Lentamente, traga a atenção de volte. Mantém a qualidade de observação atenta.", 5.0),
+                ("Lentamente, traga a atenção de volte. Mantenha a qualidade de observação atenta.", 5.0),
                 ("Abra os olhos. Continue a observar o mundo sem julgar.", 4.0)
             ]
         )
@@ -459,7 +477,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Sente-se perto de tudo o que é natural. O som de água é aqui o seu guia.", 5.0),
                 ("Imagine que está à beira de um lago. Calmo. Silencioso. Profundo.", 6.0),
                 ("Respire. Com cada respiração, uma onda de presença expande-se de dentro de você.", 6.0),
-                ("A primeira onda: a consciência do corpo. Sinta-a a irradiar de você em círculos crescentes.", 6.0),
+                ("A primeira onda: a consciência do corpo. Sinta-a irradiando de você em círculos crescentes.", 6.0),
                 ("A segunda onda: a consciência do coração. Amor, bondade, aceitação que te envolvem.", 6.0),
                 ("A terceira onda: a consciência vasta. Está conectado a todas as coisas vivas.", 6.0),
                 ("As ondas não têm limite. Não têm fronteira. Como água, movem-se e transformam-se.", 6.0),
@@ -481,7 +499,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             durationMinutes: 7,
             segments: [
                 ("Imagine que é uma árvore. As suas pernas são o tronco. Os seus pés são as raízes.", 5.0),
-                ("Feche os olhos. Respire. Sinta a crescer para baixo. Profundamente.", 6.0),
+                ("Feche os olhos. Respire. Sinta-se crescendo para baixo. Profundamente.", 6.0),
                 ("As suas raízes descem pela pele. Através da pele. Para dentro da terra.", 6.0),
                 ("Mais fundo. Sempre mais fundo. Procurando água. Procurando nutrição. Procurando a verdade.", 6.0),
                 ("As raízes encontram a água fria, pura, que corre sob tudo. Bebem dela.", 6.0),
@@ -511,12 +529,12 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Este espaço é leve como o ar. Como a luz. Impossível de carregar. Impossível de pesar.", 6.0),
                 ("Deixe que este espaço se expanda. Que ocupe mais lugar no seu corpo.", 6.0),
                 ("Os pensamentos pesados caem. As emoções densas dissolvem-se. Apenas leveza fica.", 6.0),
-                ("Você é tanto o peso quanto a leveza. Pode escolher onde colocas a atenção.", 6.0),
+                ("Você é tanto o peso quanto a leveza. Pode escolher onde coloca a atenção.", 6.0),
                 ("Agora, escolha a leveza. Deixe o corpo ficar pesado enquanto a consciência voa.", 6.0),
                 ("Como uma gota de água que se torna vapor. Leve. Livre. Suspensa no ar.", 6.0),
                 ("Esta leveza é sempre sua. Não pode perdê-la. Apenas esquecer dela.", 7.0),
-                ("Grande silêncio leve. Flutua. Apenas flutua neste espaço infinito.", 25.0),
-                ("Traga o corpo de volte. Mas mantém a leveza. Uma leveza que permanece com você.", 5.0),
+                ("Grande silêncio leve. Flutue. Apenas flutue neste espaço infinito.", 25.0),
+                ("Traga o corpo de volta. Mas mantenha a leveza. Uma leveza que permanece com você.", 5.0),
                 ("Abra os olhos. Leve. Sempre leve.", 3.0)
             ]
         )
@@ -533,7 +551,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Respire. Com cada respiração, traga à mente uma coisa pela qual está grato.", 6.0),
                 ("O corpo que respire. A respiração que sustenta a vida. O milagre simples do ar.", 6.0),
                 ("Os olhos que veem. A luz que entra. O mundo que se revela em cores.", 6.0),
-                ("Os ouvidos que escutam. Os sons que tocam a alma. A voz dos que amas.", 6.0),
+                ("Os ouvidos que escutam. Os sons que tocam a alma. A voz de quem você ama.", 6.0),
                 ("O coração que bate. Batida após batida. Constante. Fiel. Desde antes do nascimento.", 6.0),
                 ("As mãos que tocam. Que trabalham. Que consolam. Que criam.", 5.0),
                 ("Os pés que caminham. A terra que te sustenta. A jornada que é a vida.", 6.0),
@@ -542,7 +560,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("O silêncio. O espaço. O tempo que tem neste momento parrespirando e sentir.", 6.0),
                 ("Silêncio cheio de gratidão. Cada respiração é um agradecimento ao universo.", 20.0),
                 ("A gratidão transforma tudo. Faz do comum extraordinário. Do simples sagrado.", 5.0),
-                ("Traga esta gratidão com você. Permanece no seu coração. Sempre.", 4.0)
+                ("Traga esta gratidão com você. Que ela permaneça no seu coração. Sempre.", 4.0)
             ]
         )
     }
@@ -554,7 +572,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "Espaço e Abertura",
             durationMinutes: 9,
             segments: [
-                ("Instala num lugar onde sintas espaço. Respire livremente. Hoje expandimos.", 5.0),
+                ("Instale-se num lugar onde sinta espaço. Respire livremente. Hoje expandimos.", 5.0),
                 ("Note como o seu corpo ocupa espaço. Alguns centímetros. Alguns metros se considerarmos a aura.", 6.0),
                 ("Mas o espaço dentro do corpo é muito maior. Pulmões cheios de ar. Coração com cavidades.", 6.0),
                 ("A mente tem espaço infinito. Pode conter o universo. Pode conter a eternidade.", 6.0),
@@ -562,39 +580,39 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Não é um recipiente fechado. É uma abertura. Uma porta. Um portal.", 6.0),
                 ("Abra a coroa. O topo da sua cabeça é uma flor que desabrocha.", 6.0),
                 ("Abra o coração. As costelas são pétalas que se abrem para o mundo.", 6.0),
-                ("Abra o abdómen. O lugar da criatividade floresce e expande-se.", 6.0),
+                ("Abra o abdômen. O lugar da criatividade floresce e se expande.", 6.0),
                 ("Abra as mãos. As palmas ficam para cima, prontas para receber.", 6.0),
                 ("Abra os pés. As solas tocam a terra e absorvem a sua energia.", 6.0),
                 ("Você é agora completamente aberto. Espaço dentro de espaço. Abertura dentro de abertura.", 7.0),
-                ("Grande silêncio. Permanece aqui. Vasto. Permeável. Sem limites.", 28.0),
-                ("Lentamente, recolhe a atenção. Mas mantém a abertura. Sempre aberto.", 5.0),
+                ("Grande silêncio. Permaneça aqui. Vasto. Permeável. Sem limites.", 28.0),
+                ("Lentamente, recolha a atenção. Mas mantenha a abertura. Sempre aberto.", 5.0),
                 ("Abra os olhos. Continue aberto ao milagre do agora.", 4.0)
             ]
         )
     }
 
-    // MARK: - Day 9: A Luz que Habitas
+    // MARK: - Day 9: A Luz que Você Habita
     private static func buildDay9() -> MeditationScript {
         return MeditationScript(
             dayNumber: 9,
-            title: "A Luz que Habitas",
+            title: "A Luz que Você Habita",
             durationMinutes: 9,
             segments: [
-                ("Sente-se como se estivesses iluminado por dentro. Porque está. A vida é luz.", 5.0),
-                ("Feche os olhos. Vê a escuridão. É a tela em branco onde a luz pode dançar.", 6.0),
+                ("Sente-se como se estivesse iluminado por dentro. Porque está. A vida é luz.", 5.0),
+                ("Feche os olhos. Veja a escuridão. É a tela em branco onde a luz pode dançar.", 6.0),
                 ("Agora, imagine uma pequena luz no centro do seu coração. Quente. Dourada. Viva.", 6.0),
                 ("Esta luz não vem de fora. É sua. É a luz da sua própria vida. A sua chama.", 6.0),
                 ("Com cada respiração, a chama cresce. Mais brilhante. Mais quente. Mais clara.", 6.0),
                 ("Observe a luz se expandindo. Preenchendo o peito. Enchendo o coração.", 6.0),
                 ("Sobe pela garganta. Ilumina os olhos. Brilha através da testa.", 6.0),
                 ("Desce pelos braços. Enche as mãos com luz. As palmas brilham.", 6.0),
-                ("Desce pelo tronco. Aquece o abdómen. Energiza o centro criativo.", 6.0),
+                ("Desce pelo tronco. Aquece o abdômen. Energiza o centro criativo.", 6.0),
                 ("Desce pelas pernas. Enche os joelhos, os tornozelos, os pés de luz.", 6.0),
                 ("Você é agora um ser feito de luz. Pura luminescência. Radiância viva.", 7.0),
-                ("Esta luz irradia para longe. Toca tudo o que encontre. Toca as pessoas que amas.", 7.0),
+                ("Esta luz irradia para longe. Toca tudo o que encontra. Toca as pessoas que você ama.", 7.0),
                 ("Grande silêncio radiante. Apenas luz. Apenas brilho. Apenas verdade.", 25.0),
                 ("A luz fica com você. Sempre. Mesmo quando os olhos se fecham, ela brilha.", 5.0),
-                ("Abra os olhos. Brilha. Sempre brilha.", 3.0)
+                ("Abra os olhos. Brilhe. Sempre brilhe.", 3.0)
             ]
         )
     }
@@ -606,8 +624,8 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "Soltar",
             durationMinutes: 10,
             segments: [
-                ("Encontre uma posição onde possas estar totalmente à vontade. Hoje aprendemos a soltar.", 5.0),
-                ("Tudo o que tem, em algum momento, terás de soltar. Tudo o que amas, tudo o que temes.", 6.0),
+                ("Encontre uma posição onde possa estar totalmente à vontade. Hoje aprendemos a soltar.", 5.0),
+                ("Tudo o que você tem, em algum momento, vai ter que soltar. Tudo o que ama, tudo o que teme.", 6.0),
                 ("A vida inteira é um exercício de soltar. Nascemos soltando. Morremos soltando.", 6.0),
                 ("Observe agora o que tem nesta vida. Não os bens. Mas as ideias. As crenças.", 6.0),
                 ("A ideia de quem é. A crença de que não é suficiente. O medo de falhar.", 6.0),
@@ -616,10 +634,10 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Observe como eles flutuam para longe. Como fumo que se dissipa. Como nuvens que passam.", 6.0),
                 ("O medo solte-se. A culpa solte-se. O remorso solte-se. A vergonha solte-se.", 6.0),
                 ("A necessidade de estar certo solte-se. A raiva solte-se. O ressentimento solte-se.", 6.0),
-                ("Aquilo que amas pode ser soltado com honra. Deixe ir àqueles que amaste. Sem os prender.", 7.0),
-                ("Até à sua vida própria. Até à sua respiração. Permita que seja solte.", 7.0),
+                ("Aquilo que você ama pode ser soltado com honra. Deixe ir aqueles que você amou. Sem prendê-los.", 7.0),
+                ("Até a sua vida própria. Até a sua respiração. Permita que seja solte.", 7.0),
                 ("Grande silêncio. O vazio sagrado que resulta da entregue completa.", 30.0),
-                ("Lentamente, começa a reconstruir. Mas desta vez sem apego. Apenas presença.", 5.0),
+                ("Lentamente, comece a reconstruir. Mas desta vez sem apego. Apenas presença.", 5.0),
                 ("Abra os olhos. Está tudo bem deixar ir. Tudo bem deixar estar.", 4.0)
             ]
         )
@@ -636,16 +654,16 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Este rio é a consciência. Flui através de tudo. Tudo emerge dele. Tudo volte.", 6.0),
                 ("Você está no rio. E o rio está em você. Não há separação. Apenas fluxo.", 6.0),
                 ("Os pensamentos são peixes que nadam nele. Os sentimentos são correntezas. As emoções são ondas.", 6.0),
-                ("Observe o rio fluir. Não tentas controlá-lo. Não tentas detê-lo. Apenas observe.", 6.0),
+                ("Observe o rio fluir. Não tente controlá-lo. Não tente detê-lo. Apenas observe.", 6.0),
                 ("O rio traga coisas. Trazos de memória. Trazos de esperança. Trazos de medo.", 6.0),
                 ("Deixe que passem. O rio leve tudo consigo. Nada fica retido para sempre.", 6.0),
                 ("Agora, observe a origem do rio. Vem de montanhas nevadas. Vem de fontes sagradas.", 6.0),
                 ("Vem de um lugar que é pureza. Claridade. Verdade absoluta.", 6.0),
                 ("Você também vem de lá. Sou um rio da consciência que flui desta fonte eterna.", 6.0),
                 ("Observe a foz do rio. Mescla-se com o oceano. O individual torna-se universal.", 6.0),
-                ("Você também te vai se mesclar. Você não está separado. Apenas está neste momento a ter a forma do rio.", 7.0),
+                ("Você também vai se mesclar. Você não está separado. Apenas está, neste momento, com a forma do rio.", 7.0),
                 ("Grande silêncio. O som do rio. O fluxo eterno da vida. Da consciência. Da verdade.", 28.0),
-                ("Traga a atenção de volte. Mas permanece como o rio. Fluindo. Sempre fluindo.", 5.0),
+                ("Traga a atenção de volte. Mas permaneça como o rio. Fluindo. Sempre fluindo.", 5.0),
                 ("Abra os olhos. Deixe a vidfluindo através de você.", 4.0)
             ]
         )
@@ -660,21 +678,21 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             segments: [
                 ("Sente-se de coração aberto. Hoje cultivamos a bondade que habita em cada ser.", 5.0),
                 ("Traga à mente um ser que naturalmente te causa amor. Pode ser uma criança. Um animal. Um mestre.", 6.0),
-                ("Observe o amor que emerges por ele. Sinta-o no peito como um calor suave.", 6.0),
+                ("Observe o amor que emerge por ele. Sinta-o no peito como um calor suave.", 6.0),
                 ("Agora, imagine enviando bondade para este ser. Cada respiração carrega mensagens de bem.", 6.0),
-                ("Que estejas seguro. Que tenhas saúde. Que tenhas paz. Que tenhas alegria.", 6.0),
-                ("Vê este ser recebendo as suas bênçãos. Brilhando mais. Florindo.", 6.0),
-                ("Agora, amplia o círculo. Traga alguém que amas. Um familiar. Um amigo. Um colega.", 6.0),
-                ("Estende a mesma bondade. Que estejas seguro. Que tenhas saúde. Que tenhas paz.", 6.0),
-                ("Agora alguém que é neutro. Que não conheces bem. Sem razão para gostar ou desgostar.", 6.0),
-                ("Oferece bondade também a eles. São vidas. Sofrem como você sofres. Desejam felicidade como você.", 6.0),
-                ("Agora, oferece bondade a alguém que te feriu. Que te decepcionar. Que te magoou.", 6.0),
+                ("Que ele esteja seguro. Que tenha saúde. Que tenha paz. Que tenha alegria.", 6.0),
+                ("Veja este ser recebendo as suas bênçãos. Brilhando mais. Florindo.", 6.0),
+                ("Agora, amplie o círculo. Traga alguém que você ama. Um familiar. Um amigo. Um colega.", 6.0),
+                ("Estenda a mesma bondade. Que esteja seguro. Que tenha saúde. Que tenha paz.", 6.0),
+                ("Agora alguém que é neutro. Que você não conhece bem. Sem razão para gostar ou desgostar.", 6.0),
+                ("Ofereça bondade também a eles. São vidas. Sofrem como você sofre. Desejam felicidade como você.", 6.0),
+                ("Agora, ofereça bondade a alguém que te feriu. Que te decepcionar. Que te magoou.", 6.0),
                 ("Isto é difícil. Mas o ódio te prejudica a você mais que a eles. A bondade te liberta.", 6.0),
-                ("Finalmente, oferece bondade a você. A você próprio. Ao seu corpo. À sua jornada.", 6.0),
-                ("Que você sejas seguro. Que tenhas saúde. Que tenhas paz. Que tenhas alegria.", 7.0),
+                ("Finalmente, ofereça bondade a você. A você próprio. Ao seu corpo. À sua jornada.", 6.0),
+                ("Que você esteja seguro. Que tenha saúde. Que tenha paz. Que tenha alegria.", 7.0),
                 ("Grande silêncio. O coração transborda de bondade. Para todos os seres. Para toda a existência.", 25.0),
-                ("Lentamente, volte. Mas mantém a bondade. Sempre no coração.", 5.0),
-                ("Abra os olhos. Sê gentil. Com você. Com todos.", 4.0)
+                ("Lentamente, volte. Mas mantenha a bondade. Sempre no coração.", 5.0),
+                ("Abra os olhos. Seja gentil. Com você. Com todos.", 4.0)
             ]
         )
     }
@@ -683,25 +701,25 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
     private static func buildDay13() -> MeditationScript {
         return MeditationScript(
             dayNumber: 13,
-            title: "Escute Profunda",
+            title: "Escuta Profunda",
             durationMinutes: 11,
             segments: [
-                ("Feche os olhos. Hoje aprendemos a escute verdadeira. Não com os ouvidos. Com o ser.", 5.0),
-                ("O mundo está sempre a falar. Os sons, os silêncios, os sussurros da vida.", 6.0),
-                ("Mas a verdadeira escute é diferente. É estar completamente presente. Sem julgamento.", 6.0),
+                ("Feche os olhos. Hoje aprendemos a escuta verdadeira. Não com os ouvidos. Com o ser.", 5.0),
+                ("O mundo está sempre falando. Os sons, os silêncios, os sussurros da vida.", 6.0),
+                ("Mas a verdadeira escuta é diferente. É estar completamente presente. Sem julgamento.", 6.0),
                 ("Escute o seu coração. O que te diz agora? Qual é a sua verdade?", 6.0),
-                ("Não respondas. Apenas escute. Como se estivesses a ouvir uma voz antiga.", 6.0),
+                ("Não responda. Apenas escute. Como se estivesse ouvindo uma voz antiga.", 6.0),
                 ("Escute o seu corpo. Que dores? Que desejos? Que sabedoria tem?", 6.0),
                 ("Novamente, apenas escute. Sem tentar corrigir. Sem julgar.", 6.0),
                 ("Escute a sua intuição. Aquela voz suave que vem de um lugar muito profundo.", 6.0),
-                ("Escute a vida ao seu redor. Os sons que oiço. Os silêncios entre eles.", 6.0),
+                ("Escute a vida ao seu redor. Os sons que você ouve. Os silêncios entre eles.", 6.0),
                 ("Escute o universo. O que te fala através de sinais, coincidências, encontros.", 6.0),
                 ("Escute o presente. Este momento. O que tem para te ensinar.", 6.0),
-                ("A escute profunda é um ato de amor. De reverência. De abertura.", 6.0),
-                ("Quando escutas verdadeiramente, sinta menos sozinho. Sinta conectado.", 6.0),
-                ("Porque quando escutas, toda a vida está a falar com você. Constantemente.", 6.0),
+                ("A escuta profunda é um ato de amor. De reverência. De abertura.", 6.0),
+                ("Quando você escuta de verdade, se sente menos sozinho. Se sente conectado.", 6.0),
+                ("Porque quando você escuta, toda a vida está falando com você. Constantemente.", 6.0),
                 ("Grande silêncio. O silêncio onde a verdade mora. Onde a vida sussurra seus segredos.", 28.0),
-                ("Lentamente, traga a atenção. Mas permanece como aquele que escute.", 5.0),
+                ("Lentamente, traga a atenção. Mas permaneça como aquele que escuta.", 5.0),
                 ("Abra os olhos. Continue a escutar. Profundamente. Sempre.", 4.0)
             ]
         )
@@ -715,7 +733,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             durationMinutes: 12,
             segments: [
                 ("Imagine um campo infinito. Vazio de contenção. Cheio de potencial. Este é o seu verdadeiro lar.", 5.0),
-                ("Antes de pensares, existe possibilidade. Antes de escolheres, existe liberdade.", 6.0),
+                ("Antes de você pensar, existe possibilidade. Antes de você escolher, existe liberdade.", 6.0),
                 ("Aqui, neste campo, todas as realidades existem simultaneamente. Tudo é possível.", 6.0),
                 ("Você não é apenas aquele que você pensa que é. É também aquele que pode ser.", 6.0),
                 ("Sinta a liberdade disto? O libertador desta verdade?", 6.0),
@@ -725,12 +743,12 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Observe todas as possibilidades à sua volte. Inumeráveis. Iridescentes. Vivas.", 6.0),
                 ("Qual delas chama o seu coração? Qual versão de você deseja emergir?", 6.0),
                 ("Não há urgência. Não há pressão. Apenas campo infinito onde tudo é permitido.", 6.0),
-                ("Agora, imagine a escolher uma. Com toda a confiança. Com toda a coragem.", 6.0),
+                ("Agora, imagine escolhendo uma. Com toda a confiança. Com toda a coragem.", 6.0),
                 ("Sinta como mudaria a sua vida. Como floresceria. Como se expandiria.", 6.0),
-                ("Você está aqui, agora, a criar a sua vida, a cada respiração, a cada pensamento.", 6.0),
+                ("Você está aqui, agora, criando a sua vida, a cada respiração, a cada pensamento.", 6.0),
                 ("Grande silêncio. O infinito dos possíveis. Esperando por você. Para você.", 30.0),
                 ("Traga a atenção de volte. Mas lembre: ainda está no campo. A criação continue.", 5.0),
-                ("Abra os olhos. Escolha sabiamente. Cria conscientemente.", 4.0)
+                ("Abra os olhos. Escolha sabiamente. Crie conscientemente.", 4.0)
             ]
         )
     }
@@ -749,15 +767,15 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Sinta a verdade desse momento. Ainda está vivo em você. Ainda ressoa.", 6.0),
                 ("Traga à memória um momento de dificuldade. Uma luta que ultrapassou.", 6.0),
                 ("Observe como te tornou mais forte. Mais sábio. Mais compassivo.", 6.0),
-                ("Agora, integra tudo isto. O aprendizado. A transformação. A jornada.", 6.0),
-                ("Não é a pessoa que eras há duas semanas. Mas também não partiste com a antiga.", 6.0),
-                ("Você é uma síntese. Uma integração. Uma unidade de tudo o que vives.", 6.0),
+                ("Agora, integre tudo isso. O aprendizado. A transformação. A jornada.", 6.0),
+                ("Você não é a pessoa que era há duas semanas. Mas também não rompeu com a antiga.", 6.0),
+                ("Você é uma síntese. Uma integração. Uma unidade de tudo o que você vive.", 6.0),
                 ("A jornada agora não é mais futura. É presente. Este momento. Este agora.", 6.0),
                 ("Tudo o que praticou estava para chegar aqui. Ao repouso no coração.", 6.0),
                 ("Ao conhecimento de que você é inteiro. Já está completo. Nada mais precisa de vir.", 6.0),
                 ("Mas tudo que vir ainda será bem-vindo. Porque está em paz com o que é.", 6.0),
                 ("Grande silêncio. O silêncio de uma viagem que é também um repouso.", 30.0),
-                ("Lentamente, traga a consciência. Carrega a integração com você.", 5.0),
+                ("Lentamente, traga a consciência. Leve a integração com você.", 5.0),
                 ("Abra os olhos. Você é a jornada. Você é o destino. Você é.", 4.0)
             ]
         )
@@ -770,23 +788,23 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "Expansão da Consciência",
             durationMinutes: 13,
             segments: [
-                ("Sente-se onde possas sentir o vasto céu acima. A terra abaixo. Hoje, expandimos além das formas.", 5.0),
+                ("Sente-se onde possa sentir o vasto céu acima. A terra abaixo. Hoje, expandimos além das formas.", 5.0),
                 ("Você é mais que o corpo. Mais que a mente. Mais que tudo o que pode nomear.", 6.0),
                 ("O corpo é apenas a forma mais densa de quem é. Uma roupagem temporária.", 6.0),
                 ("Dentro desta forma habita uma consciência infinita. Sem limites. Sem fronteiras.", 6.0),
-                ("Expande a atenção para fora da pele. O espaço que te rodeia é também parte de você.", 6.0),
+                ("Expanda a atenção para fora da pele. O espaço que te rodeia é também parte de você.", 6.0),
                 ("O ar que respire é seu. As moléculas foram respiradas por inúmeros seres antes.", 6.0),
-                ("Expande ainda mais. A casa é sua. A rua. A cidade. O país.", 6.0),
+                ("Expanda ainda mais. A casa é sua. A rua. A cidade. O país.", 6.0),
                 ("A consciência não tem limite. Pode conter o planeta inteiro. Pode conter as estrelas.", 6.0),
                 ("Observe como a sua separação é ilusão. Você é um com tudo o que vê.", 6.0),
                 ("A árvore que cresce longe. O oceano que flui. O céu que não tem fim.", 6.0),
-                ("As pessoas que amas. Os desconhecidos que vê na rua. Todos são expressões do seu ser.", 6.0),
+                ("As pessoas que você ama. Os desconhecidos que vê na rua. Todos são expressões do seu ser.", 6.0),
                 ("E você é expressão de todos eles. Somos uma consciência única que brinca a ser muitos.", 6.0),
                 ("Agora expande para além do planeta. Para o espaço. Para o universo inteiro.", 6.0),
                 ("Sinta a vastidão? O silêncio infinito? A paz que é tudo isto?", 6.0),
-                ("Você habitas aqui. Neste espaço infinito. Esta é a sua verdadeira casa.", 6.0),
+                ("Você habita aqui. Neste espaço infinito. Esta é a sua verdadeira casa.", 6.0),
                 ("Grande silêncio. Você e o infinito são um. Sempre foram. Sempre serão.", 30.0),
-                ("Traga a atenção de volte ao corpo. Mas mantém a vastidão. Sempre.", 5.0),
+                ("Traga a atenção de volta ao corpo. Mas mantenha a vastidão. Sempre.", 5.0),
                 ("Abra os olhos. Vasto. Infinito. Livre.", 4.0)
             ]
         )
@@ -803,20 +821,20 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Ao longo da vida, muito passou pelo seu corpo. Muitas pessoas. Muitas experiências.", 6.0),
                 ("Mas a testemunha dentro permaneceu imune. Intocada. Serena.", 6.0),
                 ("Esta testemunha não é a mente. A mente joga. Reage. Se identifica.", 6.0),
-                ("A testemunha silenciosa observe a mente a brincar. E não quer saber.", 6.0),
+                ("A testemunha silenciosa observa a mente brincando. E não se abala.", 6.0),
                 ("A testemunha não é o corpo. O corpo sofre. Envelhece. Morre.", 6.0),
-                ("A testemunha observe o corpo a mudar. E permanece. Eterna. Indiferente.", 6.0),
+                ("A testemunha observa o corpo mudando. E permanece. Eterna. Indiferente.", 6.0),
                 ("A testemunha não é as emoções. As emoções vão e vêm como tempestades.", 6.0),
                 ("A testemunha observe as emoções. E fica quieta. Silenciosa. Segura.", 6.0),
-                ("Quando aprendes a ser a testemunha, a vida muda. Não sofres mais pelos seus pensamentos.", 6.0),
-                ("Não sofres pelas suas emoções. Observe-as. Como filmes passando num tela.", 6.0),
+                ("Quando você aprende a ser a testemunha, a vida muda. Você não sofre mais pelos seus pensamentos.", 6.0),
+                ("Você não sofre pelas suas emoções. Observe-as. Como filmes passando numa tela.", 6.0),
                 ("Isto não é indiferença. É sabedoria. É liberdade.", 6.0),
                 ("Como testemunha, pode agir com claridade. Porque não está envolvido na confusão.", 6.0),
                 ("Como testemunha, pode amar sem apego. Porque sabe que nada é seu. Nada é permanente.", 6.0),
-                ("Agora, sê a testemunha. Silenciosa. Vasta. Eterna.", 6.0),
+                ("Agora, seja a testemunha. Silenciosa. Vasta. Eterna.", 6.0),
                 ("Observe tudo o que passa. Sem julgar. Sem reter. Sem medo.", 6.0),
-                ("Grande silêncio. A testemunha que observe o silêncio observando-se a si próprio.", 30.0),
-                ("Permanece como testemunha. Traga isto com você.", 5.0),
+                ("Grande silêncio. A testemunha que observa o silêncio observando-se a si próprio.", 30.0),
+                ("Permaneça como testemunha. Traga isso com você.", 5.0),
                 ("Abra os olhos. Continue a observar. Sempre a testemunha. Sempre.", 4.0)
             ]
         )
@@ -837,7 +855,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Os animais selvagens que lutam pela sobrevivência. Os presos na prisão da ignorância.", 6.0),
                 ("As crianças que nascem em pobreza. Os doentes sem remédio. Os idosos esquecidos.", 6.0),
                 ("Aqueles que cometeram erros. Aqueles que prejudicaram outros. Eles também sofrem.", 6.0),
-                ("Porque para ser capaz de fazer mal, tem de estar num estado de ignorância, medo, dor.", 6.0),
+                ("Porque para ser capaz de fazer mal, é preciso estar num estado de ignorância, medo, dor.", 6.0),
                 ("A compaixão não significa aprovação. Significa entendimento. Significa abertura.", 6.0),
                 ("Significa ver a humanidade mesmo naqueles que parecem inumanos.", 6.0),
                 ("Agora, imagine a sua compaixão como uma luz que irradia. Tocando a vida inteira.", 6.0),
@@ -846,7 +864,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Que cada coração quebrado cicatrize. Que cada vida destruída seja renovada.", 6.0),
                 ("Grande silêncio. A compaixão que é o tecido do universo. O amor que tudo une.", 32.0),
                 ("Traga a compaixão com você. Ela é a sua verdadeira natureza. Sempre.", 5.0),
-                ("Abra os olhos. Sê compaixão. No mundo. Para tudo.", 4.0)
+                ("Abra os olhos. Seja compaixão. No mundo. Para tudo.", 4.0)
             ]
         )
     }
@@ -858,23 +876,23 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "O Sonhador e o Sonho",
             durationMinutes: 14,
             segments: [
-                ("Feche os olhos. Agora pergunta: quem está a ter este sonho chamado vida?", 5.0),
-                ("Você pode estar numa cama agora. A dormir. E isto é um sonho.", 6.0),
+                ("Feche os olhos. Agora pergunte: quem está tendo este sonho chamado vida?", 5.0),
+                ("Você pode estar numa cama agora. Dormindo. E isso é um sonho.", 6.0),
                 ("Neste sonho, parece real. Os sentimentos parecem verdadeiros. As pessoas parecem separadas.", 6.0),
-                ("Mas quando acorda, percebes que era tudo uma projeção da sua mente.", 6.0),
+                ("Mas quando acorda, percebe que era tudo uma projeção da sua mente.", 6.0),
                 ("O que nos diz isto? Que a realidade acordada também pode ser uma projeção.", 6.0),
-                ("Um sonho maior. O sonho do universo a sonhar em si próprio.", 6.0),
+                ("Um sonho maior. O sonho do universo sonhando a si próprio.", 6.0),
                 ("Você é simultaneamente o sonhador e o sonho. O que sonha e o que é sonhado.", 6.0),
                 ("Os outros? Também projeções do seu sonho. Porque tudo o que vê é através da sua consciência.", 6.0),
                 ("Isto não significa que não importam. Significa que tudo é mais profundo que parece.", 6.0),
                 ("Você não é apenas o personagem no sonho. É também a mente que sonha.", 6.0),
                 ("E é também o vasto silêncio que contém todo o sonho.", 6.0),
-                ("Se compreenderes isto, a vida muda. Deixas de ser tão sério. Mais leve.", 6.0),
-                ("Porque reconheces a natureza lúdica da existência. É um jogo. É criação.", 6.0),
+                ("Se você compreender isso, a vida muda. Deixa de ser tão sério. Mais leve.", 6.0),
+                ("Porque você reconhece a natureza lúdica da existência. É um jogo. É criação.", 6.0),
                 ("Pode participar com alegria. Sem apego. Sabendo que é sonho, mas vivendo plenamente.", 6.0),
                 ("Grande silêncio. O sonho que sonha a si próprio. A consciência que se brinca.", 30.0),
-                ("Agora, começa a acordar. Lentamente. Mas leve a lembrança do sonho com você.", 5.0),
-                ("Abra os olhos. Ainda está a sonhar. Mas sabe agora que é o sonhador.", 4.0)
+                ("Agora, comece a acordar. Lentamente. Mas leve a lembrança do sonho com você.", 5.0),
+                ("Abra os olhos. Ainda está sonhando. Mas sabe agora que é o sonhador.", 4.0)
             ]
         )
     }
@@ -895,12 +913,12 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Isto não significa inação. A equanimidade pode atuar. Mas sem se identificar com o resultado.", 6.0),
                 ("Imagine um arqueiro que dispara a seta. Mas depois deixe ir. Não siga a seta com o olhar.", 6.0),
                 ("Fez o seu melhor. Agora está em paz. A seta vai aonde tem de ir.", 6.0),
-                ("Você também pode ser assim. Faz o seu melhor. Depois deixe estar. Confie.", 6.0),
+                ("Você também pode ser assim. Faça o seu melhor. Depois deixe estar. Confie.", 6.0),
                 ("A equanimidade é a base da verdadeira liberdade. Porque não é governado pelas circunstâncias.", 6.0),
-                ("O medo não te move. A ganância não te move. O que quer que seja, permaneces firme.", 6.0),
+                ("O medo não te move. A ganância não te move. O que quer que seja, você permanece firme.", 6.0),
                 ("Como um rochedo no mar, enquanto as ondas batem à sua volte.", 6.0),
                 ("Isto é a verdadeira força. Não a rigidez. Mas a flexibilidade com raízes profundas.", 6.0),
-                ("Agora, cultiva isto em você. Com cada respiração, mais equilibrado. Mais estável.", 6.0),
+                ("Agora, cultive isso em você. Com cada respiração, mais equilibrado. Mais estável.", 6.0),
                 ("Grande silêncio. O silêncio da montanha. Do oceano. Da eternidade.", 30.0),
                 ("Traga a equanimidade com você. Ela é o seu porto seguro. Sempre.", 5.0),
                 ("Abra os olhos. Equilibrado. Sereno. Livre.", 4.0)
@@ -917,22 +935,22 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             segments: [
                 ("Sente-se e traga toda a atenção para o centro do peito. Aqui. Neste espaço sagrado.", 5.0),
                 ("O coração não é apenas um órgão. É o centro da sua vida. Da sua verdade. Da sua alma.", 6.0),
-                ("Durante muito tempo, foste ensinado a viver da cabeça. A pensar. A julgar. A analisar.", 6.0),
+                ("Durante muito tempo, você foi ensinado a viver da cabeça. A pensar. A julgar. A analisar.", 6.0),
                 ("Mas a verdadeira inteligência vem do coração. A inteligência da vida. Da natureza.", 6.0),
                 ("O coração sabe coisas que a mente nunca saberá. A mente questiona. O coração conhece.", 6.0),
                 ("Imagine uma porta no centro do seu peito. Lentamente, abra-a.", 6.0),
-                ("Dentro encontras uma câmara de luz. Warm. Segura. Viva.", 6.0),
+                ("Dentro você encontra uma câmara de luz. Quente. Segura. Viva.", 6.0),
                 ("Aqui estão todos os seus amores. Todos os seus desejos verdadeiros. Toda a sua fé.", 6.0),
                 ("Aqui também está o seu medo. A sua dor. A sua vulnerabilidade.", 6.0),
                 ("Tudo isto é sagrado. Tudo isto é parte de quem é. Nada deve ser rejeitado.", 6.0),
                 ("O coração que foi ferido é o coração que pode amar completamente.", 6.0),
                 ("Porque aprendeu que a vida vale a pena. Apesar do sofrimento. Precisamente por causa dele.", 6.0),
-                ("Agora, deixe que o coração vire a direcção da sua vida. Não a cabeça.", 6.0),
-                ("O que quer o seu coração? O que te faz sentir inteiro? Para onde te pede para ires?", 6.0),
+                ("Agora, deixe que o coração guie a direção da sua vida. Não a cabeça.", 6.0),
+                ("O que quer o seu coração? O que te faz sentir inteiro? Para onde ele te pede para ir?", 6.0),
                 ("Escute bem. Porque esta é a voz que importa.", 6.0),
-                ("Grande silêncio. O silêncio do coração que bateu desde o nascimento. Que batirá até à morte.", 30.0),
+                ("Grande silêncio. O silêncio do coração que bateu desde o nascimento. Que baterá até a morte.", 30.0),
                 ("Traga a atenção do coração com você. Deixe que dirija tudo.", 5.0),
-                ("Abra os olhos. Vive do coração. Sempre.", 4.0)
+                ("Abra os olhos. Viva do coração. Sempre.", 4.0)
             ]
         )
     }
@@ -948,9 +966,9 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Tudo o que vê vem do vazio. Tudo o que é emerge do vazio. Repousa no vazio.", 6.0),
                 ("Não é um vazio assustador. É luminoso. Cheio de potencial. Cheio de vida adormecida.", 6.0),
                 ("Observe o espaço no seu corpo. Entre as células. Entre os átomos. Vazio. Imenso.", 6.0),
-                ("Se remobasses tudo do material, ficarias com vazio. Mas que vazio! Cheio de energia.", 6.0),
+                ("Se você removesse tudo o que é material, ficaria com o vazio. Mas que vazio! Cheio de energia.", 6.0),
                 ("Observe o espaço na sua mente. Entre um pensamento e outro. Vazio puro.", 6.0),
-                ("Este vazio é a sua natureza verdadeira. Não é a forma. Habitas o vazio.", 6.0),
+                ("Este vazio é a sua natureza verdadeira. Não é a forma. Você habita o vazio.", 6.0),
                 ("Agora, deixe todos os pensamentos caírem para o vazio. Deixe as sensações dissiparem-se.", 6.0),
                 ("Deixe a identidade desaparecesse. Quem fica? Vazio. Mas um vazio consciente.", 6.0),
                 ("Um vazio que observe. Um vazio que é. Um vazio que ama.", 6.0),
@@ -959,7 +977,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Sinta o medo desaparecer? Porque não há \"eu\" separado para ser ferido.", 6.0),
                 ("Sinta a alegria? Porque o vazio é livre. Sem carga. Sem limite.", 6.0),
                 ("Grande silêncio. O vazio luminoso que é a sua verdadeira casa. O lugar de repouso.", 35.0),
-                ("Lentamente, volte. Mas mantém o vazio. Vive dentro dele. Sempre.", 5.0),
+                ("Lentamente, volte. Mas mantenha o vazio. Viva dentro dele. Sempre.", 5.0),
                 ("Abra os olhos. Vazio. Luminoso. Livre.", 4.0)
             ]
         )
@@ -972,23 +990,23 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "A Tapeçaria do Momento",
             durationMinutes: 16,
             segments: [
-                ("Sente-se como se estivesses olhando para uma tapeçaria antiga. Cada fio é um momento.", 5.0),
+                ("Sente-se como se estivesse olhando para uma tapeçaria antiga. Cada fio é um momento.", 5.0),
                 ("O passado é já tecido. Fixo. Impossível de mudar. Mas também impossível de sofrer agora.", 6.0),
                 ("O futuro ainda não está tecido. Pode vir de várias formas. Mas não está aqui ainda.", 6.0),
                 ("Este momento? Este é o único fio que realmente tem. O único que pode tocar.", 6.0),
                 ("Neste momento estão todos os seus poderes. Toda a sua capacidade. Toda a sua verdade.", 6.0),
-                ("A vida não se vive no passado ou no futuro. Vive-se aqui. No fio que tecês agora.", 6.0),
+                ("A vida não se vive no passado ou no futuro. Vive-se aqui. No fio que você tece agora.", 6.0),
                 ("Observe o que está presente agora. Não o que foi. Não o que pode vir.", 6.0),
-                ("Os sons que ouves. O ar que respire. A sensação do corpo. O pensamento que passa.", 6.0),
+                ("Os sons que você ouve. O ar que respire. A sensação do corpo. O pensamento que passa.", 6.0),
                 ("Isto é a vida real. Tudo o mais é imaginação.", 6.0),
-                ("Quando ficas neste momento, sinta uma paz que não vinha. Uma presença.", 6.0),
+                ("Quando você fica neste momento, sente uma paz que não vinha. Uma presença.", 6.0),
                 ("Porque não há conflito no momento. Apenas o que é. E você aceitando o que é.", 6.0),
                 ("A tapeçaria do tempo. Tecida por inúmeras momentos de presença. De aceitação.", 6.0),
-                ("Cada vez que regressas ao agora, teces um fio de ouro na tapeçaria da sua vida.", 6.0),
+                ("Cada vez que você volta ao agora, tece um fio de ouro na tapeçaria da sua vida.", 6.0),
                 ("Uma vida tecida de momento em momento. Cada um um tesouro. Cada um sagrado.", 6.0),
                 ("Grande silêncio. Este momento que contém tudo. Que é tudo.", 35.0),
-                ("Lentamente, começa a mover. Mas no corpo. Neste agora.", 5.0),
-                ("Abra os olhos. Vive o momento. Cada momento. Sempre.", 4.0)
+                ("Lentamente, comece a se mover. Mas no corpo. Neste agora.", 5.0),
+                ("Abra os olhos. Viva o momento. Cada momento. Sempre.", 4.0)
             ]
         )
     }
@@ -1000,20 +1018,20 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "Dissolução dos Limites",
             durationMinutes: 17,
             segments: [
-                ("Sente-se e observe os limites que estabeleceste. Entre você e os outros. Entre o dentro e fora.", 5.0),
+                ("Sente-se e observe os limites que você estabeleceu. Entre você e os outros. Entre o dentro e fora.", 5.0),
                 ("O corpo parece ser o limite. A pele é a fronteira. Mas é isto real?", 6.0),
-                ("A ciência diz-nos que a pele está constantemente a trocar células com o ambiente.", 6.0),
+                ("A ciência diz-nos que a pele está constantemente trocando células com o ambiente.", 6.0),
                 ("Você não é um recipiente fechado. É uma abertura. Um processo. Um fluxo.", 6.0),
-                ("O que rejeitas e chamaste \"não-eu\" está sempre com você. Está dentro de você.", 6.0),
-                ("O que amas e chamaste \"outro\" está também dentro de você. Na sua mente. No seu coração.", 6.0),
-                ("Os limites que desenhaste são úteis para navegar a vida. Mas não são verdadeiros.", 6.0),
+                ("O que você rejeita e chamou de \"não-eu\" está sempre com você. Está dentro de você.", 6.0),
+                ("O que você ama e chamou de \"outro\" está também dentro de você. Na sua mente. No seu coração.", 6.0),
+                ("Os limites que você desenhou são úteis para navegar a vida. Mas não são verdadeiros.", 6.0),
                 ("Verdadeiramente, é ilimitado. Sem fronteiras. Unido com tudo.", 6.0),
                 ("Agora, imagine estes limites se dissolvendo. Como sal na água. Como gelo ao sol.", 6.0),
                 ("Sinta a mente se expandindo além do corpo. Além da casa. Além da cidade.", 6.0),
-                ("Sinta o coração a abrir-se para incluir toda a vida. Sem separação.", 6.0),
-                ("Sinta a consciência a abarcar universos. Galáxias. Dimensões que não pode nomear.", 6.0),
+                ("Sinta o coração se abrindo para incluir toda a vida. Sem separação.", 6.0),
+                ("Sinta a consciência abarcando universos. Galáxias. Dimensões que não pode nomear.", 6.0),
                 ("Não há \"dentro\" e \"fora\". Não há \"eu\" e \"outro\". Apenas isto. Uma substância. Uma vida.", 6.0),
-                ("Esta é a verdade do eu. Enquanto forma, pareces limitado. Mas a forma é apenas um traje.", 6.0),
+                ("Esta é a verdade do eu. Enquanto forma, você parece limitado. Mas a forma é apenas um traje.", 6.0),
                 ("O que realmente é não tem limites. Pode habitar qualquer forma. Qual quer corpo. Qualquer vida.", 6.0),
                 ("Grande silêncio. A dissolução dos limites. A unidade que sempre foi. Que sempre será.", 35.0),
                 ("Lentamente, a forma volte. Mas sabe agora o que realmente é.", 5.0),
@@ -1038,14 +1056,14 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Não há fragmentação. Não há divisão. Apenas totalidade.", 6.0),
                 ("Quando está totalmente presente, sinta a força enorme. A vida que flui através de você.", 6.0),
                 ("Deixe de tentar controlar e apenas permita que a vida viva através de você.", 6.0),
-                ("Isto é paradoxal. Quando desistes do controle, tem o máximo de poder.", 6.0),
+                ("Isto é paradoxal. Quando você desiste do controle, tem o máximo de poder.", 6.0),
                 ("Porque o seu poder verdadeiro não vem de tensão. Vem de alinhamento. De estar aqui.", 6.0),
-                ("Agora, convida a estar completamente presente. Tudo de você. Nada guardado.", 6.0),
+                ("Agora, convide-se a estar completamente presente. Tudo de você. Nada guardado.", 6.0),
                 ("Sinta como é diferente. Como é intenso. Como é vivo.", 6.0),
-                ("Isto é o que foste procurando em drogas, em distrações, em buscas infinitas.", 6.0),
+                ("Isso é o que você esteve procurando em drogas, em distrações, em buscas infinitas.", 6.0),
                 ("Isto. Aqui. Agora. A verdade viva do estar presente.", 6.0),
                 ("Grande silêncio. A totalidade. A completa presença. O repouso na vida.", 35.0),
-                ("Lentamente, volte. Mas permanece completamente presente.", 5.0),
+                ("Lentamente, volte. Mas permaneça completamente presente.", 5.0),
                 ("Abra os olhos. Presente. Total. Vivo.", 4.0)
             ]
         )
@@ -1058,7 +1076,7 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "O Observador Puro",
             durationMinutes: 18,
             segments: [
-                ("Feche os olhos e recua. Recua para trás de tudo o que observe.", 5.0),
+                ("Feche os olhos e recue. Recue para trás de tudo o que observa.", 5.0),
                 ("Não é o corpo que observe. Não é a mente que observe. Não é as emoções.", 6.0),
                 ("Tem um corpo. Mas não é o corpo.", 6.0),
                 ("Tem pensamentos. Mas não é os pensamentos.", 6.0),
@@ -1071,9 +1089,9 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Porque o que vê como \"você\" não é realmente você. É apenas uma aparição.", 6.0),
                 ("Você é o espaço onde a aparição ocorre. Você é a consciência donde vem toda a experiência.", 6.0),
                 ("Não há nada para defender. Não há nada para proteger. Você já é ileso.", 6.0),
-                ("Agora, sê este observador puro. Simplesmente observe. Sem comentário. Sem reação.", 6.0),
+                ("Agora, seja este observador puro. Simplesmente observe. Sem comentário. Sem reação.", 6.0),
                 ("Deixe que a vida flua. Deixe que o corpo faça o seu trabalho. Deixe que a mente pense.", 6.0),
-                ("Você permaneces. O observador puro. O testemunho silencioso de tudo.", 6.0),
+                ("Você permanece. O observador puro. O testemunho silencioso de tudo.", 6.0),
                 ("Grande silêncio. A pureza da observação. A liberdade do observador que não participa.", 35.0),
                 ("Traga isto com você. Você é o observador. Sempre.", 5.0),
                 ("Abra os olhos. Observe. Sem ser. Sem fazer. Apenas observe.", 4.0)
@@ -1088,25 +1106,25 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "Metta — Amor sem Condições",
             durationMinutes: 18,
             segments: [
-                ("Sente-se no coração. Hoje cultivas o amor incondicionado. O metta. A bondade infinita.", 5.0),
+                ("Sente-se no coração. Hoje você cultiva o amor incondicional. O metta. A bondade infinita.", 5.0),
                 ("Este não é um amor que espera algo em troca. Não é um amor que julga ou condiciona.", 6.0),
                 ("É o amor que é o coração do universo. O que sustenta toda a vida.", 6.0),
                 ("Traga à mente o ser mais fácil de amar. Aquele para quem o seu coração abra naturalmente.", 6.0),
-                ("Observe o amor que flui. Vê-o como uma água quente, curativa.", 6.0),
-                ("Agora, estende este mesmo amor a você próprio. Porque você também mereçes.", 6.0),
+                ("Observe o amor que flui. Veja-o como uma água quente, curativa.", 6.0),
+                ("Agora, estende este mesmo amor a você próprio. Porque você também merece.", 6.0),
                 ("Deixe que o amor te banhe. Cura das feridas. Restaura.", 6.0),
-                ("Agora, amplia. Traga todos aqueles que amas. Família. Amigos. Mestres.", 6.0),
-                ("Envolvê-los em amor. Que estejam seguros. Que sejam felizes. Que sejam livres.", 6.0),
-                ("Agora, traga aqueles que não conheces. Os que sofrem. Os que estão sozinhos.", 6.0),
-                ("Oferece-lhes o mesmo amor. Sem discriminação. Sem julgamento.", 6.0),
+                ("Agora, amplie. Traga todos aqueles que você ama. Família. Amigos. Mestres.", 6.0),
+                ("Envolva-os em amor. Que estejam seguros. Que sejam felizes. Que sejam livres.", 6.0),
+                ("Agora, traga aqueles que você não conhece. Os que sofrem. Os que estão sozinhos.", 6.0),
+                ("Ofereça a eles o mesmo amor. Sem discriminação. Sem julgamento.", 6.0),
                 ("Agora, traga aqueles que te feriram. Que te traíram. Que te magoaram.", 6.0),
                 ("Isto é difícil. Mas o rancor é veneno. E o amor é a cura.", 6.0),
-                ("Oferece-lhes também metta. Porque sofrem também. Porque são prisioneiros da sua própria ignorância.", 6.0),
+                ("Ofereça a eles também o metta. Porque sofrem também. Porque são prisioneiros da sua própria ignorância.", 6.0),
                 ("Finalmente, expande o amor para toda a vida. Todas as criaturas. Toda a existência.", 6.0),
                 ("Uma onda de amor que toca tudo. Que cura tudo. Que transforma tudo.", 6.0),
                 ("Grande silêncio. O coração que transborda de amor sem condições.", 35.0),
-                ("Traga este amor com você. Para toda a vida. Para todas as seres.", 5.0),
-                ("Abra os olhos. Ama. Completamente. Sempre.", 4.0)
+                ("Traga este amor com você. Para toda a vida. Para todos os seres.", 5.0),
+                ("Abra os olhos. Ame. Completamente. Sempre.", 4.0)
             ]
         )
     }
@@ -1118,23 +1136,23 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "Renovação Profunda",
             durationMinutes: 19,
             segments: [
-                ("Sente-se como se estivesses no coração da terra. Aqui, tudo renova-se. Tudo é restaurado.", 5.0),
+                ("Sente-se como se estivesse no coração da terra. Aqui, tudo renova-se. Tudo é restaurado.", 5.0),
                 ("Observe a vida inteira. O ciclo de morte e renovação que nunca cessa.", 6.0),
                 ("A folha cai. A árvore parece morrer. Mas na primavera, vem a nova vida.", 6.0),
                 ("Você é também assim. Partes de você morrem constantemente. Partes nascem.", 6.0),
                 ("Células morrem. Neurônios morrem. Crenças antigas morrem. E novas emergem.", 6.0),
-                ("Isto é renovação. Não é algo que te acontece uma vez. Está sempre a ocorrer.", 6.0),
+                ("Isto é renovação. Não é algo que te acontece uma vez. Está sempre acontecendo.", 6.0),
                 ("Mas pode intensificá-la. Pode trazer mais presença à renovação.", 6.0),
-                ("Imagine que descestes a uma câmara subterrânea. Quente. Pulsante. Viva de energia.", 6.0),
+                ("Imagine que você desceu a uma câmara subterrânea. Quente. Pulsante. Viva de energia.", 6.0),
                 ("Aqui estão as águas primordiais. Aqui está a matéria de que tudo é feito.", 6.0),
-                ("Agora, lava. Deixe que a água quente flua sobre você. Renova completamente.", 6.0),
+                ("Agora, lave-se. Deixe que a água quente flua sobre você. Renove completamente.", 6.0),
                 ("Deixe que toda a fadiga saia. Toda a velha identidade. Toda a resistência.", 6.0),
-                ("Renova. Como um fénix que sai das chamas. Novo. Inteiro. Limpo.", 6.0),
+                ("Renove. Como uma fênix que sai das chamas. Novo. Inteiro. Limpo.", 6.0),
                 ("A renovação não é rejeitar o que foi. É transformá-lo. Integrá-lo. Evoluir.", 6.0),
-                ("Você já não é quem eras. E ainda não é quem te tornarás. Está no meio.", 6.0),
+                ("Você já não é quem era. E ainda não é quem vai se tornar. Está no meio.", 6.0),
                 ("Este meio é sagrado. É aqui que toda a transformação ocorre.", 6.0),
                 ("Grande silêncio. A terra que renova. A vida que se renova através de você.", 38.0),
-                ("Lentamente, volte para cima. Renovado. Transformado. Reborn.", 5.0),
+                ("Lentamente, volte para cima. Renovado. Transformado. Renascido.", 5.0),
                 ("Abra os olhos. Novo. Sempre novo. Eternamente novo.", 4.0)
             ]
         )
@@ -1147,21 +1165,21 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
             title: "O Grande Silêncio",
             durationMinutes: 19,
             segments: [
-                ("Sente-se em silêncio absoluto. Ou o mais silencioso que conseguires.", 5.0),
+                ("Sente-se em silêncio absoluto. Ou o mais silencioso que você conseguir.", 5.0),
                 ("Observe o silêncio. Não o silêncio da ausência de som. O silêncio da presença.", 6.0),
                 ("Um silêncio que é vivo. Que respire. Que contém toda a vida potencial.", 6.0),
                 ("No princípio, havia silêncio. E do silêncio veio toda a criação.", 6.0),
                 ("Toda a palavra, toda a música, toda a conversa vem do silêncio.", 6.0),
                 ("E para o silêncio regressará quando o som terminar.", 6.0),
                 ("O silêncio é o lar de tudo. A matriz de tudo. A verdade de tudo.", 6.0),
-                ("Quando deixas a mente de falar, entras no silêncio. E o silêncio fala.", 6.0),
+                ("Quando a mente para de falar, você entra no silêncio. E o silêncio fala.", 6.0),
                 ("Fala em verdades que a mente nunca poderia dizer.", 6.0),
                 ("Fala em comunhão. Em união. Em totalidade.", 6.0),
                 ("Agora, deixe todo o discurso mental. Deixe todas as histórias. Deixe toda a tradução.", 6.0),
-                ("Apenas permanece. No silêncio. Como se fosse a única coisa que realmente existe.", 6.0),
+                ("Apenas permaneça. No silêncio. Como se fosse a única coisa que realmente existe.", 6.0),
                 ("Grande silêncio. O silêncio que é a base de tudo. A verdade além das palavras.", 45.0),
                 ("Quando a campainha soa, quando o tempo termina, sabe que ainda está no silêncio.", 5.0),
-                ("Porque agora o silêncio caminha com você. Para onde quer que vás.", 5.0),
+                ("Porque agora o silêncio caminha com você. Para onde quer que você vá.", 5.0),
                 ("Abra os olhos. Silencioso. Eternamente silencioso.", 4.0)
             ]
         )
@@ -1178,22 +1196,22 @@ class GuidedMeditationEngine: NSObject, ObservableObject, AVSpeechSynthesizerDel
                 ("Trinta dias. Trinta meditações. Trinta encontros com a verdade do seu ser.", 6.0),
                 ("E agora reconhecem: não vai terminar. A meditação não termina aqui.", 6.0),
                 ("Cada momento é meditação. Cada respiração é celebração. Cada encontro é sagrado.", 6.0),
-                ("Você já foste brindado pelo silêncio. Já dançaste com a eternidade. Já morreu e renasceu.", 6.0),
-                ("Você já tocaste o infinito. Já habitaste o vazio. Já amaste sem condição.", 6.0),
+                ("Você já foi brindado pelo silêncio. Já dançou com a eternidade. Já morreu e renasceu.", 6.0),
+                ("Você já tocou o infinito. Já habitou o vazio. Já amou sem condição.", 6.0),
                 ("O que ainda há para fazer? Nada. Tudo foi já feito.", 6.0),
                 ("Agora é o tempo da celebração. De gratidão. De reconhecimento.", 6.0),
-                ("Celebra que você é. Aqui. Agora. Nesta forma, com este nome, com esta jornada.", 6.0),
-                ("Celebra o corpo que te permitiu conhecer o mundo. As mãos que criaram. Os olhos que viram.", 6.0),
-                ("Celebra o coração que amou. Que sofreu. Que aprendeu. Que cresceu.", 6.0),
-                ("Celebra a mente que questionou. Que se maravilhou. Que vislumbrou a verdade.", 6.0),
-                ("Celebra todos aqueles que te tocaram. Que te ensinaram. Que te transformaram.", 6.0),
-                ("Celebra até mesmo as dificuldades. As falhas. Os erros. Porque te tornaram quem é.", 6.0),
-                ("Celebra o universo que te contém. As estrelas que brilham acima. A terra que suporta.", 6.0),
-                ("Você é um milagre. Uma expressão singular do universo a conhecer-se a si próprio.", 6.0),
+                ("Celebre que você é. Aqui. Agora. Nesta forma, com este nome, com esta jornada.", 6.0),
+                ("Celebre o corpo que te permitiu conhecer o mundo. As mãos que criaram. Os olhos que viram.", 6.0),
+                ("Celebre o coração que amou. Que sofreu. Que aprendeu. Que cresceu.", 6.0),
+                ("Celebre a mente que questionou. Que se maravilhou. Que vislumbrou a verdade.", 6.0),
+                ("Celebre todos aqueles que te tocaram. Que te ensinaram. Que te transformaram.", 6.0),
+                ("Celebre até mesmo as dificuldades. As falhas. Os erros. Porque te tornaram quem é.", 6.0),
+                ("Celebre o universo que te contém. As estrelas que brilham acima. A terra que suporta.", 6.0),
+                ("Você é um milagre. Uma expressão singular do universo conhecendo a si próprio.", 6.0),
                 ("Há alegria nisto. Há uma graça nisto. Há uma beleza que não pode ser dita.", 6.0),
                 ("Grande silêncio. A celebração que é silenciosa. O júbilo do ser.", 40.0),
                 ("Lentamente, abra os olhos. A celebração continue. Dia após dia. Vida após vida.", 5.0),
-                ("Abra os olhos completamente. Celebra. Sempre celebra. O milagre do ser.", 4.0)
+                ("Abra os olhos completamente. Celebre. Sempre celebre. O milagre do ser.", 4.0)
             ]
         )
     }

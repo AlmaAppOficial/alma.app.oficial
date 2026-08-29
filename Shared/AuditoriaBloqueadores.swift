@@ -324,13 +324,71 @@ enum AuditoriaBloqueadores {
         // 2. O DETECTOR tinha falso positivo. Usava `contains("tua ")`, que casa
         //    dentro de "flu-TUA Neste espaço". Sem `\b`, meia dúzia de palavras
         //    comuns viram "português europeu".
-        func temPTPT(_ texto: String) -> Bool {
-            let inequivocos = ["ecrã", "contacto", "acção", "acções", "estás",
-                               "telemóvel", "tens", "podes", "queres", "sabes"]
-            return inequivocos.contains { termo in
-                texto.range(of: "\\b\(termo)\\b", options: [.regularExpression, .caseInsensitive]) != nil
+        // [2026-08-29] O detector tinha DEZ palavras. Uma varredura sistemática
+        // (literal de string, não linha de arquivo) achou PT-PT que essas dez
+        // nunca pegariam: "A Luz que Habitas" e "Respira e Acalma" na lista de
+        // meditações, "Continua assim!" e "Respira fundo" no Livre de Vícios,
+        // mais 157 trechos no fallback de TTS. Nenhum tinha "ecrã" ou "tens".
+        //
+        // A lição de método: a lista curta media a PRESENÇA de seis palavras,
+        // não a AUSÊNCIA de português europeu. Agora cobre três classes —
+        // vocabulário, ortografia pré-acordo e 2ª pessoa do singular.
+        //
+        // ESCOPO HONESTO do que NÃO está aqui, e por quê:
+        // `tu`, `teu`, `tua`, `ti` ficam de fora de propósito. São legítimos em
+        // citação e em letra — e "Cuida da tua alma", de Marco Aurélio, é a
+        // frase-tema do produto. Botar no detector seria trocar um falso
+        // negativo por um falso positivo que alguém desliga na primeira semana.
+        // Quem varrer o repositório à mão deve olhar essas quatro separadamente.
+        let ptPtVocabulario = [
+            "utilizador", "utilizadores", "utilizadora", "ecrã", "ecrãs",
+            "telemóvel", "telemóveis", "ficheiro", "ficheiros", "palavra-passe",
+            "registo", "registos", "aceder", "percentagem", "autocarro",
+            "comboio", "rapariga", "frigorífico", "connosco", "varrimento"
+        ]
+        let ptPtOrtografia = [
+            "facto", "factos", "contacto", "contactos", "contactar",
+            "acção", "acções", "actual", "actualmente", "actividade",
+            "óptimo", "óptima", "director", "objectivo", "exacto", "correcto",
+            "direcção", "eléctrico", "electrónico", "húmido",
+            "abdómen", "fénix", "género", "ténis", "bebé", "económico",
+            "prémio", "fenómeno", "telefónico", "estómago", "hormónio",
+            "neurónio", "cómodo", "crónico", "sinónimo", "anónimo", "tónico"
+        ]
+        // 2ª pessoa do singular. Só formas que NÃO colidem com substantivo em
+        // PT-BR: "chamas", "marcas", "buscas", "partes", "falhas", "seres",
+        // "poderes", "plantas", "baixas", "aceitas" e "estas" ficam de fora —
+        // cada uma delas já produziu falso positivo numa varredura real.
+        let ptPtSegundaPessoa = [
+            "estás", "tens", "podes", "queres", "sabes", "vais", "fazes", "és",
+            "foste", "eras", "terás", "farás", "dirás", "verás", "darás",
+            "vieste", "tiveste", "fizeste", "disseste", "viste", "estiveste",
+            "amas", "vives", "habitas", "escutas", "conheces", "permaneces",
+            "tentas", "ficas", "entras", "deixas", "percebes", "aprendes",
+            "colocas", "cultivas", "encontras", "sofres", "mereces",
+            "dançaste", "tocaste", "habitaste", "amaste", "chamaste",
+            "desenhaste", "estabeleceste", "partiste", "contigo"
+        ]
+        // Devolve QUAL classe acusou, não só "sim/não". Isso é o que permite ao
+        // canário abaixo provar cada lista separadamente — um canário que só
+        // sabe dizer "achei alguma coisa" fica verde com três das quatro listas
+        // mortas, e é cego por construção (Regra 1.1 do CLAUDE.md).
+        func classePTPT(_ texto: String) -> String? {
+            func casa(_ termos: [String]) -> Bool {
+                termos.contains { termo in
+                    texto.range(of: "\\b\(termo)\\b",
+                                options: [.regularExpression, .caseInsensitive]) != nil
+                }
             }
+            if casa(ptPtVocabulario)   { return "vocabulário" }
+            if casa(ptPtOrtografia)    { return "ortografia" }
+            if casa(ptPtSegundaPessoa) { return "2ª pessoa" }
+            // Gerúndio perifrástico: "está a carregar" no lugar de "está carregando".
+            if texto.range(of: "\\b(estou|estás|está|estamos|estão) a [a-zà-ÿ]+(ar|er|ir)\\b",
+                           options: [.regularExpression, .caseInsensitive]) != nil { return "gerúndio" }
+            return nil
         }
+        func temPTPT(_ texto: String) -> Bool { classePTPT(texto) != nil }
 
         // ── B8b · nenhuma tela promete IA que a build não tem ───────────────
         //
@@ -460,12 +518,86 @@ enum AuditoriaBloqueadores {
 
         UserDefaults().removePersistentDomain(forName: suiteCard)
 
-        let textoDeTela = GuidanceEngine.todosOsTextos
+        // [2026-08-29] O escopo cresceu. Antes eram só os ~232 textos gerados de
+        // Home/Insights — e foi por FORA desse recorte que o PT-PT sobreviveu
+        // até a App Store: os títulos das meditações vivem em `MeditationDay`,
+        // que a A12 nunca olhou, e "A Luz que Habitas" apareceu numa captura.
+        //
+        // Entram agora, todos com fonte declarada:
+        //   1. GuidanceEngine  — Home e Insights (o recorte antigo)
+        //   2. MeditationDay   — os 30 títulos EXIBIDOS na aba Práticas
+        //   3. GuidedMeditationEngine — as 492 falas do fallback de TTS.
+        //      Caminho morto hoje (os .m4a estão no bundle), mas é texto que
+        //      o app é capaz de falar, e estava em PT-PT apesar de um comentário
+        //      no topo do arquivo afirmar que tinha sido convertido em 03/08.
+        //      Afirmação sem contraditório é o defeito que mais se repete aqui;
+        //      esta asserção é o contraditório.
+        let fontesDeTexto: [(String, [String])] = [
+            ("GuidanceEngine (Home/Insights)", GuidanceEngine.todosOsTextos),
+            ("MeditationDay (títulos da aba Práticas)", MeditationDay.all30Days.map(\.title)),
+            ("GuidedMeditationEngine (falas do fallback)", GuidedMeditationEngine.todasAsFalas)
+        ]
+        let textoDeTela = fontesDeTexto.flatMap(\.1)
         let telaPTPT = textoDeTela.filter(temPTPT)
-        checa("A12", "nenhum texto EXIBIDO em PT-PT (Home e Insights)",
+        checa("A12", "nenhum texto EXIBIDO ou FALADO em PT-PT",
               telaPTPT.isEmpty,
-              telaPTPT.isEmpty ? "\(textoDeTela.count) textos verificados"
-                               : "\(telaPTPT.count): \(telaPTPT.prefix(2))")
+              telaPTPT.isEmpty
+                ? "\(textoDeTela.count) textos · " + fontesDeTexto.map { "\($0.0): \($0.1.count)" }.joined(separator: " · ")
+                : "\(telaPTPT.count): \(telaPTPT.prefix(2))")
+
+        // CANÁRIO — sem ele a A12 verde não vale nada.
+        //
+        // Regra 2 do CLAUDE.md: todo harness que varre muitos casos carrega um
+        // caso que TEM de reprovar. Se o detector ficar cego (regex quebrada,
+        // lista esvaziada num merge, `\b` perdido), a A12 passa a aprovar tudo
+        // em silêncio — que é exatamente como as dez palavras antigas
+        // sobreviveram cinco meses parecendo suficientes.
+        //
+        // Uma isca POR CLASSE, e cada isca é checada contra a classe ESPERADA.
+        //
+        // A primeira versão desta asserção era cega e eu peguei antes de commitar:
+        // a isca da 2ª pessoa era "Tu sabes que estás a carregar o ficheiro", que
+        // contém "ficheiro" — vocabulário. Ela ficava verde com a lista de 2ª
+        // pessoa INTEIRA apagada, porque o vocabulário casava primeiro. É o mesmo
+        // defeito da L3 de `testes_brechas.mjs`: o valor de teste escolhido fazia
+        // os dois mundos coincidirem. Agora cada isca só contém marcador da sua
+        // própria classe, e a asserção compara a classe devolvida.
+        let iscasPTPT: [(texto: String, classe: String)] = [
+            ("O utilizador tocou no ecrã.",        "vocabulário"),
+            ("Este é um facto: a acção correcta.", "ortografia"),
+            ("Sabes que já não vives aqui.",       "2ª pessoa"),
+            ("A meditação está a começar agora.",  "gerúndio")
+        ]
+        let iscasPegas = iscasPTPT.filter { classePTPT($0.texto) == $0.classe }
+        let iscasPerdidas = iscasPTPT.filter { classePTPT($0.texto) != $0.classe }
+        checa("A12-canário", "o detector de PT-PT enxerga cada classe (4 iscas plantadas)",
+              iscasPegas.count == iscasPTPT.count,
+              iscasPegas.count == iscasPTPT.count
+                ? "✓ detector vivo — \(iscasPegas.count)/\(iscasPTPT.count) classes provadas"
+                : "✗✗ DETECTOR CEGO em: "
+                  + iscasPerdidas.map { "\($0.classe) (devolveu \(classePTPT($0.texto) ?? "nada"))" }
+                      .joined(separator: ", ")
+                  + " — DESCARTE o resultado da A12")
+
+        // Contra-canário: texto PT-BR legítimo que já produziu falso positivo
+        // numa varredura real. Se a A12 acusar QUALQUER um destes, a lista de
+        // palavras está larga demais e vai ser desligada por ruído.
+        let ptBrLegitimo = [
+            "Metas abaixo de 1200 kcal não são aceitas por segurança.",
+            "Arraste até 0 o que você não comeu.",
+            "Estas informações personalizam seus insights.",
+            "A foto é analisada e não fica guardada no Alma.",
+            "Usamos Firebase Authentication com conexões seguras.",
+            "Celebre até mesmo as dificuldades. As falhas. Os erros.",
+            "Como uma fênix que sai das chamas.",
+            "Divida o texto em partes menores.",
+            "Para todos os seres. Para toda a existência."
+        ]
+        let falsosPositivos = ptBrLegitimo.filter(temPTPT)
+        checa("A12-ruído", "nenhum PT-BR legítimo acusado como PT-PT",
+              falsosPositivos.isEmpty,
+              falsosPositivos.isEmpty ? "\(ptBrLegitimo.count) frases-controle passaram limpas"
+                                      : "\(falsosPositivos.count) falso(s) positivo(s): \(falsosPositivos)")
 
         // ── A15 · nenhuma alegação de saúde no texto EXIBIDO ────────────────
         //

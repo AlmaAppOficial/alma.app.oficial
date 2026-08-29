@@ -111,7 +111,7 @@ struct AddictionFreeView: View {
                     .foregroundColor(green)
             }
             VStack(alignment: .leading, spacing: 4) {
-                Text(isActive ? "Continua assim! 💪" : "Pronto para mudar?")
+                Text(isActive ? "Continue assim! 💪" : "Pronto para mudar?")
                     .font(.title3.bold())
                     .foregroundColor(CalmTheme.textPrimary)
                 Text("Cada momento conta")
@@ -352,7 +352,7 @@ struct AddictionFreeView: View {
         // E entrou "Agora não": sem uma saída neutra, quem NÃO resistiu só
         // podia sair pelo "Consegui resistir" — o app obrigando a pessoa a
         // mentir sobre a própria recaída para fechar um diálogo.
-        .alert("Respira fundo", isPresented: $showCravingAlert) {
+        .alert("Respire fundo", isPresented: $showCravingAlert) {
             Button("Consegui resistir! ✅") { lastCravingResisted = true }
             Button("Quero falar com alguém") { abrirApoioDepoisDoAlerta() }
             Button("Agora não", role: .cancel) { }

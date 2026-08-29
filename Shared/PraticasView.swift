@@ -19,7 +19,7 @@ struct MeditationDay: Identifiable {
         // alongside the new set. See ACTION_LOG 2026-05-13.
 
         // Week 1: Respiração (Days 1-7)
-        days.append(MeditationDay(day: 1, title: "Respira e Acalma", subtitle: "", durationMinutes: 5, category: "Respiração"))
+        days.append(MeditationDay(day: 1, title: "Respire e Acalma", subtitle: "", durationMinutes: 5, category: "Respiração"))
         days.append(MeditationDay(day: 2, title: "O Corpo como Lar", subtitle: "", durationMinutes: 6, category: "Respiração"))
         days.append(MeditationDay(day: 3, title: "Observar sem Julgar", subtitle: "", durationMinutes: 7, category: "Respiração"))
         days.append(MeditationDay(day: 4, title: "Ondas de Presença", subtitle: "", durationMinutes: 8, category: "Respiração"))
@@ -29,7 +29,7 @@ struct MeditationDay: Identifiable {
 
         // Week 2: Consciência Corporal (Days 8-14)
         days.append(MeditationDay(day: 8, title: "Espaço e Abertura", subtitle: "", durationMinutes: 8, category: "Consciência Corporal"))
-        days.append(MeditationDay(day: 9, title: "A Luz que Habitas", subtitle: "", durationMinutes: 8, category: "Consciência Corporal"))
+        days.append(MeditationDay(day: 9, title: "A Luz que Você Habita", subtitle: "", durationMinutes: 8, category: "Consciência Corporal"))
         days.append(MeditationDay(day: 10, title: "Soltar", subtitle: "", durationMinutes: 9, category: "Consciência Corporal"))
         days.append(MeditationDay(day: 11, title: "O Rio da Consciência", subtitle: "", durationMinutes: 9, category: "Consciência Corporal"))
         days.append(MeditationDay(day: 12, title: "Amor-Bondade", subtitle: "", durationMinutes: 10, category: "Consciência Corporal"))
