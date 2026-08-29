@@ -190,6 +190,10 @@ struct HomeView: View {
             }
             await MainActor.run { DebugContextDump.semearPerfil() }
             await MainActor.run { DebugContextDump.semearSaude() }
+            // [28/08] Conferência visual do cronômetro do jejum na tela
+            // bloqueada. Roda só com `-semearJejum <horas>`.
+            await DebugContextDump.semearJejum()
+            await DebugContextDump.encerrarJejumSemeado()
             if !soVisual { await DebugContextDump.executar(health: hk) }
             #endif
         }

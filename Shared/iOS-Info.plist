@@ -105,6 +105,13 @@
 	<string>O Alma usa o microfone para você falar com a Alma no chat, transformando sua voz em texto.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>O Alma converte sua fala em texto (em português) para preencher a mensagem do chat. Quando disponível, o reconhecimento acontece no próprio aparelho.</string>
+	<!-- [2026-08-28] Sem esta chave o `Activity.request` do jejum falha em
+	     silêncio e o cronômetro nunca aparece na tela bloqueada. Ela vai no
+	     plist do APP, não no da extensão `AlmaJejumWidget` — é o app que pede a
+	     atividade; a extensão só desenha. Exigência da Apple, "Displaying live
+	     data with Live Activities", passo 2. Ver `Shared/Corpo/JejumAoVivo.swift`. -->
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

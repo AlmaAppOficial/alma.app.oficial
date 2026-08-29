@@ -190,6 +190,11 @@ struct JejumView: View {
                 protocoloEscolhido = jejum.protocoloPreferido
                 if !jejum.avisoDeSaudeVisto { mostrarAvisoDeSaude = true }
             }
+            // Nota: o cronômetro da tela bloqueada NÃO é acertado aqui. As
+            // transições (começar/pausar/retomar/encerrar) já sincronizam pelo
+            // `JejumStore`, e a re-sincronização periódica mora em
+            // `CorpoModuleView` — que é o ancestral desta tela e roda mesmo
+            // quando a pessoa nunca abre o jejum. Ver `JejumAoVivo.swift`.
             .sheet(isPresented: $mostrarApoio) { ApoioEmCriseView() }
             .sheet(isPresented: $mostrarAvisoDeSaude) {
                 AvisoDeSaudeDoJejum { jejum.marcarAvisoDeSaudeComoVisto() }

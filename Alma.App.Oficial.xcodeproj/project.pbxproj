@@ -127,6 +127,10 @@
 		B374745077D9000000000000 /* Corpo/QuebraDeJejum.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24655EE7855E4356362D2FF /* Corpo/QuebraDeJejum.swift */; };
 		92C5FE6D3CA3000000000000 /* Corpo/JejumConteudo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096B054603D5CB837C33C21D /* Corpo/JejumConteudo.swift */; };
 		A794EAB2133B000000000000 /* Corpo/Jejum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004A1B381381B79242047733 /* Corpo/Jejum.swift */; };
+		DA5A000EDA5A000EDA5A000E /* AlmaJejumWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DA5A0002DA5A0002DA5A0002 /* AlmaJejumWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DA5A0011DA5A0011DA5A0011 /* Corpo/JejumAtributosAoVivo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5A0010DA5A0010DA5A0010 /* Corpo/JejumAtributosAoVivo.swift */; };
+		DA5A0013DA5A0013DA5A0013 /* Corpo/JejumAoVivo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5A0012DA5A0012DA5A0012 /* Corpo/JejumAoVivo.swift */; };
+		DA5A000FDA5A000FDA5A000F /* Corpo/JejumAtributosAoVivo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5A0010DA5A0010DA5A0010 /* Corpo/JejumAtributosAoVivo.swift */; };
 		CC001001CC001001CC001001 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		CC001002CC001002CC001002 /* PraticasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC001000CC001000CC001000 /* PraticasView.swift */; };
 		DA8DC37B7FC02DF5CB40AF71 /* pachelbel_canon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 48E204658FDD2B56B2589026 /* pachelbel_canon.mp3 */; };
@@ -273,6 +277,13 @@
 			remoteGlobalIDString = E26731482FE19BD20003BE9F;
 			remoteInfo = AlmaComplicationExtension;
 		};
+		DA5A000BDA5A000BDA5A000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9ECED09D2F588F1C009412A7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DA5A0001DA5A0001DA5A0001;
+			remoteInfo = AlmaJejumWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -298,6 +309,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA5A000DDA5A000DDA5A000D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DA5A000EDA5A000EDA5A000E /* AlmaJejumWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -308,6 +330,9 @@
 		A24655EE7855E4356362D2FF /* Corpo/QuebraDeJejum.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/QuebraDeJejum.swift"; sourceTree = "<group>"; };
 		096B054603D5CB837C33C21D /* Corpo/JejumConteudo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumConteudo.swift"; sourceTree = "<group>"; };
 		004A1B381381B79242047733 /* Corpo/Jejum.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Jejum.swift"; sourceTree = "<group>"; };
+		DA5A0010DA5A0010DA5A0010 /* Corpo/JejumAtributosAoVivo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumAtributosAoVivo.swift"; sourceTree = "<group>"; };
+		DA5A0012DA5A0012DA5A0012 /* Corpo/JejumAoVivo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumAoVivo.swift"; sourceTree = "<group>"; };
+		DA5A0002DA5A0002DA5A0002 /* AlmaJejumWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AlmaJejumWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		10493D45C7AB1E82E3B60930 /* Corpo/UnidadeDeMedida.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/UnidadeDeMedida.swift; sourceTree = "<group>"; };
 		15929ECA09E51DEFD86FCA91 /* Corpo/CorpoContextFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/CorpoContextFormat.swift; sourceTree = "<group>"; };
 		22125E08D23CEE6A3878453B /* Corpo/TestePersistencia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/TestePersistencia.swift; sourceTree = "<group>"; };
@@ -508,10 +533,18 @@
 			);
 			target = E26731482FE19BD20003BE9F /* AlmaComplicationExtension */;
 		};
+		DA5A0004DA5A0004DA5A0004 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DA5A0001DA5A0001DA5A0001 /* AlmaJejumWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E267314F2FE19BD20003BE9F /* AlmaComplication */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E267315A2FE19BD30003BE9F /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = AlmaComplication; sourceTree = "<group>"; };
+		DA5A0003DA5A0003DA5A0003 /* AlmaJejumWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (DA5A0004DA5A0004DA5A0004 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = AlmaJejumWidget; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -565,6 +598,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA5A0006DA5A0006DA5A0006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -590,6 +630,7 @@
 				9ECED0B92F588F21009412A7 /* Tests iOS */,
 				9ECED0C52F588F21009412A7 /* Tests macOS */,
 				E267314F2FE19BD20003BE9F /* AlmaComplication */,
+				DA5A0003DA5A0003DA5A0003 /* AlmaJejumWidget */,
 				E267314A2FE19BD20003BE9F /* Frameworks */,
 				9ECED0AA2F588F21009412A7 /* Products */,
 				7E80B9A204E436E459FE32F0 /* ClassicalMusic */,
@@ -653,6 +694,8 @@
 				A24655EE7855E4356362D2FF /* Corpo/QuebraDeJejum.swift */,
 				096B054603D5CB837C33C21D /* Corpo/JejumConteudo.swift */,
 				004A1B381381B79242047733 /* Corpo/Jejum.swift */,
+				DA5A0010DA5A0010DA5A0010 /* Corpo/JejumAtributosAoVivo.swift */,
+				DA5A0012DA5A0012DA5A0012 /* Corpo/JejumAoVivo.swift */,
 				3AB66B126BEFE6197A6D1E77 /* Corpo/TextoDaPessoa.swift */,
 				10493D45C7AB1E82E3B60930 /* Corpo/UnidadeDeMedida.swift */,
 				DF3BA9ACC57A882B88177B92 /* AparenciaDoApp.swift */,
@@ -741,6 +784,7 @@
 				9ECED0C22F588F21009412A7 /* Tests macOS.xctest */,
 				E25ED1DA2F77018D0089226E /* Alma Watch App.app */,
 				E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */,
+				DA5A0002DA5A0002DA5A0002 /* AlmaJejumWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -863,11 +907,13 @@
 				9ECED0A62F588F21009412A7 /* Frameworks */,
 				9ECED0A72F588F21009412A7 /* Resources */,
 				AA009004AA009004AA009004 /* Embed Watch Content */,
+				DA5A000DDA5A000DDA5A000D /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				AA009002AA009002AA009002 /* PBXTargetDependency */,
+				DA5A000CDA5A000CDA5A000C /* PBXTargetDependency */,
 			);
 			name = "Alma.App.Oficial (iOS)";
 			packageProductDependencies = (
@@ -976,6 +1022,28 @@
 			productReference = E26731492FE19BD20003BE9F /* AlmaComplicationExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		DA5A0001DA5A0001DA5A0001 /* AlmaJejumWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA5A0008DA5A0008DA5A0008 /* Build configuration list for PBXNativeTarget "AlmaJejumWidgetExtension" */;
+			buildPhases = (
+				DA5A0005DA5A0005DA5A0005 /* Sources */,
+				DA5A0006DA5A0006DA5A0006 /* Frameworks */,
+				DA5A0007DA5A0007DA5A0007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DA5A0003DA5A0003DA5A0003 /* AlmaJejumWidget */,
+			);
+			name = AlmaJejumWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = AlmaJejumWidgetExtension;
+			productReference = DA5A0002DA5A0002DA5A0002 /* AlmaJejumWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1032,6 +1100,7 @@
 				9ECED0B52F588F21009412A7 /* Tests iOS */,
 				9ECED0C12F588F21009412A7 /* Tests macOS */,
 				E26731482FE19BD20003BE9F /* AlmaComplicationExtension */,
+				DA5A0001DA5A0001DA5A0001 /* AlmaJejumWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -1123,6 +1192,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA5A0007DA5A0007DA5A0007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1177,6 +1253,8 @@
 				B374745077D9000000000000 /* Corpo/QuebraDeJejum.swift in Sources */,
 				92C5FE6D3CA3000000000000 /* Corpo/JejumConteudo.swift in Sources */,
 				A794EAB2133B000000000000 /* Corpo/Jejum.swift in Sources */,
+				DA5A0011DA5A0011DA5A0011 /* Corpo/JejumAtributosAoVivo.swift in Sources */,
+				DA5A0013DA5A0013DA5A0013 /* Corpo/JejumAoVivo.swift in Sources */,
 				45C8D95929E4000000000000 /* Corpo/TextoDaPessoa.swift in Sources */,
 				2732DDA22F4A000000000000 /* Corpo/UnidadeDeMedida.swift in Sources */,
 				BE34688DCD5E000000000000 /* AparenciaDoApp.swift in Sources */,
@@ -1349,6 +1427,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA5A0005DA5A0005DA5A0005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA5A000FDA5A000FDA5A000F /* Corpo/JejumAtributosAoVivo.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1371,6 +1457,11 @@
 			isa = PBXTargetDependency;
 			target = E26731482FE19BD20003BE9F /* AlmaComplicationExtension */;
 			targetProxy = E26731572FE19BD30003BE9F /* PBXContainerItemProxy */;
+		};
+		DA5A000CDA5A000CDA5A000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DA5A0001DA5A0001DA5A0001 /* AlmaJejumWidgetExtension */;
+			targetProxy = DA5A000BDA5A000BDA5A000B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1503,7 +1594,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1520,7 +1611,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app;
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = iphoneos;
@@ -1537,7 +1628,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1554,7 +1645,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app;
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = iphoneos;
@@ -1573,7 +1664,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1585,7 +1676,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial";
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = macosx;
@@ -1602,7 +1693,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1614,7 +1705,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Alma-App-Oficial";
 				PRODUCT_NAME = Alma.App.Oficial;
 				SDKROOT = macosx;
@@ -1627,11 +1718,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1646,11 +1737,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1666,12 +1757,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1685,12 +1776,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.7;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "AlmaOficial.Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1706,7 +1797,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1718,7 +1809,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1736,7 +1827,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlmaWatch/AlmaWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlmaWatch/Info.plist;
@@ -1748,7 +1839,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1768,7 +1859,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1782,7 +1873,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp.AlmaComplication;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1806,7 +1897,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = AlmaComplication/AlmaComplication.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 99;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = J9U729KYR7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1820,7 +1911,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.watchkitapp.AlmaComplication;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1833,6 +1924,62 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
 				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Release;
+		};
+		DA5A0009DA5A0009DA5A0009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100;
+				DEVELOPMENT_TEAM = J9U729KYR7;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AlmaJejumWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Jejum;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.JejumAoVivo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DA5A000ADA5A000ADA5A000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100;
+				DEVELOPMENT_TEAM = J9U729KYR7;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AlmaJejumWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Jejum;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almaapp.app.JejumAoVivo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -1889,6 +2036,15 @@
 			buildConfigurations = (
 				AA006001AA006001AA006001 /* Debug */,
 				AA006002AA006002AA006002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA5A0008DA5A0008DA5A0008 /* Build configuration list for PBXNativeTarget "AlmaJejumWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA5A0009DA5A0009DA5A0009 /* Debug */,
+				DA5A000ADA5A000ADA5A000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

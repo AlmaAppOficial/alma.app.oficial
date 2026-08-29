@@ -91,6 +91,51 @@ enum DebugContextDump {
         NSLog("[SEMEADO] perfil e registros de teste gravados")
     }
 
+    /// [2026-08-28] Semeia um jejum EM CURSO e acende o cronômetro da tela
+    /// bloqueada, para a conferência visual da atividade ao vivo.
+    ///
+    /// Existe pelo mesmo motivo do `semearPerfil`: a alternativa seria automação
+    /// de toque atravessando Início → Dieta → card do jejum → escolher protocolo
+    /// → "Começar", e depois ESPERAR horas para o contador mostrar um número que
+    /// não fosse "00:00:03". Aqui o jejum nasce com o tempo que se pede.
+    ///
+    /// Uso:  `-semearJejum <horas>`  · `-semearJejumPausado 1` para pausá-lo.
+    /// Exemplos:  `-semearJejum 3`  ·  `-semearJejum 17` (já passou da meta).
+    ///
+    /// **Não chega à App Store**: `semearParaCapturas` do `JejumStore` só existe
+    /// em `#if DEBUG`, e este arquivo inteiro é de validação.
+    @MainActor
+    static func semearJejum() async {
+        let horas = UserDefaults.standard.double(forKey: "semearJejum")
+        guard horas > 0 else { return }
+
+        #if DEBUG
+        let agora = Date()
+        let comecou = agora.addingTimeInterval(-horas * 3600)
+        var jejum = JejumEmCurso(protocolo: .dezesseisPorOito, comecouEm: comecou)
+        if UserDefaults.standard.bool(forKey: "semearJejumPausado") {
+            jejum = jejum.pausando(agora: agora)
+        }
+        JejumStore.shared.semearParaCapturas(emCurso: jejum, historico: [])
+        await JejumStore.shared.sincronizarCronometroDaTelaBloqueada()
+        NSLog("[SEMEADO] jejum de \(horas) h em curso · pausado=\(jejum.estaPausado)")
+        #endif
+    }
+
+    /// [2026-08-28] Encerra o jejum semeado e tira o cronômetro da tela
+    /// bloqueada. É a metade que PROVA que a atividade não fica órfã — sem ela,
+    /// a captura só mostraria que o cronômetro sabe aparecer.
+    /// Uso: `-encerrarJejumSemeado 1`.
+    @MainActor
+    static func encerrarJejumSemeado() async {
+        guard UserDefaults.standard.bool(forKey: "encerrarJejumSemeado") else { return }
+        #if DEBUG
+        JejumStore.shared.encerrar()
+        await JejumStore.shared.sincronizarCronometroDaTelaBloqueada()
+        NSLog("[SEMEADO] jejum encerrado e atividade ao vivo removida")
+        #endif
+    }
+
     /// [2026-08-04] Semeia as fontes que o simulador não consegue produzir
     /// sozinho: HealthKit (via `SementeDeSaude`, lida dentro do
     /// `HealthKitManager`), sequência de meditação, humor e suplementos.

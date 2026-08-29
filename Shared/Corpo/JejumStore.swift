@@ -8,6 +8,12 @@
 // (UserDefaults) e AVISA (UNUserNotificationCenter). Separados porque a decisão
 // tem de ser exercitável sem simulador e a persistência não tem como ser.
 //
+// [28/08] Um terceiro verbo entrou: este arquivo também MOSTRA — mantém o
+// cronômetro da tela bloqueada em sincronia com o jejum, por
+// `sincronizarCronometroDaTelaBloqueada()`. A decisão de o que mostrar continua
+// fora daqui, em `estadoAoVivo(de:agora:)` (`JejumAoVivo.swift`), que é pura e
+// entra no harness de mutação. Aqui só ficou o gatilho.
+//
 // ═══════════════════════════════════════════════════════════════════════════
 // POR QUE SINGLETON, SE O `AppModel` NÃO É
 //
@@ -130,19 +136,26 @@ final class JejumStore: ObservableObject {
         Task {
             await pedirAutorizacaoSePreciso()
             await reagendar()
+            await sincronizarCronometroDaTelaBloqueada()
         }
     }
 
     func pausar(agora: Date = Date()) {
         guard let atual = emCurso else { return }
         emCurso = atual.pausando(agora: agora)
-        Task { await reagendar() }
+        Task {
+            await reagendar()
+            await sincronizarCronometroDaTelaBloqueada()
+        }
     }
 
     func retomar(agora: Date = Date()) {
         guard let atual = emCurso else { return }
         emCurso = atual.retomando(agora: agora)
-        Task { await reagendar() }
+        Task {
+            await reagendar()
+            await sincronizarCronometroDaTelaBloqueada()
+        }
     }
 
     /// Encerra e arquiva. Devolve o registro para quem quiser mostrar o resumo.
@@ -163,14 +176,20 @@ final class JejumStore: ObservableObject {
         historico.insert(registro, at: 0)
         podar()
         emCurso = nil
-        Task { await reagendar() }
+        Task {
+            await reagendar()
+            await sincronizarCronometroDaTelaBloqueada()
+        }
         return registro
     }
 
     /// Descarta sem arquivar — para quem começou por engano.
     func descartar() {
         emCurso = nil
-        Task { await GradeDeLembretes.limpar(.jejum) }
+        Task {
+            await GradeDeLembretes.limpar(.jejum)
+            await sincronizarCronometroDaTelaBloqueada()
+        }
     }
 
     func marcarAvisoDeSaudeComoVisto() { avisoDeSaudeVisto = true }
@@ -270,6 +289,27 @@ final class JejumStore: ObservableObject {
 
     static let idFimDoJejum  = "jejum_fim"
     static let idFimDaJanela = "jejum_janela"
+
+    // MARK: - Cronômetro na tela bloqueada (Live Activity)
+
+    /// Põe a atividade ao vivo de acordo com o estado atual do jejum.
+    ///
+    /// Chamada nas quatro transições (começar, pausar, retomar, encerrar) e
+    /// também de `CorpoModuleView` — ao abrir o módulo e a cada volta do
+    /// segundo plano. Esse segundo caso cobre dois cenários que nenhuma
+    /// transição cobre: recriar a atividade depois do teto de 8 horas do iOS,
+    /// e limpar uma atividade órfã que sobrou de um jejum já encerrado.
+    ///
+    /// ⚠️ NÃO passa por `notificacoesLigadas`, e isso é decisão, não descuido.
+    /// Aquele interruptor governa os dois avisos de disparo único; a atividade
+    /// ao vivo tem autorização PRÓPRIA no iOS (Ajustes › Alma › Atividades ao
+    /// Vivo), então filtrá-la aqui esconderia o cronômetro de quem só desligou
+    /// os avisos de janela. Mesma divisão do Android, onde a notificação
+    /// persistente é publicada independentemente de `avisosLigados`.
+    func sincronizarCronometroDaTelaBloqueada() async {
+        guard #available(iOS 16.2, *) else { return }
+        await AtividadeAoVivoDoJejum.sincronizar(com: emCurso)
+    }
 
     /// Disparo único. Ver o cabeçalho: `repeats: true` aqui furaria o teto
     /// diário de lembretes que a auditoria confere.

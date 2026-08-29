@@ -77,6 +77,18 @@ struct CorpoModuleView: View {
                 // do relógio aplica eventos (água, treino) NESTA instância —
                 // a tela reflete na hora, sem esperar reabrir o módulo.
                 WatchBridge.shared.attachCorpoModel(corpoModel)
+
+                // [2026-08-28] Acerta o cronômetro do jejum na tela bloqueada.
+                //
+                // Fica AQUI, e não na `JejumView`, porque a `JejumView` é uma
+                // tela empilhada: exigir que a pessoa navegue até ela para o
+                // cronômetro voltar seria pedir o passo que ela justamente não
+                // dá — abrir o app e olhar a Dieta é o comportamento normal.
+                //
+                // Este é o ponto que RECRIA a atividade depois do teto de 8 h
+                // do iOS (ver `JejumAoVivo.swift`) e o que remove atividade
+                // órfã de um jejum já encerrado.
+                await JejumStore.shared.sincronizarCronometroDaTelaBloqueada()
                 #endif
             }
             // [2026-08-07] A VIRADA DO DIA. `corpoModel` é @StateObject: nasce
@@ -94,7 +106,15 @@ struct CorpoModuleView: View {
             // parâmetros) só existe de lá para cá. Mesmo formato já usado em
             // CorpoHomeView.swift:81.
             .onChange(of: scenePhase) { nova in
-                if nova == .active { corpoModel.reavaliarDiaAtual() }
+                if nova == .active {
+                    corpoModel.reavaliarDiaAtual()
+                    // [28/08] Mesmo motivo da virada do dia: o `.task` acima
+                    // roda uma vez e o módulo sobrevive a noite inteira em
+                    // segundo plano. Sem isto, o cronômetro encerrado pelo teto
+                    // de 8 h do iOS só voltaria quando a pessoa FECHASSE e
+                    // reabrisse o Corpo.
+                    Task { await JejumStore.shared.sincronizarCronometroDaTelaBloqueada() }
+                }
             }
             #if os(iOS)
             .onReceive(NotificationCenter.default.publisher(
