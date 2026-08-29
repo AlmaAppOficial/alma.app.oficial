@@ -186,7 +186,15 @@ enum SmokeTestTelas {
                 .environmentObject(storeAlma)
                 .environmentObject(hk)
 
-            let quadro = CGRect(x: 0, y: 0, width: 393, height: 852)
+            // [2026-08-29] Era `CGRect(0,0,393,852)` fixo — o tamanho lógico do
+            // iPhone 15/16 Pro. Consequência: rodar o harness num 17 Pro Max
+            // continuava produzindo 1179x2556, e não os 1320x2868 que a App
+            // Store exige no slot de 6,9". A captura saía com a dimensão do
+            // aparelho ERRADO sem nada avisar, porque nenhum passo comparava o
+            // PNG com o simulador em que ele nasceu.
+            // Agora segue o aparelho: num iPad dá o quadro do iPad, num Max dá
+            // o do Max. Código só de DEBUG (todo o arquivo é `#if DEBUG`).
+            let quadro = CGRect(origin: .zero, size: UIScreen.main.bounds.size)
             let host = UIHostingController(rootView: AnyView(conteudo))
             host.overrideUserInterfaceStyle = esquema == .dark ? .dark : .light
             host.view.frame = quadro
@@ -467,7 +475,15 @@ enum SmokeTestTelas {
                 .environmentObject(storeAlma)
                 .environmentObject(hk)
 
-            let quadro = CGRect(x: 0, y: 0, width: 393, height: 852)  // iPhone 15/16 lógico
+            // [2026-08-29] Era `CGRect(0,0,393,852)` fixo — o tamanho lógico do
+            // iPhone 15/16 Pro. Consequência: rodar o harness num 17 Pro Max
+            // continuava produzindo 1179x2556, e não os 1320x2868 que a App
+            // Store exige no slot de 6,9". A captura saía com a dimensão do
+            // aparelho ERRADO sem nada avisar, porque nenhum passo comparava o
+            // PNG com o simulador em que ele nasceu.
+            // Agora segue o aparelho: num iPad dá o quadro do iPad, num Max dá
+            // o do Max. Código só de DEBUG (todo o arquivo é `#if DEBUG`).
+            let quadro = CGRect(origin: .zero, size: UIScreen.main.bounds.size)  // iPhone 15/16 lógico
             let host = UIHostingController(rootView: AnyView(conteudo))
             host.view.frame = quadro
             host.view.backgroundColor = .systemBackground
