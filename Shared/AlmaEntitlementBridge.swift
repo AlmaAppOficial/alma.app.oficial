@@ -38,12 +38,44 @@
 import Foundation
 import StoreKit
 import FirebaseAuth
+import os
 
 enum AlmaEntitlementBridge {
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // [2026-08-28 — Opção 3 do laudo do 403] LOG VISÍVEL EM PRODUÇÃO
+    //
+    // Antes, TODO o diagnóstico daqui vivia dentro de `#if DEBUG`: no build da
+    // App Store, uma falha de vínculo era literalmente invisível. Foi assim que
+    // uma assinante real de iOS ficou sem `apple_transaction_links` de 17/06 a
+    // 17/08 sem ninguém ver — o servidor registrou "sem vínculo para a
+    // transação" e o app não registrou nada.
+    //
+    // `os.Logger` é o mecanismo certo: sai no Console.app e no sysdiagnose do
+    // aparelho, custa quase nada quando ninguém está olhando, e NÃO passa por
+    // servidor nenhum (não é analytics, não é Crashlytics, não sai do device
+    // por conta própria — o que mantém a regra de privacidade do CLAUDE.md).
+    //
+    // O QUE NUNCA ENTRA NO LOG: o JWS, o token, o uid e o e-mail. Só status
+    // HTTP, `originalID` da transação (que é da Apple, não da pessoa) e a
+    // contagem de tentativas. `privacy: .public` é explícito nos campos que
+    // podem aparecer — sem isso o os_log mascara tudo como `<private>` e o log
+    // vira inútil justamente quando alguém precisa dele.
+    // ─────────────────────────────────────────────────────────────────────────
+    private static let log = Logger(subsystem: "com.almaapp.app",
+                                    category: "entitlement")
 
     private static let endpoint = URL(
         string: "https://southamerica-east1-alma-app-7dae6.cloudfunctions.net/vincularAssinatura"
     )!
+
+    /// [2026-08-28] Tentativas por transação, com espera crescente entre elas.
+    ///
+    /// Três, e não mais: o `sincronizar()` roda a cada abertura do app, então a
+    /// quarta tentativa já é a próxima vez que a pessoa abre. Insistir mais
+    /// dentro da mesma sessão só gasta bateria para resolver o mesmo caso.
+    private static let tentativasMax = 3
+    private static let esperaBase: UInt64 = 2_000_000_000   // 2 s, dobrando
 
     /// Prefixo da marca de "já sincronizei esta transação hoje".
     /// O `LocalDataCleanupService` varre chaves com prefixo `alma_` no logout.
@@ -81,9 +113,34 @@ enum AlmaEntitlementBridge {
             // provar nada ao servidor. Como o servidor verifica a assinatura
             // (é o mesmo caminho do `appleNotifications`), é o envelope que
             // precisa viajar.
-            if await enviar(jws: resultado.jwsRepresentation, user: user) {
+            // [2026-08-28] Retry com espera crescente. Antes era uma tentativa
+            // só: um 503 momentâneo ou uma rede ruim no segundo exato da
+            // abertura custava um dia inteiro de vínculo — e em silêncio.
+            var ok = false
+            for tentativa in 1...tentativasMax {
+                ok = await enviar(jws: resultado.jwsRepresentation,
+                                  user: user,
+                                  originalID: transacao.originalID,
+                                  tentativa: tentativa)
+                if ok { break }
+                if tentativa < tentativasMax {
+                    try? await Task.sleep(nanoseconds: esperaBase << (tentativa - 1))
+                }
+            }
+
+            if ok {
                 UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: chave)
                 enviadas += 1
+            } else {
+                // A marca NÃO é gravada: sem ela, a próxima abertura tenta de
+                // novo em vez de esperar 24 h. Falhar não pode virar silêncio
+                // de um dia.
+                log.error("""
+                    vínculo NÃO estabelecido após \(tentativasMax, privacy: .public) \
+                    tentativas · originalID=\(transacao.originalID, privacy: .public) \
+                    · produto=\(transacao.productID, privacy: .public) \
+                    — assinatura paga sem acesso no servidor
+                    """)
             }
         }
         return enviadas
@@ -97,14 +154,19 @@ enum AlmaEntitlementBridge {
         return Date().timeIntervalSince1970 - ultimo < intervaloMinimo
     }
 
-    private static func enviar(jws: String, user: User) async -> Bool {
+    private static func enviar(jws: String,
+                               user: User,
+                               originalID: UInt64,
+                               tentativa: Int) async -> Bool {
         let token: String
         do {
             token = try await user.getIDToken()
         } catch {
-            #if DEBUG
-            print("[entitlement] falha ao obter ID token: \(error)")
-            #endif
+            log.error("""
+                falha ao obter ID token (tentativa \(tentativa, privacy: .public)) \
+                · originalID=\(originalID, privacy: .public) \
+                · \(error.localizedDescription, privacy: .public)
+                """)
             return false
         }
 
@@ -120,22 +182,40 @@ enum AlmaEntitlementBridge {
 
         do {
             let (dados, resposta) = try await URLSession.shared.data(for: request)
-            guard let http = resposta as? HTTPURLResponse else { return false }
-            guard http.statusCode == 200 else {
-                #if DEBUG
-                let corpo = String(data: dados, encoding: .utf8) ?? ""
-                print("[entitlement] servidor recusou (\(http.statusCode)): \(corpo)")
-                #endif
+            guard let http = resposta as? HTTPURLResponse else {
+                log.error("""
+                    resposta sem HTTP (tentativa \(tentativa, privacy: .public)) \
+                    · originalID=\(originalID, privacy: .public)
+                    """)
                 return false
             }
-            #if DEBUG
-            print("[entitlement] assinatura vinculada no servidor")
-            #endif
+            guard http.statusCode == 200 else {
+                // O corpo pode trazer texto do servidor; fica em DEBUG porque é
+                // o único campo aqui que não controlamos e poderia, um dia,
+                // carregar algo que não queremos em log de produção.
+                #if DEBUG
+                let corpo = String(data: dados, encoding: .utf8) ?? ""
+                log.debug("corpo da recusa: \(corpo, privacy: .public)")
+                #endif
+                log.error("""
+                    servidor recusou o vínculo · HTTP \(http.statusCode, privacy: .public) \
+                    · tentativa \(tentativa, privacy: .public) \
+                    · originalID=\(originalID, privacy: .public)
+                    """)
+                return false
+            }
+            log.info("""
+                assinatura vinculada no servidor \
+                · originalID=\(originalID, privacy: .public) \
+                · tentativa \(tentativa, privacy: .public)
+                """)
             return true
         } catch {
-            #if DEBUG
-            print("[entitlement] falha de rede ao vincular: \(error)")
-            #endif
+            log.error("""
+                falha de rede ao vincular (tentativa \(tentativa, privacy: .public)) \
+                · originalID=\(originalID, privacy: .public) \
+                · \(error.localizedDescription, privacy: .public)
+                """)
             return false
         }
     }

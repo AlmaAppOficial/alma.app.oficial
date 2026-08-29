@@ -183,6 +183,19 @@ struct ChatView: View {
     // deu lugar a uso limitado grátis — FreemiumLimits.chatMessagesPerDay
     // mensagens/dia. Ao esgotar, CTA → paywall (sheet). Assinante: sem limite.
     @State private var showPaywall = false
+
+    // [2026-08-28] O servidor já recusou esta conta por assinatura neste
+    // episódio. Existe para o paywall abrir UMA vez, e não a cada envio:
+    // modal repetido troca um incômodo por outro. Enquanto true, o envio é
+    // travado no botão e o convite fica visível na faixa do topo — a pessoa
+    // continua vendo o motivo, sem levar um modal na cara toda vez.
+    // Zera sozinho quando o premium entra (ver `.onChange` do `isPremium`).
+    @State private var premiumBloqueado = false
+
+    /// [2026-08-28] Copy escolhida pelo Assis. Mora no CLIENTE de propósito: o
+    /// texto que o servidor manda no 403 é DESCARTADO por este caminho (vira
+    /// `.premiumRequired`). Trocar a frase aqui não exige deploy de servidor.
+    static let conviteAssinatura = "Assine para conversar com a sua Alma"
     /// Apoio em crise: aberto só por toque no rodapé, nunca automaticamente.
     @State private var showApoio = false
     @State private var freeUsedToday = FreemiumLimits.chatMessagesUsedToday()
@@ -264,9 +277,16 @@ struct ChatView: View {
             Text("Sua mensagem tem \(inputText.trimmingCharacters(in: .whitespaces).count.formatted()) caracteres — o máximo é \(ChatLimits.maxMessageLength.formatted()). Divida o texto em partes menores e envie uma de cada vez. 💜")
         }
         .sheet(isPresented: $showPaywall) {
-            PremiumWallView()
+            // [2026-08-28] Título contextual quando o paywall veio da recusa do
+            // servidor. Nos outros gatilhos (cota, botão) o título padrão fica.
+            PremiumWallView(titulo: premiumBloqueado ? Self.conviteAssinatura : nil)
                 .environmentObject(access)
                 .environmentObject(store)
+        }
+        // [2026-08-28] Comprou (ou o entitlement finalmente resolveu): destrava
+        // o envio e some com o convite, sem precisar reabrir a tela.
+        .onChange(of: access.isPremium) { agoraEhPremium in
+            if agoraEhPremium { premiumBloqueado = false }
         }
         .onAppear {
             TabVisibilityState.shared.hideMiniPlayer = true
@@ -326,6 +346,12 @@ struct ChatView: View {
     }
 
     private var freemiumPillText: String {
+        // [2026-08-28] Recusa por assinatura vinda do SERVIDOR. Fica aqui, na
+        // faixa fixa do topo, em vez de virar balão: é persistente, não some ao
+        // rolar, e não se repete a cada mensagem.
+        if premiumBloqueado {
+            return Self.conviteAssinatura
+        }
         if !FreemiumLimits.chatHasFreeQuota {
             return "Conversar com a Alma faz parte do Premium"
         }
@@ -682,7 +708,12 @@ struct ChatView: View {
                                 : CalmTheme.primary
                         )
                 }
-                .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isTyping || voice.isRecording)
+                // [2026-08-28] `premiumBloqueado` trava o envio depois da recusa
+                // do servidor. Sem isto, cada toque dispararia outro 403 — e a
+                // escolha seria entre reabrir o modal (laço) ou não fazer nada
+                // (silêncio). Botão desabilitado + convite na faixa do topo diz
+                // o que houve sem nenhum dos dois.
+                .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isTyping || voice.isRecording || premiumBloqueado)
             }
         }
         .padding(.horizontal, 16)
@@ -695,6 +726,12 @@ struct ChatView: View {
     private func sendMessage() {
         let trimmed = inputText.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
+
+        // [2026-08-28] Cinto de segurança do `premiumBloqueado`. O botão já está
+        // desabilitado neste estado; isto cobre o ditado por voz e qualquer
+        // outro caminho que chame `sendMessage()` sem passar pelo botão. Não
+        // vai à rede e NÃO reabre o paywall — quem reabre é o toque na faixa.
+        if premiumBloqueado && !access.isPremium { return }
 
         // [Build 84] FREEMIUM: não-assinante tem N mensagens/dia; ao esgotar,
         // paywall em vez de envio.
@@ -771,6 +808,10 @@ struct ChatView: View {
                     // em vez do generico "Sessao expirada" que enganava o usuario.
                     await MainActor.run {
                         isTyping = false
+                        if case AlmaError.premiumRequired = retryError {
+                            bloquearPorAssinatura()
+                            return
+                        }
                         messages.append(ChatMessage(errorMessage(for: retryError), isUser: false, isTransient: true))
                     }
                 }
@@ -778,10 +819,31 @@ struct ChatView: View {
                 // [Build 77 — 12/05/2026] Mensagens especificas por tipo de erro.
                 await MainActor.run {
                     isTyping = false
+                    // [2026-08-28] Recusa por assinatura NÃO vira mensagem da
+                    // Alma: abre o paywall, uma vez. Todo o resto (rede, cota,
+                    // 400, 500) continua caindo no `append` de baixo e continua
+                    // APARECENDO para a pessoa — ver o teste de não-regressão
+                    // no laudo. Engolir esses erros seria pior que o defeito.
+                    if case AlmaError.premiumRequired = firstError {
+                        bloquearPorAssinatura()
+                        return
+                    }
                     messages.append(ChatMessage(errorMessage(for: firstError), isUser: false, isTransient: true))
                 }
             }
         }
+    }
+
+    /// [2026-08-28] Abre o paywall UMA vez e trava o envio.
+    ///
+    /// O `guard` é o coração da coisa: a segunda recusa (e a terceira) não
+    /// reabrem o modal. Antes desta função, cada mensagem enviada gerava um
+    /// balão idêntico; a correção ingênua — abrir o paywall a cada 403 — só
+    /// trocaria o balão repetido por um modal repetido.
+    private func bloquearPorAssinatura() {
+        guard !premiumBloqueado else { return }
+        premiumBloqueado = true
+        showPaywall = true
     }
 
     // [Build 77 — 12/05/2026] Helper de mensagens especificas por tipo de erro.
@@ -798,12 +860,24 @@ struct ChatView: View {
             // muito longa) — mostra ela em vez de "erro 400" cru.
             case .serverRejected(_, let serverText):
                 return serverText
+            // [2026-08-28] Não deve chegar aqui: `premiumRequired` é
+            // interceptado no `catch` e abre o paywall. Existe para o `switch`
+            // ser exaustivo e para o caso de alguém chamar `errorMessage` por
+            // outro caminho no futuro.
+            case .premiumRequired(let serverText):
+                return serverText
             case .serverError(let code):
                 switch code {
                 case 400:
                     return "Nao consegui processar essa mensagem. Tente reescrever ou dividir em partes menores."
-                case 401, 403:
+                // [2026-08-28] 401 e 403 eram um caso só, com a copy do 401.
+                // Separados porque o 403 nunca foi sessão expirada — e agora
+                // que o 403 de ASSINATURA saiu daqui (vira `.premiumRequired`),
+                // sobrou só o 403 sem corpo JSON, que merece texto próprio.
+                case 401:
                     return "Sua sessao expirou. Feche e abra o app novamente."
+                case 403:
+                    return "Este recurso nao esta disponivel na sua conta."
                 case 429:
                     return "Voce atingiu o limite de mensagens. Tente novamente em alguns minutos."
                 case 500...599:

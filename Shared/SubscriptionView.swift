@@ -13,6 +13,12 @@ import StoreKit
 
 struct PremiumWallView: View {
 
+    /// [2026-08-28] Título contextual. `nil` mantém o de sempre — os gatilhos
+    /// antigos (cota esgotada, botão "Conhecer o Premium") não mudam. O chat
+    /// passa a frase da recusa por assinatura, para o paywall responder à
+    /// pergunta que a pessoa acabou de fazer em vez de dar boas-vindas.
+    var titulo: String? = nil
+
     @EnvironmentObject var access: AccessManager
     @EnvironmentObject var store: StoreKitManager
     @State private var isRefreshing   = false
@@ -38,9 +44,11 @@ struct PremiumWallView: View {
                     .padding(.bottom, 24)
 
                 // Título
-                Text("Bem-vindo à Alma")
+                Text(titulo ?? "Bem-vindo à Alma")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
                     .padding(.bottom, 10)
 
                 // Preço dinâmico (quando carregado do App Store)

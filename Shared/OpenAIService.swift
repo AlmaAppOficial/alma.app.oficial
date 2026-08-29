@@ -11,6 +11,103 @@ enum ChatLimits {
     static let counterVisibleFrom = 3400
 }
 
+// MARK: - Identidade de nascimento (efêmera)
+//
+// [2026-08-28] Hora e local de nascimento, do aparelho para a IA, sem parar no
+// banco.
+//
+// ── O DEFEITO QUE ISTO FECHA ────────────────────────────────────────────────
+// O onboarding (`OnboardingBiometricsView`) pergunta o período do dia e a
+// cidade de nascimento, e o `UserMemoryManager` grava os dois em UserDefaults
+// (`alma_user_birthTimeSlot`, `alma_user_birthCity`). E acabava ali: nenhum
+// caminho levava esses campos até a Alma. Em produção ela dizia, corretamente,
+// que os dados "não chegaram para mim neste contexto".
+//
+// ── POR QUE EFÊMERO, E NÃO NO FIRESTORE ────────────────────────────────────
+// Decisão do Assis: mesmo cano do `healthContext`. Sobe dentro da requisição,
+// é usado para montar o prompt e morre com ela. Cidade + hora exata
+// identificam muito mais que uma data solta, e a declaração de "efêmero" já
+// feita no formulário do Google Play só continua verdadeira enquanto isto não
+// for persistido.
+//
+// ── POR QUE MANDA CAMPO, E NÃO FRASE PRONTA ────────────────────────────────
+// O `healthContext` sobe como texto porque é montado de sensor. A cidade é
+// digitada pela pessoa num `TextField` — mesma superfície de injeção de prompt
+// que o `mainChallenge`. Então o aparelho manda os CAMPOS e quem escreve a
+// frase é o servidor, que valida o período contra conjunto fechado e higieniza
+// a cidade (`blocoIdentidadeDeNascimento`, em contextoDoUsuario.ts).
+//
+// ── POR QUE AQUI DENTRO, E NÃO EM ARQUIVO PRÓPRIO ──────────────────────────
+// `Shared/` não é um `PBXFileSystemSynchronizedRootGroup` neste projeto — só
+// `AlmaComplication` é. Arquivo novo em `Shared/` NÃO entra no alvo sozinho:
+// precisa ser registrado no `project.pbxproj`, e um arquivo que não compila
+// falha em silêncio (o app builda, a função simplesmente não existe). Mora
+// junto de quem o consome até alguém decidir mexer no projeto.
+enum BirthIdentityContext {
+
+    /// Valor que o onboarding grava quando a pessoa não sabe o período.
+    /// Não sobe: ausência de linha já diz isso, e de graça.
+    static let slotDesconhecido = "Não sei"
+
+    /// Tem de bater com `PERIODOS_DE_NASCIMENTO` no servidor — o que não bater
+    /// é descartado lá, em silêncio.
+    static let slotsValidos: Set<String> = [
+        "Madrugada (0h-6h)",
+        "Manhã (6h-12h)",
+        "Tarde (12h-18h)",
+        "Noite (18h-24h)",
+    ]
+
+    static let maxCharsCidade = 60
+
+    /// Monta o dicionário que vai no corpo da requisição. `nil` quando não há
+    /// nada de útil — e aí nada é enviado, e o servidor se comporta como nas
+    /// versões antigas do app.
+    static func build(memoria: UserMemoryManager = .shared) -> [String: String]? {
+        var campos: [String: String] = [:]
+
+        // Hora exata: só existe se algum dia a pessoa disser na conversa e
+        // alguém gravar. Hoje NINGUÉM grava esta chave — ela é lida assim mesmo
+        // para que o dia em que passar a existir não precise de mudança aqui.
+        let horaExata = UserDefaults.standard.string(forKey: "alma_user_birthTimeExact") ?? ""
+        if Self.horaValida(horaExata) {
+            campos["birthTime"] = horaExata
+        } else {
+            let slot = memoria.birthTimeSlot.trimmingCharacters(in: .whitespacesAndNewlines)
+            if slotsValidos.contains(slot) {
+                campos["birthTimeSlot"] = slot
+            }
+        }
+
+        let cidade = Self.limpar(memoria.birthCity)
+        if !cidade.isEmpty {
+            campos["birthCity"] = cidade
+            let pais = Self.limpar(memoria.birthCountry)
+            if !pais.isEmpty { campos["birthCountry"] = pais }
+        }
+
+        return campos.isEmpty ? nil : campos
+    }
+
+    /// `"14:30"` — 24h, zero à esquerda. Qualquer outra coisa é tratada como
+    /// ausência: hora meio-válida vira precisão inventada lá na frente.
+    static func horaValida(_ s: String) -> Bool {
+        let t = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard t.count == 5 else { return false }
+        return t.range(of: "^([01][0-9]|2[0-3]):[0-5][0-9]$", options: .regularExpression) != nil
+    }
+
+    /// Tira quebra de linha e aparas, e aplica o teto. A higiene contra injeção
+    /// é do servidor — esta é só a boa vizinhança de não mandar lixo.
+    static func limpar(_ s: String) -> String {
+        let semQuebra = s
+            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "\r", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return String(semQuebra.prefix(maxCharsCidade))
+    }
+}
+
 // MARK: - AlmaError
 enum AlmaError: LocalizedError {
     case noUser
@@ -19,6 +116,15 @@ enum AlmaError: LocalizedError {
     /// [Build 84] Erro HTTP com mensagem amigável vinda do corpo JSON do
     /// servidor (`{"error": "..."}`) — ex.: validação de mensagem muito longa.
     case serverRejected(Int, String)
+    /// [2026-08-28] O servidor recusou por ASSINATURA (403 + `motivo:
+    /// "premium_obrigatorio"`). Variante própria, e não `serverRejected`,
+    /// porque a UI **não deve mostrar este texto**: deve abrir o paywall.
+    ///
+    /// Antes disto, o texto do servidor virava balão da Alma e se repetia a
+    /// cada mensagem enviada — ver `LAUDO_CHAT_403_PREMIUM_20260828.md`. O
+    /// texto viaja junto só para log e para o `switch` ser exaustivo; quem
+    /// escreve a frase que a pessoa lê é o CLIENTE.
+    case premiumRequired(String)
     case rateLimited
     case parseFailed
     case networkError(String)
@@ -29,6 +135,7 @@ enum AlmaError: LocalizedError {
         case .tokenFailed:       return "Falha ao obter token de autenticacao."
         case .serverError(let c): return "Erro do servidor (\(c))."
         case .serverRejected(_, let m): return m
+        case .premiumRequired(let m): return m
         case .rateLimited:       return "Limite de mensagens atingido. Tente novamente amanhã."
         case .parseFailed:       return "Resposta inesperada do servidor."
         case .networkError(let m): return "Erro de rede: \(m)"
@@ -91,6 +198,20 @@ class OpenAIService {
         if let healthContext, !healthContext.isEmpty {
             body["healthContext"] = healthContext
         }
+        // [2026-08-28] Hora e local de nascimento (`BirthIdentityContext`).
+        //
+        // Cano deliberadamente SEPARADO do `healthContext`: aquele é gated por
+        // consentimento de saúde e tem teto de 600 caracteres compartilhado.
+        // Pendurar nascimento ali faria a identidade da pessoa depender de ela
+        // ter ligado o HealthKit — e competir por espaço com alergia e humor.
+        // Nascimento não é dado de saúde e não deve disputar aquele orçamento.
+        //
+        // ⚠️ Efêmero, como o `healthContext` e a `regiao`: o servidor injeta no
+        // prompt e NÃO grava. Vai estruturado de propósito — a cidade é
+        // digitada pela pessoa, então quem escreve a frase é o servidor.
+        if let nascimento = BirthIdentityContext.build(), !nascimento.isEmpty {
+            body["identidadeDeNascimento"] = nascimento
+        }
         // [2026-08-22] Região do aparelho, e SÓ para o servidor escolher qual
         // linha de apoio em crise oferecer (`functions/src/apoioEmCrise.ts`).
         // Dar o número do país errado é pior do que não dar número: a pessoa
@@ -135,6 +256,19 @@ class OpenAIService {
                    let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let serverText = json["error"] as? String,
                    !serverText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    // [2026-08-28] O campo `motivo` é o que separa "assinatura"
+                    // de qualquer outra recusa. Sem ele, o 403 de premium e o
+                    // 400 de mensagem longa chegam à UI como o MESMO caso — e
+                    // o de premium virava balão de conversa, repetido.
+                    //
+                    // A condição é estreita de propósito: exige status 403 E o
+                    // motivo exato. Qualquer outro erro com corpo JSON continua
+                    // saindo como `serverRejected` e continua sendo MOSTRADO à
+                    // pessoa, que é o comportamento certo para erro de verdade.
+                    if http.statusCode == 403,
+                       (json["motivo"] as? String) == "premium_obrigatorio" {
+                        throw AlmaError.premiumRequired(serverText)
+                    }
                     throw AlmaError.serverRejected(http.statusCode, serverText)
                 }
                 throw AlmaError.serverError(http.statusCode)
