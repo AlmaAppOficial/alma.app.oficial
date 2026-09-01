@@ -40,11 +40,18 @@
 // ser proteína"*. Foi apurado antes de mexer no código, a evidência sustenta, e
 // por isso este arquivo MUDOU — não só o texto da tela.
 //
-// REGRA 1 — COMEÇAR PEQUENO. Vem da literatura de Ramadã, onde há mais gente
-// quebrando jejum longo do que em qualquer ensaio clínico: refeição de quebra
-// muito grande, com carboidrato rápido e fritura, aparece junto com pico de
-// açúcar no sangue, enjoo, inchaço e saciedade cedo demais. Programas que
-// mandam comer pouco primeiro registram menos oscilação de açúcar.
+// REGRA 1 — COMEÇAR PEQUENO. Vem da fisiologia do esvaziamento gástrico,
+// medida em gente saudável: depois de um jejum mais longo, o estômago esvazia
+// mais devagar (Jones, Dockray e Thompson, Neurogastroenterol Motil 2012 —
+// PMID 22726634, 12 h vs 24 h de jejum). Refeição grande de uma vez vai contra
+// esse ritmo; a porção pequena existe para respeitá-lo.
+//
+// [31/08] Esta regra apoiava-se em achados de Ramadã cuja fonte (Abdulrasak e
+// colegas, J Clin Med 2025) descreve DIABÉTICOS COM GASTROPARESIA — população
+// errada para generalizar, e "fritura" nem constava lá. A frase "programas que
+// mandam comer pouco primeiro registram menos oscilação de açúcar" não existe
+// medida em fonte nenhuma (é conselho de diretriz IDF-DAR para diabéticos) e
+// foi apagada. O conselho não mudou; o apoio sim.
 //
 // REGRA 2 — PROTEÍNA (E VEGETAL) ANTES DO CARBOIDRATO. Vem dos estudos de
 // sequência de alimentos. A MESMA refeição, comida em ordens diferentes, produz
@@ -422,10 +429,11 @@ public enum QuebraDeJejum {
 
     /// Piso e teto do orçamento da quebra.
     ///
-    /// O teto existe por causa do achado do Ramadã: refeição de quebra muito
-    /// grande é o que aparece ligado a pico glicêmico e a desconforto. 1.100
-    /// kcal já é uma refeição grande; sugerir mais do que isso de uma vez seria
-    /// o app recomendando exatamente o padrão que a literatura desaconselha.
+    /// O teto existe pelo mesmo motivo da regra 1 do cabeçalho: depois de um
+    /// jejum longo o estômago esvazia mais devagar, e uma refeição muito
+    /// grande de uma vez vai contra esse ritmo. 1.100 kcal já é uma refeição
+    /// grande; sugerir mais do que isso de uma vez contradiria a porção
+    /// pequena que o próprio motor ensina.
     public static let orcamentoMinimo = 280
     public static let orcamentoMaximo = 1100
     /// Usado quando não há meta calórica. Rotulado como padrão na tela.

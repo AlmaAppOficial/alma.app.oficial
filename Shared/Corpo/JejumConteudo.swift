@@ -49,18 +49,41 @@
 // está com tempo.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// FONTES CONFERIDAS EM 26/08/2026.
+// FONTES CONFERIDAS EM 31/08/2026.
 //
 // Este é o tipo de arquivo que envelhece calado: a literatura muda e o texto
 // continua parecendo certo. Quem revisar: confira na fonte em vez de confiar
 // neste cabeçalho, e atualize `jejumFontesConferidasEm`.
+//
+// [31/08] Auditoria da literatura corrigiu três APOIOS. O conselho não mudou —
+// começar pequeno e proteína primeiro continuam; mudou como o texto diz que
+// sabe disso:
+//   · "Começar pequeno" apoiava-se em achados de Ramadã cuja fonte (Abdulrasak
+//     e colegas, J Clin Med 2025;14:1997) descreve DIABÉTICOS COM GASTROPARESIA
+//     — generalizar aquilo para todo mundo era ir além da população estudada, e
+//     "fritura" nem constava na fonte. Trocado pela fisiologia medida em gente
+//     saudável: o esvaziamento do estômago fica mais lento conforme o jejum se
+//     alonga (Jones, Dockray e Thompson, Neurogastroenterol Motil 2012 —
+//     PMID 22726634, 12 h vs 24 h, n=14, refeições líquidas).
+//   · "Programas que orientam comer pouco primeiro registram menos oscilação
+//     de açúcar" não existe MEDIDO em fonte nenhuma (o mais próximo é conselho
+//     de diretriz IDF-DAR para diabéticos no Ramadã). APAGADO em vez de
+//     reatribuído: conselho de especialista não vira desfecho medido.
+//   · A saciedade da proteína citava revisão de DIETAS de ≥ 7 dias (de
+//     Carvalho e colegas, Eur J Nutr 2020) para uma frase sobre UMA refeição.
+//     Trocado por Dhillon e colegas, J Acad Nutr Diet 2016 (PMID 26947338):
+//     meta-análise de porção proteica comida antes da refeição, em gente
+//     saudável — o desenho do primeiro prato deste módulo.
+//   · "Vai ter dor de cabeça" virou "pode ter": Juliano & Griffiths,
+//     Psychopharmacology 2004 (66 estudos) medem cefaleia em ~50% de quem
+//     corta a cafeína, com início em 12–24 h. Metade não é todo mundo.
 
 import Foundation
 
 /// Quando as fontes deste arquivo foram conferidas pela última vez.
 /// Aparece na tela, no rodapé das fontes. Um app que cita fonte tem de dizer
 /// de quando é a leitura.
-public let jejumFontesConferidasEm = "26/08/2026"
+public let jejumFontesConferidasEm = "31/08/2026"
 
 // MARK: - Força da evidência
 
@@ -191,17 +214,18 @@ public enum JejumConteudo {
         AfirmacaoComFonte(
             titulo: "Proteína segura a fome por mais tempo",
             corpo: """
-            Uma refeição com mais proteína costuma tirar a fome por mais tempo \
-            do que uma refeição com as mesmas calorias e menos proteína. É um \
-            achado antigo, que apareceu várias vezes.
+            Uma porção com mais proteína, comida antes do resto da refeição, \
+            costuma deixar a pessoa mais satisfeita nas horas seguintes do que \
+            uma porção com menos proteína. É um achado antigo, que apareceu \
+            várias vezes em estudos com pessoas saudáveis.
 
-            A ressalva: os estudos usam métodos muito diferentes entre si e \
-            boa parte tem risco de viés. Dá para confiar na direção. No tamanho \
-            do efeito, não.
+            A ressalva: os estudos usam métodos muito diferentes entre si, e \
+            quem os juntou avisa que os critérios eram estreitos. Dá para \
+            confiar na direção. No tamanho do efeito, não.
             """,
             forca: .misto,
-            fonte: "Revisão sistemática sobre proteína e apetite, 2020.",
-            url: "https://pubmed.ncbi.nlm.nih.gov/32648023/"
+            fonte: "Dhillon e colegas, Journal of the Academy of Nutrition and Dietetics, 2016. Estudos de refeição única, em pessoas saudáveis.",
+            url: "https://pubmed.ncbi.nlm.nih.gov/26947338/"
         ),
 
         AfirmacaoComFonte(
@@ -308,12 +332,12 @@ public enum JejumConteudo {
         corpo: """
         São duas coisas diferentes, e cada uma tem estudo por trás.
 
-        COMEÇAR PEQUENO. No Ramadã, milhões de pessoas quebram jejum longo \
-        todos os dias. Nesses estudos, refeições de quebra muito grandes — com \
-        muito carboidrato rápido e fritura — aparecem junto com pico de açúcar \
-        no sangue, enjoo, inchaço e aquela sensação de estômago cheio rápido \
-        demais. Programas que orientam comer pouco primeiro e o prato principal \
-        depois registram menos oscilação de açúcar no sangue.
+        COMEÇAR PEQUENO. Depois de um jejum mais longo, o estômago esvazia \
+        mais devagar. Isso foi medido num estudo pequeno com pessoas \
+        saudáveis: a mesma bebida demorou mais para sair do estômago depois \
+        de 24 horas de jejum do que depois de 12. Comer pouco primeiro é \
+        respeitar esse ritmo, em vez de despejar uma refeição grande de uma \
+        vez.
 
         PROTEÍNA PRIMEIRO. É a mesma ordem que os estudos de sequência de \
         alimentos testaram: proteína e vegetal antes do carboidrato deixam o \
@@ -324,8 +348,8 @@ public enum JejumConteudo {
         é pequena de propósito. Pequena E proteína — não "muita proteína".
         """,
         forca: .misto,
-        fonte: "Estudos sobre alimentação e açúcar no sangue no Ramadã, mais os estudos de sequência de alimentos citados acima.",
-        url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11943218/"
+        fonte: "Jones, Dockray e Thompson, Neurogastroenterology and Motility, 2012. Esvaziamento do estômago após 12 e 24 horas de jejum, em pessoas saudáveis. Mais os estudos de sequência de alimentos citados acima.",
+        url: "https://pubmed.ncbi.nlm.nih.gov/22726634/"
     )
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -348,7 +372,7 @@ public enum JejumConteudo {
         ),
         DicaDeJejum(
             titulo: "Não corte o café no mesmo dia",
-            corpo: "Se você parar com o café junto com o começo do jejum, vai ter dor de cabeça — e vai achar que a culpa foi do jejum. Mude uma coisa de cada vez.",
+            corpo: "Se você parar com o café junto com o começo do jejum, pode ter dor de cabeça — e aí ela vai parecer culpa do jejum. Mude uma coisa de cada vez.",
             simbolo: "cup.and.saucer.fill"
         ),
         DicaDeJejum(
