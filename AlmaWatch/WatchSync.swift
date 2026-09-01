@@ -50,6 +50,22 @@ final class WatchSync: NSObject, ObservableObject {
         }
         if let v = dict["premium"] as? Bool { e.premium = v }
         if let v = dict["nome"] as? String { e.nome = v }
+        // Jejum: FORA do portão do dia — um 16/8 atravessa a meia-noite por
+        // definição. O contexto sobrescreve inteiro, então ausência das chaves
+        // significa "sem jejum" (encerrar no iPhone apaga aqui e na complicação).
+        if let base = dict["jejumBase"] as? Double,
+           let meta = dict["jejumMeta"] as? Double,
+           JejumNoPulso.valido(base: base, meta: meta) {
+            e.jejum = JejumNoPulso.Estado(
+                base: Date(timeIntervalSince1970: base),
+                meta: Date(timeIntervalSince1970: meta),
+                pausadoEm: (dict["jejumPausadoEm"] as? Double).flatMap {
+                    $0 > 0 ? Date(timeIntervalSince1970: $0) : nil
+                },
+                rotulo: dict["jejumRotulo"] as? String ?? "")
+        } else {
+            e.jejum = nil
+        }
         if let lista = dict["meditacoes"] as? [[String]] {
             e.meditacoes = lista.compactMap { item in
                 guard item.count >= 3, let dia = Int(item[0]), let min = Int(item[2]) else { return nil }

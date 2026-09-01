@@ -12,5 +12,6 @@ import SwiftUI
 struct AlmaComplicationBundle: WidgetBundle {
     var body: some Widget {
         AlmaComplication()
+        AlmaJejumComplication()
     }
 }

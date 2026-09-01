@@ -108,6 +108,22 @@ final class WatchBridge: ObservableObject {
             "geradoEm": Date().timeIntervalSince1970,
         ]
         if let humor = humorDeHoje() { ctx["humorHoje"] = humor }
+
+        // Jejum no pulso: o MESMO contrato da tela bloqueada — base = agora −
+        // decorrido (nunca `inicio`, que é reescrito a cada retomada), meta =
+        // base + duração, pausadoEm congela. Ver `JejumAoVivo.swift`; quem
+        // desenha do outro lado é `AlmaWatch/JejumNoPulso.swift`.
+        // Ausência das chaves = sem jejum: o applicationContext sobrescreve
+        // inteiro, então encerrar aqui apaga a página e a complicação de lá.
+        if let jejum = JejumStore.shared.emCurso {
+            let vivo = estadoAoVivo(de: jejum)
+            ctx["jejumBase"] = vivo.baseDoCronometro.timeIntervalSince1970
+            ctx["jejumMeta"] = vivo.metaEm.timeIntervalSince1970
+            ctx["jejumRotulo"] = jejum.protocolo.rotulo
+            if let p = vivo.pausadoEm {
+                ctx["jejumPausadoEm"] = p.timeIntervalSince1970
+            }
+        }
         return ctx
     }
 
