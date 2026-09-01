@@ -195,6 +195,12 @@ enum RotaDaNotificacao {
         if let acao = userInfo["action"] as? String, acao == "openFeed" {
             return .almaAba(.feed)
         }
+        // [Áudio do dia 2026-08-31] O push das 6h (`audioDoDiaNotificacao`,
+        // codebase `audio`) carrega `action: "openAudioDoDia"`. A caixa com o
+        // player mora na Início — o toque leva direto a ela.
+        if let acao = userInfo["action"] as? String, acao == "openAudioDoDia" {
+            return .almaAba(.inicio)
+        }
         return destinoPorIdentificador(identificador)
     }
 

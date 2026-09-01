@@ -1,4 +1,6 @@
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 
 struct HomeView: View {
 
@@ -34,6 +36,11 @@ struct HomeView: View {
     @State private var showLivreDeVicios = false
     @ObservedObject private var roteador = RoteadorDeNotificacao.shared
 
+    /// [Áudio do dia 2026-08-31] Ponteiro `audio_do_dia/atual` observado ao
+    /// vivo — quando o Assis publica, a caixa troca sozinha ("a caixa já
+    /// mostra o novo áudio", desenho §4). Ver os tipos no fim deste arquivo.
+    @StateObject private var audioDoDia = AudioDoDiaModel()
+
     @ObservedObject private var streakManager = StreakManager.shared
     @ObservedObject private var perfil = UserProfileStore.shared
     @State private var showOnboarding = false
@@ -66,6 +73,20 @@ struct HomeView: View {
                 // ── Premium banner — [Build 84] freemium: só p/ não-assinante ─
                 if !access.isPremium {
                     premiumBanner
+                }
+
+                // ── Áudio do dia ───────────────────────
+                // [2026-08-31] A caixa do desenho de 14/08 (rev. 2): aparece
+                // para QUALQUER logado ("vai para toda a base" — decisão do
+                // Assis, pendente de confirmação final no §6.1 do LEIA-ME do
+                // audio-do-dia). Só dois estados, por desenho: há áudio →
+                // caixa com player; não há (doc ausente, regra ainda não
+                // deployada, URL inválida ou dia editorial futuro) → a caixa
+                // NÃO é desenhada. Nada de esqueleto vazio.
+                if let audio = audioDoDia.atual,
+                   AudioDoDiaRegras.elegivelHoje(publicarEmDia: audio.publicarEmDia,
+                                                 hojeLocalISO: audioDoDia.hojeLocalISO) {
+                    AudioDoDiaBox(audio: audio)
                 }
 
                 // ── HERO: Quick Start "Meditar Agora" Button (1 tap) ─────
@@ -134,6 +155,8 @@ struct HomeView: View {
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationBarHidden(true)
         .task {
+            // [Áudio do dia 2026-08-31] Liga o listener do ponteiro (idempotente).
+            audioDoDia.iniciar()
             // [2026-08-04] `-abrirCorpo 1` não abria nada: o @State nascia
             // `true` e um `.fullScreenCover` que já começa apresentado não
             // apresenta — SwiftUI só reage à MUDANÇA do binding. Foi por isso
@@ -859,4 +882,164 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - Áudio do dia (2026-08-31)
+//
+// A caixa da Início do desenho de 14/08 (rev. 2 de 29/08): o Assis publica
+// pela página de admin (codebase `audio`), a Function grava o ponteiro
+// `audio_do_dia/atual`, e TODO cliente logado lê o mesmo documento e toca a
+// mesma `downloadUrl` — que já vem resolvida COM token pelo servidor,
+// exatamente para o iOS não precisar do SDK do Storage (desenho §2/§6).
+// Tocar usa o `AudioManager.playStream` que existia ocioso desde sempre.
+//
+// Estados possíveis, por desenho (§4): há áudio → caixa com player; não há →
+// caixa não desenhada. "Não há" inclui: doc ausente, regra de leitura ainda
+// não deployada (o listener recebe erro e zera), URL inválida e dia editorial
+// futuro (contrato da fase 2 — `publicarEmDia` é STRING de data).
+
+// Os tipos puros (`AudioDoDia`, `AudioDoDiaRegras`, `PrefsDeNotificacaoRegras`)
+// moram em `Shared/AudioDoDiaRegras.swift` — arquivo sem SDK, compilável pelo
+// harness `_scripts/teste_audio_do_dia.swift` e exercitado por mutação.
+
+/// Observa `audio_do_dia/atual` ao vivo e mantém o "hoje" local atualizado.
+final class AudioDoDiaModel: ObservableObject {
+
+    @Published private(set) var atual: AudioDoDia?
+    /// Recalculado na virada de dia/fuso — ver `significantTimeChange` abaixo.
+    @Published private(set) var hojeLocalISO = AudioDoDiaRegras.dataLocalISO()
+
+    private var listener: ListenerRegistration?
+    private var observadores: [NSObjectProtocol] = []
+    private var aguardandoAuth: AuthStateDidChangeListenerHandle?
+
+    /// Idempotente — a Início chama a cada `.task` e só o primeiro liga.
+    func iniciar() {
+        guard listener == nil else { return }
+        // A Início normalmente só existe atrás do login, mas a sessão pode
+        // chegar DEPOIS da tela (ex.: harness com `-semLogin`, restauração
+        // lenta do Auth). Sem usuário: espera o estado mudar e tenta de novo —
+        // listener de Firestore sem auth só produziria erro de permissão.
+        guard Auth.auth().currentUser != nil else {
+            if aguardandoAuth == nil {
+                aguardandoAuth = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+                    guard let self, user != nil else { return }
+                    if let h = self.aguardandoAuth {
+                        Auth.auth().removeStateDidChangeListener(h)
+                        self.aguardandoAuth = nil
+                    }
+                    self.iniciar()
+                }
+            }
+            return
+        }
+
+        listener = Firestore.firestore()
+            .collection("audio_do_dia").document("atual")
+            .addSnapshotListener { [weak self] snap, _ in
+                guard let self else { return }
+                // Erro (ex.: regra ainda não deployada) chega com snap nil →
+                // `decodificar(nil)` → nil → a caixa some. Exatamente o
+                // comportamento desenhado para "não há áudio".
+                self.atual = AudioDoDiaRegras.decodificar(snap?.data())
+                self.hojeLocalISO = AudioDoDiaRegras.dataLocalISO()
+            }
+
+        // [Lição de 07/08 — "virada de dia sem gatilho"] O dia editorial de
+        // amanhã (fase 2) precisa aparecer QUANDO o dia vira, não quando o
+        // Firestore por acaso emitir. `significantTimeChange` dispara na
+        // meia-noite, em mudança de fuso e de horário de verão; o foreground
+        // cobre o app que passou a noite suspenso.
+        let centro = NotificationCenter.default
+        for nome in [UIApplication.significantTimeChangeNotification,
+                     UIApplication.willEnterForegroundNotification] {
+            observadores.append(centro.addObserver(forName: nome, object: nil, queue: .main) {
+                [weak self] _ in
+                self?.hojeLocalISO = AudioDoDiaRegras.dataLocalISO()
+            })
+        }
+    }
+
+    deinit {
+        listener?.remove()
+        if let h = aguardandoAuth { Auth.auth().removeStateDidChangeListener(h) }
+        observadores.forEach { NotificationCenter.default.removeObserver($0) }
+    }
+}
+
+/// A caixa em si. Player mínimo: tocar / pausar / retomar, com progresso
+/// enquanto este áudio é a faixa atual do `AudioManager`.
+struct AudioDoDiaBox: View {
+    let audio: AudioDoDia
+    @ObservedObject private var som = AudioManager.shared
+
+    /// Este áudio é a faixa carregada no player (tocando OU pausada)?
+    private var ehFaixaAtual: Bool { som.currentTrackTitle == audio.titulo }
+    private var tocandoAgora: Bool { som.isPlaying && ehFaixaAtual }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "sunrise.fill")
+                    .font(.subheadline)
+                    .foregroundColor(.orange)
+                Text("Áudio do dia")
+                    .font(.headline)
+                    .foregroundColor(CalmTheme.textPrimary)
+                Spacer()
+                if audio.duracaoSeg > 0 {
+                    Text(AudioDoDiaRegras.mmss(audio.duracaoSeg))
+                        .font(.caption)
+                        .foregroundColor(CalmTheme.textSecondary)
+                }
+            }
+
+            HStack(spacing: 12) {
+                Button(action: tocarOuPausar) {
+                    Image(systemName: tocandoAgora ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.system(size: 44))
+                        .foregroundColor(CalmTheme.primary)
+                }
+                .accessibilityLabel(tocandoAgora ? "Pausar o áudio do dia"
+                                                 : "Ouvir o áudio do dia")
+
+                VStack(alignment: .leading, spacing: 4) {
+                    // O título editorial do envio; quando o Assis não põe um,
+                    // o servidor grava o padrão e evitamos a linha dupla.
+                    if audio.titulo != AudioDoDiaRegras.tituloPadrao {
+                        Text(audio.titulo)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundColor(CalmTheme.textPrimary)
+                            .lineLimit(2)
+                    } else {
+                        Text("Uma mensagem nova para o seu dia")
+                            .font(.subheadline)
+                            .foregroundColor(CalmTheme.textSecondary)
+                    }
+                    if ehFaixaAtual, som.duration > 0 {
+                        ProgressView(value: min(som.elapsed, som.duration),
+                                     total: som.duration)
+                            .tint(CalmTheme.primary)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
+        .padding(16)
+        .background(CalmTheme.surface)
+        .cornerRadius(CalmTheme.rMedium)
+    }
+
+    private func tocarOuPausar() {
+        if tocandoAgora {
+            som.pause()
+        } else if ehFaixaAtual {
+            som.resume()
+        } else {
+            som.playStream(title: audio.titulo,
+                           url: audio.downloadUrl,
+                           duration: audio.duracaoSeg,
+                           loops: false)
+        }
+    }
 }

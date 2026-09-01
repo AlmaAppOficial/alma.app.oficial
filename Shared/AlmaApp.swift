@@ -12,6 +12,31 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         FirebaseApp.configure()
+
+        #if DEBUG
+        // [Áudio do dia 2026-08-31 — QA] `-almaEmulador 1` liga o app nos
+        // emuladores do Firebase (Auth 9099, Firestore 8080) e entra ANÔNIMO —
+        // nenhuma credencial em lugar nenhum, nenhum byte em produção. Existe
+        // para provar o fluxo do Áudio do dia de ponta a ponta (página →
+        // ponteiro → caixa da Início → botão do Perfil) contra o emulador,
+        // como manda o CLAUDE.md ("execução, não leitura"). Mesma família do
+        // `semLogin`/`-abrirCorpo`: flag de LANÇAMENTO, nunca persistida, e o
+        // Release nem compila este bloco.
+        if UserDefaults.standard.bool(forKey: "almaEmulador") {
+            Auth.auth().useEmulator(withHost: "127.0.0.1", port: 9099)
+            let ajustes = Firestore.firestore().settings
+            ajustes.host = "127.0.0.1:8080"
+            ajustes.isSSLEnabled = false
+            // Cache em memória: cada rodada de QA nasce limpa, sem disco
+            // envenenado por uma execução anterior contra outro backend.
+            ajustes.cacheSettings = MemoryCacheSettings()
+            Firestore.firestore().settings = ajustes
+            if Auth.auth().currentUser == nil {
+                Auth.auth().signInAnonymously()
+            }
+        }
+        #endif
+
         Analytics.logEvent("app_open", parameters: nil)
 
         // 🎯 Meta Ads: regista abertura do app (ViewContent) para ajudar o algoritmo
@@ -111,7 +136,16 @@ extension AppDelegate: MessagingDelegate {
 
         Firestore.firestore().collection("users").document(uid).setData([
             "fcmToken": token,
-            "fcmTokenUpdatedAt": FieldValue.serverTimestamp()
+            "fcmTokenUpdatedAt": FieldValue.serverTimestamp(),
+            // [Áudio do dia 2026-08-31] O fuso IANA viaja JUNTO com o token
+            // (mesma escrita, mesmo funil — espelho do FcmTokenRepository.kt
+            // do Android): os dois respondem à mesma pergunta do servidor,
+            // "para onde e QUANDO empurrar?". O agendador do Áudio do dia
+            // dispara às 6h da manhã NO FUSO DA PESSOA; sem este campo o
+            // iPhone cai no padrão America/Sao_Paulo do servidor. Toda
+            // rotação de token reatualiza — captura mudança de fuso em
+            // viagem. O servidor valida contra a base IANA e ignora inválido.
+            "timezone": TimeZone.current.identifier
         ], merge: true)
     }
 }

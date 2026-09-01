@@ -328,6 +328,32 @@ service cloud.firestore {
       allow read, write: if ehDono(userId);
     }
 
+    // ── [AUDIO-DO-DIA] Áudio do dia ─────────────────────────────────────────
+    // audio_do_dia/atual: o ponteiro para o ÚNICO áudio vigente (fase 1).
+    // A URL de download mora no doc — logo, quem LÊ o doc tem o áudio.
+    //   - Leitura: qualquer autenticado (rev. 2: "vai para toda a base").
+    //     Variante estrita (só assinante), se o Assis preferir:
+    //       allow read: if request.auth != null &&
+    //         (request.auth.token.isPremium == true ||
+    //          exists(/databases/$(database)/documents/entitlements/$(request.auth.uid)));
+    //     ATENÇÃO à variante: hoje a interseção cliente/servidor de premium é
+    //     SÓ o claim (LAUDO_CHAT_403_PREMIUM_20260828) — a estrita esconderia
+    //     a caixa de assinantes legítimos até a reconciliação (Opção 2a).
+    //   - Escrita: NUNCA pelo cliente. Só a function audioDoDiaAdmin (Admin
+    //     SDK), depois de verifyIdToken + ehAdmin. Nem o admin escreve pelo
+    //     app: o botão que não existe (desenho §7) vale também para regra.
+    match /audio_do_dia/{docId} {
+      allow read:  if request.auth != null;
+      allow write: if false;
+    }
+
+    // [AUDIO-DO-DIA] Livro-razão dos avisos das 6h: 1 doc por (dia, fuso),
+    // criado pela função agendada como trava de dedupe. Operacional, do
+    // servidor; nenhum cliente tem o que fazer aqui.
+    match /audio_do_dia_envios/{marcador} {
+      allow read, write: if false;
+    }
+
     // ── Fim ─────────────────────────────────────────────────────────────────
     // Qualquer caminho não citado acima é NEGADO — default do Firestore, real e
     // suficiente. Ver o terceiro princípio no cabeçalho sobre por que NÃO há um

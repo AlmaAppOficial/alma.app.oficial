@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 import UserNotifications
 
 // MARK: - ProfileView
@@ -9,7 +10,23 @@ struct ProfileView: View {
     @ObservedObject private var aparencia = AparenciaDoApp.shared
     /// Usado só para o toggle refletir a verdade quando o modo é `.sistema`.
     @Environment(\.colorScheme) private var esquemaAtual
-    @AppStorage("feedNotificationsEnabled") private var feedNotificationsEnabled = true
+    // ── Preferências de notificação POR TIPO (feed + Áudio do dia) ──────────
+    // [Áudio do dia 2026-08-31] Antes era `@AppStorage` com padrão local `true`
+    // e escrita `try?` — os dois defeitos catalogados no desenho do Áudio do
+    // dia: (1) a tela mostrava o padrão do APARELHO como se fosse a verdade,
+    // sem nunca reler o servidor (aparelho novo exibia "ligado" com o servidor
+    // em `false`); (2) o `try?` engolia a falha da escrita — a tela dizia
+    // "desligado" e o servidor continuava enviando. Agora o estado vem do
+    // SERVIDOR (fonte única, `.server` estrito) e falha de escrita REVERTE o
+    // switch e explica. Espelho do NotificacoesSection.kt do Android.
+    private enum EstadoDasPrefs { case carregando, erro, pronto }
+    @State private var estadoDasPrefs: EstadoDasPrefs = .carregando
+    @State private var tentativaDePrefs = 0
+    @State private var avisoDeFeed = true
+    @State private var avisoDoAudio = true
+    @State private var gravandoAvisoDeFeed = false
+    @State private var gravandoAvisoDoAudio = false
+    @State private var erroAoGravarPref = false
     @State private var showLogoutAlert = false
     @State private var showDeleteAccountSheet = false
     @State private var showAboutSheet = false
@@ -51,7 +68,24 @@ struct ProfileView: View {
                 settingsSection(title: "Preferências") {
                     notificationsRow
                     Divider().padding(.leading, 52)
-                    feedNotificationsRow
+                    // Botões SEPARADOS por tipo de aviso (decisão do Assis,
+                    // Áudio do dia rev. 2): feed e Áudio do dia, cada um com o
+                    // seu campo em `users/{uid}`. Só aparecem depois de o
+                    // SERVIDOR confirmar o estado — nada de padrão local
+                    // exibido como se fosse verdade.
+                    switch estadoDasPrefs {
+                    case .carregando:
+                        prefsCarregandoRow
+                    case .erro:
+                        prefsErroRow
+                    case .pronto:
+                        feedNotificationsRow
+                        Divider().padding(.leading, 52)
+                        dailyAudioNotificationsRow
+                        if erroAoGravarPref {
+                            prefsErroDeGravacaoRow
+                        }
+                    }
                     Divider().padding(.leading, 52)
                     darkModeRow
                 }
@@ -103,6 +137,9 @@ struct ProfileView: View {
         .background(CalmTheme.backgroundGradient.ignoresSafeArea())
         .navigationBarHidden(true)
         .task { await checkNotificationStatus() }
+        // Relê o SERVIDOR a cada abertura da tela (e a cada "Tentar de novo").
+        // `id:` faz o SwiftUI recriar a task quando `tentativaDePrefs` muda.
+        .task(id: tentativaDePrefs) { await carregarPrefsDoServidor() }
         .alert("Sair da conta?", isPresented: $showLogoutAlert) {
             Button("Cancelar", role: .cancel) {}
             Button("Sair", role: .destructive) {
@@ -366,40 +403,157 @@ struct ProfileView: View {
         notifStatus = settings.authorizationStatus
     }
 
-    // MARK: - Feed Notifications Row
+    // MARK: - Notificações por tipo (feed + Áudio do dia)
     //
-    // Build 77: feed_posts onCreate trigger sends FCM push to users with
-    // feedNotificationsEnabled !== false. The toggle here is the user-facing
-    // opt-out. The actual FCM client (APNs token + Messaging SDK) is deferred
-    // to Build 78 since it requires adding the aps-environment entitlement
-    // and the FirebaseMessaging SPM product.
+    // Build 77 criou o opt-out do feed (`notifyNewFeedPost` honra
+    // `feedNotificationsEnabled !== false`). O Áudio do dia (2026-08-31) segue
+    // a MESMA semântica com campo próprio: `dailyAudioNotificationsEnabled`,
+    // lido pelo agendador `audioDoDiaNotificacao` (codebase `audio`) — campo
+    // ausente = ligado; só `false` desliga. Botões independentes por decisão
+    // do Assis. Estado lido do servidor e escrita que reverte ao falhar — ver
+    // o comentário nos `@State` lá em cima.
+
     private var feedNotificationsRow: some View {
+        notifPrefRow(
+            icon: "sparkles",
+            color: .purple,
+            title: "Avisar sobre novas publicações",
+            subtitle: "Receba uma notificação quando aparecer algo novo no Feed",
+            ligado: avisoDeFeed,
+            gravando: gravandoAvisoDeFeed,
+            aoMudar: mudarAvisoDeFeed(para:)
+        )
+    }
+
+    private var dailyAudioNotificationsRow: some View {
+        notifPrefRow(
+            icon: "sunrise.fill",
+            color: .orange,
+            title: "Avisar sobre o Áudio do dia",
+            subtitle: "Um aviso às 6h da manhã, no seu horário, quando houver áudio novo",
+            ligado: avisoDoAudio,
+            gravando: gravandoAvisoDoAudio,
+            aoMudar: mudarAvisoDoAudio(para:)
+        )
+    }
+
+    private func notifPrefRow(
+        icon: String,
+        color: Color,
+        title: String,
+        subtitle: String,
+        ligado: Bool,
+        gravando: Bool,
+        aoMudar: @escaping (Bool) -> Void
+    ) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "sparkles")
+            Image(systemName: icon)
                 .font(.body)
-                .foregroundColor(.purple)
+                .foregroundColor(color)
                 .frame(width: 32, height: 32)
-                .background(Color.purple.opacity(0.12))
+                .background(color.opacity(0.12))
                 .cornerRadius(8)
             VStack(alignment: .leading, spacing: 1) {
-                Text("Avisar sobre novas publicações")
+                Text(title)
                     .font(.body)
                     .foregroundColor(CalmTheme.textPrimary)
-                Text("Receba uma notificação quando aparecer algo novo no Feed")
+                Text(subtitle)
                     .font(.caption)
                     .foregroundColor(CalmTheme.textSecondary)
                     .lineLimit(2)
             }
             Spacer()
-            Toggle("", isOn: $feedNotificationsEnabled)
+            // Binding explícito: o `set` só dispara por interação, nunca
+            // quando a carga do servidor preenche o @State — o `.onChange`
+            // antigo gravava de volta o próprio valor que acabava de ler.
+            Toggle("", isOn: Binding(get: { ligado }, set: aoMudar))
                 .labelsHidden()
                 .tint(CalmTheme.primary)
-                .onChange(of: feedNotificationsEnabled) { newValue in
-                    Task { try? await FeedRepository.shared.setFeedNotificationsEnabled(newValue) }
-                }
+                .disabled(gravando)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    private var prefsCarregandoRow: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+            Text("Confirmando com o servidor…")
+                .font(.caption)
+                .foregroundColor(CalmTheme.textSecondary)
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    private var prefsErroRow: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Não deu para confirmar suas preferências agora.")
+                .font(.caption)
+                .foregroundColor(.red)
+            Button("Tentar de novo") { tentativaDePrefs += 1 }
+                .font(.caption.bold())
+                .foregroundColor(CalmTheme.primary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    private var prefsErroDeGravacaoRow: some View {
+        Text("Não foi possível salvar — o botão voltou ao estado anterior.")
+            .font(.caption)
+            .foregroundColor(.red)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 10)
+    }
+
+    private func carregarPrefsDoServidor() async {
+        estadoDasPrefs = .carregando
+        do {
+            let prefs = try await NotificationPrefs.carregarDoServidor()
+            avisoDeFeed = prefs.avisoDeFeed
+            avisoDoAudio = prefs.avisoDoAudioDoDia
+            estadoDasPrefs = .pronto
+        } catch {
+            // Sem rede (ou sem sessão) a UI diz "não deu para confirmar" em
+            // vez de exibir um estado que pode ser mentira.
+            estadoDasPrefs = .erro
+        }
+    }
+
+    private func mudarAvisoDeFeed(para novo: Bool) {
+        let anterior = avisoDeFeed
+        avisoDeFeed = novo
+        gravandoAvisoDeFeed = true
+        erroAoGravarPref = false
+        Task {
+            do {
+                try await NotificationPrefs.gravarAvisoDeFeed(novo)
+            } catch {
+                avisoDeFeed = anterior // reverte: a tela não mente
+                erroAoGravarPref = true
+            }
+            gravandoAvisoDeFeed = false
+        }
+    }
+
+    private func mudarAvisoDoAudio(para novo: Bool) {
+        let anterior = avisoDoAudio
+        avisoDoAudio = novo
+        gravandoAvisoDoAudio = true
+        erroAoGravarPref = false
+        Task {
+            do {
+                try await NotificationPrefs.gravarAvisoDoAudioDoDia(novo)
+            } catch {
+                avisoDoAudio = anterior // reverte: a tela não mente
+                erroAoGravarPref = true
+            }
+            gravandoAvisoDoAudio = false
+        }
     }
 
     // MARK: - Dark Mode Row
@@ -642,6 +796,66 @@ struct PrivacyView: View {
     }
 }
 
+
+// MARK: - NotificationPrefs (preferências de aviso em users/{uid})
+//
+// [Áudio do dia 2026-08-31] Espelho do NotificationPrefsRepository.kt do
+// Android — mesmos campos, mesma semântica, mesmas duas lições:
+//
+//   1. Toda escrita LANÇA. Não existe `try?` de conveniência aqui, de
+//      propósito: quem chama reverte o switch e mostra o motivo. O `try?`
+//      antigo (ProfileView:398 histórico) deixava a tela dizer "desligado"
+//      com o servidor ainda enviando.
+//   2. A leitura é `.server` ESTRITA — sem fallback silencioso de cache.
+//      Sem rede, a UI diz "não deu para confirmar" em vez de exibir um
+//      padrão local que pode ser mentira.
+//
+// Semântica IGUAL à do servidor (`notifyNewFeedPost` e o agendador
+// `audioDoDiaNotificacao` do codebase `audio`): campo AUSENTE = ligado; só
+// `false` desliga. Ver `decidirLigado` — é a função pura que os testes
+// exercitam por mutação.
+enum NotificationPrefs {
+
+    static let campoFeed = "feedNotificationsEnabled"
+    static let campoAudioDoDia = "dailyAudioNotificationsEnabled"
+
+    struct Prefs {
+        let avisoDeFeed: Bool
+        let avisoDoAudioDoDia: Bool
+    }
+
+    private enum Falha: Error { case semSessao }
+
+    /// Lê o estado REAL no servidor. Falhou? Lança — a UI decide o que dizer.
+    /// "Ausente = ligado" é a `PrefsDeNotificacaoRegras.ligado` — função PURA
+    /// em `AudioDoDiaRegras.swift`, exercitada por mutação no harness.
+    static func carregarDoServidor() async throws -> Prefs {
+        guard let uid = Auth.auth().currentUser?.uid else { throw Falha.semSessao }
+        let snap = try await Firestore.firestore()
+            .collection("users").document(uid)
+            .getDocument(source: .server)
+        let dados = snap.data() ?? [:]
+        return Prefs(
+            avisoDeFeed: PrefsDeNotificacaoRegras.ligado(dados[campoFeed] as? Bool),
+            avisoDoAudioDoDia: PrefsDeNotificacaoRegras.ligado(dados[campoAudioDoDia] as? Bool)
+        )
+    }
+
+    static func gravarAvisoDeFeed(_ ligado: Bool) async throws {
+        try await gravar(campo: campoFeed, ligado: ligado)
+    }
+
+    static func gravarAvisoDoAudioDoDia(_ ligado: Bool) async throws {
+        try await gravar(campo: campoAudioDoDia, ligado: ligado)
+    }
+
+    private static func gravar(campo: String, ligado: Bool) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { throw Falha.semSessao }
+        try await Firestore.firestore()
+            .collection("users").document(uid)
+            .setData([campo: ligado], merge: true) // sem try?: o erro sobe até o switch
+    }
+}
 
 // MARK: - App Version (dinâmico — corrige rodapé hardcoded "v1.0.0", 2026-07-14)
 enum AppInfo {
