@@ -24,6 +24,14 @@ final class TabVisibilityState: ObservableObject {
 // MARK: - MainTabView
 struct MainTabView: View {
     @StateObject private var hk = HealthKitManager()
+    // [2026-08-31] Decisão do Assis: *"toda vez que abrir o app acho melhor
+    // reler tudo, assim como calorias, etc"* — os dados de saúde são relidos
+    // sempre que o app VOLTA ao primeiro plano, não só na primeira abertura.
+    // A flag distingue "voltou do segundo plano" de "acabou de nascer":
+    // na partida fria quem carrega é a `.task` da HomeView, e recarregar aqui
+    // também seria a mesma leitura duas vezes na mesma abertura.
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var passouPeloSegundoPlano = false
     @ObservedObject private var audio = AudioManager.shared
     @ObservedObject private var tabVisibility = TabVisibilityState.shared
     @ObservedObject private var paywallManager = PaywallTriggerManager.shared
@@ -118,6 +126,32 @@ struct MainTabView: View {
             Task { await PaywallTriggerManager.shared.dismissPaywall() }
         }) {
             PremiumWallView()
+        }
+        // [2026-08-31] RELEITURA DA SAÚDE AO VOLTAR AO PRIMEIRO PLANO.
+        //
+        // O defeito (prints do Assis, 10:36 do mesmo minuto): Insights com
+        // "Sono (ontem) —" e "Sem dados de variabilidade", enquanto o Corpo
+        // mostrava 7,0h e HRV 26 ms. Não era permissão — era o `hk` carregado
+        // UMA vez na `.task` da HomeView; sono e HRV chegaram do relógio
+        // depois, e ninguém relia. Este é o gatilho que faltava; os observers
+        // do `iniciarObservadores()` cobrem o dado que muda com o app aberto.
+        //
+        // Fica AQUI, e não na HomeView/InsightsView, porque a instância é
+        // desta view: um gatilho só atualiza TODAS as telas que a leem.
+        //
+        // • Sem piscar: `loadAll()` não limpa nada antes de buscar — cada
+        //   @Published só é reatribuído quando a leitura nova responde.
+        // • Sem travar: `Task` assíncrona; a UI não espera.
+        // • Sem dupla leitura: o guard exige passagem REAL pelo segundo plano
+        //   (`.background`). Partida fria e voltas de folha de permissão /
+        //   central de controle (inactive → active) não recarregam.
+        //   Forma de UM parâmetro no onChange: alvo de implantação < iOS 17,
+        //   mesmo motivo de CorpoModuleView.swift:108.
+        .onChange(of: scenePhase) { nova in
+            if nova == .background { passouPeloSegundoPlano = true }
+            guard nova == .active, passouPeloSegundoPlano else { return }
+            passouPeloSegundoPlano = false
+            Task { await hk.loadAll() }
         }
     }
 

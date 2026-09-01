@@ -126,6 +126,14 @@ class HealthKitManager: ObservableObject {
 
     private let store = HKHealthStore()
     private var stepObserver: HKObserverQuery?
+    /// [2026-08-31] Observers dos demais tipos exibidos (sono, HRV, FC).
+    /// Ver `iniciarObservadores()` — decisão do Assis de reler os dados de
+    /// saúde sempre, não só na primeira abertura.
+    private var outrosObservadores: [HKObserverQuery] = []
+    /// Tipos com releitura em voo. Sincronização do relógio dispara VÁRIAS
+    /// notificações seguidas do mesmo tipo; isto colapsa a rajada numa
+    /// leitura só (cuidado nº 3 da decisão: nunca a mesma leitura duas vezes).
+    private var releituraEmVoo: Set<String> = []
 
     nonisolated func requestAuthorization() async -> Bool {
         #if DEBUG
@@ -185,7 +193,12 @@ class HealthKitManager: ObservableObject {
             store.stop(existing)
         }
 
-        let observer = HKObserverQuery(sampleType: stepType, predicate: nil) { [weak self] _, _, error in
+        let observer = HKObserverQuery(sampleType: stepType, predicate: nil) { [weak self] _, completou, error in
+            // [2026-08-31] O completionHandler TEM de ser chamado — sem isso o
+            // HealthKit trata a entrega como pendente e re-entrega (e penaliza
+            // a fila de background delivery, que os passos usam). O parâmetro
+            // era descartado com `_` desde a primeira versão deste observer.
+            defer { completou() }
             guard error == nil else { return }
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -200,6 +213,87 @@ class HealthKitManager: ObservableObject {
 
         // Habilita entrega em background para passos (melhor precisão)
         store.enableBackgroundDelivery(for: stepType, frequency: .immediate) { _, _ in }
+    }
+
+    // MARK: - Observers de sono, HRV e FC [2026-08-31]
+    //
+    // Decisão do Assis (31/08): *"toda vez que abrir o app acho melhor reler
+    // tudo"*. O gatilho de primeiro plano (MainTabView) cobre a reabertura;
+    // estes observers cobrem o caso que ele NÃO alcança — o dado que chega com
+    // o app JÁ aberto. Foi exatamente o print das 10:36: o relógio sincronizou
+    // sono e HRV depois da carga única da `.task` da Início, e o Insights
+    // ficou em "—" enquanto o Corpo (que relê) mostrava 7h e 26 ms.
+    //
+    // Custo: três consultas longevas DENTRO do processo — o HealthKit empurra
+    // a notificação; não há polling. `enableBackgroundDelivery` fica só nos
+    // passos, que já a tinham: a UI não precisa acordar o app em segundo
+    // plano para estar certa quando for vista (o gatilho de foreground faz
+    // essa metade). Nenhuma permissão nova: são os mesmos tipos já lidos.
+    //
+    // Semântica de atualização: a MESMA do observer de passos — só substitui
+    // quando a releitura traz valor (> 0). Notificação com consulta vazia não
+    // regride a tela para "—"; a verdade completa (incluindo ausência) volta
+    // a valer no próximo `loadAll()`. E nada aqui LIMPA valor antes de buscar:
+    // o anterior fica na tela até o novo chegar (cuidado nº 1 — sem piscar).
+    func iniciarObservadores() {
+        startStepObserver()
+
+        outrosObservadores.forEach { store.stop($0) }
+        outrosObservadores.removeAll()
+
+        observar(HKCategoryType.categoryType(forIdentifier: .sleepAnalysis), chave: "sono") { [weak self] in
+            await self?.recarregarSono()
+        }
+        observar(HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN), chave: "hrv") { [weak self] in
+            await self?.recarregarHRV()
+        }
+        observar(HKQuantityType.quantityType(forIdentifier: .heartRate), chave: "fc") { [weak self] in
+            await self?.recarregarFC()
+        }
+    }
+
+    private func observar(_ tipo: HKSampleType?, chave: String, releitura: @escaping () async -> Void) {
+        guard HKHealthStore.isHealthDataAvailable(), let tipo else { return }
+        let q = HKObserverQuery(sampleType: tipo, predicate: nil) { [weak self] _, completou, error in
+            defer { completou() }
+            guard error == nil else { return }
+            Task { @MainActor [weak self] in
+                guard let self, !self.releituraEmVoo.contains(chave) else { return }
+                self.releituraEmVoo.insert(chave)
+                await releitura()
+                self.releituraEmVoo.remove(chave)
+            }
+        }
+        outrosObservadores.append(q)
+        store.execute(q)
+    }
+
+    /// Sono: as duas janelas que as telas usam (noite passada + últimas 24 h).
+    private func recarregarSono() async {
+        let noite = await fetchYesterdaySleepHours()
+        if noite > 0 { yesterdaySleepHours = noite }
+        let ultimas24h = await fetchSleepHours()
+        if ultimas24h > 0 { sleepHours = ultimas24h }
+    }
+
+    /// HRV: último + média — e o nível de stress, que deriva dos dois.
+    private func recarregarHRV() async {
+        let ultimo = await fetchLatestQuantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
+        if ultimo > 0 { hrv = ultimo }
+        let media = await fetchAverageQuantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli))
+        if media > 0 { averageHRV = media }
+        // Recalcula só quando há resposta — sem HRV novo, o rótulo não some.
+        if let novo = RegrasDeSaude.nivelDeStress(hrvMedio: averageHRV, hrvUltimo: hrv) {
+            stressLevel = novo
+        }
+    }
+
+    /// FC: último + média do dia.
+    private func recarregarFC() async {
+        let ultimo = await fetchLatestQuantity(.heartRate, unit: HKUnit(from: "count/min"))
+        if ultimo > 0 { heartRate = ultimo }
+        let media = await fetchAverageQuantity(.heartRate, unit: HKUnit(from: "count/min"))
+        if media > 0 { averageHeartRate = media }
     }
 
     @MainActor
@@ -226,8 +320,10 @@ class HealthKitManager: ObservableObject {
         // uma função pura e opcional; ver RegrasDeSaude.nivelDeStress.
         stressLevel = RegrasDeSaude.nivelDeStress(hrvMedio: averageHRV, hrvUltimo: hrv)
 
-        // Inicia observer de passos em tempo real (idempotente — para o anterior se existir)
-        startStepObserver()
+        // Inicia os observers em tempo real (idempotente — para os anteriores
+        // se existirem). [2026-08-31] Era só o de passos; agora sono, HRV e FC
+        // também avisam quando mudam — ver `iniciarObservadores()`.
+        iniciarObservadores()
     }
 
     /// Passos de HOJE. `nil` quando não há dado de hoje.

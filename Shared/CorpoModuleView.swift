@@ -114,6 +114,15 @@ struct CorpoModuleView: View {
                     // de 8 h do iOS só voltaria quando a pessoa FECHASSE e
                     // reabrisse o Corpo.
                     Task { await JejumStore.shared.sincronizarCronometroDaTelaBloqueada() }
+                    // [2026-08-31] Decisão do Assis: reler a saúde sempre que o
+                    // app volta ao primeiro plano — TAMBÉM com o Corpo aberto.
+                    // O `refresh()` do HealthManager roda no init e a cada
+                    // aparição da SaudeView, mas `onAppear` NÃO dispara no
+                    // retorno do segundo plano: quem ficava parado numa aba do
+                    // Corpo via os números da abertura anterior. `refresh()`
+                    // não limpa nada antes de buscar (cada @Published só é
+                    // reatribuído quando a consulta responde) — sem piscar.
+                    corpoHealth.refresh()
                 }
             }
             #if os(iOS)
