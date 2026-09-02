@@ -167,6 +167,44 @@ enum AuditoriaBloqueadores {
               m2.healthConditions == "hérnia de disco",
               "'\(m2.healthConditions)'")
 
+        // ── S · registro de séries: gravou o que a pessoa digitou ───────────
+        //
+        // [2026-09-02] A família de asserção que mais importa e a que mais já
+        // enganou (o treino personalizado do Android saiu "verde" sem gravar
+        // nada). Por isso: escreve pelo MESMO método que "Completar série"
+        // chama (`AppModel.registrarSerie`), e lê por OUTRA instância, como o
+        // app reaberto — nunca pelo cache de quem escreveu.
+        let suiteSeries = "auditoria.series"
+        UserDefaults().removePersistentDomain(forName: suiteSeries)
+        let storeSeries = UserDefaults(suiteName: suiteSeries)!
+        let sessaoS = UUID()
+        do {
+            let m = AppModel(store: storeSeries)
+            let supino = m.workouts[0].exercises[1]          // "Supino com halteres"
+            let gravada = m.registrarSerie(sessao: sessaoS, treino: m.workouts[0].name,
+                                           exercicio: supino, numero: 1,
+                                           repeticoes: 10, segundos: nil, cargaKg: 22.5)
+            checa("S1", "registrarSerie devolve o registro com o que foi digitado (10 × 22,5 kg)",
+                  gravada?.repeticoes == 10 && gravada?.cargaKg == 22.5
+                    && gravada?.exercicioSlug == "supino-com-halteres",
+                  "\(String(describing: gravada))")
+            let branco = m.registrarSerie(sessao: sessaoS, treino: m.workouts[0].name,
+                                          exercicio: supino, numero: 2,
+                                          repeticoes: nil, segundos: nil, cargaKg: nil)
+            checa("S3", "em branco NÃO grava — 'Completar série' segue como sempre",
+                  branco == nil, "\(String(describing: branco))")
+        }
+        let seriesReaberto = AppModel(store: storeSeries)        // app "reaberto"
+        let ultimaS = seriesReaberto.series.ultima(exercicioSlug: "supino-com-halteres")
+        checa("S2", "a série sobrevive ao fechamento do app (10 reps × 22,5 kg, série 1)",
+              ultimaS?.repeticoes == 10 && ultimaS?.cargaKg == 22.5
+                && ultimaS?.numero == 1 && ultimaS?.sessao == sessaoS,
+              "\(String(describing: ultimaS))")
+        checa("S4", "só UMA série no disco (a em branco não entrou)",
+              seriesReaberto.series.todas().count == 1,
+              "\(seriesReaberto.series.todas().count)")
+        UserDefaults().removePersistentDomain(forName: suiteSeries)
+
         // ── B4 · água zera no dia novo e não ressuscita ─────────────────────
         store.set(Calendar.current.date(byAdding: .day, value: -1, to: Date()), forKey: "lastWaterDate")
         let diaNovo = AppModel(store: store)
@@ -215,6 +253,14 @@ enum AuditoriaBloqueadores {
         UserDefaults.standard.set("alergia a frutos do mar", forKey: "dietaryRestrictions")
         let grupo = UserDefaults(suiteName: "group.com.almaapp.shared")
         grupo?.set("Fulano", forKey: "perfil_nome")
+        // [2026-09-02] Uma série de treino no lugar de verdade (`.standard`),
+        // pela porta de verdade. Sem a chave na lista do serviço, isto
+        // sobrevive à exclusão — B9e.
+        RegistroDeSeries(store: .standard).registrar(
+            SerieRegistrada(sessao: UUID(), quando: Date(), treino: "Auditoria",
+                            exercicioSlug: "supino-com-halteres", exercicio: "Supino com halteres",
+                            numero: 1, repeticoes: 10, segundos: nil, cargaKg: 22.5))
+        let serieAntesDaExclusao = UserDefaults.standard.data(forKey: RegistroDeSeries.chave) != nil
 
         // [2026-08-04 — REAUDITORIA] Era `LocalDataCleanupService.clearAll()`
         // direto. A revisora comentou a chamada DENTRO do
@@ -236,6 +282,11 @@ enum AuditoriaBloqueadores {
         checa("B9d", "exclusão apaga o perfil do App Group",
               grupo?.string(forKey: "perfil_nome") == nil,
               String(describing: grupo?.string(forKey: "perfil_nome")))
+        // Controle positivo embutido: a série TINHA de existir antes — senão a
+        // ausência depois não prova nada (é o "strings no .apk" do CLAUDE.md).
+        checa("B9e", "exclusão apaga o registro de séries (reps × carga)",
+              serieAntesDaExclusao && UserDefaults.standard.data(forKey: RegistroDeSeries.chave) == nil,
+              "antes: \(serieAntesDaExclusao) · depois: \(UserDefaults.standard.data(forKey: RegistroDeSeries.chave) != nil ? "ainda existe" : "apagado")")
 
         // ── B10 · produtos do Alma, nunca os do app descontinuado ───────────
         checa("B10a", "StoreManager do Corpo usa o produto mensal do Alma",

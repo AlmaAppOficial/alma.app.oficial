@@ -95,6 +95,10 @@ enum LocalDataCleanupService {
             // Séries históricas
             "weightLog", "kcalByDay", "workoutDays",
             "customWorkouts", "workoutPlan", "mealPlan",
+            // [2026-09-02] Repetições e carga por série. É histórico de treino
+            // da pessoa; sem esta linha "apagar meus dados" deixaria rastro e
+            // a política de privacidade viraria afirmação falsa. Asserção B9e.
+            RegistroDeSeries.chave,
             // Preferências do módulo
             "notifyWater", "notifyMeals", "notifyWorkout",
             "notifySupplements", "supplementHour",

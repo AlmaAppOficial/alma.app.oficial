@@ -126,6 +126,8 @@
 		BED30FA0BABE00CAFE000B30 /* meditation_30.m4a in Resources */ = {isa = PBXBuildFile; fileRef = AED30FA0BABE00CAFE000A30 /* meditation_30.m4a */; };
 		C63FF451FA7A99DD13A6089E /* SmartPlaylistEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9DCE0EDFCD4977D0282071 /* SmartPlaylistEngine.swift */; };
 		CAF57DF067CF000000000000 /* Corpo/Refeicao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A7135E42C049DD21DB8EC4 /* Corpo/Refeicao.swift */; };
+		8FEA5D5CA63C000000000000 /* Corpo/RegistroDeSeries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B489B0660BAAD5306C2C69E6 /* Corpo/RegistroDeSeries.swift */; };
+		98CD6E8DF5BD000000000000 /* Corpo/Exercicio.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7838CDD2B4560BA11E3B9FB /* Corpo/Exercicio.swift */; };
 		98F3617FB74D000000000000 /* Corpo/QuebraDeJejumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E655D2B964BFD012753CB9B8 /* Corpo/QuebraDeJejumView.swift */; };
 		8FA6E4543761000000000000 /* Corpo/JejumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632187A48393692BF1808F8F /* Corpo/JejumView.swift */; };
 		6E86FA43B51C000000000000 /* Corpo/JejumStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FD5B6B084F725FE13F6B62 /* Corpo/JejumStore.swift */; };
@@ -329,6 +331,8 @@
 
 /* Begin PBXFileReference section */
 		01A7135E42C049DD21DB8EC4 /* Corpo/Refeicao.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/Refeicao.swift; sourceTree = "<group>"; };
+		B489B0660BAAD5306C2C69E6 /* Corpo/RegistroDeSeries.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/RegistroDeSeries.swift"; sourceTree = "<group>"; };
+		B7838CDD2B4560BA11E3B9FB /* Corpo/Exercicio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/Exercicio.swift"; sourceTree = "<group>"; };
 		E655D2B964BFD012753CB9B8 /* Corpo/QuebraDeJejumView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/QuebraDeJejumView.swift"; sourceTree = "<group>"; };
 		632187A48393692BF1808F8F /* Corpo/JejumView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumView.swift"; sourceTree = "<group>"; };
 		37FD5B6B084F725FE13F6B62 /* Corpo/JejumStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Corpo/JejumStore.swift"; sourceTree = "<group>"; };
@@ -697,6 +701,8 @@
 				DD018000DD018000DD018000 /* CorpoModuleView.swift */,
 				477B7C6D4F645FF8265F0706 /* Corpo/AnaliseDeFotoService.swift */,
 				01A7135E42C049DD21DB8EC4 /* Corpo/Refeicao.swift */,
+				B489B0660BAAD5306C2C69E6 /* Corpo/RegistroDeSeries.swift */,
+				B7838CDD2B4560BA11E3B9FB /* Corpo/Exercicio.swift */,
 				E655D2B964BFD012753CB9B8 /* Corpo/QuebraDeJejumView.swift */,
 				632187A48393692BF1808F8F /* Corpo/JejumView.swift */,
 				37FD5B6B084F725FE13F6B62 /* Corpo/JejumStore.swift */,
@@ -1259,6 +1265,8 @@
 				DD018001DD018001DD018001 /* CorpoModuleView.swift in Sources */,
 				BB1E40B1DFF1000000000000 /* Corpo/AnaliseDeFotoService.swift in Sources */,
 				CAF57DF067CF000000000000 /* Corpo/Refeicao.swift in Sources */,
+				8FEA5D5CA63C000000000000 /* Corpo/RegistroDeSeries.swift in Sources */,
+				98CD6E8DF5BD000000000000 /* Corpo/Exercicio.swift in Sources */,
 				98F3617FB74D000000000000 /* Corpo/QuebraDeJejumView.swift in Sources */,
 				8FA6E4543761000000000000 /* Corpo/JejumView.swift in Sources */,
 				6E86FA43B51C000000000000 /* Corpo/JejumStore.swift in Sources */,

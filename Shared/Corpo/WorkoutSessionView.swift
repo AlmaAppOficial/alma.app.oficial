@@ -4,6 +4,19 @@
 //
 //  Sessão de treino ativa — exibe exercícios um a um com timer de descanso.
 //
+//  [2026-09-02] Ganhou o registro de repetições e carga por série (o card
+//  `registroDaSerie`). Regras de produto, todas decididas pelo Assis:
+//    · opcional — em branco, "Completar série" faz o que sempre fez;
+//    · sempre kg; teclado numérico; alvo de toque grande (a pessoa está no
+//      meio da série, com pressa);
+//    · peso corporal nasce sem o campo de carga, com "+ peso extra";
+//    · exercício por tempo ("30 s") troca "reps" por "segundos";
+//    · o que foi digitado FICA no campo para a série seguinte do mesmo
+//      exercício — visível e editável. Nunca se grava o que a pessoa não viu;
+//    · "Última vez: …" é registro. Nenhuma sugestão do que levantar, nunca.
+//  A decisão "há algo a gravar?" e a escrita moram no `AppModel`
+//  (`registrarSerie`) e em `RegistroDeSeries.swift` — a View só digita.
+//
 import SwiftUI
 
 struct WorkoutSessionView: View {
@@ -26,7 +39,21 @@ struct WorkoutSessionView: View {
     /// Quantos exercícios foram efetivamente concluídos (não pulados).
     @State private var concluidos = 0
 
+    // ── Registro de séries ────────────────────────────────────────────────
+    /// Agrupa as séries desta abertura da tela. Uma por sessão.
+    @State private var sessaoId = UUID()
+    /// O que está nos campos. Sobrevivem entre séries do MESMO exercício
+    /// (pré-preenchimento visível) e zeram ao trocar de exercício.
+    @State private var textoReps  = ""
+    @State private var textoCarga = ""
+    /// Peso corporal: o campo de carga só aparece depois de "+ peso extra".
+    @State private var mostrarCarga = false
+    /// Quantas séries desta sessão foram de fato gravadas (para o resumo).
+    @State private var seriesAnotadas = 0
+    @FocusState private var campoFocado: CampoDaSerie?
+
     enum Phase { case exercising, resting, done }
+    enum CampoDaSerie: Hashable { case reps, carga }
 
     private var currentExercise: Exercise? {
         guard currentIndex < workout.exercises.count else { return nil }
@@ -53,6 +80,12 @@ struct WorkoutSessionView: View {
             ToolbarItem(placement: .topBarLeading) {
                 Button("Sair") { stopTimer(); dismiss() }
                     .foregroundStyle(Theme.coral)
+            }
+            // Teclado numérico não tem "return": este OK é a saída.
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("OK") { campoFocado = nil }
+                    .font(.headline)
             }
         }
         .onDisappear { stopTimer() }
@@ -108,6 +141,19 @@ struct WorkoutSessionView: View {
                     }
                     .cardStyle()
 
+                    RegistroDaSerieCard(
+                        numero: currentSet,
+                        medida: RegrasDeSeries.medida(paraReps: ex.reps),
+                        pesoCorporal: RegrasDeSeries.ehPesoCorporal(ex.equipment),
+                        textoReps: $textoReps,
+                        textoCarga: $textoCarga,
+                        mostrarCarga: $mostrarCarga,
+                        foco: $campoFocado,
+                        tint: workout.tint,
+                        ultimaVez: model.series.ultima(exercicioSlug: slugDeExercicio(ex.name))
+                            .map { RegrasDeSeries.linhaDeUltimaVez($0, sessaoAtual: sessaoId) }
+                    )
+
                     Button { completeSerie() } label: {
                         Label("Completar série", systemImage: "checkmark")
                             .font(.headline)
@@ -128,6 +174,7 @@ struct WorkoutSessionView: View {
             }
             .padding(20)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     // MARK: - Descanso
@@ -208,6 +255,15 @@ struct WorkoutSessionView: View {
                 summaryBox(duracaoRealTexto, "de treino", "clock.fill", Theme.azure)
             }
             .padding(.horizontal, 20)
+            // Só aparece se houve o que gravar. É a confirmação visível de que o
+            // que a pessoa digitou ficou guardado.
+            if seriesAnotadas > 0 {
+                Text(seriesAnotadas == 1
+                     ? "1 série anotada neste treino."
+                     : "\(seriesAnotadas) séries anotadas neste treino.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+            }
             Spacer()
             Button { dismiss() } label: {
                 Text("Fechar")
@@ -236,6 +292,8 @@ struct WorkoutSessionView: View {
 
     private func completeSerie() {
         guard let ex = currentExercise else { return }
+        campoFocado = nil
+        anotarSerie(ex)
         if currentSet < ex.sets {
             currentSet += 1
             startRest()
@@ -245,8 +303,28 @@ struct WorkoutSessionView: View {
         }
     }
 
+    /// Grava o que está nos campos — se houver algo. Em branco, nada acontece.
+    /// Os textos NÃO são limpos aqui: ficam para a série seguinte do mesmo
+    /// exercício, à vista, e a pessoa muda se quiser.
+    private func anotarSerie(_ ex: Exercise) {
+        let medida = RegrasDeSeries.medida(paraReps: ex.reps)
+        let n = RegrasDeSeries.inteiro(
+            de: textoReps,
+            teto: medida == .segundos ? RegrasDeSeries.segundosMaximos : RegrasDeSeries.repeticoesMaximas)
+        let gravada = model.registrarSerie(
+            sessao: sessaoId,
+            treino: workout.name,
+            exercicio: ex,
+            numero: currentSet,
+            repeticoes: medida == .repeticoes ? n : nil,
+            segundos: medida == .segundos ? n : nil,
+            cargaKg: RegrasDeSeries.carga(de: textoCarga))
+        if gravada != nil { seriesAnotadas += 1 }
+    }
+
     private func advanceExercise(concluiu: Bool = true) {
         stopTimer()
+        campoFocado = nil
         if concluiu { concluidos += 1 }
         let next = currentIndex + 1
         if next >= workout.exercises.count {
@@ -254,6 +332,11 @@ struct WorkoutSessionView: View {
             phase = .done
         } else {
             currentIndex = next
+            // Exercício novo, campos novos. O que valia para o supino não vale
+            // para a remada.
+            textoReps = ""
+            textoCarga = ""
+            mostrarCarga = false
             phase = .exercising
         }
     }
@@ -309,6 +392,103 @@ struct WorkoutSessionView: View {
         }
         .frame(maxWidth: .infinity)
         .cardStyle(padding: 14)
+    }
+}
+
+// MARK: - O card de anotar a série
+
+/// Dois campos grandes, teclado numérico, nada obrigatório. É uma peça
+/// separada para que o smoke (`SmokeTestTelas`) a renderize em cada estado —
+/// força, peso corporal, por tempo — sem precisar percorrer a sessão a toques,
+/// que nenhum harness deste projeto consegue dar.
+struct RegistroDaSerieCard: View {
+    let numero: Int
+    let medida: MedidaDaSerie
+    let pesoCorporal: Bool
+    @Binding var textoReps: String
+    @Binding var textoCarga: String
+    @Binding var mostrarCarga: Bool
+    var foco: FocusState<WorkoutSessionView.CampoDaSerie?>.Binding
+    let tint: Color
+    /// "Série anterior: …" ou "Última vez (dd/MM): …". `nil` na primeira vez.
+    let ultimaVez: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Anotar série \(numero)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+                Text("opcional")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+
+            HStack(spacing: 12) {
+                campo(texto: $textoReps,
+                      rotulo: medida == .segundos ? "segundos" : "reps",
+                      teclado: .numberPad,
+                      alvo: .reps)
+                    .accessibilityLabel(medida == .segundos ? "Segundos" : "Repetições")
+
+                if pesoCorporal && !mostrarCarga {
+                    // Recolhido, não sumido: colete, anilha e halter existem.
+                    Button {
+                        mostrarCarga = true
+                        foco.wrappedValue = .carga
+                    } label: {
+                        Label("peso extra", systemImage: "plus")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(tint)
+                } else {
+                    campo(texto: $textoCarga, rotulo: "kg", teclado: .decimalPad, alvo: .carga)
+                        .accessibilityLabel("Carga em quilos")
+                }
+            }
+
+            if let ultimaVez {
+                Text(ultimaVez)
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+        }
+        .cardStyle()
+    }
+
+    /// Campo de 48 pt de altura (o mínimo humano é 44): a pessoa está entre
+    /// uma série e outra, com a mão suada.
+    private func campo(texto: Binding<String>, rotulo: String,
+                       teclado: UIKeyboardType,
+                       alvo: WorkoutSessionView.CampoDaSerie) -> some View {
+        HStack(spacing: 6) {
+            TextField("–", text: texto)
+                .keyboardType(teclado)
+                .multilineTextAlignment(.trailing)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(Theme.ink)
+                .focused(foco, equals: alvo)
+            // `fixedSize`: "segundos" quebrava em "segun-/dos" dentro do campo
+            // (visto na captura do smoke). O rótulo fica inteiro; o número cede.
+            Text(rotulo)
+                .font(.subheadline)
+                .foregroundStyle(Theme.inkSoft)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+        }
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity, minHeight: 48)
+        .background(Theme.surfaceAlt)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(foco.wrappedValue == alvo ? tint : Theme.inkSoft.opacity(0.25), lineWidth: 1)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture { foco.wrappedValue = alvo }
     }
 }
 

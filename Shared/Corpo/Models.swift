@@ -48,53 +48,14 @@ struct Workout: Identifiable, Hashable {
     let exercises: [Exercise]
 }
 
-enum Equipment: String, Codable, CaseIterable, Identifiable, Hashable {
-    case corporal = "Peso corporal"
-    case halteres = "Halteres"
-    case barra = "Barra"
-    case maquina = "Máquina"
-    case cabo = "Cabo/Polia"
-    case smith = "Smith"
-    case kettlebell = "Kettlebell"
-    case elastico = "Elástico"
-    case banco = "Banco"
-    case anilha = "Anilha"
-
-    var id: String { rawValue }
-
-    var icon: String {
-        switch self {
-        case .corporal:   return "figure.stand"
-        case .halteres:   return "dumbbell.fill"
-        case .barra:      return "dumbbell.fill"
-        case .maquina:    return "gearshape.2.fill"
-        case .cabo:       return "figure.strengthtraining.functional"
-        case .smith:      return "square.split.2x1.fill"
-        case .kettlebell: return "dumbbell.fill"
-        case .elastico:   return "figure.flexibility"
-        case .banco:      return "chair.lounge.fill"
-        case .anilha:     return "circle.circle.fill"
-        }
-    }
-}
-
-struct Exercise: Identifiable, Codable, Hashable {
-    var id = UUID()
-    let name: String
-    let sets: Int
-    let reps: String
-    let equipment: Equipment
-    let muscle: String
-    let symbol: String            // SF Symbol que ilustra o movimento
-    let instructions: [String]
-}
-
-/// Treino montado pelo usuário (persistido).
-struct CustomWorkout: Identifiable, Codable, Hashable {
-    var id = UUID()
-    var name: String
-    var exercises: [Exercise]
-}
+// [2026-09-02] `Equipment`, `Exercise` e `CustomWorkout` MUDARAM DE ARQUIVO —
+// agora vivem em `Exercicio.swift`, só com Foundation. Conteúdo idêntico;
+// mudou o endereço para que o harness (`_scripts/testes_series.swift`) consiga
+// decodificar um `customWorkouts` gravado ANTES desta data e provar que nada se
+// perde. O motivo de eles NÃO terem ganhado campo de carga está no cabeçalho
+// de lá: campo novo não-opcional aqui apaga, em silêncio, todo treino que a
+// pessoa montou (o `init` abaixo lê com `try?`). O registro de séries mora em
+// `RegistroDeSeries.swift`, coleção própria.
 
 // MARK: - Insight
 
@@ -291,6 +252,35 @@ final class AppModel: ObservableObject {
         if let d = try? JSONEncoder().encode(customWorkouts) { store.set(d, forKey: "customWorkouts") }
     } }
 
+    /// [2026-09-02] Repetições e carga por série — coleção PRÓPRIA, na chave
+    /// `registroDeSeries`, separada de `customWorkouts` de propósito (ver o
+    /// cabeçalho de `RegistroDeSeries.swift`). Não é `@Published`: a lista pode
+    /// ter milhares de linhas e este `AppModel` é construído a torto e a
+    /// direito (duas vezes por render da Home); o store só lê o disco quando
+    /// alguém pergunta, e guarda em memória depois.
+    let series: RegistroDeSeries
+
+    /// A porta de escrita que "Completar série" usa. Vive aqui, no produtor —
+    /// e não na View — pela lição do `registrarTreinoConcluido` (abaixo): o que
+    /// a View esconde em `private func`, a asserção não alcança, e acaba
+    /// gravando ela mesma para "provar" que persiste. A auditoria S1–S3 chama
+    /// exatamente isto.
+    ///
+    /// Devolve `nil` (e não grava nada) quando está tudo em branco. Registrar é
+    /// grátis e opcional — régua do `CorpoAcesso`.
+    @discardableResult
+    func registrarSerie(sessao: UUID, treino: String, exercicio: Exercise, numero: Int,
+                        repeticoes: Int?, segundos: Int?, cargaKg: Double?,
+                        em data: Date = Date()) -> SerieRegistrada? {
+        guard let s = RegrasDeSeries.montar(sessao: sessao, quando: data, treino: treino,
+                                            exercicio: exercicio.name, numero: numero,
+                                            repeticoes: repeticoes, segundos: segundos,
+                                            cargaKg: cargaKg)
+        else { return nil }
+        series.registrar(s)
+        return s
+    }
+
     // [F3] Alimentos cadastrados pelo usuário (com marca e código de barras)
     @Published var userFoods: [StoredFood] = [] { didSet {
         if let d = try? JSONEncoder().encode(userFoods) { store.set(d, forKey: "userFoods") }
@@ -308,6 +298,9 @@ final class AppModel: ObservableObject {
 
     init(store: UserDefaults = .standard) {
         self.store = store
+        // Mesmo domínio do resto: em produção `.standard`, nos harnesses uma
+        // suíte isolada — o registro nunca encosta no dado de quem usa o app.
+        series = RegistroDeSeries(store: store)
         hasOnboarded = store.bool(forKey: "hasOnboarded")
         // [2026-08-02] Era `?? "Felipe"` — o nome do dono do app virava o nome
         // de todo mundo que instalasse. Agora a fonte é o UserProfileStore e,

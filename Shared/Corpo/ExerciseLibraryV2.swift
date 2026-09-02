@@ -300,13 +300,12 @@ struct ExerciseV2: Identifiable, Codable, Hashable {
         self.sourceAttribution = sourceAttribution
     }
 
+    /// [2026-09-02] A regra mudou de casa: `slugDeExercicio` (`Exercicio.swift`,
+    /// só Foundation), porque o registro de séries grava o slug e precisa ser
+    /// exercitado fora do simulador. Este nome fica, delegando — os chamadores
+    /// (`init(legacy:)`, `resolve(legacy:)`) não mudaram.
     static func slug(for name: String) -> String {
-        let folded = name.folding(options: [.diacriticInsensitive, .caseInsensitive],
-                                  locale: Locale(identifier: "pt_BR"))
-        let allowed = folded.lowercased().map { ch -> Character in
-            (ch.isLetter || ch.isNumber) ? ch : "-"
-        }
-        return String(allowed).split(separator: "-").joined(separator: "-")
+        slugDeExercicio(name)
     }
 }
 

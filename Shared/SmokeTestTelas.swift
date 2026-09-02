@@ -144,6 +144,56 @@ enum SmokeTestTelas {
         var body: some View { Color(red: 0.95, green: 0.94, blue: 0.98) }
     }
 
+    /// [2026-09-02] Hospeda o `RegistroDaSerieCard` com estado já preenchido.
+    /// O card precisa de `@FocusState`, que só existe dentro de uma View — daí
+    /// esta casca. A linha "Última vez" é literal: é o TEXTO que se confere
+    /// aqui, não o store (o store é provado pelo harness e pela auditoria S).
+    private struct CartaoDeSerieParaSmoke: View {
+        let titulo: String
+        let medida: MedidaDaSerie
+        let pesoCorporal: Bool
+        @State var reps: String
+        @State var carga: String
+        @State var mostrarCarga: Bool
+        @FocusState private var foco: WorkoutSessionView.CampoDaSerie?
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(titulo)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Theme.inkSoft)
+                RegistroDaSerieCard(numero: 2, medida: medida, pesoCorporal: pesoCorporal,
+                                    textoReps: $reps, textoCarga: $carga,
+                                    mostrarCarga: $mostrarCarga, foco: $foco,
+                                    tint: Theme.primary,
+                                    ultimaVez: "Última vez (28/08): 12 reps × 60 kg")
+            }
+        }
+    }
+
+    /// Os três estados numa tela só (ver o comentário no ponto de chamada).
+    private struct TresCartoesDeSerieParaSmoke: View {
+        var body: some View {
+            VStack(alignment: .leading, spacing: 28) {
+                Text("Anotar série — os três estados")
+                    .font(.title3.bold())
+                    .foregroundStyle(Theme.ink)
+                CartaoDeSerieParaSmoke(titulo: "FORÇA · halteres/barra — reps + kg, preenchida",
+                                       medida: .repeticoes, pesoCorporal: false,
+                                       reps: "12", carga: "60", mostrarCarga: false)
+                CartaoDeSerieParaSmoke(titulo: "PESO CORPORAL — carga recolhida atrás de \"+ peso extra\"",
+                                       medida: .repeticoes, pesoCorporal: true,
+                                       reps: "15", carga: "", mostrarCarga: false)
+                CartaoDeSerieParaSmoke(titulo: "POR TEMPO (\"30 s\") — segundos, com peso extra aberto",
+                                       medida: .segundos, pesoCorporal: true,
+                                       reps: "30", carga: "10", mostrarCarga: true)
+                Spacer()
+            }
+            .padding(20)
+            .background(Theme.background)
+        }
+    }
+
     // MARK: - Conferência de aparência (claro × escuro) [2026-08-04]
     //
     // Por que esta função existe: a conferência por `simctl launch -corpoAba N`
@@ -577,9 +627,23 @@ enum SmokeTestTelas {
         if let w = treino {
             render("Corpo · Detalhe do treino", WorkoutDetailView(workout: w))
             render("Corpo · Sessão de treino", WorkoutSessionView(workout: w))
+            // [2026-09-02] A sessão de um treino POR TEMPO / PESO CORPORAL
+            // (HIIT: burpees, "30 s", sem carga) — o card troca "reps" por
+            // "segundos" e recolhe a carga atrás de "+ peso extra".
+            if model.workouts.count > 1 {
+                render("Corpo · Sessão de treino (por tempo, peso corporal)",
+                       WorkoutSessionView(workout: model.workouts[1]))
+            }
         } else {
             log("  — Detalhe/sessão de treino: sem treino no catálogo")
         }
+        // [2026-09-02] O card de anotar a série nos três estados que a tela
+        // pode assumir — com valores preenchidos, que a sessão inteira só
+        // mostraria depois de toques que nenhum harness daqui dá. Os três
+        // numa tela só: um card sozinho num quadro de iPhone inteiro fica
+        // abaixo do limiar do detector de tela vazia (medido: 2,3 < 3,0) e
+        // apareceria como falso "SEM CONTEÚDO" em toda rodada.
+        render("Corpo · Anotar série (3 estados)", TresCartoesDeSerieParaSmoke())
         if let m = refeicao {
             render("Corpo · Detalhe da refeição", MealDetailView(meal: m))
         }
