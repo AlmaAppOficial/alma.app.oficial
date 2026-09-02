@@ -27,9 +27,9 @@ struct WorkoutDetailView: View {
                             ExerciseDetailView(exercise: ex, tint: workout.tint)
                         } label: {
                             HStack(spacing: 14) {
-                                Image(systemName: ex.symbol)
-                                    .font(.title3)
-                                    .foregroundStyle(workout.tint)
+                                FiguraDeExercicioLegado(exercise: ex, tint: workout.tint,
+                                                        tamanhoDoSimbolo: 20)
+                                    .padding(3)
                                     .frame(width: 46, height: 46)
                                     .background(workout.tint.opacity(0.14))
                                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))

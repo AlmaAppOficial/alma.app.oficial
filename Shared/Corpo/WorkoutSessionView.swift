@@ -99,9 +99,9 @@ struct WorkoutSessionView: View {
                 progressHeader.padding(.bottom, 4)
 
                 if let ex = currentExercise {
-                    Image(systemName: ex.symbol)
-                        .font(.system(size: 64))
-                        .foregroundStyle(workout.tint)
+                    FiguraDeExercicioLegado(exercise: ex, tint: workout.tint,
+                                            tamanhoDoSimbolo: 64)
+                        .padding(8)
                         .frame(width: 120, height: 120)
                         .background(workout.tint.opacity(0.12))
                         .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))

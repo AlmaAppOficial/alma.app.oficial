@@ -225,6 +225,19 @@ struct SettingsView: View {
             Link(destination: URL(string: "https://almaappoficial.com/terms")!) {
                 Label("Termos de uso", systemImage: "doc.text.fill")
             }
+            // [2026-09-02] Crédito das fotos dos exercícios. **Não é enfeite:**
+            // a licença free do RepDB (termo 2) exige a atribuição como LINK
+            // VISÍVEL, e é este item que a satisfaz. Sem ele, as 594 imagens do
+            // bundle estão fora de licença.
+            //
+            // O rótulo fica em INGLÊS de propósito — é a string exata que a
+            // licença pede. Traduzir ("Dados de exercícios por RepDB") deixa de
+            // ser o texto exigido e a conformidade cai junto. Esta é a única
+            // string em inglês da tela, e é assim de caso pensado.
+            Link(destination: URL(string: "https://repdb.co")!) {
+                Label("Exercise data by RepDB (repdb.co)",
+                      systemImage: "figure.strengthtraining.traditional")
+            }
             HStack {
                 Text("Versão")
                 Spacer()

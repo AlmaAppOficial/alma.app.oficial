@@ -14,18 +14,30 @@ struct ExerciseDetailView: View {
 
     @State private var animate = false
 
+    /// [2026-09-02] O `Exercise` legado (formato PERSISTIDO, 7 campos) não tem
+    /// e não vai ter campo de foto — acrescentar campo lá quebra o decode de
+    /// `customWorkouts` e apaga o treino da pessoa em silêncio (ver o cabeçalho
+    /// de `Exercicio.swift`). A foto é resolvida **em tempo de desenho**, pelo
+    /// slug do nome, contra o catálogo do bundle. Nada é gravado, nada muda de
+    /// formato, e um treino salvo antes desta mudança abre igual.
+    private var fotoDeCapa: String? {
+        ExerciseCatalog.resolve(legacy: exercise).fotoDeCapa
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                // Ilustração do movimento
+                // Ilustração do movimento — foto do exercício quando o catálogo
+                // tem uma para este nome; o SF Symbol animado quando não tem.
                 ZStack {
                     RoundedRectangle(cornerRadius: Theme.radius, style: .continuous)
                         .fill(tint.opacity(0.12))
-                    Image(systemName: exercise.symbol)
-                        .font(.system(size: 120))
-                        .foregroundStyle(tint)
-                        .scaleEffect(animate ? 1.04 : 0.96)
-                        .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: animate)
+                    if let nome = fotoDeCapa {
+                        FotoDoExercicioView(nome: nome) { simboloAnimado }
+                            .padding(12)
+                    } else {
+                        simboloAnimado
+                    }
                 }
                 .frame(height: 240)
                 .frame(maxWidth: .infinity)
@@ -80,6 +92,17 @@ struct ExerciseDetailView: View {
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { animate = true }
+    }
+
+    /// O desenho de sempre — SF Symbol pulsando. Continua sendo o que aparece
+    /// para os 581 exercícios sem foto, e é também a reserva enquanto a foto
+    /// decodifica. Não mudou uma linha; só ganhou nome.
+    private var simboloAnimado: some View {
+        Image(systemName: exercise.symbol)
+            .font(.system(size: 120))
+            .foregroundStyle(tint)
+            .scaleEffect(animate ? 1.04 : 0.96)
+            .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: animate)
     }
 
     private func volumeBox(_ value: String, _ label: String) -> some View {

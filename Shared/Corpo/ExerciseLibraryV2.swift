@@ -206,6 +206,22 @@ struct ExerciseV2: Identifiable, Codable, Hashable {
     let defaultReps: String
     let sourceAttribution: String      // ex.: "free-exercise-db (Unlicense)"
 
+    /// Nomes de arquivo das fotos do exercício, em ordem cronológica do
+    /// movimento (`início`, depois `pico`) — 1 ou 2 por exercício. Moram em
+    /// `Shared/Corpo/ExerciciosFotos/`, dentro do bundle. Ver `FotoDoExercicio.swift`.
+    ///
+    /// **É OPCIONAL de propósito, e o campo é NOVO em vez de reaproveitar
+    /// `media`.** Duas razões, ambas com precedente doloroso neste projeto:
+    ///
+    /// 1. `nil` é o estado de 581 dos 1.095 hoje (os órfãos e os que esperam
+    ///    revisão humana). Campo obrigatório obrigaria a inventar valor.
+    /// 2. `media` alimenta `displaySymbol`, que `asLegacyExercise()` grava
+    ///    dentro de `customWorkouts` — FORMATO PERSISTIDO. Trocar `media` por
+    ///    foto mudaria, de tabela, o `symbol` gravado no aparelho de quem monta
+    ///    um treino novo. A foto entra por fora justamente para não encostar
+    ///    nesse caminho. Ver o cabeçalho de `Exercicio.swift`.
+    let fotos: [String]?
+
     var displaySymbol: String {
         media.sfSymbolName
             ?? primaryMuscles.first?.fallbackSymbol
@@ -218,7 +234,7 @@ struct ExerciseV2: Identifiable, Codable, Hashable {
     private enum CodingKeys: String, CodingKey {
         case id, namePTBR, nameEN, type, primaryMuscles, secondaryMuscles
         case equipment, difficulty, mechanics, force, media, instructions
-        case defaultSets, defaultReps, sourceAttribution
+        case defaultSets, defaultReps, sourceAttribution, fotos
         // chaves do formato legado
         case name, sets, reps, muscle, symbol
     }
@@ -243,6 +259,7 @@ struct ExerciseV2: Identifiable, Codable, Hashable {
             defaultSets      = try c.decodeIfPresent(Int.self, forKey: .defaultSets) ?? 3
             defaultReps      = try c.decodeIfPresent(String.self, forKey: .defaultReps) ?? "12 reps"
             sourceAttribution = try c.decodeIfPresent(String.self, forKey: .sourceAttribution) ?? "catálogo C&A"
+            fotos            = try c.decodeIfPresent([String].self, forKey: .fotos)
         } else {
             // Formato legado (Exercise antigo serializado)
             let legacyName   = try c.decode(String.self, forKey: .name)
@@ -264,6 +281,10 @@ struct ExerciseV2: Identifiable, Codable, Hashable {
             defaultSets      = try c.decodeIfPresent(Int.self, forKey: .sets) ?? 3
             defaultReps      = try c.decodeIfPresent(String.self, forKey: .reps) ?? "12 reps"
             sourceAttribution = "catálogo C&A (legado)"
+            // O formato legado não tem foto — e nunca terá: ele é o `Exercise`
+            // de 7 campos gravado no aparelho, e acrescentar campo lá é o
+            // defeito que este projeto já documentou duas vezes.
+            fotos            = nil
         }
     }
 
@@ -284,20 +305,24 @@ struct ExerciseV2: Identifiable, Codable, Hashable {
         try c.encode(defaultSets, forKey: .defaultSets)
         try c.encode(defaultReps, forKey: .defaultReps)
         try c.encode(sourceAttribution, forKey: .sourceAttribution)
+        try c.encodeIfPresent(fotos, forKey: .fotos)
     }
 
+    /// `fotos` tem valor padrão para que os chamadores antigos — `init(legacy:)`
+    /// e quem construir um V2 na mão — continuem compilando sem edição.
     init(id: String, namePTBR: String, nameEN: String?, type: ExerciseType,
          primaryMuscles: [MuscleGroup], secondaryMuscles: [MuscleGroup],
          equipment: Equipment, difficulty: Difficulty, mechanics: String?,
          force: String?, media: ExerciseMedia, instructions: [String],
-         defaultSets: Int, defaultReps: String, sourceAttribution: String) {
+         defaultSets: Int, defaultReps: String, sourceAttribution: String,
+         fotos: [String]? = nil) {
         self.id = id; self.namePTBR = namePTBR; self.nameEN = nameEN
         self.type = type; self.primaryMuscles = primaryMuscles
         self.secondaryMuscles = secondaryMuscles; self.equipment = equipment
         self.difficulty = difficulty; self.mechanics = mechanics; self.force = force
         self.media = media; self.instructions = instructions
         self.defaultSets = defaultSets; self.defaultReps = defaultReps
-        self.sourceAttribution = sourceAttribution
+        self.sourceAttribution = sourceAttribution; self.fotos = fotos
     }
 
     /// [2026-09-02] A regra mudou de casa: `slugDeExercicio` (`Exercicio.swift`,

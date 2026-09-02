@@ -149,7 +149,9 @@ struct TreinoBuilderView: View {
     private func exerciseRow(_ ex: ExerciseV2) -> some View {
         Button { toggle(ex) } label: {
             HStack(spacing: 12) {
-                ExerciseMuscleThumb(exercise: ex)
+                // [2026-09-02] Foto quando existe, corpo anatômico quando não —
+                // a mesma regra da lista (`FiguraDoExercicio`). Geometria intocada.
+                FiguraDoExercicio(exercise: ex)
                     .frame(width: 44, height: 58)
                     .padding(.vertical, 2)
                     .padding(.horizontal, 5)

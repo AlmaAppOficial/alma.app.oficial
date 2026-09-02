@@ -238,9 +238,11 @@ struct TreinoView: View {
                     selectedExercise = ex
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: ex.symbol)
-                            .foregroundStyle(Theme.primary)
-                            .frame(width: 24)
+                        // [2026-09-02] Foto do exercício quando o catálogo tem
+                        // uma para este nome; o SF Symbol de sempre quando não.
+                        FiguraDeExercicioLegado(exercise: ex, tint: Theme.primary,
+                                                tamanhoDoSimbolo: 17)
+                            .frame(width: 24, height: 24)
                         Text(ex.name)
                             .font(.subheadline)
                             .foregroundStyle(Theme.ink)

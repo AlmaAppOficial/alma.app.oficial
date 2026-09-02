@@ -211,6 +211,8 @@
 		F42310F69DAAC831FB709625 /* sleep_fireplace.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */; };
 		F6C4D3274F65C38F029D2EC8 /* OnboardingBiometricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DFDE0B15236BD7D1BC7DCE /* OnboardingBiometricsView.swift */; };
 		FA800001FA800001FA80001 /* Corpo/exercises_v2.json in Resources */ = {isa = PBXBuildFile; fileRef = FA800000FA800000FA80000 /* Corpo/exercises_v2.json */; };
+		FA950101FA950101FA95011 /* Corpo/FotoDoExercicio.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA950100FA950100FA95010 /* Corpo/FotoDoExercicio.swift */; };
+		FA950201FA950201FA95021 /* Corpo/ExerciciosFotos in Resources */ = {isa = PBXBuildFile; fileRef = FA950200FA950200FA95020 /* Corpo/ExerciciosFotos */; };
 		FA900001FA900001FA90001 /* Corpo/AIBodyScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900000FA900000FA90000 /* Corpo/AIBodyScan.swift */; };
 		FA900101FA900101FA90011 /* Corpo/AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900100FA900100FA90010 /* Corpo/AddFoodView.swift */; };
 		FA900201FA900201FA90021 /* Corpo/BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900200FA900200FA90020 /* Corpo/BarcodeScannerView.swift */; };
@@ -495,6 +497,8 @@
 		F1002000F1002000F1002000 /* InsightShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightShareSheet.swift; sourceTree = "<group>"; };
 		F6454C316795D1818D6FCFF1 /* sleep_fireplace.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = sleep_fireplace.mp3; sourceTree = "<group>"; };
 		FA800000FA800000FA80000 /* Corpo/exercises_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Corpo/exercises_v2.json; sourceTree = "<group>"; };
+		FA950100FA950100FA95010 /* Corpo/FotoDoExercicio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/FotoDoExercicio.swift; sourceTree = "<group>"; };
+		FA950200FA950200FA95020 /* Corpo/ExerciciosFotos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Corpo/ExerciciosFotos; sourceTree = "<group>"; };
 		FA900000FA900000FA90000 /* Corpo/AIBodyScan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AIBodyScan.swift; sourceTree = "<group>"; };
 		FA900100FA900100FA90010 /* Corpo/AddFoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AddFoodView.swift; sourceTree = "<group>"; };
 		FA900200FA900200FA90020 /* Corpo/BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/BarcodeScannerView.swift; sourceTree = "<group>"; };
@@ -750,6 +754,8 @@
 				FA901200FA901200FA90120 /* Corpo/ExerciseDetailView.swift */,
 				FA901300FA901300FA90130 /* Corpo/ExerciseLibraryV2.swift */,
 				FA901400FA901400FA90140 /* Corpo/ExerciseListV2View.swift */,
+				FA950200FA950200FA95020 /* Corpo/ExerciciosFotos */,
+				FA950100FA950100FA95010 /* Corpo/FotoDoExercicio.swift */,
 				FA901500FA901500FA90150 /* Corpo/FoodScanView.swift */,
 				FA901600FA901600FA90160 /* Corpo/GeminiService.swift */,
 				FA901700FA901700FA90170 /* Corpo/HealthManager.swift */,
@@ -1128,6 +1134,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA800001FA800001FA80001 /* Corpo/exercises_v2.json in Resources */,
+				FA950201FA950201FA95021 /* Corpo/ExerciciosFotos in Resources */,
 				9ECED0CE2F588F21009412A7 /* Assets.xcassets in Resources */,
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
@@ -1314,6 +1321,7 @@
 				FA901201FA901201FA90121 /* Corpo/ExerciseDetailView.swift in Sources */,
 				FA901301FA901301FA90131 /* Corpo/ExerciseLibraryV2.swift in Sources */,
 				FA901401FA901401FA90141 /* Corpo/ExerciseListV2View.swift in Sources */,
+				FA950101FA950101FA95011 /* Corpo/FotoDoExercicio.swift in Sources */,
 				FA901501FA901501FA90151 /* Corpo/FoodScanView.swift in Sources */,
 				FA901601FA901601FA90161 /* Corpo/GeminiService.swift in Sources */,
 				E250A750303D560E007C4C24 /* ApoioEmCrise.swift in Sources */,

@@ -1,0 +1,582 @@
+alma_id,nome,motivo
+pullover-na-polia,Pullover na polia,C_REVISAR
+remada-na-maquina,Remada na máquina,C_REVISAR
+pullover-na-maquina,Pullover na máquina,D_ORFAO
+agachamento-bulgaro,Agachamento búlgáro,C_REVISAR
+stiff-com-halteres,Stiff com halteres,C_REVISAR
+remada-alta-com-barra-estreita,Remada alta com barra estreita,C_REVISAR
+desenvolvimento-unilateral,Desenvolvimento unilateral,C_REVISAR
+rotacao-interna-com-cabo,Rotação interna com cabo,D_ORFAO
+elevacao-lateral-inclinada,Elevação lateral inclinada,C_REVISAR
+rosca-21,Rosca 21,D_ORFAO
+rosca-com-elastico,Rosca com elástico,D_ORFAO
+paralelas-foco-triceps,Paralelas foco tríceps,C_REVISAR
+abdominal-remador,Abdominal remador,C_REVISAR
+tocada-no-calcanhar,Tocada no calcanhar,D_ORFAO
+prancha-com-elevacao-de-braco,Prancha com elevação de braço,D_ORFAO
+abducao-no-cabo,Abdução no cabo,C_REVISAR
+stiff-unilateral,Stiff unilateral,C_REVISAR
+elevacao-de-perna-no-solo,Elevação de perna no solo,C_REVISAR
+caminhada-em-esteira,Caminhada em esteira,C_REVISAR
+corrida-estacionaria,Corrida estacionária,C_REVISAR
+thruster-com-kettlebell,Thruster com kettlebell,C_REVISAR
+clean-com-kettlebell,Clean com kettlebell,C_REVISAR
+mobilidade-de-tornozelo-circulos,Mobilidade de tornozelo (círculos),D_ORFAO
+mobilidade-de-ombro-rotacao,Mobilidade de ombro (rotação),D_ORFAO
+arm-circles,Arm circles,D_ORFAO
+leg-swings-frente-e-tras,Leg swings (frente e trás),D_ORFAO
+leg-swings-laterais,Leg swings laterais,D_ORFAO
+mobilidade-toracica-com-rolo,Mobilidade torácica com rolo,D_ORFAO
+world-s-greatest-stretch,World's greatest stretch,D_ORFAO
+abertura-lateral-lateral-lunge-com-pausa,Abertura lateral (lateral lunge com pausa),C_REVISAR
+respiracao-diafragmatica,Respiração diafragmática,D_ORFAO
+hundred-pilates,Hundred (Pilates),D_ORFAO
+roll-up-pilates,Roll-up (Pilates),D_ORFAO
+single-leg-stretch-pilates,Single leg stretch (Pilates),D_ORFAO
+double-leg-stretch-pilates,Double leg stretch (Pilates),D_ORFAO
+swan-pilates,Swan (Pilates),D_ORFAO
+side-kick-pilates,Side kick (Pilates),C_REVISAR
+teaser-pilates,Teaser (Pilates),D_ORFAO
+saudacao-ao-sol-yoga,Saudação ao sol (Yoga),D_ORFAO
+respiracao-ujjayi-yoga,Respiração ujjayi (Yoga),D_ORFAO
+corrida-de-escada-stair-run,Corrida de escada (stair run),C_REVISAR
+shuttle-run-ida-e-volta-20m,Shuttle run (ida e volta 20m),D_ORFAO
+power-clean-barra,Power clean (barra),C_REVISAR
+snatch-com-kettlebell,Snatch com kettlebell,C_REVISAR
+bear-plank-shoulder-tap,Bear plank shoulder tap,D_ORFAO
+salto-lateral-sobre-cone,Salto lateral sobre cone,D_ORFAO
+push-up-to-mountain-climber,Push-up to mountain climber,D_ORFAO
+plank-jack,Plank jack,D_ORFAO
+lateral-shuffle-20m,Lateral shuffle (20m),D_ORFAO
+desenvolvimento-com-elastico,Desenvolvimento com elástico,C_REVISAR
+remada-com-elastico,Remada com elástico,C_REVISAR
+abducao-de-quadril-com-elastico,Abdução de quadril com elástico,C_REVISAR
+kickback-com-elastico,Kickback com elástico,C_REVISAR
+triceps-com-elastico-overhead,Tríceps com elástico (overhead),C_REVISAR
+rosca-biceps-com-elastico,Rosca bíceps com elástico,C_REVISAR
+elevacao-lateral-com-elastico,Elevação lateral com elástico,C_REVISAR
+chest-press-com-elastico,Chest press com elástico,C_REVISAR
+agachamento-com-chute-com-elastico,Agachamento com chute com elástico,D_ORFAO
+corrida-resistida-com-elastico,Corrida resistida com elástico,C_REVISAR
+rosca-de-punho-reversa-palma-para-baixo,Rosca de punho reversa (palma para baixo),C_REVISAR
+farmer-hold-isometria-de-pegada,Farmer hold (isometria de pegada),C_REVISAR
+dead-hang-ativo,Dead hang ativo,C_REVISAR
+towel-pull-up,Towel pull-up,C_REVISAR
+rice-bucket-balde-de-arroz,Rice bucket (balde de arroz),D_ORFAO
+squeeze-de-bola-isometria,Squeeze de bola (isometria),D_ORFAO
+leg-press-com-pes-baixos,Leg press com pés baixos,C_REVISAR
+passada-com-kettlebell,Passada com kettlebell,C_REVISAR
+panturrilha-em-leg-press,Panturrilha em leg press,C_REVISAR
+fire-hydrant-hidrante,Fire hydrant (hidrante),C_REVISAR
+hip-thrust-com-barra-pe-de-sumo,Hip thrust com barra — pé de sumo,C_REVISAR
+step-up-com-halteres-e-joelho-elevado,Step up com halteres e joelho elevado,C_REVISAR
+frog-pump,Frog pump,C_REVISAR
+afundo-lateral-com-salto,Afundo lateral com salto,C_REVISAR
+puxada-com-elastico,Puxada com elástico,C_REVISAR
+remada-inclinada-com-anilha,Remada inclinada com anilha,C_REVISAR
+deficit-pull-up,Deficit pull-up,C_REVISAR
+supino-com-anilha-grip-diferente,Supino com anilha (grip diferente),C_REVISAR
+bench-dip-com-peso,Bench dip com peso,C_REVISAR
+supino-com-barra-hex-trap-bar,Supino com barra hex (trap bar),C_REVISAR
+rotacao-de-manguito-com-haltere,Rotação de manguito com haltere,C_REVISAR
+hip-thrust-no-banco-com-peso-corporal,Hip thrust no banco com peso corporal,C_REVISAR
+seated-incline-lateral-raise,Seated incline lateral raise,C_REVISAR
+single-leg-hip-thrust-no-banco,Single leg hip thrust no banco,C_REVISAR
+around-the-world-com-anilha,Around the world com anilha,D_ORFAO
+hack-squat-com-anilha,Hack squat com anilha,C_REVISAR
+swing-com-anilha,Swing com anilha,C_REVISAR
+landmine-rotacao-com-anilha,Landmine rotação com anilha,D_ORFAO
+agachamento-com-anilha-overhead,Agachamento com anilha overhead,C_REVISAR
+halo-com-anilha,Halo com anilha,C_REVISAR
+deadlift-com-anilha-unilateral,Deadlift com anilha (unilateral),C_REVISAR
+abdominal-3-4,Abdominal 3/4,C_REVISAR
+alongamento-de-isquiotibiais-90-90,Alongamento de Isquiotibiais 90/90,D_ORFAO
+liberacao-miofascial-de-adutor,Liberação Miofascial de Adutor,D_ORFAO
+alongamento-de-adutores-assistido,Alongamento de Adutores Assistido,C_REVISAR
+alongamento-de-quadriceps-de-quatro-apoios,Alongamento de Quadríceps de Quatro Apoios,C_REVISAR
+toque-no-calcanhar-alternado,Toque no Calcanhar Alternado,D_ORFAO
+salto-diagonal-alternado-com-uma-perna,Salto Diagonal Alternado com Uma Perna,D_ORFAO
+desenvolvimento-alternado-na-polia,Desenvolvimento Alternado na Polia,D_ORFAO
+elevacao-frontal-e-lateral-alternada,Elevação Frontal e Lateral Alternada,D_ORFAO
+supino-no-chao-alternado,Supino no Chão Alternado,C_REVISAR
+hang-clean-alternado,Hang Clean Alternado,C_REVISAR
+remada-renegada-alternada,Remada Renegada Alternada,D_ORFAO
+rotacao-de-tornozelo,Rotação de Tornozelo,D_ORFAO
+alongamento-de-gluteo-com-perna-cruzada,Alongamento de Glúteo com Perna Cruzada,C_REVISAR
+smr-do-tibial-anterior,SMR do Tibial Anterior,D_ORFAO
+press-anti-gravidade,Press Anti-Gravidade,D_ORFAO
+rotacao-de-braco,Rotação de Braço,D_ORFAO
+around-the-worlds,Around The Worlds,D_ORFAO
+treino-de-atlas-stone,Treino de Atlas Stone,D_ORFAO
+atlas-stones,Atlas Stones,D_ORFAO
+levantamento-terra-com-barra-grossa,Levantamento Terra com Barra Grossa,C_REVISAR
+crucifixo-invertido-com-elastico,Crucifixo Invertido com Elástico,C_REVISAR
+arrasto-de-treno-para-tras,Arrasto de Trenó para Trás,D_ORFAO
+arremesso-de-medicine-ball-para-tras,Arremesso de Medicine Ball para Trás,C_REVISAR
+balance-board,Balance Board,D_ORFAO
+bom-dia-com-elastico-puxada-por-baixo,Bom Dia com Elástico (Puxada por Baixo),C_REVISAR
+triceps-testa-com-elastico,Tríceps Testa com Elástico,C_REVISAR
+rosca-inclinada-com-barra-deitado,Rosca Inclinada com Barra Deitado,C_REVISAR
+supino-guilhotina-com-barra,Supino Guilhotina com Barra,C_REVISAR
+hack-squat-com-barra,Hack Squat com Barra,C_REVISAR
+elevacao-de-ombro-inclinada-com-barra,Elevação de Ombro Inclinada com Barra,C_REVISAR
+panturrilha-sentado-com-barra,Panturrilha Sentado com Barra,C_REVISAR
+inclinacao-lateral-com-barra,Inclinação Lateral com Barra,C_REVISAR
+agachamento-lateral-com-barra,Agachamento Lateral com Barra,C_REVISAR
+agachamento-no-banco-com-barra,Agachamento no Banco com Barra,C_REVISAR
+step-up-com-barra,Step Up com Barra,C_REVISAR
+passada-com-barra,Passada com Barra,C_REVISAR
+arrasto-de-treno-em-posicao-de-urso,Arrasto de Trenó em Posição de Urso,C_REVISAR
+alongamento-de-peito-com-maos-na-nuca,Alongamento de Peito com Mãos na Nuca,D_ORFAO
+salto-no-banco,Salto no Banco,C_REVISAR
+supino-powerlifting,Supino - Powerlifting,C_REVISAR
+supino-com-elastico,Supino com Elástico,C_REVISAR
+supino-com-correntes,Supino com Correntes,C_REVISAR
+sprint-no-banco,Sprint no Banco,D_ORFAO
+elevacao-lateral-na-polia-baixa-curvado,Elevação Lateral na Polia Baixa (curvado),C_REVISAR
+remada-unilateral-na-barra-t,Remada Unilateral na Barra T,C_REVISAR
+bent-press-com-kettlebell,Bent Press com Kettlebell,D_ORFAO
+bicicleta,Bicicleta,C_REVISAR
+supino-com-tabua,Supino com Tábua,C_REVISAR
+prancha-com-elevacao,Prancha com Elevação,D_ORFAO
+triceps-na-barra-horizontal,Tríceps na Barra Horizontal,D_ORFAO
+crucifixo-no-chao-com-barras,Crucifixo no Chão com Barras,D_ORFAO
+abdominal-na-polia-no-bosu-com-inclinacao-lateral,Abdominal na Polia no Bosu (com inclinação lateral),C_REVISAR
+clean-invertido-com-kettlebell-da-posicao-suspensa,Clean Invertido com Kettlebell (da posição suspensa),D_ORFAO
+salto-na-caixa,Salto na Caixa,C_REVISAR
+agachamento-na-caixa,Agachamento na Caixa,C_REVISAR
+agachamento-na-caixa-com-elasticos,Agachamento na Caixa com Elásticos,C_REVISAR
+agachamento-na-caixa-com-correntes,Agachamento na Caixa com Correntes,C_REVISAR
+liberacao-miofascial-do-braquial,Liberação Miofascial do Braquial,D_ORFAO
+desenvolvimento-bradford-rocky,Desenvolvimento Bradford/Rocky,C_REVISAR
+elevacao-de-quadril-prancha,Elevação de Quadril (Prancha),C_REVISAR
+levantamento-terra-na-polia,Levantamento Terra na Polia,C_REVISAR
+aducao-de-quadril-na-polia,Adução de Quadril na Polia,C_REVISAR
+puxada-inclinada-na-polia,Puxada Inclinada na Polia,C_REVISAR
+triceps-testa-inclinado-na-polia,Tríceps Testa Inclinado na Polia,C_REVISAR
+rotacao-interna-de-ombro-na-polia,Rotação Interna de Ombro na Polia,D_ORFAO
+rotacao-de-tronco-na-polia-judo-flip,Rotação de Tronco na Polia (Judo Flip),D_ORFAO
+triceps-testa-na-polia-deitado,Tríceps Testa na Polia Deitado,C_REVISAR
+triceps-coice-unilateral-na-polia,Tríceps Coice Unilateral na Polia,C_REVISAR
+rosca-scott-na-polia,Rosca Scott na Polia,C_REVISAR
+crucifixo-inverso-na-polia,Crucifixo Inverso na Polia,C_REVISAR
+abdominal-inverso-na-polia,Abdominal Inverso na Polia,C_REVISAR
+triceps-frances-na-polia-com-corda,Tríceps Francês na Polia com Corda,C_REVISAR
+remada-alta-na-polia-com-corda,Remada Alta na Polia com Corda,C_REVISAR
+rotacao-russa-na-polia-com-bola-suica,Rotação Russa na Polia com Bola Suíça,C_REVISAR
+desenvolvimento-na-polia,Desenvolvimento na Polia,C_REVISAR
+encolhimento-na-polia,Encolhimento na Polia,C_REVISAR
+encolhimento-no-aparelho-de-panturrilha,Encolhimento no Aparelho de Panturrilha,C_REVISAR
+panturrilha-no-leg-press,Panturrilha no Leg Press,C_REVISAR
+panturrilha-unilateral-com-halter,Panturrilha Unilateral com Halter,C_REVISAR
+panturrilha-com-elastico,Panturrilha com Elástico,D_ORFAO
+liberacao-miofascial-de-panturrilhas,Liberação Miofascial de Panturrilhas,D_ORFAO
+deadlift-de-carro,Deadlift de Carro,C_REVISAR
+volante-com-anilhas,Volante com Anilhas,D_ORFAO
+carioca,Carioca,D_ORFAO
+arremesso-overhead,Arremesso Overhead,D_ORFAO
+triceps-testa-com-correntes,Tríceps Testa com Correntes,C_REVISAR
+alongamento-de-lombar-na-cadeira,Alongamento de Lombar na Cadeira,D_ORFAO
+alongamento-da-parte-superior-do-corpo-na-cadeira,Alongamento da Parte Superior do Corpo na Cadeira,D_ORFAO
+arremesso-de-peito-3-apoios,Arremesso de Peito (3 apoios),D_ORFAO
+arremesso-de-peito-multiplas-respostas,Arremesso de Peito (múltiplas respostas),D_ORFAO
+arremesso-de-peito-resposta-unica,Arremesso de Peito (resposta única),D_ORFAO
+arremesso-de-peito-com-corrida,Arremesso de Peito com Corrida,D_ORFAO
+alongamento-de-peito-na-bola-suica,Alongamento de Peito na Bola Suíça,C_REVISAR
+alongamento-cervical,Alongamento Cervical,D_ORFAO
+levantamento-de-circus-bell,Levantamento de Circus Bell,D_ORFAO
+levantamento-terra-para-clean,Levantamento Terra para Clean,D_ORFAO
+puxada-para-clean,Puxada para Clean,D_ORFAO
+encolhimento-para-clean,Encolhimento para Clean,C_REVISAR
+clean-e-press,Clean e Press,C_REVISAR
+clean-a-partir-de-blocos,Clean a Partir de Blocos,D_ORFAO
+flexao-relogio,Flexão Relógio,D_ORFAO
+rosca-direta-barra-w-pegada-fechada-com-elastico,Rosca Direta Barra W Pegada Fechada com Elástico,C_REVISAR
+conan-s-wheel,Conan's Wheel,D_ORFAO
+crossover-com-elastico,Crossover com Elástico,C_REVISAR
+afundo-cruzado-invertido,Afundo Cruzado Invertido,C_REVISAR
+crucifixo,Crucifixo,D_ORFAO
+abdominal-com-pernas-na-bola-suica,Abdominal com Pernas na Bola Suíça,C_REVISAR
+cuban-press,Cuban Press,D_ORFAO
+levantamento-terra-com-elastico,Levantamento Terra com Elástico,C_REVISAR
+levantamento-terra-com-correntes,Levantamento Terra com Correntes,C_REVISAR
+supino-declinado-fechado-para-triceps-testa,Supino Declinado Fechado para Tríceps Testa,D_ORFAO
+triceps-testa-declinado-com-halteres,Tríceps Testa Declinado com Halteres,C_REVISAR
+triceps-testa-declinado-com-barra-ez,Tríceps Testa Declinado com Barra EZ,C_REVISAR
+abdominal-obliquo-declinado,Abdominal Oblíquo Declinado,C_REVISAR
+abdominal-inverso-declinado,Abdominal Inverso Declinado,C_REVISAR
+salto-em-profundidade-para-caixa,Salto em Profundidade para Caixa,D_ORFAO
+mergulho-na-maquina,Mergulho na Máquina,C_REVISAR
+mergulho-nas-paralelas-enfase-no-triceps,Mergulho nas Paralelas (Ênfase no Tríceps),C_REVISAR
+arremesso-pendurado-alternado-com-dois-kettlebells,Arremesso Pendurado Alternado com Dois Kettlebells,C_REVISAR
+arranco-com-dois-kettlebells,Arranco com Dois Kettlebells,C_REVISAR
+windmill-com-dois-kettlebells,Windmill com Dois Kettlebells,C_REVISAR
+chute-duplo-no-gluteo,Chute Duplo no Glúteo,D_ORFAO
+equilibrio-de-brucos-na-bola,Equilíbrio de Bruços na Bola,D_ORFAO
+flexao-com-queda,Flexão com Queda,C_REVISAR
+supino-com-halteres-pegada-neutra,Supino com Halteres (Pegada Neutra),C_REVISAR
+arremesso-com-halteres,Arremesso com Halteres,D_ORFAO
+elevacao-de-ombros-inclinada-com-halteres,Elevação de Ombros Inclinada com Halteres,D_ORFAO
+elevacao-lateral-posterior-unilateral-deitado-com-halteres,Elevação Lateral Posterior Unilateral Deitado com Halteres,C_REVISAR
+pronacao-deitado-com-halteres,Pronação Deitado com Halteres,D_ORFAO
+supinacao-deitado-com-halteres,Supinação Deitado com Halteres,D_ORFAO
+desenvolvimento-unilateral-com-halteres,Desenvolvimento Unilateral com Halteres,C_REVISAR
+remada-alta-unilateral-com-halteres,Remada Alta Unilateral com Halteres,C_REVISAR
+elevacao-frontal-diagonal-com-halteres,Elevação frontal diagonal com halteres,D_ORFAO
+box-jump-sentado-com-halteres,Box Jump sentado com halteres,C_REVISAR
+elevacao-de-panturrilha-unilateral-sentado-com-halteres,Elevação de panturrilha unilateral sentado com halteres,C_REVISAR
+agachamento-no-banco-com-halteres,Agachamento no banco com halteres,C_REVISAR
+step-up-com-halteres,Step up com halteres,C_REVISAR
+alongamento-dinamico-para-as-costas,Alongamento dinâmico para as costas,D_ORFAO
+alongamento-dinamico-para-o-peito,Alongamento dinâmico para o peito,D_ORFAO
+circulos-com-os-cotovelos,Círculos com os cotovelos,D_ORFAO
+cotovelos-para-tras-alongamento,Cotovelos para trás (alongamento),D_ORFAO
+afundo-para-tras-elevado,Afundo para trás elevado,C_REVISAR
+remada-na-polia-elevada,Remada na polia elevada,C_REVISAR
+abdominal-na-bola,Abdominal na Bola,D_ORFAO
+rotacao-externa-com-halteres,Rotação Externa com Halteres,C_REVISAR
+rotacao-externa-com-elastico,Rotação Externa com Elástico,C_REVISAR
+caminhada-do-fazendeiro,Caminhada do Fazendeiro,C_REVISAR
+skipping-rapido,Skipping Rápido,D_ORFAO
+rosca-de-punho-com-barra-dedos,Rosca de Punho com Barra (Dedos),C_REVISAR
+crucifixo-no-cabo-banco-reto,Crucifixo no Cabo (Banco Reto),C_REVISAR
+elevacao-gluteo-isquiotibial-no-chao,Elevação Glúteo-Isquiotibial no Chão,C_REVISAR
+supino-no-chao-com-correntes,Supino no Chão com Correntes,C_REVISAR
+liberacao-miofascial-dos-pes,Liberação Miofascial dos Pés,D_ORFAO
+arrasto-de-treno-para-frente-com-empurrao,Arrasto de Trenó para Frente com Empurrão,D_ORFAO
+agachamento-frankenstein,Agachamento Frankenstein,D_ORFAO
+saltos-de-sapo,Saltos de Sapo,D_ORFAO
+abdominal-borboleta,Abdominal Borboleta,C_REVISAR
+agachamento-frontal-no-banco,Agachamento Frontal no Banco,C_REVISAR
+saltos-sobre-cones,Saltos sobre Cones,D_ORFAO
+elevacao-frontal-inclinada-com-halteres,Elevação Frontal Inclinada com Halteres,C_REVISAR
+elevacao-de-perna-frontal,Elevação de Perna Frontal,D_ORFAO
+elevacao-frontal-com-anilhas,Elevação Frontal com Anilhas,C_REVISAR
+elevacao-frontal-e-pullover,Elevação Frontal e Pullover,D_ORFAO
+agachamento-frontal-com-dois-kettlebells,Agachamento Frontal com Dois Kettlebells,C_REVISAR
+barra-fixa-supinada-gironda,Barra Fixa Supinada Gironda,C_REVISAR
+glute-ham-raise,Glute Ham Raise,C_REVISAR
+bom-dia-na-gaiola,Bom Dia na Gaiola,C_REVISAR
+barra-fixa-com-elevacao-de-joelhos,Barra Fixa com Elevação de Joelhos,C_REVISAR
+alongamento-de-virilha-e-costas,Alongamento de Virilha e Costas,D_ORFAO
+groiners,Groiners,D_ORFAO
+supino-inclinado-com-halteres-neutro,Supino Inclinado com Halteres Neutro,C_REVISAR
+liberacao-miofascial-de-isquiotibiais,Liberação Miofascial de Isquiotibiais,D_ORFAO
+alongamento-de-isquiotibiais,Alongamento de Isquiotibiais,C_REVISAR
+clean-suspenso-abaixo-dos-joelhos,Clean Suspenso Abaixo dos Joelhos,C_REVISAR
+arranco-suspenso,Arranco Suspenso,C_REVISAR
+arranco-suspenso-abaixo-dos-joelhos,Arranco Suspenso Abaixo dos Joelhos,C_REVISAR
+bom-dia-com-barra-suspensa,Bom Dia com Barra Suspensa,C_REVISAR
+snatch-balance,Snatch Balance,D_ORFAO
+arremesso-de-saco-de-pancadas,Arremesso de Saco de Pancadas,D_ORFAO
+rosca-alta-na-polia,Rosca Alta na Polia,C_REVISAR
+circulos-de-quadril-quatro-apoios,Círculos de Quadril (quatro apoios),D_ORFAO
+extensao-de-quadril-com-elastico,Extensão de Quadril com Elástico,C_REVISAR
+flexao-de-quadril-com-elastico,Flexão de Quadril com Elástico,D_ORFAO
+abracar-a-bola,Abraçar a Bola,C_REVISAR
+saltos-sobre-barreiras,Saltos sobre Barreiras,D_ORFAO
+alongamento-de-banda-iliotibial-e-gluteo,Alongamento de Banda Iliotibial e Glúteo,C_REVISAR
+liberacao-miofascial-do-trato-iliotibial,Liberação Miofascial do Trato Iliotibial,D_ORFAO
+inchworm,Inchworm,D_ORFAO
+triceps-testa-inclinado-com-barra,Tríceps Testa Inclinado com Barra,C_REVISAR
+supino-inclinado-na-polia,Supino Inclinado na Polia,C_REVISAR
+crucifixo-inclinado-na-polia,Crucifixo Inclinado na Polia,C_REVISAR
+supino-inclinado-com-halteres-pegada-neutra,Supino Inclinado com Halteres (pegada neutra),C_REVISAR
+crucifixo-inclinado-com-halteres-com-rotacao,Crucifixo Inclinado com Halteres com Rotação,C_REVISAR
+rosca-inclinada-com-halteres-pegada-supinada,Rosca Inclinada com Halteres (Pegada Supinada),C_REVISAR
+flexao-inclinada-fechada,Flexão Inclinada Fechada,C_REVISAR
+flexao-inclinada-explosiva-com-salto,Flexão Inclinada Explosiva com Salto,C_REVISAR
+flexao-inclinada-com-pegada-reversa,Flexão Inclinada com Pegada Reversa,C_REVISAR
+flexao-inclinada-aberta,Flexão Inclinada Aberta,C_REVISAR
+alongamento-de-virilha-intermediario,Alongamento de Virilha Intermediário,D_ORFAO
+alongamento-de-flexores-de-quadril-e-quadriceps-intermediario,Alongamento de Flexores de Quadril e Quadríceps Intermediário,D_ORFAO
+rotacao-interna-com-elastico,Rotação Interna com Elástico,D_ORFAO
+alongamento-cruzado-iron-cross,Alongamento Cruzado (Iron Cross),D_ORFAO
+contracao-isometrica-de-peito,Contração Isométrica de Peito,D_ORFAO
+exercicio-isometrico-de-pescoco-frente-e-costas,Exercício Isométrico de Pescoço - Frente e Costas,D_ORFAO
+prancha-com-deslocamento-lateral,Prancha com Deslocamento Lateral,D_ORFAO
+jm-press,JM Press,D_ORFAO
+abdominal-janda,Abdominal Janda,D_ORFAO
+agachamento-jefferson,Agachamento Jefferson,D_ORFAO
+jerk-balance,Jerk Balance,D_ORFAO
+jerk-dip-squat,Jerk Dip Squat,D_ORFAO
+levantamento-de-barril,Levantamento de Barril,D_ORFAO
+desenvolvimento-arnold-com-kettlebell,Desenvolvimento Arnold com Kettlebell,C_REVISAR
+clean-com-kettlebell-do-chao,Clean com Kettlebell do Chão,C_REVISAR
+kettlebell-figura-8,Kettlebell Figura 8,D_ORFAO
+clean-com-kettlebell-pendurado,Clean com Kettlebell Pendurado,C_REVISAR
+passagem-de-kettlebell-entre-as-pernas,Passagem de Kettlebell entre as Pernas,D_ORFAO
+kettlebell-pirate-ships,Kettlebell Pirate Ships,D_ORFAO
+desenvolvimento-sentado-com-kettlebell,Desenvolvimento Sentado com Kettlebell,C_REVISAR
+alongamento-de-joelho-cruzado,Alongamento de Joelho Cruzado,C_REVISAR
+circulos-com-os-joelhos,Círculos com os Joelhos,D_ORFAO
+salto-com-joelhos-ao-peito,Salto com Joelhos ao Peito,D_ORFAO
+exercicio-de-bracos-ajoelhado,Exercício de Braços Ajoelhado,D_ORFAO
+abdominal-na-polia-ajoelhado-com-rotacao-obliqua-alternada,Abdominal na Polia Ajoelhado com Rotação Oblíqua Alternada,C_REVISAR
+triceps-testa-na-polia-alta-ajoelhado,Tríceps Testa na Polia Alta Ajoelhado,C_REVISAR
+remada-alta-na-polia-ajoelhado,Remada Alta na Polia Ajoelhado,C_REVISAR
+agachamento-com-salto-ajoelhado,Agachamento com Salto Ajoelhado,D_ORFAO
+remada-alta-unilateral-na-polia-ajoelhado,Remada Alta Unilateral na Polia Ajoelhado,C_REVISAR
+agachamento-ajoelhado,Agachamento Ajoelhado,D_ORFAO
+rotacao-180-no-landmine,Rotação 180 no Landmine,D_ORFAO
+empurrao-landmine,Empurrão Landmine,C_REVISAR
+salto-lateral,Salto Lateral,D_ORFAO
+box-jump-lateral,Box Jump Lateral,C_REVISAR
+saltos-laterais-sobre-cones,Saltos Laterais sobre Cones,D_ORFAO
+liberacao-miofascial-do-grande-dorsal,Liberação Miofascial do Grande Dorsal,D_ORFAO
+supino-no-chao-com-perna-cruzada,Supino no Chão com Perna Cruzada,C_REVISAR
+levantamento-terra-na-maquina,Levantamento Terra na Máquina,D_ORFAO
+supino-declinado-na-maquina,Supino Declinado na Máquina,C_REVISAR
+remada-alta-na-maquina,Remada Alta na Máquina,D_ORFAO
+supino-inclinado-na-maquina,Supino Inclinado na Máquina,C_REVISAR
+remada-articulada,Remada Articulada,D_ORFAO
+tecnica-de-arrancada-linear-em-3-partes,Técnica de Arrancada Linear em 3 Partes,D_ORFAO
+drill-de-aceleracao-linear-na-parede,Drill de Aceleração Linear na Parede,D_ORFAO
+salto-em-profundidade-linear,Salto em Profundidade Linear,D_ORFAO
+log-lift,Log Lift,D_ORFAO
+london-bridges,London Bridges,D_ORFAO
+triceps-extensao-na-polia-baixa,Tríceps Extensão na Polia Baixa,C_REVISAR
+liberacao-miofascial-da-lombar,Liberação Miofascial da Lombar,D_ORFAO
+afundo-com-passagem-de-kettlebell,Afundo com Passagem de Kettlebell,D_ORFAO
+afundo-com-salto,Afundo com Salto,C_REVISAR
+extensao-de-pescoco-com-anilha-de-brucos,Extensão de pescoço com anilha (de bruços),D_ORFAO
+flexao-de-pescoco-com-anilha-deitado,Flexão de pescoço com anilha (deitado),D_ORFAO
+rosca-spider-com-barra,Rosca spider com barra,C_REVISAR
+alongamento-de-quadriceps-de-brucos-com-parceiro,Alongamento de quadríceps de bruços (com parceiro),D_ORFAO
+remada-t-bar-apoiado-no-banco,Remada T-bar apoiado no banco,C_REVISAR
+passe-de-peito-com-medicine-ball,Passe de peito com medicine ball,D_ORFAO
+rotacao-de-tronco-com-medicine-ball-dupla,Rotação de tronco com medicine ball (dupla),D_ORFAO
+arremesso-de-medicine-ball-por-cima-para-tras,Arremesso de medicine ball por cima (para trás),D_ORFAO
+alongamento-de-costas-em-pe-rotacao,Alongamento de costas em pé (rotação),D_ORFAO
+serie-claw-tecnica-de-corrida,Série claw (técnica de corrida),D_ORFAO
+agachamento-hack-fechado,Agachamento hack fechado,C_REVISAR
+agachamento-base-fechada,Agachamento base fechada,C_REVISAR
+flexao-nordica-glute-ham-raise,Flexão nórdica (glute ham raise),C_REVISAR
+liberacao-miofascial-do-pescoco-rolo,Liberação miofascial do pescoço (rolo),D_ORFAO
+supino-guilhotina,Supino guilhotina,D_ORFAO
+abdominal-obliquo-deitado-de-lado,Abdominal oblíquo deitado de lado,D_ORFAO
+agachamento-olimpico,Agachamento olímpico,C_REVISAR
+alongamento-de-quadriceps-deitado-no-banco,Alongamento de quadríceps deitado no banco,D_ORFAO
+alongamento-de-quadriceps-deitado-de-lado,Alongamento de quadríceps deitado de lado,D_ORFAO
+crucifixo-unilateral-com-halter,Crucifixo unilateral com halter,C_REVISAR
+flexao-lateral-na-polia-alta,Flexão lateral na polia alta,D_ORFAO
+elevacao-lateral-unilateral-no-banco-inclinado,Elevação lateral unilateral no banco inclinado,C_REVISAR
+clean-unilateral-com-kettlebell,Clean unilateral com kettlebell,D_ORFAO
+clean-e-jerk-unilateral-com-kettlebell,Clean e jerk unilateral com kettlebell,D_ORFAO
+jerk-unilateral-com-kettlebell,Jerk unilateral com kettlebell,D_ORFAO
+desenvolvimento-lateral-unilateral-com-kettlebell,Desenvolvimento lateral unilateral com kettlebell,D_ORFAO
+para-press-unilateral-com-kettlebell,Para press unilateral com kettlebell,D_ORFAO
+snatch-unilateral-com-kettlebell,Snatch unilateral com kettlebell,D_ORFAO
+split-jerk-unilateral-com-kettlebell,Split jerk unilateral com kettlebell,D_ORFAO
+split-snatch-unilateral-com-kettlebell,Split snatch unilateral com kettlebell,D_ORFAO
+remada-unilateral-na-barra-landmine,Remada unilateral na barra landmine,D_ORFAO
+slam-unilateral-com-medicine-ball,Slam unilateral com medicine ball,C_REVISAR
+clean-palma-aberta-unilateral-com-kettlebell,Clean palma aberta unilateral com kettlebell,D_ORFAO
+agachamento-overhead-unilateral-com-kettlebell,Agachamento overhead unilateral com kettlebell,C_REVISAR
+levantamento-terra-lateral-unilateral,Levantamento terra lateral unilateral,D_ORFAO
+elevacao-lateral-unilateral,Elevação lateral unilateral,C_REVISAR
+alongamento-de-dorsal-na-parede,Alongamento de dorsal na parede,D_ORFAO
+barra-fixa-unilateral-com-toalha,Barra fixa unilateral com toalha,D_ORFAO
+supino-unilateral-com-halter,Supino unilateral com halter,C_REVISAR
+rosca-scott-unilateral-com-halter,Rosca scott unilateral com halter,C_REVISAR
+floor-press-unilateral-com-barra,Floor press unilateral com barra,C_REVISAR
+triceps-unilateral-pronado-com-halter,Tríceps unilateral pronado com halter,C_REVISAR
+triceps-unilateral-supinado-com-halter,Tríceps unilateral supinado com halter,C_REVISAR
+meio-gafanhoto-yoga,Meio gafanhoto (yoga),C_REVISAR
+pendurar-se-com-uma-mao,Pendurar-se com uma mão,C_REVISAR
+agachamento-bulgaro-com-barra,Agachamento búlgaro com barra,C_REVISAR
+clean-palma-aberta-com-kettlebell,Clean palma aberta com kettlebell,D_ORFAO
+otis-up-abdominal-com-peso,Otis-up (abdominal com peso),D_ORFAO
+rosca-crucifixo-na-polia-alta,Rosca crucifixo na polia alta,C_REVISAR
+alongamento-de-dorsal-sentado-com-parceiro,Alongamento de dorsal sentado (com parceiro),D_ORFAO
+alongamento-de-bracos-acima-da-cabeca,Alongamento de braços acima da cabeça,D_ORFAO
+pallof-press-com-rotacao,Pallof press com rotação,C_REVISAR
+rosca-punho-invertida-com-barra-no-banco,Rosca punho invertida com barra no banco,C_REVISAR
+mergulho-nas-paralelas,Mergulho nas paralelas,C_REVISAR
+bascula-pelvica-com-ponte,Báscula pélvica com ponte,C_REVISAR
+liberacao-miofascial-dos-fibulares-rolo,Liberação miofascial dos fibulares (rolo),D_ORFAO
+alongamento-dos-fibulares-com-faixa,Alongamento dos fibulares com faixa,D_ORFAO
+supino-no-pino-pin-press,Supino no pino (pin press),C_REVISAR
+liberacao-miofascial-do-piriforme-rolo,Liberação miofascial do piriforme (rolo),D_ORFAO
+rotacao-russa-com-anilha,Rotação russa com anilha,C_REVISAR
+deslizamento-de-posterior-no-chao,Deslizamento de posterior no chão,C_REVISAR
+flexao-pliometrica-no-kettlebell,Flexão pliométrica no kettlebell,C_REVISAR
+alongamento-do-tibial-posterior-com-faixa,Alongamento do tibial posterior com faixa,D_ORFAO
+power-clean,Power clean,C_REVISAR
+power-clean-dos-blocos,Power clean dos blocos,C_REVISAR
+power-jerk,Power jerk,C_REVISAR
+elevacao-lateral-parcial-power-partials,Elevação lateral parcial (power partials),D_ORFAO
+power-snatch,Power snatch,C_REVISAR
+power-snatch-dos-blocos,Power snatch dos blocos,C_REVISAR
+escada-de-forca-power-stairs,Escada de força (power stairs),C_REVISAR
+abdominal-com-press-de-barra,Abdominal com press de barra,C_REVISAR
+flexao-de-perna-manual-com-parceiro,Flexão de perna manual (com parceiro),D_ORFAO
+sprint-com-treno-prowler,Sprint com trenó (prowler),D_ORFAO
+pull-through-na-polia,Pull through na polia,D_ORFAO
+push-press-por-tras-da-nuca,Push press por trás da nuca,C_REVISAR
+flexao-com-prancha-lateral,Flexão com prancha lateral,D_ORFAO
+flexao-pegada-aberta-e-fechada,Flexão (pegada aberta e fechada),D_ORFAO
+piramide-na-bola-suica,Pirâmide na bola suíça,D_ORFAO
+alongamento-de-quadriceps-com-faixa,Alongamento de quadríceps com faixa,C_REVISAR
+liberacao-miofascial-do-quadriceps-rolo,Liberação miofascial do quadríceps (rolo),D_ORFAO
+salto-rapido-na-caixa,Salto rápido na caixa,C_REVISAR
+entrega-no-rack-tecnica-de-clean,Entrega no rack (técnica de clean),D_ORFAO
+rack-pull-com-elasticos,Rack pull com elásticos,C_REVISAR
+elevacao-de-perna-em-quatro-apoios,Elevação de perna em quatro apoios,C_REVISAR
+bicicleta-reclinada-horizontal,Bicicleta reclinada (horizontal),C_REVISAR
+recepcao-e-devolucao-de-medicine-ball,Recepção e devolução de medicine ball,D_ORFAO
+supino-com-elasticos-reversos,Supino com elásticos reversos,C_REVISAR
+box-squat-com-elasticos-reversos,Box squat com elásticos reversos,C_REVISAR
+levantamento-terra-com-elasticos-reversos,Levantamento terra com elásticos reversos,C_REVISAR
+agachamento-com-elasticos-reversos,Agachamento com elásticos reversos,C_REVISAR
+terra-sumo-com-elasticos-reversos,Terra sumô com elásticos reversos,C_REVISAR
+rosca-scott-inversa,Rosca scott inversa,C_REVISAR
+rosca-inversa-na-polia,Rosca inversa na polia,C_REVISAR
+crucifixo-inverso-com-rotacao-externa,Crucifixo inverso com rotação externa,C_REVISAR
+triceps-pulley-supinado,Tríceps pulley supinado,C_REVISAR
+hiperextensao-reversa,Hiperextensão reversa,C_REVISAR
+crucifixo-inverso-na-maquina-voador-invertido,Crucifixo inverso na máquina (voador invertido),D_ORFAO
+rosca-inversa-com-anilha,Rosca inversa com anilha,C_REVISAR
+supino-pegada-invertida-triceps,Supino pegada invertida (tríceps),C_REVISAR
+liberacao-miofascial-dos-romboides-rolo,Liberação miofascial dos romboides (rolo),D_ORFAO
+caminhada-com-frame-rickshaw-carry,Caminhada com frame (rickshaw carry),C_REVISAR
+levantamento-terra-no-frame-rickshaw,Levantamento terra no frame (rickshaw),C_REVISAR
+barra-fixa-alternada-frente-nuca-rocky,Barra fixa alternada frente/nuca (Rocky),C_REVISAR
+alongamento-de-ombros-com-bastao,Alongamento de ombros com bastão,D_ORFAO
+carregamento-de-sandbag,Carregamento de sandbag,D_ORFAO
+rotacao-de-tronco-sentado-com-barra,Rotação de tronco sentado com barra,C_REVISAR
+triceps-coice-duplo-sentado,Tríceps coice duplo sentado,C_REVISAR
+alongamento-de-biceps-sentado-com-parceiro,Alongamento de bíceps sentado (com parceiro),D_ORFAO
+desenvolvimento-na-polia-sentado,Desenvolvimento na polia sentado,C_REVISAR
+alongamento-de-panturrilha-sentado,Alongamento de panturrilha sentado,C_REVISAR
+rosca-concentrada-com-barra-sentado,Rosca concentrada com barra sentado,C_REVISAR
+rosca-aberta-sentado-biceps-interno,Rosca aberta sentado (bíceps interno),C_REVISAR
+alongamento-de-deltoide-frontal-com-parceiro,Alongamento de deltoide frontal (com parceiro),C_REVISAR
+alongamento-de-gluteo-sentado-com-parceiro,Alongamento de glúteo sentado (com parceiro),C_REVISAR
+bom-dia-sentado-na-caixa,Bom dia sentado (na caixa),C_REVISAR
+extensao-de-pescoco-com-capacete-de-tracao,Extensão de pescoço com capacete de tração,D_ORFAO
+remada-baixa-unilateral-na-polia,Remada baixa unilateral na polia,C_REVISAR
+alongamento-lateral-sentado-borboleta,Alongamento lateral sentado (borboleta),D_ORFAO
+rosca-punho-invertida-com-barra-sentado,Rosca punho invertida com barra sentado,C_REVISAR
+desenvolvimento-gangorra-see-saw-press,Desenvolvimento gangorra (see-saw press),D_ORFAO
+remada-shotgun-unilateral-na-polia-baixa,Remada shotgun (unilateral na polia baixa),D_ORFAO
+circulos-de-ombros,Círculos de ombros,D_ORFAO
+elevacao-de-ombros,Elevação de ombros,D_ORFAO
+alongamento-lateral-deitado,Alongamento lateral deitado,D_ORFAO
+saltos-laterais-com-sprint,Saltos laterais com sprint,D_ORFAO
+elevacao-lateral-com-frontal-combinada,Elevação lateral com frontal combinada,D_ORFAO
+elevacao-lateral-de-perna-em-pe,Elevação lateral de perna em pé,D_ORFAO
+alongamento-de-virilha-deitado-de-lado,Alongamento de virilha deitado de lado,D_ORFAO
+salto-lateral-em-distancia,Salto lateral em distância,D_ORFAO
+barra-fixa-lado-a-lado,Barra fixa lado a lado,D_ORFAO
+alongamento-de-costas-puxando-o-punho,Alongamento de costas puxando o punho,D_ORFAO
+deslocamento-lateral-na-caixa-shuffle,Deslocamento lateral na caixa (shuffle),D_ORFAO
+crossover-unilateral-alternado,Crossover unilateral alternado,C_REVISAR
+flexao-com-um-braco,Flexão com um braço,D_ORFAO
+drill-de-pes-rapidos-no-cone,Drill de pés rápidos no cone,D_ORFAO
+subida-unilateral-na-caixa-alta,Subida unilateral na caixa alta,C_REVISAR
+progressao-de-saltos-unilaterais,Progressão de saltos unilaterais,D_ORFAO
+salto-lateral-unilateral,Salto lateral unilateral,D_ORFAO
+salto-unilateral-na-caixa-stride-jump,Salto unilateral na caixa (stride jump),D_ORFAO
+salto-unilateral-calcanhar-ao-gluteo,Salto unilateral calcanhar ao glúteo,D_ORFAO
+impulsao-unilateral-na-caixa,Impulsão unilateral na caixa,D_ORFAO
+agachamento-parcial-rapido-sit-squat,Agachamento parcial rápido (sit squat),D_ORFAO
+patinacao,Patinação,D_ORFAO
+arrasto-de-treno-com-colete,Arrasto de trenó com colete,D_ORFAO
+caminhada-reversa-com-treno-overhead,Caminhada reversa com trenó overhead,D_ORFAO
+triceps-frances-com-treno,Tríceps francês com trenó,D_ORFAO
+empurrada-de-treno-sled-push,Empurrada de trenó (sled push),D_ORFAO
+crucifixo-inverso-com-treno,Crucifixo inverso com trenó,D_ORFAO
+marretada-no-pneu,Marretada no pneu,D_ORFAO
+elevacao-de-ombros-inclinada-no-smith,Elevação de ombros inclinada no Smith,D_ORFAO
+encolhimento-por-tras-no-smith,Encolhimento por trás no Smith,C_REVISAR
+supino-fechado-no-smith,Supino fechado no Smith,C_REVISAR
+hang-power-clean-no-smith,Hang power clean no Smith,C_REVISAR
+leg-press-no-smith,Leg press no Smith,C_REVISAR
+remada-alta-unilateral-no-smith,Remada alta unilateral no Smith,C_REVISAR
+agachamento-pistol-no-smith,Agachamento pistol no Smith,C_REVISAR
+tibial-anterior-no-smith-panturrilha-inversa,Tibial anterior no Smith (panturrilha inversa),D_ORFAO
+levantamento-terra-de-arranco,Levantamento terra de arranco,C_REVISAR
+puxada-de-arranco-snatch-pull,Puxada de arranco (snatch pull),C_REVISAR
+encolhimento-de-arranco,Encolhimento de arranco,C_REVISAR
+arranco-dos-blocos,Arranco dos blocos,C_REVISAR
+triceps-frances-com-elastico-velocidade,Tríceps francês com elástico (velocidade),C_REVISAR
+box-squat-de-velocidade,Box squat de velocidade,C_REVISAR
+spell-caster-pendulo-com-halteres,Spell caster (pêndulo com halteres),D_ORFAO
+caminhada-aranha-spider-crawl,Caminhada aranha (spider crawl),C_REVISAR
+rosca-spider-no-banco-scott,Rosca spider no banco scott,C_REVISAR
+clean-com-afastamento-split-clean,Clean com afastamento (split clean),C_REVISAR
+arranco-com-afastamento-split-snatch,Arranco com afastamento (split snatch),C_REVISAR
+squat-jerk,Squat jerk,C_REVISAR
+agachamento-com-elasticos,Agachamento com elásticos,C_REVISAR
+agachamento-com-correntes,Agachamento com correntes,D_ORFAO
+agachamento-com-deslocamento-de-anilha,Agachamento com deslocamento de anilha,D_ORFAO
+desenvolvimento-alternado-em-pe,Desenvolvimento alternado em pé,C_REVISAR
+alongamento-de-biceps-em-pe,Alongamento de bíceps em pé,D_ORFAO
+desenvolvimento-bradford,Desenvolvimento Bradford,C_REVISAR
+elevacao-diagonal-na-polia-lift,Elevação diagonal na polia (lift),D_ORFAO
+lenhador-na-polia-wood-chop,Lenhador na polia (wood chop),D_ORFAO
+elevacao-frontal-completa-com-halteres,Elevação frontal completa com halteres,C_REVISAR
+alongamento-de-quadriceps-com-pe-elevado,Alongamento de quadríceps com pé elevado,C_REVISAR
+elevacao-frontal-completa-com-barra,Elevação frontal completa com barra,C_REVISAR
+circulos-de-quadril-em-pe,Círculos de quadril em pé,D_ORFAO
+alongamento-de-flexores-do-quadril-em-pe,Alongamento de flexores do quadril em pé,C_REVISAR
+rosca-aberta-em-pe-biceps-interno,Rosca aberta em pé (bíceps interno),C_REVISAR
+flexao-de-perna-em-pe-na-maquina,Flexão de perna em pé na máquina,C_REVISAR
+salto-horizontal-parado,Salto horizontal parado,D_ORFAO
+elevacao-lateral-cruzada-na-polia-baixa,Elevação lateral cruzada na polia baixa,C_REVISAR
+triceps-frances-unilateral-na-polia-baixa,Tríceps francês unilateral na polia baixa,C_REVISAR
+rosca-unilateral-na-polia-baixa,Rosca unilateral na polia baixa,C_REVISAR
+rosca-unilateral-apoiada-no-banco-inclinado,Rosca unilateral apoiada no banco inclinado,C_REVISAR
+desenvolvimento-unilateral-pegada-neutra,Desenvolvimento unilateral pegada neutra,C_REVISAR
+desenvolvimento-pegada-neutra-com-halteres,Desenvolvimento pegada neutra com halteres,C_REVISAR
+rosca-punho-com-barra-por-tras,Rosca punho com barra por trás,C_REVISAR
+bascula-pelvica-em-pe,Báscula pélvica em pé,D_ORFAO
+abdominal-em-pe-na-polia-corda,Abdominal em pé na polia (corda),C_REVISAR
+triceps-com-toalha-resistencia-do-parceiro,Tríceps com toalha (resistência do parceiro),D_ORFAO
+arremesso-de-medicine-ball-por-cima,Arremesso de medicine ball por cima,D_ORFAO
+salto-estrela,Salto estrela,C_REVISAR
+vacuo-abdominal,Vácuo abdominal,D_ORFAO
+elevacao-frontal-deitado-no-banco-inclinado,Elevação frontal deitado no banco inclinado,C_REVISAR
+salto-cruzado-na-caixa,Salto cruzado na caixa,D_ORFAO
+terra-sumo-com-elasticos,Terra sumô com elásticos,C_REVISAR
+terra-sumo-com-correntes,Terra sumô com correntes,C_REVISAR
+arremesso-de-peito-deitado,Arremesso de peito deitado,D_ORFAO
+arremesso-unilateral-deitado,Arremesso unilateral deitado,D_ORFAO
+arremesso-duplo-deitado,Arremesso duplo deitado,D_ORFAO
+fallout-no-trx,Fallout no TRX,C_REVISAR
+abdominal-inverso-no-trx,Abdominal inverso no TRX,D_ORFAO
+tate-press,Tate press,C_REVISAR
+virada-de-pneu-tire-flip,Virada de pneu (tire flip),D_ORFAO
+rotacao-de-tronco-com-bola,Rotação de tronco com bola,C_REVISAR
+alongamento-de-triceps-cruzado,Alongamento de tríceps cruzado,D_ORFAO
+abdominal-com-pernas-cruzadas-elevadas,Abdominal com pernas cruzadas elevadas,D_ORFAO
+rosca-scott-com-dois-halteres,Rosca scott com dois halteres,C_REVISAR
+abraco-das-pernas-sentado,Abraço das pernas sentado,D_ORFAO
+alongamento-de-costas-superiores,Alongamento de costas superiores,D_ORFAO
+remada-alta-com-elastico,Remada alta com elástico,D_ORFAO
+alongamento-para-cima,Alongamento para cima,D_ORFAO
+barra-fixa-com-triangulo,Barra fixa com triângulo,D_ORFAO
+swing-vertical-com-halter,Swing vertical com halter,C_REVISAR
+caminhada-na-esteira,Caminhada na esteira,C_REVISAR
+hiperextensao-na-bola-com-anilha,Hiperextensão na bola com anilha,C_REVISAR
+flexao-lateral-na-bola-com-anilha,Flexão lateral na bola com anilha,C_REVISAR
+mergulho-entre-bancos-com-carga,Mergulho entre bancos com carga,C_REVISAR
+abdominal-com-anilha,Abdominal com anilha,C_REVISAR
+agachamento-com-salto-e-carga,Agachamento com salto e carga,C_REVISAR
+agachamento-sissy-com-anilha,Agachamento sissy com anilha,D_ORFAO
+abdominal-com-elastico-no-banco-declinado,Abdominal com elástico no banco declinado,C_REVISAR
+agachamento-com-cinto-de-carga-entre-bancos,Agachamento com cinto de carga (entre bancos),D_ORFAO
+supino-declinado-aberto,Supino declinado aberto,C_REVISAR
+pullover-declinado-com-barra,Pullover declinado com barra,C_REVISAR
+rosca-direta-pegada-aberta,Rosca direta pegada aberta,C_REVISAR
+agachamento-base-aberta,Agachamento base aberta,C_REVISAR
+stiff-base-aberta,Stiff base aberta,C_REVISAR
+corrida-no-ar-pendurado-wind-sprints,Corrida no ar pendurado (wind sprints),D_ORFAO
+moinho-deitado-windmill,Moinho deitado (windmill),C_REVISAR
+o-melhor-alongamento-do-mundo,O melhor alongamento do mundo,D_ORFAO
+circulos-de-punho,Círculos de punho,D_ORFAO
+rotacoes-de-punho-com-barra,Rotações de punho com barra,D_ORFAO
+caminhada-com-yoke,Caminhada com yoke,D_ORFAO
+agachamento-zercher,Agachamento Zercher,D_ORFAO
+rosca-zottman-no-banco-scott,Rosca Zottman no banco scott,C_REVISAR

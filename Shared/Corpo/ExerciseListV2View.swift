@@ -114,7 +114,11 @@ struct ExerciseV2Row: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            ExerciseMuscleThumb(exercise: exercise)
+            // [2026-09-02] Era `ExerciseMuscleThumb` fixo. Agora é a foto do
+            // exercício quando ela existe (514 dos 1.095) e o corpo anatômico
+            // quando não — `FiguraDoExercicio` é o único lugar que decide.
+            // Geometria intocada: 56×74 dentro do well de 68×78, raio 12.
+            FiguraDoExercicio(exercise: exercise)
                 .frame(width: 56, height: 74)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
@@ -172,11 +176,17 @@ struct ExerciseDetailV2View: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
 
-                // HERO — corpo anatômico com a musculatura do exercício acesa
-                // (estilo da referência: músculo ativo em destaque; a animação
-                // do movimento entrará aqui quando a mídia da decisão 2b existir)
+                // HERO — a foto do exercício (quando existe) ao lado do corpo
+                // anatômico com a musculatura acesa. Quem não tem foto continua
+                // com o corpo dos dois lados, exatamente como antes.
+                //
+                // [2026-09-02] A "mídia da decisão 2b" prometida no comentário
+                // antigo chegou — e não veio de IA: são as fotos do RepDB,
+                // chaveadas e reenquadradas. Ver `FotoDoExercicio.swift` para a
+                // licença (em especial o termo 5, que PROÍBE passar estas
+                // imagens por qualquer modelo generativo).
                 HStack(alignment: .center, spacing: 18) {
-                    ExerciseMuscleThumb(exercise: exercise)
+                    FiguraDoExercicio(exercise: exercise)
                         .frame(height: 210)
 
                     BodyMapCanvas(isFront: !showsFrontFirst,
@@ -213,6 +223,11 @@ struct ExerciseDetailV2View: View {
                 Text("Sugestão: \(exercise.defaultSets) séries · \(exercise.defaultReps)")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
+
+                // As duas pontas do movimento. Só aparece para quem tem as duas
+                // fotos (439 dos 514); quem tem uma só mostra a do herói e nada
+                // mais. `InicioEPicoView` some sozinha quando não há par.
+                InicioEPicoView(exercise: exercise)
 
                 // Como fazer
                 VStack(alignment: .leading, spacing: 10) {
