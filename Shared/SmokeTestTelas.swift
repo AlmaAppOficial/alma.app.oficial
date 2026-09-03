@@ -70,6 +70,22 @@ enum SmokeTestTelas {
         try? png.write(to: pasta.appendingPathComponent("\(limpo).png"))
     }
 
+    /// Lê de volta o PNG que `salvar` acabou de escrever.
+    ///
+    /// [2026-09-03] Existe para o canário do padrão do exercício. Duas capturas
+    /// rotuladas "antes" e "depois" saíram byte a byte IDÊNTICAS e ninguém
+    /// percebeu até o Assis rodar `md5` nelas — o rótulo dizia uma coisa e a
+    /// imagem dizia outra. Comparar os bytes é a única forma de o harness saber
+    /// que fotografou dois estados, e não o mesmo estado duas vezes.
+    private static func dadosDaCaptura(_ nome: String) -> Data? {
+        guard let pasta = pastaDeCapturas else { return nil }
+        let limpo = nome
+            .replacingOccurrences(of: " · ", with: "__")
+            .replacingOccurrences(of: " ", with: "_")
+            .replacingOccurrences(of: "/", with: "-")
+        return try? Data(contentsOf: pasta.appendingPathComponent("\(limpo).png"))
+    }
+
     private static func log(_ t: String) { NSLog("%@", "[SMOKE] " + t) }
 
     // MARK: - Detector de tela vazia
@@ -708,14 +724,80 @@ enum SmokeTestTelas {
         render("Corpo · Aviso de saúde", HealthDisclaimerView())
 
         if let ex = exercicio {
+            // ═══════════════════════════════════════════════════════════════
+            // [2026-09-03] O padrão do exercício, em TRÊS estados — e o canário
+            // que exige que sejam três imagens diferentes.
+            //
+            // A primeira versão deste bloco produziu "(vazio)" e "(definido)"
+            // BYTE A BYTE IDÊNTICAS, e o mesmo com o detalhe "antes"/"(com
+            // padrão)". Causa: `AppModel` grava em `UserDefaults.standard`, que
+            // SOBREVIVE entre lançamentos do app. Uma execução anterior já
+            // tinha deixado 3×8×60 no disco, então o render rotulado "vazio"
+            // fotografou a tela COM padrão. O harness herdou o disco e mentiu
+            // no rótulo — a mesma família de defeito do `var falhas` que nunca
+            // era preenchido.
+            //
+            // Duas correções, e nenhuma delas é cosmética:
+            //   1. o estado é SEMEADO explicitamente antes de cada captura,
+            //      inclusive o estado vazio (remover é semear também);
+            //   2. o canário abaixo compara os BYTES. Se duas capturas saírem
+            //      iguais, o harness acusa em voz alta em vez de entregar uma
+            //      prova que não prova nada.
+            //
+            // O terceiro estado (5×5×100) é o CONTROLE POSITIVO: prova que o
+            // que muda na tela é o dado, e não o acaso de dois renders.
+            // ═══════════════════════════════════════════════════════════════
+
+            // Estado 1 — SEM padrão. Remover é semear: não se herda o disco.
+            model.definirPadrao(exercicio: ex.name, series: nil, reps: nil, cargaKg: nil)
             render("Corpo · Detalhe do exercício", ExerciseDetailView(exercise: ex))
-            // [2026-09-03] A tela que faltava: definir N séries × M reps ×
-            // carga. Renderizada nos dois estados — sem padrão (placeholders do
-            // catálogo) e com o padrão do Assis já salvo (3×8 · 60 kg).
+            let detalheSemPadrao = dadosDaCaptura("Corpo · Detalhe do exercício")
             render("Corpo · Meu padrão (vazio)", EditorDePadraoView(exercicioDoCatalogo: ex))
+            let editorVazio = dadosDaCaptura("Corpo · Meu padrão (vazio)")
+
+            // Estado 2 — o padrão do Assis: 3 séries × 8 reps × 60 kg.
             model.definirPadrao(exercicio: ex.name, series: 3, reps: "8", cargaKg: 60)
-            render("Corpo · Meu padrão (definido)", EditorDePadraoView(exercicioDoCatalogo: ex))
+            render("Corpo · Meu padrão (definido 3x8x60)", EditorDePadraoView(exercicioDoCatalogo: ex))
+            let editorDefinido = dadosDaCaptura("Corpo · Meu padrão (definido 3x8x60)")
             render("Corpo · Detalhe do exercício (com padrão)", ExerciseDetailView(exercise: ex))
+            let detalheComPadrao = dadosDaCaptura("Corpo · Detalhe do exercício (com padrão)")
+
+            // Estado 3 — CONTROLE POSITIVO, valor visivelmente outro.
+            model.definirPadrao(exercicio: ex.name, series: 5, reps: "5", cargaKg: 100)
+            render("Corpo · Meu padrão (controle 5x5x100)", EditorDePadraoView(exercicioDoCatalogo: ex))
+            let editorControle = dadosDaCaptura("Corpo · Meu padrão (controle 5x5x100)")
+            render("Corpo · Detalhe do exercício (controle 5x5x100)", ExerciseDetailView(exercise: ex))
+            let detalheControle = dadosDaCaptura("Corpo · Detalhe do exercício (controle 5x5x100)")
+
+            // ── O CANÁRIO ───────────────────────────────────────────────────
+            // Cada par tem de DIFERIR. Igualdade aqui significa uma de duas
+            // coisas, e as duas são graves: ou a tela não relê o padrão (a
+            // funcionalidade não funciona), ou o harness não semeou (a prova
+            // não prova). Em qualquer dos casos, a captura não vale nada.
+            func exigirDiferentes(_ a: Data?, _ b: Data?, _ oQue: String) {
+                guard salvarPNGs else { return }
+                guard let a, let b else {
+                    falhas.append("padrão: captura ausente — \(oQue)")
+                    log("  ✗✗ PADRÃO \(oQue): captura não foi escrita; nada a comparar")
+                    return
+                }
+                if a == b {
+                    falhas.append("padrão: capturas IDÊNTICAS — \(oQue)")
+                    log("  ✗✗ PADRÃO \(oQue): as duas capturas são BYTE A BYTE IGUAIS."
+                        + " Ou a tela não relê o padrão, ou o estado não foi semeado."
+                        + " A prova está morta — não use estas imagens.")
+                } else {
+                    log("  ✓ padrão \(oQue): capturas diferem (\(a.count) vs \(b.count) bytes)")
+                }
+            }
+            exigirDiferentes(editorVazio, editorDefinido, "editor vazio × 3x8x60")
+            exigirDiferentes(editorDefinido, editorControle, "editor 3x8x60 × controle 5x5x100")
+            exigirDiferentes(detalheSemPadrao, detalheComPadrao, "detalhe sem × com padrão")
+            exigirDiferentes(detalheComPadrao, detalheControle, "detalhe 3x8x60 × controle 5x5x100")
+
+            // Não deixa o padrão no disco: a próxima execução tem de começar do
+            // mesmo lugar que esta. Foi exatamente isto que faltou da primeira vez.
+            model.definirPadrao(exercicio: ex.name, series: nil, reps: nil, cargaKg: nil)
         } else {
             log("  — Detalhe do exercício: nenhum treino no catálogo")
         }

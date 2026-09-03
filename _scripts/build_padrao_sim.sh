@@ -6,10 +6,11 @@ set -u
 RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$RAIZ" || exit 1
 LOG="${1:-/tmp/alma_padrao_build.log}"
+DERIVED="${2:-/tmp/alma_padrao_dd}"
 xcodebuild -project Alma.App.Oficial.xcodeproj \
   -scheme "Alma.App.Oficial (iOS)" \
   -destination "platform=iOS Simulator,id=C9FE7224-677D-4B38-9F94-9C7BCE331053" \
-  -derivedDataPath /tmp/alma_padrao_dd \
+  -derivedDataPath "$DERIVED" \
   build > "$LOG" 2>&1
 echo "BUILD_EXIT:$?" >> "$LOG"
 grep -m1 "BUILD SUCCEEDED\|BUILD FAILED" "$LOG" >> "$LOG"
