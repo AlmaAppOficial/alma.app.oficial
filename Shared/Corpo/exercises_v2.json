@@ -490,7 +490,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "15 reps",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "straight-arm-pulldown-start.webp",
+   "straight-arm-pulldown-peak.webp"
+  ]
  },
  {
   "id": "voador-inclinado",
@@ -1626,7 +1630,11 @@
   ],
   "defaultSets": 4,
   "defaultReps": "10 reps",
-  "sourceAttribution": "C&A + free-exercise-db (Unlicense)"
+  "sourceAttribution": "C&A + free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-romanian-deadlift-start.webp",
+   "dumbbell-romanian-deadlift-peak.webp"
+  ]
  },
  {
   "id": "stiff-com-barra",
@@ -2334,7 +2342,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "upright-row-start.webp",
+   "upright-row-peak.webp"
+  ]
  },
  {
   "id": "desenvolvimento-unilateral",
@@ -2359,7 +2371,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "10 cada",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "one-arm-dumbbell-push-press-start.webp",
+   "one-arm-dumbbell-push-press-peak.webp"
+  ]
  },
  {
   "id": "rotacao-externa-com-cabo",
@@ -3058,7 +3074,11 @@
   ],
   "defaultSets": 4,
   "defaultReps": "12 reps",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "dips-start.webp",
+   "dips-peak.webp"
+  ]
  },
  {
   "id": "extensao-de-triceps-overhead",
@@ -3851,7 +3871,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 cada",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "single-leg-romanian-deadlift-start.webp",
+   "single-leg-romanian-deadlift-peak.webp"
+  ]
  },
  {
   "id": "elevacao-de-perna-no-solo",
@@ -3878,7 +3902,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "20 cada",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "glute-kickback-start.webp",
+   "glute-kickback-peak.webp"
+  ]
  },
  {
   "id": "caminhada-em-esteira",
@@ -3903,7 +3931,10 @@
   ],
   "defaultSets": 1,
   "defaultReps": "25 min",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-treadmill-walk-main.webp"
+  ]
  },
  {
   "id": "corrida-em-esteira",
@@ -4168,7 +4199,10 @@
   ],
   "defaultSets": 4,
   "defaultReps": "45 s",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "high-knees-main.webp"
+  ]
  },
  {
   "id": "swing-com-kettlebell",
@@ -4442,7 +4476,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "8 cada",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "kettlebell-swing-clean-start.webp",
+   "kettlebell-swing-clean-peak.webp"
+  ]
  },
  {
   "id": "agachamento-overhead",
@@ -4936,7 +4974,11 @@
   ],
   "defaultSets": 2,
   "defaultReps": "8 cada",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "side-lunge-start.webp",
+   "side-lunge-peak.webp"
+  ]
  },
  {
   "id": "ponte-de-gluteo-mobilidade",
@@ -5679,7 +5721,11 @@
   ],
   "defaultSets": 5,
   "defaultReps": "5 reps",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "clean-start.webp",
+   "clean-peak.webp"
+  ]
  },
  {
   "id": "snatch-com-kettlebell",
@@ -6422,7 +6468,10 @@
   ],
   "defaultSets": 3,
   "defaultReps": "30 s",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-farmers-walk-main.webp"
+  ]
  },
  {
   "id": "plate-pinch-pinca-com-anilha",
@@ -7102,7 +7151,11 @@
   ],
   "defaultSets": 4,
   "defaultReps": "12 reps",
-  "sourceAttribution": "catálogo C&A (legado)"
+  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
+  "fotos": [
+   "hip-thrust-start.webp",
+   "hip-thrust-peak.webp"
+  ]
  },
  {
   "id": "step-up-com-halteres-e-joelho-elevado",
@@ -8226,10 +8279,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "30 s",
-  "sourceAttribution": "catálogo C&A (legado) + RepDB (repdb.co)",
-  "fotos": [
-   "plank-main.webp"
-  ]
+  "sourceAttribution": "catálogo C&A (legado)"
  },
  {
   "id": "swing-com-anilha",
@@ -8394,7 +8444,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "sit-ups-start.webp",
+   "sit-ups-peak.webp"
+  ]
  },
  {
   "id": "alongamento-de-isquiotibiais-90-90",
@@ -8861,7 +8915,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "one-arm-kettlebell-floor-press-start.webp",
+   "one-arm-kettlebell-floor-press-peak.webp"
+  ]
  },
  {
   "id": "hang-clean-alternado",
@@ -9297,7 +9355,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "deadlift-start.webp",
+   "deadlift-peak.webp"
+  ]
  },
  {
   "id": "crucifixo-invertido-com-elastico",
@@ -9571,7 +9633,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "banded-good-morning-start.webp",
+   "banded-good-morning-peak.webp"
+  ]
  },
  {
   "id": "aducao-de-quadril-com-elastico",
@@ -9815,7 +9881,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "ez-bar-spider-curl-start.webp",
+   "ez-bar-spider-curl-peak.webp"
+  ]
  },
  {
   "id": "levantamento-terra-com-barra",
@@ -10638,7 +10708,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "box-jump-start.webp",
+   "box-jump-peak.webp"
+  ]
  },
  {
   "id": "supino-powerlifting",
@@ -10673,7 +10747,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "bench-press-start.webp",
+   "bench-press-peak.webp"
+  ]
  },
  {
   "id": "supino-com-elastico",
@@ -10997,7 +11075,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "t-bar-row-start.webp",
+   "t-bar-row-peak.webp"
+  ]
  },
  {
   "id": "remada-na-barra-t-bilateral",
@@ -11175,7 +11257,10 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "stationary-bike-main.webp"
+  ]
  },
  {
   "id": "supino-com-tabua",
@@ -11519,7 +11604,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "box-jump-start.webp",
+   "box-jump-peak.webp"
+  ]
  },
  {
   "id": "agachamento-na-caixa",
@@ -12193,7 +12282,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "single-arm-tricep-pushdown-start.webp",
+   "single-arm-tricep-pushdown-peak.webp"
+  ]
  },
  {
   "id": "rosca-scott-na-polia",
@@ -13045,10 +13138,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "bench-hamstring-stretch-main.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "alongamento-de-lombar-na-cadeira",
@@ -13115,11 +13205,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "box-squat-start.webp",
-   "box-squat-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "alongamento-da-parte-superior-do-corpo-na-cadeira",
@@ -13181,10 +13267,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "doorway-chest-stretch-main.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "arremesso-de-peito-3-apoios",
@@ -13631,7 +13714,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "shrug-start.webp",
+   "shrug-peak.webp"
+  ]
  },
  {
   "id": "arremesso",
@@ -14048,11 +14135,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "close-grip-push-ups-start.webp",
-   "close-grip-push-ups-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "rosca-direta-com-barra-pegada-fechada",
@@ -14499,10 +14582,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "dancer-pose-main.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "levantamento-terra-com-elastico",
@@ -14713,7 +14793,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "lying-tricep-extension-start.webp",
+   "lying-tricep-extension-peak.webp"
+  ]
  },
  {
   "id": "triceps-testa-declinado-com-barra-ez",
@@ -14744,7 +14828,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "ez-bar-lying-tricep-extension-start.webp",
+   "ez-bar-lying-tricep-extension-peak.webp"
+  ]
  },
  {
   "id": "abdominal-obliquo-declinado",
@@ -15025,7 +15113,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dips-start.webp",
+   "dips-peak.webp"
+  ]
  },
  {
   "id": "panturrilha-burrinho",
@@ -15097,7 +15189,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "double-kettlebell-clean-start.webp",
+   "double-kettlebell-clean-peak.webp"
+  ]
  },
  {
   "id": "jerk-com-dois-kettlebells",
@@ -15208,7 +15304,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "double-kettlebell-swing-snatch-start.webp",
+   "double-kettlebell-swing-snatch-peak.webp"
+  ]
  },
  {
   "id": "windmill-com-dois-kettlebells",
@@ -15448,7 +15548,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "db-bench-press-start.webp",
+   "db-bench-press-peak.webp"
+  ]
  },
  {
   "id": "arremesso-com-halteres",
@@ -15865,7 +15969,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-upright-row-start.webp",
+   "dumbbell-upright-row-peak.webp"
+  ]
  },
  {
   "id": "rosca-inclinada-deitado-brucos-com-halteres",
@@ -16576,7 +16684,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "seated-cable-row-start.webp",
+   "seated-cable-row-peak.webp"
+  ]
  },
  {
   "id": "abdominal-na-bola",
@@ -16810,7 +16922,10 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-farmers-walk-main.webp"
+  ]
  },
  {
   "id": "skipping-rapido",
@@ -17046,7 +17161,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "nordic-hamstring-curl-start.webp",
+   "nordic-hamstring-curl-peak.webp"
+  ]
  },
  {
   "id": "supino-no-chao",
@@ -17872,7 +17991,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "nordic-hamstring-curl-start.webp",
+   "nordic-hamstring-curl-peak.webp"
+  ]
  },
  {
   "id": "coice-de-gluteo",
@@ -18143,7 +18266,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-db-press-start.webp",
+   "incline-db-press-peak.webp"
+  ]
  },
  {
   "id": "liberacao-miofascial-de-isquiotibiais",
@@ -18317,7 +18444,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "hang-clean-start.webp",
+   "hang-clean-peak.webp"
+  ]
  },
  {
   "id": "arranco-suspenso",
@@ -18901,11 +19032,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "superman-start.webp",
-   "superman-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "alongamento-de-banda-iliotibial-e-gluteo",
@@ -18933,7 +19060,10 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "banded-it-band-stretch-main.webp"
+  ]
  },
  {
   "id": "liberacao-miofascial-do-trato-iliotibial",
@@ -19168,7 +19298,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-db-press-start.webp",
+   "incline-db-press-peak.webp"
+  ]
  },
  {
   "id": "crucifixo-inclinado-com-halteres",
@@ -19240,7 +19374,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-dumbbell-fly-start.webp",
+   "incline-dumbbell-fly-peak.webp"
+  ]
  },
  {
   "id": "rosca-martelo-inclinada",
@@ -19304,7 +19442,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-db-curl-start.webp",
+   "incline-db-curl-peak.webp"
+  ]
  },
  {
   "id": "flexao-inclinada-fechada",
@@ -19338,7 +19480,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-push-ups-start.webp",
+   "incline-push-ups-peak.webp"
+  ]
  },
  {
   "id": "flexao-inclinada-explosiva-com-salto",
@@ -19480,7 +19626,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-push-ups-start.webp",
+   "incline-push-ups-peak.webp"
+  ]
  },
  {
   "id": "alongamento-de-virilha-intermediario",
@@ -20535,7 +20685,10 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "supine-spinal-twist-main.webp"
+  ]
  },
  {
   "id": "circulos-com-os-joelhos",
@@ -20704,7 +20857,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "cable-crunch-start.webp",
+   "cable-crunch-peak.webp"
+  ]
  },
  {
   "id": "triceps-testa-na-polia-alta-ajoelhado",
@@ -20799,7 +20956,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "kneeling-cable-row-start.webp",
+   "kneeling-cable-row-peak.webp"
+  ]
  },
  {
   "id": "alongamento-de-flexor-de-quadril-ajoelhado",
@@ -20896,7 +21057,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "kneeling-cable-row-start.webp",
+   "kneeling-cable-row-peak.webp"
+  ]
  },
  {
   "id": "agachamento-ajoelhado",
@@ -21002,7 +21167,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "landmine-press-start.webp",
+   "landmine-press-peak.webp"
+  ]
  },
  {
   "id": "salto-lateral",
@@ -21814,11 +21983,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "cable-upright-row-start.webp",
-   "cable-upright-row-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "liberacao-miofascial-da-lombar",
@@ -22010,11 +22175,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "cable-curl-start.webp",
-   "cable-curl-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "remada-com-barra-curva-deitado",
@@ -22084,11 +22245,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "cable-curl-start.webp",
-   "cable-curl-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "triceps-frances-deitado-com-barra-pegada-fechada",
@@ -22315,10 +22472,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "bench-hamstring-stretch-main.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "rosca-spider-com-barra",
@@ -22348,7 +22502,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "ez-bar-spider-curl-start.webp",
+   "ez-bar-spider-curl-peak.webp"
+  ]
  },
  {
   "id": "agachamento-deitado-na-maquina",
@@ -22519,11 +22677,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "bicep-curl-start.webp",
-   "bicep-curl-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "remada-t-bar-apoiado-no-banco",
@@ -23078,7 +23232,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "hack-squat-start.webp",
+   "hack-squat-peak.webp"
+  ]
  },
  {
   "id": "leg-press-fechado",
@@ -23154,7 +23312,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "squat-start.webp",
+   "squat-peak.webp"
+  ]
  },
  {
   "id": "flexao-nordica-glute-ham-raise",
@@ -23188,7 +23350,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "nordic-hamstring-curl-start.webp",
+   "nordic-hamstring-curl-peak.webp"
+  ]
  },
  {
   "id": "liberacao-miofascial-do-pescoco-rolo",
@@ -23351,7 +23517,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "squat-start.webp",
+   "squat-peak.webp"
+  ]
  },
  {
   "id": "alongamento-de-quadriceps-deitado-no-banco",
@@ -23481,7 +23651,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "db-fly-start.webp",
+   "db-fly-peak.webp"
+  ]
  },
  {
   "id": "flexao-lateral-na-polia-alta",
@@ -23547,7 +23721,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "side-lying-lateral-raise-start.webp",
+   "side-lying-lateral-raise-peak.webp"
+  ]
  },
  {
   "id": "clean-unilateral-com-kettlebell",
@@ -23985,7 +24163,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "medicine-ball-slam-start.webp",
+   "medicine-ball-slam-peak.webp"
+  ]
  },
  {
   "id": "clean-palma-aberta-unilateral-com-kettlebell",
@@ -24126,7 +24308,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "lateral-raise-start.webp",
+   "lateral-raise-peak.webp"
+  ]
  },
  {
   "id": "coice-de-gluteo-na-polia-cable-kickback",
@@ -24264,7 +24450,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "db-bench-press-start.webp",
+   "db-bench-press-peak.webp"
+  ]
  },
  {
   "id": "rosca-scott-unilateral-com-halter",
@@ -24331,7 +24521,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "floor-press-start.webp",
+   "floor-press-peak.webp"
+  ]
  },
  {
   "id": "puxada-unilateral-na-polia",
@@ -24923,7 +25117,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "cable-pallof-press-start.webp",
+   "cable-pallof-press-peak.webp"
+  ]
  },
  {
   "id": "rosca-punho-invertida-com-halteres-no-banco",
@@ -25100,7 +25298,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dips-start.webp",
+   "dips-peak.webp"
+  ]
  },
  {
   "id": "bascula-pelvica-com-ponte",
@@ -25129,7 +25331,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "glute-bridge-start.webp",
+   "glute-bridge-peak.webp"
+  ]
  },
  {
   "id": "liberacao-miofascial-dos-fibulares-rolo",
@@ -25543,7 +25749,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "clean-start.webp",
+   "clean-peak.webp"
+  ]
  },
  {
   "id": "power-clean-dos-blocos",
@@ -25614,7 +25824,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "push-jerk-start.webp",
+   "push-jerk-peak.webp"
+  ]
  },
  {
   "id": "elevacao-lateral-parcial-power-partials",
@@ -25684,7 +25898,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "snatch-start.webp",
+   "snatch-peak.webp"
+  ]
  },
  {
   "id": "power-snatch-dos-blocos",
@@ -26146,7 +26364,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "behind-the-neck-press-start.webp",
+   "behind-the-neck-press-peak.webp"
+  ]
  },
  {
   "id": "flexao-com-prancha-lateral",
@@ -26333,7 +26555,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "box-jump-start.webp",
+   "box-jump-peak.webp"
+  ]
  },
  {
   "id": "entrega-no-rack-tecnica-de-clean",
@@ -27840,11 +28066,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "banded-standing-curl-start.webp",
-   "banded-standing-curl-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "desenvolvimento-militar-sentado-com-barra",
@@ -28287,7 +28509,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "seated-dumbbell-curl-start.webp",
+   "seated-dumbbell-curl-peak.webp"
+  ]
  },
  {
   "id": "rosca-punho-invertida-sentado-com-halteres",
@@ -28429,11 +28655,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "bench-leg-pull-in-start.webp",
-   "bench-leg-pull-in-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "alongamento-de-posterior-sentado-no-chao",
@@ -28724,11 +28946,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "bench-leg-pull-in-start.webp",
-   "bench-leg-pull-in-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "rosca-punho-invertida-unilateral-sentado",
@@ -28835,7 +29053,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "seated-cable-row-start.webp",
+   "seated-cable-row-peak.webp"
+  ]
  },
  {
   "id": "alongamento-lateral-sentado-borboleta",
@@ -29580,7 +29802,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "cable-fly-start.webp",
+   "cable-fly-peak.webp"
+  ]
  },
  {
   "id": "jammer-unilateral-landmine-press",
@@ -30464,7 +30690,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "smith-machine-bench-press-start.webp",
+   "smith-machine-bench-press-peak.webp"
+  ]
  },
  {
   "id": "supino-declinado-no-smith",
@@ -30679,7 +30909,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "smith-machine-upright-row-start.webp",
+   "smith-machine-upright-row-peak.webp"
+  ]
  },
  {
   "id": "desenvolvimento-sentado-no-smith",
@@ -30981,7 +31215,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "deadlift-start.webp",
+   "deadlift-peak.webp"
+  ]
  },
  {
   "id": "puxada-de-arranco-snatch-pull",
@@ -31048,7 +31286,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "shrug-start.webp",
+   "shrug-peak.webp"
+  ]
  },
  {
   "id": "arranco-dos-blocos",
@@ -31293,7 +31535,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "ez-bar-spider-curl-start.webp",
+   "ez-bar-spider-curl-peak.webp"
+  ]
  },
  {
   "id": "alongamento-da-coluna-sentado",
@@ -31597,7 +31843,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "push-jerk-start.webp",
+   "push-jerk-peak.webp"
+  ]
  },
  {
   "id": "agachamento-com-elasticos",
@@ -31817,7 +32067,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-shoulder-press-start.webp",
+   "dumbbell-shoulder-press-peak.webp"
+  ]
  },
  {
   "id": "panturrilha-em-pe-com-barra",
@@ -32238,11 +32492,7 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
-  "fotos": [
-   "concentration-curl-start.webp",
-   "concentration-curl-peak.webp"
-  ]
+  "sourceAttribution": "free-exercise-db (Unlicense)"
  },
  {
   "id": "panturrilha-em-pe-com-halteres",
@@ -32378,7 +32628,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-front-raise-start.webp",
+   "dumbbell-front-raise-peak.webp"
+  ]
  },
  {
   "id": "triceps-frances-em-pe-com-halter",
@@ -32473,7 +32727,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "barbell-front-raise-start.webp",
+   "barbell-front-raise-peak.webp"
+  ]
  },
  {
   "id": "alongamento-de-gastrocnemio-no-degrau",
@@ -32632,7 +32890,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "bicep-curl-start.webp",
+   "bicep-curl-peak.webp"
+  ]
  },
  {
   "id": "alongamento-lateral-em-pe",
@@ -32764,7 +33026,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "cable-lateral-raise-start.webp",
+   "cable-lateral-raise-peak.webp"
+  ]
  },
  {
   "id": "triceps-frances-unilateral-na-polia-baixa",
@@ -32904,7 +33170,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "cable-curl-start.webp",
+   "cable-curl-peak.webp"
+  ]
  },
  {
   "id": "rosca-unilateral-apoiada-no-banco-inclinado",
@@ -33047,7 +33317,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-shoulder-press-start.webp",
+   "dumbbell-shoulder-press-peak.webp"
+  ]
  },
  {
   "id": "desenvolvimento-pegada-neutra-com-halteres",
@@ -33079,7 +33353,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "dumbbell-shoulder-press-start.webp",
+   "dumbbell-shoulder-press-peak.webp"
+  ]
  },
  {
   "id": "rosca-punho-com-barra-por-tras",
@@ -35102,7 +35380,10 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "incline-treadmill-walk-main.webp"
+  ]
  },
  {
   "id": "hiperextensao-na-bola-com-anilha",
@@ -35474,7 +35755,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "decline-bench-press-barbell-start.webp",
+   "decline-bench-press-barbell-peak.webp"
+  ]
  },
  {
   "id": "pullover-declinado-com-barra",
@@ -35656,7 +35941,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "barbell-curl-start.webp",
+   "barbell-curl-peak.webp"
+  ]
  },
  {
   "id": "agachamento-base-aberta",
@@ -35725,7 +36014,11 @@
   ],
   "defaultSets": 3,
   "defaultReps": "12 reps",
-  "sourceAttribution": "free-exercise-db (Unlicense)"
+  "sourceAttribution": "free-exercise-db (Unlicense) + RepDB (repdb.co)",
+  "fotos": [
+   "stiff-leg-deadlift-start.webp",
+   "stiff-leg-deadlift-peak.webp"
+  ]
  },
  {
   "id": "corrida-no-ar-pendurado-wind-sprints",

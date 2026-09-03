@@ -213,7 +213,7 @@ struct ExerciseV2: Identifiable, Codable, Hashable {
     /// **É OPCIONAL de propósito, e o campo é NOVO em vez de reaproveitar
     /// `media`.** Duas razões, ambas com precedente doloroso neste projeto:
     ///
-    /// 1. `nil` é o estado de 581 dos 1.095 hoje (os órfãos e os que esperam
+    /// 1. `nil` é o estado de 507 dos 1.095 hoje (os órfãos e os que esperam
     ///    revisão humana). Campo obrigatório obrigaria a inventar valor.
     /// 2. `media` alimenta `displaySymbol`, que `asLegacyExercise()` grava
     ///    dentro de `customWorkouts` — FORMATO PERSISTIDO. Trocar `media` por

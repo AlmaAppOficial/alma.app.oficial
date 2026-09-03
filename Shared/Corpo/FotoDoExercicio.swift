@@ -48,7 +48,7 @@
 // imagem. 73 das 1.056 precisaram de âncora.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// COBERTURA — 514 dos 1.095 têm foto, e isso NÃO é regressão
+// COBERTURA — 588 dos 1.095 têm foto, e isso NÃO é regressão
 // ═══════════════════════════════════════════════════════════════════════════
 // Só as faixas A_EXATO e B_EQUIVALENTE do `MAPA_SEMANTICO.csv` receberam
 // imagem. As 320 de C_REVISAR esperam olho humano; as 261 órfãs não têm
@@ -67,14 +67,14 @@ final class AcervoDeFotosDeExercicio {
     static let compartilhado = AcervoDeFotosDeExercicio()
 
     /// Nome da pasta dentro do bundle. É uma **referência de pasta** no Xcode
-    /// (folder reference / pasta azul), não um grupo: os 594 arquivos entram
-    /// com uma linha no `project.pbxproj` em vez de 594.
+    /// (folder reference / pasta azul), não um grupo: os 605 arquivos entram
+    /// com uma linha no `project.pbxproj` em vez de 605.
     static let pasta = "ExerciciosFotos"
 
     private let cache = NSCache<NSString, UIImage>()
 
     private init() {
-        // ~594 arquivos, ~9,8 MB em disco. Descomprimidos cabem muito mais que
+        // ~605 arquivos, ~9,9 MB em disco. Descomprimidos cabem muito mais que
         // isso na RAM, então o teto é por contagem e não por bytes.
         cache.countLimit = 120
     }
@@ -201,7 +201,7 @@ struct FiguraDoExercicio: View {
 /// vazio, sem mensagem. Por isso a foto é resolvida pelo slug do nome, em tempo
 /// de desenho, contra o catálogo do bundle — nada muda de formato no disco.
 ///
-/// Quando o nome não casa com nenhum dos 1.095, ou casa com um dos 581 sem
+/// Quando o nome não casa com nenhum dos 1.095, ou casa com um dos 507 sem
 /// foto, desenha o SF Symbol de sempre. O piso é o que já existia.
 struct FiguraDeExercicioLegado: View {
     let exercise: Exercise
