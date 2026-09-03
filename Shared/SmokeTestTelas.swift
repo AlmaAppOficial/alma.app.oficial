@@ -281,6 +281,102 @@ enum SmokeTestTelas {
 
         conferenciaDoJejum(model: model, renderizar: renderizar)
         conferenciaDoScan(model: model, renderizar: renderizar)
+        conferenciaDasFotos(renderizar: renderizar)
+    }
+
+    // MARK: - Conferência das fotos dos exercícios [2026-09-03]
+    //
+    // O harness `_scripts/rodar_testes_fotos.sh` prova que o ARQUIVO existe no
+    // caminho que a referência de pasta copia, e o portão de conteúdo prova que
+    // ele entrou no `.app`. Nenhum dos dois desenha nada: que a miniatura e o
+    // herói APAREÇAM é prova de imagem, e é o que falta.
+    //
+    // Vai por aqui, e não por navegação no simulador, porque navegar até o
+    // módulo Corpo não funciona — está escrito no cabeçalho da
+    // `conferenciaDeAparencia` (três tentativas em 04/08, as três pararam na
+    // Home do Alma) e foi reproduzido de novo hoje. O `fullScreenCover` não
+    // apresenta a partir do `.task` nem por AXPress.
+    //
+    // LIMITE HONESTO, o mesmo da `conferenciaDeAparencia`: `drawHierarchy` não
+    // reproduz blur nem o vidro do iOS 26. Para o que está sob prova aqui —
+    // a FOTO desenhar, recortada, com contraste sobre o card nos dois temas —
+    // isso não atrapalha: a imagem é opaca e não depende de vibrancy.
+    private static func conferenciaDasFotos(
+        renderizar: (String, AnyView, ColorScheme) -> Void
+    ) {
+        log("═════ FOTOS DOS EXERCÍCIOS — LISTA E DETALHE × 2 ═════")
+
+        // Escolhe pelo DADO, não por nome fixo: um id escrito à mão aqui vira
+        // print vazio no dia em que o catálogo mudar, e ninguém repara.
+        // Precisa das DUAS pontas (início e pico) — é o par que o herói desenha.
+        let comParDeFotos = ExerciseCatalog.all.first { ($0.fotos ?? []).count >= 2 }
+
+        // Para a LISTA não basta o grupo TER alguma foto: o que sai no print são
+        // as ~6 primeiras linhas. Um grupo com foto só na linha 40 rende uma
+        // captura de corpos anatômicos com legenda dizendo "miniatura" — prova
+        // do contrário do que afirma. Então escolhe o grupo que mais tem foto
+        // JÁ NO TOPO da lista.
+        let grupoComFoto = MuscleGroup.allCases.max { a, b in
+            func topoComFoto(_ g: MuscleGroup) -> Int {
+                ExerciseCatalog.exercises(for: g).prefix(6)
+                    .filter { !($0.fotos ?? []).isEmpty }.count
+            }
+            return topoComFoto(a) < topoComFoto(b)
+        }
+
+        // Anti-cegueira: sem exercício com foto, as capturas sairiam com o corpo
+        // anatômico e pareceriam corretas. Aí o print PROVA O CONTRÁRIO do que
+        // diz a legenda — que é pior do que não ter print.
+        guard let ex = comParDeFotos, let grupo = grupoComFoto else {
+            log("  ✗✗ CEGO: nenhum exercício com foto no catálogo carregado.")
+            log("     As capturas de foto NÃO foram feitas. Não conclua nada.")
+            return
+        }
+        let quantos = ExerciseCatalog.all.filter { !($0.fotos ?? []).isEmpty }.count
+        log("  catálogo: \(quantos) de \(ExerciseCatalog.all.count) com foto")
+        log("  lista: grupo \(grupo.rawValue) · detalhe: \(ex.namePTBR) \(ex.fotos ?? [])")
+
+        // ── O DIAGNÓSTICO QUE A PRIMEIRA RODADA EXIGIU (03/09) ───────────────
+        // A primeira captura saiu com o herói e as duas pontas VAZIOS. Duas
+        // explicações rivais, e elas pedem consertos opostos:
+        //   (a) o app não acha/não decodifica o .webp  → defeito de produção;
+        //   (b) a foto carrega ASSÍNCRONA e este harness desenha 0,2 s depois
+        //       do layout, antes de o `.task` terminar → defeito da CAPTURA.
+        // Afirmar (a) sem descartar (b) seria exatamente a "afirmação sem
+        // contraditório". Então mede-se cada elo, e o log diz qual quebrou.
+        for nome in (ex.fotos ?? []) {
+            let url = AcervoDeFotosDeExercicio.urlNoBundle(nome)
+            let dados = url.flatMap { try? Data(contentsOf: $0) }
+            let img = dados.flatMap { UIImage(data: $0) }
+            log("  elo · \(nome)")
+            log("      Bundle.main acha? \(url != nil ? "SIM" : "NÃO")")
+            log("      bytes lidos? \(dados.map { "\($0.count)" } ?? "não")")
+            log("      UIImage decodifica .webp? \(img != nil ? "SIM \(Int(img!.size.width))x\(Int(img!.size.height))" : "NÃO")")
+        }
+
+        // Aquece o cache ANTES de desenhar. `FotoDoExercicioView.init` lê
+        // `emCache` e, com o cache quente, desenha no primeiro frame — está
+        // escrito no próprio `FotoDoExercicio.swift`. Sem isto o harness
+        // fotografa a reserva, não a foto, e o print não julga o que promete.
+        var nomesParaAquecer = Set(ex.fotos ?? [])
+        for e in ExerciseCatalog.exercises(for: grupo).prefix(12) {
+            nomesParaAquecer.formUnion(e.fotos ?? [])
+        }
+        let aquecidas = AcervoDeFotosDeExercicio.compartilhado
+            .aquecerParaCapturas(Array(nomesParaAquecer))
+        log("  cache quente: \(aquecidas) de \(nomesParaAquecer.count) fotos carregadas")
+        if aquecidas == 0 {
+            log("  ✗✗ NENHUMA foto carregou — as capturas abaixo mostram a")
+            log("     RESERVA (corpo anatômico), não a foto. Isto é defeito.")
+        }
+
+        for esquema in [ColorScheme.light, .dark] {
+            renderizar("F1 Lista de exercicios (miniatura)",
+                       AnyView(ExerciseListV2View(group: grupo)), esquema)
+            renderizar("F2 Detalhe do exercicio (heroi)",
+                       AnyView(ExerciseDetailV2View(exercise: ex)), esquema)
+        }
+        log("═════ FIM FOTOS ═════")
     }
 
     // MARK: - Conferência do módulo de jejum [2026-08-26]

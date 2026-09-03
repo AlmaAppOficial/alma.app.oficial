@@ -109,6 +109,37 @@ final class AcervoDeFotosDeExercicio {
                                subdirectory: pasta)
     }
 
+    #if DEBUG
+    /// Enche o cache SÍNCRONO, na thread que chamou. Só para as capturas.
+    ///
+    /// [2026-09-03] Existe porque a conferência visual não consegue esperar o
+    /// `carregar` assíncrono: ela desenha com `drawHierarchy` 0,2 s depois do
+    /// layout, e a foto chega depois — a primeira rodada de capturas saiu com
+    /// o herói e as duas pontas VAZIOS, parecendo defeito de produção quando
+    /// era defeito da captura.
+    ///
+    /// E não dá para simplesmente esperar o `carregar` com semáforo: a
+    /// conferência roda no MainActor, um `Task { }` ali herda o MainActor, e
+    /// bloquear a main esperando por ele é impasse — a primeira tentativa
+    /// travou 3 s por arquivo até estourar o tempo. Aqui não há concorrência
+    /// nenhuma: lê, decodifica e guarda, no mesmo passo.
+    ///
+    /// Devolve quantas entraram, para o log poder acusar zero.
+    @discardableResult
+    func aquecerParaCapturas(_ nomes: [String]) -> Int {
+        var n = 0
+        for nome in nomes {
+            if cache.object(forKey: nome as NSString) != nil { n += 1; continue }
+            guard let url = Self.urlNoBundle(nome),
+                  let dados = try? Data(contentsOf: url),
+                  let img = UIImage(data: dados) else { continue }
+            cache.setObject(img, forKey: nome as NSString)
+            n += 1
+        }
+        return n
+    }
+    #endif
+
     /// Usado pelo smoke test e pela auditoria: quantos arquivos do catálogo
     /// realmente existem no bundle. Um catálogo que aponta para arquivo
     /// inexistente desenha o corpo anatômico e não avisa ninguém.
