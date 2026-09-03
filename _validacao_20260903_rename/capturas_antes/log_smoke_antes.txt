@@ -1,0 +1,339 @@
+getpwuid_r did not find a match for uid 501
+Filtering the log data using "composedMessage CONTAINS[c] "SMOKE""
+Timestamp               Ty Process[PID:TID]
+2026-09-03 21:11:23.027 Df CoreSimulatorBridge[83348:1929eb6] Requesting launch of com.almaapp.app with options: {
+    arguments =     (
+        "-semLogin",
+        1,
+        "-smokeTelas",
+        1,
+        "-capturarTelas",
+        1,
+        "-semearPerfil",
+        1,
+        "-semearSaude",
+        1,
+        "-semPermissoes",
+        1
+    );
+    environment =     {
+    };
+}
+2026-09-03 21:11:23.040 Df runningboardd[83321:1929e42] [com.apple.runningboard:job_oversize] 'app<com.almaapp.app((null))>' Constructed job description:
+<dictionary: 0x1055490e0> { count = 20, transaction: 0, voucher = 0x0, contents =
+	"ProcessType" => <string: 0x10555b6c0> { string cache = 0x0, length = 3, contents = "App" }
+	"EnableTransactions" => <bool: 0x1e6e64560>: false
+	"_ManagedBy" => <string: 0x1055593e0> { string cache = 0x0, length = 22, contents = "com.apple.runningboard" }
+	"RootedSimulatorPath" => <bool: 0x1e6e64540>: true
+	"CFBundleIdentifier" => <string: 0x10555bab0> { string cache = 0x0, length = 15, contents = "com.almaapp.app" }
+	"_ResourceCoalition" => <string: 0x10555b840> { string cache = 0x0, length = 28, contents = "app<com.almaapp.app((null))>" }
+	"_POSIXSpawnTelemetryPageIn" => <bool: 0x1e6e64540>: true
+	"ThrottleInterval" => <int64: 0x9ddaaaadc5adf83f>: 2147483647
+	"MachServices" => <dictionary: 0x1055498c0> { count = 0, transaction: 0, voucher = 0x0, contents =
+	}
+	"EnablePressuredExit" => <bool: 0x1e6e64560>: false
+	"InitialTaskRole" => <int64: 0x9ddaaaae3a5207cf>: 1
+	"UserName" => <string: 0x10555b0c0> { string cache = 0x0, length = 6, contents = "mobile" }
+	"EnvironmentVariables" => <dictionary: 0x105548960> { count = 3, transaction: 0, voucher = 0x0, contents =
+		"TMPDIR" => <string: 0x1055594a0> { string cache = 0x0, length = 172, contents = "/Users/almaappoficial/Library/Developer/CoreSimulator/Devices/64B214AD-5854-4F5A-ADCA-A1A936358170/data/Containers/Data/Application/521FA38F-E9CF-46CC-849A-18094E0030ED/tmp" }
+		"HOME" => <string: 0x10555ba80> { string cache = 0x0, length = 168, contents = "/Users/almaappoficial/Library/Developer/CoreSimulator/Devices/64B214AD-5854-4F5A-ADCA-A1A936358170/data/Containers/Data/Application/521FA38F-E9CF-46CC-849A-18094E0030ED" }
+		"CFFIXED_USER_HOME" => <string: 0x10555a400> { string cache = 0x0, length = 168, contents = "/Users/almaappoficial/Library/Developer/CoreSimulator/Devices/64B214AD-5854-4F5A-ADCA-A1A936358170/data/Containers/Data/Application/521FA38F-E9CF-46CC-849A-18094E0030ED" }
+	}
+	"_AdditionalProperties" => <dictionary: 0x10554b8a0> { count = 1, transaction: 0, voucher = 0x0, contents =
+		"RunningBoard" => <dictionary: 0x105549080> { count = 3, transaction: 0, voucher = 0x0, contents =
+			"Managed" => <bool: 0x1e6e64540>: true
+			"RunningBoardLaunchedIdentity" => <dictionary: 0x10554bcc0> { count = 2, transaction: 0, voucher = 0x0, contents =
+				"TYPE" => <int64: 0x9ddaaaae3a5207d7>: 2
+				"EAI" => <string: 0x10555a160> { string cache = 0x0, length = 15, contents = "com.almaapp.app" }
+			}
+			"RunningBoardLaunched" => <bool: 0x1e6e64540>: true
+		}
+	}
+	"ExitTimeOut" => <int64: 0x9ddaaaae3a5207cf>: 1
+	"Label" => <string: 0x10555bea0> { string cache = 0x0, length = 49, contents = "UIKitApplication:com.almaapp.app[91de][rb-legacy]" }
+	"MaterializeDatalessFiles" => <bool: 0x1e6e64540>: true
+	"_LaunchType" => <int64: 0x9ddaaaae3a5207df>: 3
+	"ProgramArguments" => <array: 0x10555bdb0> { count = 13, capacity = 16, contents =
+		0: <string: 0x10555b270> { string cache = 0x0, length = 208, contents = "/Users/almaappoficial/Library/Developer/CoreSimulator/Devices/64B214AD-5854-4F5A-ADCA-A1A936358170/data/Containers/Bundle/Application/11F74E42-515F-45D4-8A25-879349E8DCCC/Alma.App.Oficial.app/Alma.App.Oficial" }
+		1: <string: 0x10555bb70> { string cache = 0x0, length = 9, contents = "-semLogin" }
+		2: <string: 0x10555b540> { string cache = 0x0, length = 1, contents = "1" }
+		3: <string: 0x10555be70> { string cache = 0x0, length = 11, contents = "-smokeTelas" }
+		4: <string: 0x10555ac70> { string cache = 0x0, length = 1, contents = "1" }
+		5: <string: 0x10555aa60> { string cache = 0x0, length = 14, contents = "-capturarTelas" }
+		6: <string: 0x10555bf90> { string cache = 0x0, length = 1, contents = "1" }
+		7: <string: 0x10555b2a0> { string cache = 0x0, length = 13, contents = "-semearPerfil" }
+		8: <string: 0x10555bba0> { string cache = 0x0, length = 1, contents = "1" }
+		9: <string: 0x10555ab20> { string cache = 0x0, length = 12, contents = "-semearSaude" }
+		10: <string: 0x10555a1f0> { string cache = 0x0, length = 1, contents = "1" }
+		11: <string: 0x10555b450> { string cache = 0x0, length = 14, contents = "-semPermissoes" }
+		12: <string: 0x105558bd0> { string cache = 0x0, length = 1, contents = "1" }
+	}
+	"Program" => <string: 0x10555b240> { string cache = 0x0, length = 208, contents = "/Users/almaappoficial/Library/Developer/CoreSimulator/Devices/64B214AD-5854-4F5A-ADCA-A1A936358170/data/Containers/Bundle/Application/11F74E42-515F-45D4-8A25-879349E8DCCC/Alma.App.Oficial.app/Alma.App.Oficial" }
+}
+2026-09-03 21:11:24.965 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ ALMA ═════
+2026-09-03 21:11:24.965 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Início
+2026-09-03 21:11:25.527 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Início — energia 13.36
+2026-09-03 21:11:25.529 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Práticas
+2026-09-03 21:11:26.200 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Práticas — energia 11.69
+2026-09-03 21:11:26.201 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Feed
+2026-09-03 21:11:26.605 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   VAZIA Alma · Feed — energia 0.38 < 3.0: sem crash, mas sem conteúdo
+2026-09-03 21:11:26.606 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Insights
+2026-09-03 21:11:27.083 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Insights — energia 8.87
+2026-09-03 21:11:27.083 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Perfil
+2026-09-03 21:11:27.648 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Perfil — energia 16.29
+2026-09-03 21:11:27.650 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Chat
+2026-09-03 21:11:28.188 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Chat — energia 8.47
+2026-09-03 21:11:28.189 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Paywall (PremiumWallView)
+2026-09-03 21:11:28.639 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Paywall (PremiumWallView) — energia 18.16
+2026-09-03 21:11:28.640 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Onboarding
+2026-09-03 21:11:29.078 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Onboarding — energia 3.84
+2026-09-03 21:11:29.080 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Saúde feminina
+2026-09-03 21:11:29.543 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Saúde feminina — energia 9.11
+2026-09-03 21:11:29.544 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Livre de vícios
+2026-09-03 21:11:30.019 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Livre de vícios — energia 11.41
+2026-09-03 21:11:30.020 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Excluir conta
+2026-09-03 21:11:30.560 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Excluir conta — energia 9.80
+2026-09-03 21:11:30.562 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Login
+2026-09-03 21:11:30.999 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Login — energia 5.29
+2026-09-03 21:11:30.999 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Abas (MainTabView)
+2026-09-03 21:11:31.541 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Abas (MainTabView) — energia 13.89
+2026-09-03 21:11:31.542 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CORPO — 5 abas ═════
+2026-09-03 21:11:31.543 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Módulo (raiz)
+2026-09-03 21:11:32.396 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Módulo (raiz) — energia 13.70
+2026-09-03 21:11:32.400 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Abas (RootTabView)
+2026-09-03 21:11:32.929 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Abas (RootTabView) — energia 13.70
+2026-09-03 21:11:32.933 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Início
+2026-09-03 21:11:33.427 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Início — energia 12.28
+2026-09-03 21:11:33.430 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Saúde
+2026-09-03 21:11:34.031 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Saúde — energia 11.99
+2026-09-03 21:11:34.034 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Dieta
+2026-09-03 21:11:34.591 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Dieta — energia 11.00
+2026-09-03 21:11:34.594 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Treino
+2026-09-03 21:11:35.256 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Treino — energia 14.54
+2026-09-03 21:11:35.258 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Insights
+2026-09-03 21:11:35.676 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Insights — energia 18.16
+2026-09-03 21:11:35.676 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CORPO — subtelas ═════
+2026-09-03 21:11:35.677 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Ajustes
+2026-09-03 21:11:36.429 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Ajustes — energia 11.86
+2026-09-03 21:11:36.434 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Editar medidas
+2026-09-03 21:11:37.127 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Editar medidas — energia 10.58
+2026-09-03 21:11:37.132 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Suplementos
+2026-09-03 21:11:37.507 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Suplementos — energia 3.24
+2026-09-03 21:11:37.509 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Adicionar alimento
+2026-09-03 21:11:38.753 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Adicionar alimento — energia 16.41
+2026-09-03 21:11:38.756 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Mapa muscular
+2026-09-03 21:11:39.282 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Mapa muscular — energia 8.25
+2026-09-03 21:11:39.283 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Scan corporal
+2026-09-03 21:11:39.771 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Scan corporal — energia 15.88
+2026-09-03 21:11:39.773 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Scan de alimento
+2026-09-03 21:11:40.226 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Scan de alimento — energia 10.75
+2026-09-03 21:11:40.229 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Paywall do Corpo
+2026-09-03 21:11:40.629 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Paywall do Corpo — energia 18.16
+2026-09-03 21:11:40.630 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Editor de meta
+2026-09-03 21:11:41.147 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Editor de meta — energia 14.46
+2026-09-03 21:11:41.150 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Aviso de saúde
+2026-09-03 21:11:41.604 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Aviso de saúde — energia 17.52
+2026-09-03 21:11:41.607 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe do exercício
+2026-09-03 21:11:42.035 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe do exercício — energia 9.49
+2026-09-03 21:11:42.036 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Lista de exercícios (biblioteca 2.0)
+2026-09-03 21:11:42.579 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Lista de exercícios (biblioteca 2.0) — energia 21.39
+2026-09-03 21:11:42.580 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe do exercício 2.0
+2026-09-03 21:11:43.001 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe do exercício 2.0 — energia 8.26
+2026-09-03 21:11:43.024 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Plano da Segunda (Peito e tríceps)
+2026-09-03 21:11:43.509 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Plano da Segunda (Peito e tríceps) — energia 7.92
+2026-09-03 21:11:43.510 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   plano/Segunda: Supino reto com barra · Supino inclinado com halteres · Crucifixo · Tríceps corda
+2026-09-03 21:11:43.510 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Supino reto com barra — Barra — foto: bench-press-peak.webp
+2026-09-03 21:11:43.510 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Supino inclinado com halteres — Halteres — foto: incline-db-press-peak.webp
+2026-09-03 21:11:43.511 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Crucifixo — Peso corporal — foto: NENHUMA
+2026-09-03 21:11:43.516 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Tríceps corda — Peso corporal — foto: NENHUMA
+2026-09-03 21:11:43.516 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe do treino
+2026-09-03 21:11:43.943 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe do treino — energia 6.52
+2026-09-03 21:11:43.944 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Sessão de treino
+2026-09-03 21:11:44.429 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Sessão de treino — energia 14.60
+2026-09-03 21:11:44.429 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Sessão de treino (por tempo, peso corporal)
+2026-09-03 21:11:44.855 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Sessão de treino (por tempo, peso corporal) — energia 9.99
+2026-09-03 21:11:44.855 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Anotar série (3 estados)
+2026-09-03 21:11:45.285 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Anotar série (3 estados) — energia 10.24
+2026-09-03 21:11:45.286 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe da refeição
+2026-09-03 21:11:45.704 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe da refeição — energia 4.00
+2026-09-03 21:11:45.705 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Montar treino próprio
+2026-09-03 21:11:46.332 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Montar treino próprio — energia 13.64
+2026-09-03 21:11:46.339 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Resultado do scan
+2026-09-03 21:11:46.825 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Resultado do scan — energia 21.32
+2026-09-03 21:11:46.826 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Código de barras (montagem)
+2026-09-03 21:11:47.199 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   —    Corpo · Código de barras (montagem) — branco esperado (depende de câmera real); conteúdo não julgado
+2026-09-03 21:11:47.199 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Câmera de foto (montagem)
+2026-09-03 21:11:48.095 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   —    Corpo · Câmera de foto (montagem) — branco esperado (depende de câmera real); conteúdo não julgado
+2026-09-03 21:11:48.098 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ estados alternativos ═════
+2026-09-03 21:11:48.105 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Saúde SEM medidas
+2026-09-03 21:11:48.707 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Saúde SEM medidas — energia 11.99
+2026-09-03 21:11:48.711 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Editar medidas SEM medidas
+2026-09-03 21:11:49.393 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Editar medidas SEM medidas — energia 10.58
+2026-09-03 21:11:49.398 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Insights SEM dados
+2026-09-03 21:11:49.827 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Insights SEM dados — energia 18.16
+2026-09-03 21:11:49.828 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Dieta SEM refeições
+2026-09-03 21:11:50.331 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Dieta SEM refeições — energia 11.00
+2026-09-03 21:11:50.335 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CANÁRIO DO DETECTOR ═════
+2026-09-03 21:11:50.335 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → CANÁRIO · tela vazia de propósito
+2026-09-03 21:11:50.720 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   VAZIA CANÁRIO · tela vazia de propósito — energia 0.00 < 3.0: sem crash, mas sem conteúdo
+2026-09-03 21:11:50.721 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ✓ detector vivo — acusou a tela vazia (energia 0.00)
+2026-09-03 21:11:50.721 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ RESULTADO ═════
+2026-09-03 21:11:50.721 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] 47 telas renderizadas sem crash
+2026-09-03 21:11:50.722 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] 1 TELA(S) SEM CONTEÚDO: Alma · Feed [energia 0.38]
+2026-09-03 21:11:51.325 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ ALMA ═════
+2026-09-03 21:11:51.326 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Início
+2026-09-03 21:11:51.860 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Início — energia 13.07
+2026-09-03 21:11:51.861 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Práticas
+2026-09-03 21:11:52.433 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Práticas — energia 11.69
+2026-09-03 21:11:52.434 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Feed
+2026-09-03 21:11:52.801 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   VAZIA Alma · Feed — energia 0.38 < 3.0: sem crash, mas sem conteúdo
+2026-09-03 21:11:52.802 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Insights
+2026-09-03 21:11:53.220 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Insights — energia 8.87
+2026-09-03 21:11:53.221 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Perfil
+2026-09-03 21:11:53.676 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Perfil — energia 16.29
+2026-09-03 21:11:53.678 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Chat
+2026-09-03 21:11:54.106 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Chat — energia 8.47
+2026-09-03 21:11:54.107 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Paywall (PremiumWallView)
+2026-09-03 21:11:54.512 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Paywall (PremiumWallView) — energia 18.16
+2026-09-03 21:11:54.513 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Onboarding
+2026-09-03 21:11:54.928 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Onboarding — energia 3.84
+2026-09-03 21:11:54.929 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Saúde feminina
+2026-09-03 21:11:55.324 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Saúde feminina — energia 9.11
+2026-09-03 21:11:55.325 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Livre de vícios
+2026-09-03 21:11:55.718 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Livre de vícios — energia 11.41
+2026-09-03 21:11:55.718 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Excluir conta
+2026-09-03 21:11:56.147 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Excluir conta — energia 9.80
+2026-09-03 21:11:56.150 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Login
+2026-09-03 21:11:56.579 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Login — energia 5.29
+2026-09-03 21:11:56.580 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Abas (MainTabView)
+2026-09-03 21:11:57.156 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Abas (MainTabView) — energia 13.59
+2026-09-03 21:11:57.158 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CORPO — 5 abas ═════
+2026-09-03 21:11:57.158 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Módulo (raiz)
+2026-09-03 21:11:57.690 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Módulo (raiz) — energia 13.50
+2026-09-03 21:11:57.693 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Abas (RootTabView)
+2026-09-03 21:11:58.211 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Abas (RootTabView) — energia 13.50
+2026-09-03 21:11:58.214 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Início
+2026-09-03 21:11:58.704 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Início — energia 12.17
+2026-09-03 21:11:58.707 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Saúde
+2026-09-03 21:11:59.187 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Saúde — energia 12.88
+2026-09-03 21:11:59.190 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Dieta
+2026-09-03 21:11:59.710 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Dieta — energia 13.79
+2026-09-03 21:11:59.713 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Treino
+2026-09-03 21:12:00.266 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Treino — energia 14.89
+2026-09-03 21:12:00.268 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Insights
+2026-09-03 21:12:00.663 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Insights — energia 18.16
+2026-09-03 21:12:00.663 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CORPO — subtelas ═════
+2026-09-03 21:12:00.663 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Ajustes
+2026-09-03 21:12:01.136 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Ajustes — energia 12.21
+2026-09-03 21:12:01.141 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Editar medidas
+2026-09-03 21:12:01.617 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Editar medidas — energia 12.95
+2026-09-03 21:12:01.622 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Suplementos
+2026-09-03 21:12:01.992 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Suplementos — energia 4.08
+2026-09-03 21:12:01.993 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Adicionar alimento
+2026-09-03 21:12:03.054 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Adicionar alimento — energia 16.41
+2026-09-03 21:12:03.057 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Mapa muscular
+2026-09-03 21:12:03.549 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Mapa muscular — energia 8.25
+2026-09-03 21:12:03.550 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Scan corporal
+2026-09-03 21:12:03.948 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Scan corporal — energia 13.50
+2026-09-03 21:12:03.949 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Scan de alimento
+2026-09-03 21:12:04.364 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Scan de alimento — energia 10.75
+2026-09-03 21:12:04.366 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Paywall do Corpo
+2026-09-03 21:12:04.772 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Paywall do Corpo — energia 18.16
+2026-09-03 21:12:04.773 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Editor de meta
+2026-09-03 21:12:05.227 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Editor de meta — energia 14.34
+2026-09-03 21:12:05.230 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Aviso de saúde
+2026-09-03 21:12:05.674 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Aviso de saúde — energia 17.52
+2026-09-03 21:12:05.677 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe do exercício
+2026-09-03 21:12:06.064 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe do exercício — energia 9.49
+2026-09-03 21:12:06.065 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Lista de exercícios (biblioteca 2.0)
+2026-09-03 21:12:06.523 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Lista de exercícios (biblioteca 2.0) — energia 21.56
+2026-09-03 21:12:06.524 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe do exercício 2.0
+2026-09-03 21:12:06.939 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe do exercício 2.0 — energia 12.14
+2026-09-03 21:12:06.947 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Plano da Segunda (Peito e tríceps)
+2026-09-03 21:12:07.351 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Plano da Segunda (Peito e tríceps) — energia 7.98
+2026-09-03 21:12:07.352 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   plano/Segunda: Supino reto com barra · Supino inclinado com halteres · Crucifixo · Tríceps corda
+2026-09-03 21:12:07.352 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Supino reto com barra — Barra — foto: bench-press-peak.webp
+2026-09-03 21:12:07.352 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Supino inclinado com halteres — Halteres — foto: incline-db-press-peak.webp
+2026-09-03 21:12:07.353 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Crucifixo — Peso corporal — foto: NENHUMA
+2026-09-03 21:12:07.358 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]     · Tríceps corda — Peso corporal — foto: NENHUMA
+2026-09-03 21:12:07.358 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe do treino
+2026-09-03 21:12:07.758 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe do treino — energia 6.52
+2026-09-03 21:12:07.759 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Sessão de treino
+2026-09-03 21:12:08.163 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Sessão de treino — energia 14.60
+2026-09-03 21:12:08.164 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Sessão de treino (por tempo, peso corporal)
+2026-09-03 21:12:08.571 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Sessão de treino (por tempo, peso corporal) — energia 9.99
+2026-09-03 21:12:08.572 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Anotar série (3 estados)
+2026-09-03 21:12:08.980 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Anotar série (3 estados) — energia 10.24
+2026-09-03 21:12:08.981 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Detalhe da refeição
+2026-09-03 21:12:09.387 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Detalhe da refeição — energia 7.45
+2026-09-03 21:12:09.388 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Montar treino próprio
+2026-09-03 21:12:09.887 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Montar treino próprio — energia 13.62
+2026-09-03 21:12:09.893 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Resultado do scan
+2026-09-03 21:12:10.310 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Resultado do scan — energia 21.32
+2026-09-03 21:12:10.311 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Código de barras (montagem)
+2026-09-03 21:12:10.650 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   —    Corpo · Código de barras (montagem) — branco esperado (depende de câmera real); conteúdo não julgado
+2026-09-03 21:12:10.651 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Câmera de foto (montagem)
+2026-09-03 21:12:11.044 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   —    Corpo · Câmera de foto (montagem) — branco esperado (depende de câmera real); conteúdo não julgado
+2026-09-03 21:12:11.046 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ estados alternativos ═════
+2026-09-03 21:12:11.049 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Saúde SEM medidas
+2026-09-03 21:12:11.540 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Saúde SEM medidas — energia 11.99
+2026-09-03 21:12:11.543 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Editar medidas SEM medidas
+2026-09-03 21:12:12.019 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Editar medidas SEM medidas — energia 10.81
+2026-09-03 21:12:12.024 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Insights SEM dados
+2026-09-03 21:12:12.430 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Insights SEM dados — energia 18.16
+2026-09-03 21:12:12.431 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Dieta SEM refeições
+2026-09-03 21:12:12.882 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Dieta SEM refeições — energia 11.00
+2026-09-03 21:12:12.885 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CANÁRIO DO DETECTOR ═════
+2026-09-03 21:12:12.885 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → CANÁRIO · tela vazia de propósito
+2026-09-03 21:12:13.244 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   VAZIA CANÁRIO · tela vazia de propósito — energia 0.00 < 3.0: sem crash, mas sem conteúdo
+2026-09-03 21:12:13.244 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ✓ detector vivo — acusou a tela vazia (energia 0.00)
+2026-09-03 21:12:13.244 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ RESULTADO ═════
+2026-09-03 21:12:13.244 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] 47 telas renderizadas sem crash
+2026-09-03 21:12:13.244 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] 1 TELA(S) SEM CONTEÚDO: Alma · Feed [energia 0.38]
+2026-09-03 21:12:13.325 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ ALMA ═════
+2026-09-03 21:12:13.325 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Início
+2026-09-03 21:12:13.772 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Início — energia 13.07
+2026-09-03 21:12:13.772 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Práticas
+2026-09-03 21:12:14.308 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Práticas — energia 11.69
+2026-09-03 21:12:14.309 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Feed
+2026-09-03 21:12:14.677 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   VAZIA Alma · Feed — energia 0.38 < 3.0: sem crash, mas sem conteúdo
+2026-09-03 21:12:14.678 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Insights
+2026-09-03 21:12:15.084 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Insights — energia 8.87
+2026-09-03 21:12:15.085 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Perfil
+2026-09-03 21:12:15.519 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Perfil — energia 16.29
+2026-09-03 21:12:15.520 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Chat
+2026-09-03 21:12:15.923 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Chat — energia 8.47
+2026-09-03 21:12:15.924 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Paywall (PremiumWallView)
+2026-09-03 21:12:16.337 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Paywall (PremiumWallView) — energia 18.16
+2026-09-03 21:12:16.338 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Onboarding
+2026-09-03 21:12:16.764 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Onboarding — energia 3.84
+2026-09-03 21:12:16.764 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Saúde feminina
+2026-09-03 21:12:17.170 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Saúde feminina — energia 9.11
+2026-09-03 21:12:17.171 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Livre de vícios
+2026-09-03 21:12:17.581 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Livre de vícios — energia 11.41
+2026-09-03 21:12:17.582 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Excluir conta
+2026-09-03 21:12:18.022 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Excluir conta — energia 9.80
+2026-09-03 21:12:18.024 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Login
+2026-09-03 21:12:18.457 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Login — energia 5.29
+2026-09-03 21:12:18.457 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Alma · Abas (MainTabView)
+2026-09-03 21:12:18.993 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Alma · Abas (MainTabView) — energia 13.59
+2026-09-03 21:12:18.994 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CORPO — 5 abas ═════
+2026-09-03 21:12:18.994 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Módulo (raiz)
+2026-09-03 21:12:19.527 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Módulo (raiz) — energia 13.25
+2026-09-03 21:12:19.530 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Abas (RootTabView)
+2026-09-03 21:12:20.050 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Abas (RootTabView) — energia 13.25
+2026-09-03 21:12:20.053 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Início
+2026-09-03 21:12:20.544 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Início — energia 11.93
+2026-09-03 21:12:20.547 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Saúde
+2026-09-03 21:12:21.045 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Saúde — energia 12.88
+2026-09-03 21:12:21.048 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Dieta
+2026-09-03 21:12:21.532 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Dieta — energia 12.28
+2026-09-03 21:12:21.535 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Treino
+2026-09-03 21:12:22.091 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Treino — energia 14.89
+2026-09-03 21:12:22.093 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Insights
+2026-09-03 21:12:22.482 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Insights — energia 18.16
+2026-09-03 21:12:22.483 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] ═════ CORPO — subtelas ═════
+2026-09-03 21:12:22.483 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Ajustes
+2026-09-03 21:12:22.960 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE]   ok   Corpo · Ajustes — energia 12.21
+2026-09-03 21:12:22.965 Df Alma.App.Oficial[83919:192a015] (Foundation) [SMOKE] → Corpo · Editar medidas
+Child process terminated with signal 15: Terminated

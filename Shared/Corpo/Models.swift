@@ -994,10 +994,14 @@ final class AppModel: ObservableObject {
         }
 
         // Treino: cada dia do plano vira um treino do usuário (removível).
+        // `compactMap`: um nome que não casa com o catálogo é DESCARTADO, não
+        // fabricado. Ver `resolveExercise`. Os nomes do gerador local passam
+        // todos (conferidos à mão em `NomesDePlano`); o que a IA devolver e não
+        // for reconhecido não vira exercício de mentira no treino da pessoa.
         let planWorkouts: [CustomWorkout] = plan.week.map { day in
             CustomWorkout(
                 name: "Plano · \(day.day) — \(day.focus)",
-                exercises: day.exercises.map { resolveExercise(named: $0) }
+                exercises: day.exercises.compactMap { resolveExercise(named: $0) }
             )
         }
         customWorkouts.removeAll { $0.name.hasPrefix("Plano · ") }
@@ -1021,13 +1025,53 @@ final class AppModel: ObservableObject {
     }
 
     /// Acha o exercício no catálogo pelo nome; se não achar, cria um genérico.
-    private func resolveExercise(named name: String) -> Exercise {
-        let target = name.lowercased()
-        if let hit = exerciseLibrary.first(where: { $0.name.lowercased() == target }) { return hit }
-        if let close = exerciseLibrary.first(where: { $0.name.lowercased().contains(target) || target.contains($0.name.lowercased()) }) { return close }
-        return Exercise(name: name, sets: 3, reps: "10-12", equipment: .corporal,
-                        muscle: "Geral", symbol: "figure.strengthtraining.traditional",
-                        instructions: ["Execute com forma controlada.", "Ajuste a carga ao seu nível."])
+    /// Resolve um nome livre de plano para um exercício REAL do catálogo.
+    /// Devolve `nil` quando não encontra — e é esse `nil` o ponto do método.
+    ///
+    /// ═══════════════════════════════════════════════════════════════════════
+    /// O QUE ESTAVA AQUI ANTES, E POR QUE SAIU (2026-09-03)
+    ///
+    /// Havia um `return` final que FABRICAVA o exercício quando o nome não
+    /// casava: `equipment: .corporal`, `muscle: "Geral"`, `sets: 3`,
+    /// `reps: "10-12"`, `symbol: "figure.strengthtraining.traditional"`. Nada
+    /// disso era verdade sobre coisa nenhuma — e ia parar no disco, dentro de
+    /// `customWorkouts`, como se fosse dado do catálogo.
+    ///
+    /// Foi o que o Assis viu no plano dele: "Crucifixo" e "Tríceps corda"
+    /// aparecendo como **Peso corporal**, com o boneco genérico. O crucifixo é
+    /// halteres, o tríceps corda é polia, e as duas ilustrações do RepDB já
+    /// estavam no bundle (`db-fly-*`, `tricep-pushdown-*`). O app é que nunca
+    /// pedia por elas. Medido em 03/09: **15 das 68** linhas dos três planos
+    /// caíam neste `return` e exibiam "Peso corporal" inventado.
+    ///
+    /// ── A HEURÍSTICA DE SUBSTRING TAMBÉM SAIU ─────────────────────────────
+    ///
+    /// O passo do meio era `contains` nos dois sentidos contra os 289 nomes do
+    /// catálogo legado. Acertava "Supino reto" → "Supino reto com barra", e
+    /// errava calado: "Mobilidade" virava "Mobilidade de tornozelo (círculos)",
+    /// "Yoga" virava "Saudação ao sol (Yoga)". Errar exercício com carga não é
+    /// defeito cosmético, então casamento aproximado não decide mais nada aqui:
+    /// ou é um id exato dos 1.095, ou é um apelido conferido à mão em
+    /// `NomesDePlano`, ou não é.
+    /// ═══════════════════════════════════════════════════════════════════════
+    private func resolveExercise(named name: String) -> Exercise? {
+        // 1. Apelido conferido à mão (cobre o gerador local e o que a IA devolve).
+        if let id = NomesDePlano.canonico(para: name),
+           let v2 = ExerciseCatalog.porId(id) { return v2.asLegacyExercise() }
+
+        // 2. O nome JÁ é um dos 1.095 (id = slug do namePTBR).
+        let slug = SlugsRenomeados.atual(slugDeExercicio(name))
+        if let v2 = ExerciseCatalog.porId(slug) { return v2.asLegacyExercise() }
+
+        // 3. Nome exato do catálogo legado de 289 (programas prontos antigos).
+        let alvo = name.lowercased()
+        if let hit = exerciseLibrary.first(where: { $0.name.lowercased() == alvo }) { return hit }
+
+        // 4. Não achou. NÃO INVENTA.
+        #if DEBUG
+        print("⚠️ [plano] nome sem correspondente no catálogo, descartado: \(name)")
+        #endif
+        return nil
     }
 
     func addCustomWorkout(name: String, exercises: [Exercise]) {

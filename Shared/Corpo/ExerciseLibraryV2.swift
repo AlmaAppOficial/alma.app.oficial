@@ -461,11 +461,22 @@ enum ExerciseCatalog {
         }
     }
 
+    /// Índice por id — `resolve` e `porId` são chamados por linha de lista.
+    static let porIdIndice: [String: ExerciseV2] = {
+        Dictionary(all.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+    }()
+
+    /// Um dos 1.095 pelo id (= slug do `namePTBR`), ou `nil`.
+    static func porId(_ id: String) -> ExerciseV2? { porIdIndice[id] }
+
     /// Resolve um exercício legado (de treino salvo) para o V2 rico, se existir.
+    ///
+    /// `SlugsRenomeados` entra ANTES da busca direta: um exercício cujo nome
+    /// exibido mudou continua achando a ficha certa a partir do nome antigo
+    /// gravado no treino da pessoa. Ver `SlugsRenomeados` para o porquê.
     static func resolve(legacy e: Exercise) -> ExerciseV2 {
-        if let match = all.first(where: { $0.id == ExerciseV2.slug(for: e.name) }) {
-            return match
-        }
+        let slug = ExerciseV2.slug(for: e.name)
+        if let match = porId(SlugsRenomeados.atual(slug)) { return match }
         return ExerciseV2(legacy: e)
     }
 

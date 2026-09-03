@@ -233,28 +233,27 @@ struct FiguraDoExercicio: View {
 /// de desenho, contra o catálogo do bundle — nada muda de formato no disco.
 ///
 /// Quando o nome não casa com nenhum dos 1.095, ou casa com um dos 507 sem
-/// foto, desenha o SF Symbol de sempre. O piso é o que já existia.
+/// foto, desenha o **corpo anatômico** — o mesmo fallback do catálogo.
+///
+/// [2026-09-03] Até aqui desenhava `exercise.symbol`, o SF Symbol guardado no
+/// `Exercise`. Nas telas de plano/treino isso produzia o boneco genérico
+/// `figure.strengthtraining.traditional` — que parecia defeito, e em parte era:
+/// vinha do `return` de fallback do `resolveExercise`, que fabricava exercício.
+/// O `FiguraDoExercicio` (catálogo) já caía no `ExerciseMuscleThumb` desde
+/// 02/09; esta era a única superfície que não caía. Agora é uma regra só.
 struct FiguraDeExercicioLegado: View {
     let exercise: Exercise
     var tint: Color = Theme.primary
     var tamanhoDoSimbolo: CGFloat = 24
 
-    private var fotoDeCapa: String? {
-        ExerciseCatalog.resolve(legacy: exercise).fotoDeCapa
-    }
+    private var resolvido: ExerciseV2 { ExerciseCatalog.resolve(legacy: exercise) }
 
     var body: some View {
-        if let nome = fotoDeCapa {
-            FotoDoExercicioView(nome: nome) { simbolo }
+        if let nome = resolvido.fotoDeCapa {
+            FotoDoExercicioView(nome: nome) { ExerciseMuscleThumb(exercise: resolvido) }
         } else {
-            simbolo
+            ExerciseMuscleThumb(exercise: resolvido)
         }
-    }
-
-    private var simbolo: some View {
-        Image(systemName: exercise.symbol)
-            .font(.system(size: tamanhoDoSimbolo))
-            .foregroundStyle(tint)
     }
 }
 

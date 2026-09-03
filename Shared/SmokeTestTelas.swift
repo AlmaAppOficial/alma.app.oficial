@@ -720,6 +720,77 @@ enum SmokeTestTelas {
         } else {
             log("  — Detalhe 2.0: exercises_v2.json não carregou")
         }
+        // ── A TELA DO PRINT DO ASSIS (2026-09-03) ──────────────────────────
+        //
+        // "Plano · Segunda — Peito e tríceps", do objetivo Ganhar massa. É onde
+        // "Crucifixo" e "Tríceps corda" apareciam como **Peso corporal** com o
+        // boneco genérico, porque `resolveExercise` fabricava o exercício
+        // quando o nome não casava. Renderizada aqui para que a correção tenha
+        // prova visual, e não só argumento.
+        //
+        // O caminho é o MESMO do app: serviço → `applyPlan` → `customWorkouts`
+        // → `WorkoutDetailView`. Nada de montar o treino à mão, que provaria
+        // que eu sei escrever o resultado esperado e nada sobre o app.
+        // `executar()` é síncrona (roda no main, antes da UI do app). O
+        // `analyze` é `async` só por causa do irmão de rede; o Mock calcula na
+        // hora. Semáforo em vez de tornar o harness inteiro async: menos
+        // superfície mexida num arquivo que já é o coração da validação.
+        var planoCalculado: ScanResult?
+        let espera = DispatchSemaphore(value: 0)
+        Task.detached {
+            planoCalculado = try? await MockAIPlanService().analyze(
+                ScanInput(weightKg: 78, heightCm: 178, ageYears: 34, bodyFat: 18,
+                          goal: Goal.ganhar.rawValue, frontPhoto: nil, sidePhoto: nil))
+            espera.signal()
+        }
+        _ = espera.wait(timeout: .now() + 10)
+
+        if let planoGanhar = planoCalculado {
+            model.applyPlan(planoGanhar)
+            if let segunda = model.customWorkouts.first(where: { $0.name.contains("Segunda") }) {
+                render("Corpo · Plano da Segunda (Peito e tríceps)",
+                       WorkoutDetailView(workout: Workout(
+                            name: segunda.name,
+                            focus: "Personalizado · \(segunda.exercises.count) exercícios",
+                            durationMin: segunda.exercises.count * 8,
+                            kcal: segunda.exercises.count * 45,
+                            systemImage: "figure.strengthtraining.traditional",
+                            tint: Theme.primary,
+                            exercises: segunda.exercises)))
+                log("  plano/Segunda: \(segunda.exercises.map(\.name).joined(separator: " · "))")
+                for e in segunda.exercises {
+                    log("    · \(e.name) — \(e.equipment.rawValue) — foto: "
+                        + (ExerciseCatalog.resolve(legacy: e).fotoDeCapa ?? "NENHUMA"))
+                }
+            } else {
+                log("  ✗✗ plano aplicado mas sem treino de Segunda")
+            }
+
+            // O outro lado da mesma correção: um dia cujo exercício NÃO tem
+            // ilustração no RepDB. Antes desenhava o mesmo boneco genérico de
+            // "defeito"; agora desenha o corpo anatômico, que é o fallback que
+            // o catálogo já usava. O Domingo mistura os dois casos de
+            // propósito — "Alongamento" tem foto, "Respiração" não — para a
+            // captura provar a diferença dentro de UMA tela.
+            if let domingo = model.customWorkouts.first(where: { $0.name.contains("Domingo") }) {
+                render("Corpo · Plano do Domingo (sem ilustração)",
+                       WorkoutDetailView(workout: Workout(
+                            name: domingo.name,
+                            focus: "Personalizado · \(domingo.exercises.count) exercícios",
+                            durationMin: domingo.exercises.count * 8,
+                            kcal: domingo.exercises.count * 45,
+                            systemImage: "figure.mind.and.body",
+                            tint: Theme.primary,
+                            exercises: domingo.exercises)))
+                for e in domingo.exercises {
+                    log("    · \(e.name) — \(e.equipment.rawValue) — foto: "
+                        + (ExerciseCatalog.resolve(legacy: e).fotoDeCapa ?? "NENHUMA"))
+                }
+            }
+        } else {
+            log("  ✗✗ MockAIPlanService não devolveu plano")
+        }
+
         if let w = treino {
             render("Corpo · Detalhe do treino", WorkoutDetailView(workout: w))
             render("Corpo · Sessão de treino", WorkoutSessionView(workout: w))

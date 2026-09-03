@@ -453,6 +453,7 @@ struct MockAIPlanService: AIPlanService {
                 PlannedDay(day: "Sexta", focus: "HIIT", exercises: ["Polichinelos", "Agachamento com salto", "Burpees", "Corrida intervalada"]),
                 PlannedDay(day: "Sábado", focus: "Full Body", exercises: ["Agachamento", "Remada", "Flexão", "Prancha"]),
                 PlannedDay(day: "Domingo", focus: "Descanso", exercises: ["Caminhada leve", "Respiração"])
+                // Todos os nomes acima estão em `NomesDePlano.tabela`.
             ]
         } else if goal == Goal.ganhar.rawValue {
             return [
@@ -462,7 +463,11 @@ struct MockAIPlanService: AIPlanService {
                 PlannedDay(day: "Quinta", focus: "Ombros e core", exercises: ["Desenvolvimento", "Elevação lateral", "Encolhimento", "Prancha"]),
                 PlannedDay(day: "Sexta", focus: "Full Body força", exercises: ["Levantamento terra", "Supino", "Agachamento", "Remada"]),
                 PlannedDay(day: "Sábado", focus: "Descanso ativo", exercises: ["Mobilidade", "Caminhada"]),
-                PlannedDay(day: "Domingo", focus: "Descanso", exercises: ["Recuperação total"])
+                // [2026-09-03] Era ["Recuperação total"] — que não é exercício
+                // nenhum, não existe no catálogo, e por isso virava um card
+                // fabricado ("Peso corporal · 3 séries · 10-12 reps") num dia
+                // de descanso. Trocado por duas coisas que a pessoa de fato faz.
+                PlannedDay(day: "Domingo", focus: "Descanso", exercises: ["Caminhada leve", "Respiração"])
             ]
         } else {
             return [
@@ -471,8 +476,10 @@ struct MockAIPlanService: AIPlanService {
                 PlannedDay(day: "Quarta", focus: "Inferior", exercises: ["Agachamento", "Afundo", "Stiff", "Panturrilha"]),
                 PlannedDay(day: "Quinta", focus: "Mobilidade", exercises: ["Alongamento", "Yoga", "Respiração"]),
                 PlannedDay(day: "Sexta", focus: "Full Body", exercises: ["Agachamento", "Flexão", "Remada", "Prancha"]),
-                PlannedDay(day: "Sábado", focus: "Atividade livre", exercises: ["Caminhada", "Esporte", "Pedalada"]),
-                PlannedDay(day: "Domingo", focus: "Descanso", exercises: ["Recuperação"])
+                // [2026-09-03] "Esporte" e "Recuperação" saíram pelo mesmo
+                // motivo de "Recuperação total": rótulo, não exercício.
+                PlannedDay(day: "Sábado", focus: "Atividade livre", exercises: ["Caminhada", "Pedalada"]),
+                PlannedDay(day: "Domingo", focus: "Descanso", exercises: ["Alongamento", "Respiração"])
             ]
         }
     }

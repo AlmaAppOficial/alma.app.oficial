@@ -1,0 +1,26 @@
+═══ PROVA 1 — customWorkouts gravado ANTES do rename ═══
+Um treino que a pessoa montou, com o exercício chamado "Crucifixo".
+Bytes exatamente como o app gravaria em 02/09 (7 campos, sem id de catálogo).
+
+  ✓ W1 — o treino antigo continua decodificando (não some)
+  ✓ W2 — o nome gravado é o NOME, não um id de catálogo
+  ✓ W3 — o vínculo com o catálogo é calculado do nome: "crucifixo"
+
+═══ PROVA 2 — histórico de séries gravado ANTES do rename ═══
+Uma série feita em 01/09, com exercicioSlug "crucifixo".
+
+  ✓ S1 — a série antiga decodifica
+  ✓ S2 — o slug gravado no disco é "crucifixo"
+
+  chave gravada no disco ....: "crucifixo"
+  chave procurada pós-rename : "isometria-em-cruz"
+  ✓ S3 — renomear ÓRFA a série de 01/09 (é por isto que não renomeamos)
+  ✓ S4 — CONTROLE POSITIVO — com o nome atual ela É encontrada (senão S3 é cega)
+
+═══ PROVA 3 — por que o mapa de alias não salva ═══
+  ✓ A1 — aplicar o alias na IDA não resgata (mapeia velho→novo; o disco tem o velho)
+  ✓ A2 — SlugsRenomeados está VAZIO — nenhum rename em vigor
+  ✓ A3 — e por isso atual(_:) é a identidade
+
+───────────────────────────────────────────
+TODAS AS 10 PASSARAM
