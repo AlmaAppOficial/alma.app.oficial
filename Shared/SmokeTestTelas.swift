@@ -709,6 +709,13 @@ enum SmokeTestTelas {
 
         if let ex = exercicio {
             render("Corpo · Detalhe do exercício", ExerciseDetailView(exercise: ex))
+            // [2026-09-03] A tela que faltava: definir N séries × M reps ×
+            // carga. Renderizada nos dois estados — sem padrão (placeholders do
+            // catálogo) e com o padrão do Assis já salvo (3×8 · 60 kg).
+            render("Corpo · Meu padrão (vazio)", EditorDePadraoView(exercicioDoCatalogo: ex))
+            model.definirPadrao(exercicio: ex.name, series: 3, reps: "8", cargaKg: 60)
+            render("Corpo · Meu padrão (definido)", EditorDePadraoView(exercicioDoCatalogo: ex))
+            render("Corpo · Detalhe do exercício (com padrão)", ExerciseDetailView(exercise: ex))
         } else {
             log("  — Detalhe do exercício: nenhum treino no catálogo")
         }

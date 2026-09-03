@@ -99,6 +99,9 @@ enum LocalDataCleanupService {
             // da pessoa; sem esta linha "apagar meus dados" deixaria rastro e
             // a política de privacidade viraria afirmação falsa. Asserção B9e.
             RegistroDeSeries.chave,
+            // [2026-09-03] O padrão da pessoa por exercício (3×8 com 60 kg).
+            // É preferência dela sobre o próprio corpo, pelo mesmo motivo.
+            PadroesDeExercicio.chave,
             // Preferências do módulo
             "notifyWater", "notifyMeals", "notifyWorkout",
             "notifySupplements", "supplementHour",

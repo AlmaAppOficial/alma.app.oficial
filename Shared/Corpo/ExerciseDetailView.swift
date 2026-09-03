@@ -9,10 +9,29 @@
 import SwiftUI
 
 struct ExerciseDetailView: View {
+    @EnvironmentObject var model: AppModel
     let exercise: Exercise
     var tint: Color = Theme.primary
 
     @State private var animate = false
+    @State private var editandoPadrao = false
+
+    /// [2026-09-03] Os dois blocos de volume eram `Text` — o app prescrevia
+    /// "4 séries · 8 reps" e não havia controle nenhum para mudar isso. Agora
+    /// são um botão que abre o `EditorDePadraoView`.
+    ///
+    /// O padrão é resolvido EM TEMPO DE DESENHO, pelo slug do nome, como a foto
+    /// de capa logo acima: nada é gravado dentro do `Exercise`, nada muda de
+    /// formato, e um treino salvo antes desta mudança abre igual. `padroesVersao`
+    /// é lido de propósito — é ele que faz esta tela redesenhar quando o editor
+    /// salva, já que a coleção de padrões não é `@Published`.
+    private var padrao: PadraoDoExercicio? {
+        _ = model.padroesVersao
+        return model.padrao(de: exercise)
+    }
+    private var exibido: Exercise {
+        RegrasDePadrao.aplicar(padrao, em: exercise)
+    }
 
     /// [2026-09-02] O `Exercise` legado (formato PERSISTIDO, 7 campos) não tem
     /// e não vai ter campo de foto — acrescentar campo lá quebra o decode de
@@ -58,10 +77,29 @@ struct ExerciseDetailView: View {
                         .clipShape(Capsule())
                 }
 
-                // Volume
-                HStack(spacing: 12) {
-                    volumeBox("\(exercise.sets)", "séries")
-                    volumeBox(exercise.reps, "por série")
+                // Volume — agora editável. Toque abre "Meu padrão".
+                VStack(alignment: .leading, spacing: 10) {
+                    Button { editandoPadrao = true } label: {
+                        HStack(spacing: 12) {
+                            volumeBox("\(exibido.sets)", "séries")
+                            volumeBox(exibido.reps, "por série")
+                            if let kg = padrao?.cargaKg {
+                                volumeBox(RegrasDeSeries.textoDaCarga(kg), "kg")
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Editar o meu padrão deste exercício")
+
+                    HStack(spacing: 6) {
+                        Image(systemName: padrao == nil ? "slider.horizontal.3" : "checkmark.circle.fill")
+                            .font(.caption)
+                        Text(padrao == nil
+                             ? "Sugestão do catálogo — toque para definir o seu"
+                             : "Seu padrão")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(padrao == nil ? Theme.inkSoft : tint)
                 }
 
                 // Passo a passo
@@ -92,6 +130,10 @@ struct ExerciseDetailView: View {
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { animate = true }
+        .sheet(isPresented: $editandoPadrao) {
+            EditorDePadraoView(exercicioDoCatalogo: exercise, tint: tint)
+                .environmentObject(model)
+        }
     }
 
     /// O desenho de sempre — SF Symbol pulsando. Continua sendo o que aparece
@@ -118,5 +160,6 @@ struct ExerciseDetailView: View {
 #Preview {
     NavigationStack {
         ExerciseDetailView(exercise: AppModel().workouts[0].exercises[0])
+            .environmentObject(AppModel())
     }
 }

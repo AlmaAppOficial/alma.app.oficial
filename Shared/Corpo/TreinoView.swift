@@ -117,6 +117,7 @@ struct TreinoView: View {
             )) {
                 if let exercise = selectedExercise {
                     ExerciseDetailView(exercise: exercise, tint: Theme.primary)
+                        .environmentObject(model)
                 }
             }
             .navigationDestination(isPresented: $showMuscleMap) {
@@ -247,7 +248,9 @@ struct TreinoView: View {
                             .font(.subheadline)
                             .foregroundStyle(Theme.ink)
                         Spacer()
-                        Text("\(ex.sets)× \(ex.reps)")
+                        // [2026-09-03] O padrão da pessoa vence o do catálogo,
+                        // resolvido no desenho (ver `PadraoDoExercicio.swift`).
+                        Text("\(model.comPadrao(ex).sets)× \(model.comPadrao(ex).reps)")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Theme.inkSoft)
                         Image(systemName: "chevron.right")
