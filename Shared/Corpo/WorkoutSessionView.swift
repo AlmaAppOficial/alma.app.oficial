@@ -55,13 +55,17 @@ struct WorkoutSessionView: View {
     enum Phase { case exercising, resting, done }
     enum CampoDaSerie: Hashable { case reps, carga }
 
+    /// [2026-09-03] Vestido com o PADRÃO da pessoa (`PadraoDoExercicio.swift`):
+    /// quem definiu "3 séries" faz três, não as quatro do catálogo. É aqui que
+    /// o padrão entra na sessão — `completeSerie` compara `currentSet` com
+    /// `ex.sets`, então basta este ponto para o laço inteiro obedecer.
     private var currentExercise: Exercise? {
         guard currentIndex < workout.exercises.count else { return nil }
-        return workout.exercises[currentIndex]
+        return model.comPadrao(workout.exercises[currentIndex])
     }
     private var nextPreview: Exercise? {
         let i = currentIndex + 1
-        return i < workout.exercises.count ? workout.exercises[i] : nil
+        return i < workout.exercises.count ? model.comPadrao(workout.exercises[i]) : nil
     }
 
     // MARK: - Body
@@ -88,7 +92,25 @@ struct WorkoutSessionView: View {
                     .font(.headline)
             }
         }
+        .onAppear { prePreencherDoPadrao() }
         .onDisappear { stopTimer() }
+    }
+
+    /// [2026-09-03] O padrão da pessoa já vem NOS CAMPOS — era o pedido: "na
+    /// próxima vez já vir preenchido". Só o que ela mesma definiu, e sempre à
+    /// vista e editável: continua valendo que nunca se grava valor que ela não
+    /// viu. Sem padrão, os campos nascem vazios como sempre nasceram.
+    ///
+    /// Fugir do padrão hoje NÃO altera o padrão — o que for digitado aqui vai
+    /// para o registro do dia, e só. Quem muda o padrão é o editor, de propósito.
+    private func prePreencherDoPadrao() {
+        guard currentIndex < workout.exercises.count else { return }
+        let padrao = model.padrao(de: workout.exercises[currentIndex])
+        textoReps  = RegrasDePadrao.repsPrePreenchidas(padrao)
+        textoCarga = RegrasDePadrao.cargaPrePreenchida(padrao)
+        // Peso corporal com carga-alvo definida: o campo já nasce aberto, senão
+        // o número pré-preenchido ficaria escondido atrás de "+ peso extra".
+        mostrarCarga = !textoCarga.isEmpty
     }
 
     // MARK: - Exercício
@@ -333,10 +355,8 @@ struct WorkoutSessionView: View {
         } else {
             currentIndex = next
             // Exercício novo, campos novos. O que valia para o supino não vale
-            // para a remada.
-            textoReps = ""
-            textoCarga = ""
-            mostrarCarga = false
+            // para a remada — mas o PADRÃO da remada vale, e é ele que entra.
+            prePreencherDoPadrao()
             phase = .exercising
         }
     }

@@ -23,8 +23,15 @@ struct WorkoutDetailView: View {
                 SectionTitle(text: "Exercicios")
                 VStack(spacing: 12) {
                     ForEach(workout.exercises) { ex in
+                        // [2026-09-03] `exibido` é o exercício vestido com o
+                        // padrão da pessoa (3×8 no lugar do 4×8 do catálogo),
+                        // resolvido no desenho — nada é gravado no `Exercise`.
+                        // O detalhe recebe o exercício DO CATÁLOGO: é ele que
+                        // o editor precisa para mostrar os placeholders.
+                        let exibido = model.comPadrao(ex)
                         NavigationLink {
                             ExerciseDetailView(exercise: ex, tint: workout.tint)
+                                .environmentObject(model)
                         } label: {
                             HStack(spacing: 14) {
                                 FiguraDeExercicioLegado(exercise: ex, tint: workout.tint,
@@ -37,7 +44,7 @@ struct WorkoutDetailView: View {
                                     Text(ex.name)
                                         .font(.subheadline.weight(.semibold))
                                         .foregroundStyle(Theme.ink)
-                                    Text("\(ex.sets) series . \(ex.reps) . \(ex.equipment.rawValue)")
+                                    Text("\(exibido.sets) séries · \(exibido.reps) · \(ex.equipment.rawValue)")
                                         .font(.caption)
                                         .foregroundStyle(Theme.inkSoft)
                                 }

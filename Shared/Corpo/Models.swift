@@ -281,6 +281,62 @@ final class AppModel: ObservableObject {
         return s
     }
 
+    /// [2026-09-03] O padrão da pessoa por exercício — N séries × M reps ×
+    /// carga. Terceira camada, entre o catálogo (fixo) e o registro do dia:
+    /// ver o cabeçalho de `PadraoDoExercicio.swift`. Coleção PRÓPRIA, chave
+    /// `padroesDeExercicio`, pela mesma razão do registro — campo novo em
+    /// `Exercise` apagaria em silêncio todo treino montado.
+    ///
+    /// Não é `@Published` (mesmo motivo do `series`: este `AppModel` é
+    /// construído a torto e a direito). Quem avisa a interface é
+    /// `padroesVersao`, logo abaixo.
+    let padroes: PadroesDeExercicio
+
+    /// O contador que faz a tela redesenhar quando um padrão muda. Sem ele, a
+    /// pessoa salvaria "3 séries" e continuaria vendo "4" até sair e voltar —
+    /// o defeito clássico de guardar estado fora do `@Published`.
+    @Published private(set) var padroesVersao = 0
+
+    /// A porta de escrita do padrão. Vive aqui, no produtor, e não na View —
+    /// pela mesma lição do `registrarTreinoConcluido`: o que a View esconde em
+    /// `private func`, a asserção não alcança.
+    ///
+    /// Os três campos em branco REMOVEM o padrão: é a volta ao que o catálogo
+    /// prescreve, e é como a pessoa desfaz sem precisar de um botão "apagar".
+    @discardableResult
+    func definirPadrao(exercicio nome: String, series: Int?, reps: String?,
+                       cargaKg: Double?, em data: Date = Date()) -> PadraoDoExercicio? {
+        defer { padroesVersao += 1 }
+        guard let p = RegrasDePadrao.montar(exercicio: nome, series: series, reps: reps,
+                                            cargaKg: cargaKg, em: data) else {
+            padroes.remover(slug: slugDeExercicio(nome))
+            return nil
+        }
+        padroes.definir(p)
+        return p
+    }
+
+    /// O padrão de um exercício, ou `nil` se a pessoa nunca definiu nenhum.
+    func padrao(de exercicio: Exercise) -> PadraoDoExercicio? {
+        padroes.padrao(paraExercicio: exercicio.name)
+    }
+
+    /// O exercício como a pessoa quer vê-lo: catálogo por baixo, padrão por
+    /// cima. Resolvido EM TEMPO DE DESENHO, como a foto de capa — nada é
+    /// gravado, nada muda de formato, e um treino salvo antes disto abre igual.
+    func comPadrao(_ exercicio: Exercise) -> Exercise {
+        RegrasDePadrao.aplicar(padrao(de: exercicio), em: exercicio)
+    }
+
+    /// A carga que a pessoa vem repetindo e que ainda não é o padrão dela —
+    /// `nil` quando não há o que oferecer. Só a tela de EDIÇÃO consulta isto;
+    /// no meio do treino, sugerir carga é proibido (regra 3.2).
+    func sugestaoDePadrao(para exercicio: Exercise) -> Double? {
+        RegrasDePadrao.sugestaoDeAtualizacao(registros: series.todas(),
+                                             exercicioSlug: slugDeExercicio(exercicio.name),
+                                             padrao: padrao(de: exercicio))
+    }
+
     // [F3] Alimentos cadastrados pelo usuário (com marca e código de barras)
     @Published var userFoods: [StoredFood] = [] { didSet {
         if let d = try? JSONEncoder().encode(userFoods) { store.set(d, forKey: "userFoods") }
@@ -301,6 +357,7 @@ final class AppModel: ObservableObject {
         // Mesmo domínio do resto: em produção `.standard`, nos harnesses uma
         // suíte isolada — o registro nunca encosta no dado de quem usa o app.
         series = RegistroDeSeries(store: store)
+        padroes = PadroesDeExercicio(store: store)
         hasOnboarded = store.bool(forKey: "hasOnboarded")
         // [2026-08-02] Era `?? "Felipe"` — o nome do dono do app virava o nome
         // de todo mundo que instalasse. Agora a fonte é o UserProfileStore e,
