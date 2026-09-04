@@ -52,9 +52,31 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // Só as faixas A_EXATO e B_EQUIVALENTE do `MAPA_SEMANTICO.csv` receberam
 // imagem. As 320 de C_REVISAR esperam olho humano; as 261 órfãs não têm
-// correspondente no RepDB e ficam exatamente como estavam. Quem não tem foto
-// continua desenhando `ExerciseMuscleThumb`, o corpo anatômico — que é o que
-// TODOS desenhavam até aqui. O piso é zero: nada regride.
+// correspondente no RepDB e ficam exatamente como estavam.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// AS OUTRAS 507 — SILHUETA PRÓPRIA, PASTA SEPARADA, LICENÇA SEPARADA
+// ═══════════════════════════════════════════════════════════════════════════
+// [2026-09-04] Os 507 sem foto do RepDB passaram a ter arte NOSSA, em
+// `ExerciciosSilhuetas/<id>.png`: silhueta chapada com o músculo primário em
+// laranja. Geradas por `arte_3d_2026-09-04/lote_507/gerar.js` a partir do
+// catálogo, sem nenhuma imagem de terceiro como entrada.
+//
+// **A pasta é OUTRA de propósito.** Não é organização: é licença. `ExerciciosFotos`
+// é RepDB, com os termos acima — atribuição obrigatória, proibido republicar
+// como acervo, proibido usar como entrada de modelo generativo. `ExerciciosSilhuetas`
+// é arte própria, sem nenhuma dessas amarras. Misturar as duas numa pasta só
+// faria a regra de licença depender do nome do arquivo, que é exatamente o tipo
+// de vínculo que se perde na primeira refatoração distraída.
+//
+// **As 588 não foram tocadas.** Nenhum arquivo do RepDB mudou, e o catálogo
+// (`exercises_v2.json`) também não: o campo `fotos` continua exatamente como
+// estava. A silhueta é resolvida por ID em tempo de desenho, e SÓ é consultada
+// quando `fotos` é nil — quem tem foto do RepDB continua mostrando a foto do
+// RepDB, sem chance de a arte nova passar na frente.
+//
+// Quem não tiver nem foto nem silhueta continua desenhando `ExerciseMuscleThumb`,
+// o corpo anatômico. O piso é zero: nada regride.
 
 import SwiftUI
 
@@ -70,6 +92,10 @@ final class AcervoDeFotosDeExercicio {
     /// (folder reference / pasta azul), não um grupo: os 605 arquivos entram
     /// com uma linha no `project.pbxproj` em vez de 605.
     static let pasta = "ExerciciosFotos"
+
+    /// Idem, para a arte própria dos 507. Pasta separada por licença — ver o
+    /// cabeçalho. É uma referência de pasta no Xcode, como a outra.
+    static let pastaDeSilhuetas = "ExerciciosSilhuetas"
 
     private let cache = NSCache<NSString, UIImage>()
 
@@ -104,9 +130,17 @@ final class AcervoDeFotosDeExercicio {
     static func urlNoBundle(_ nome: String) -> URL? {
         let base = (nome as NSString).deletingPathExtension
         let ext = (nome as NSString).pathExtension
+        if let u = Bundle.main.url(forResource: base,
+                                   withExtension: ext.isEmpty ? nil : ext,
+                                   subdirectory: pasta) {
+            return u
+        }
+        // Não achou entre as fotos do RepDB: pode ser uma silhueta nossa.
+        // A ordem importa e é esta de propósito — o RepDB tem precedência, a
+        // silhueta só existe onde não há foto.
         return Bundle.main.url(forResource: base,
                                withExtension: ext.isEmpty ? nil : ext,
-                               subdirectory: pasta)
+                               subdirectory: pastaDeSilhuetas)
     }
 
     #if DEBUG
@@ -145,6 +179,7 @@ final class AcervoDeFotosDeExercicio {
     /// inexistente desenha o corpo anatômico e não avisa ninguém.
     static func conferirBundle(_ catalogo: [ExerciseV2]) -> (esperados: Int, presentes: Int, faltando: [String]) {
         let nomes = catalogo.compactMap(\.fotos).flatMap { $0 }
+            + catalogo.compactMap(\.silhuetaPropria)
         let unicos = Array(Set(nomes)).sorted()
         let faltando = unicos.filter { urlNoBundle($0) == nil }
         return (unicos.count, unicos.count - faltando.count, faltando)
@@ -166,6 +201,25 @@ extension ExerciseV2 {
     }
 
     var temFoto: Bool { !(fotos ?? []).isEmpty }
+
+    /// A silhueta própria deste exercício, quando ele não tem foto do RepDB.
+    ///
+    /// O nome é derivado do `id` (`agachamento-livre` → `agachamento-livre.png`),
+    /// **calculado e nunca gravado**, pelo mesmo motivo que `FiguraDeExercicioLegado`
+    /// resolve por slug: acrescentar campo ao modelo persistido é o defeito que
+    /// já apagou treino de gente neste projeto. Nada muda de formato no disco.
+    ///
+    /// Devolve `nil` quando já existe foto — a foto do RepDB tem precedência, e
+    /// esta propriedade não é o lugar de decidir isso duas vezes.
+    var silhuetaPropria: String? {
+        guard (fotos ?? []).isEmpty else { return nil }
+        return id + ".png"
+    }
+
+    /// A imagem a desenhar, venha de onde vier. É o único lugar que sabe a
+    /// ordem de precedência: foto do RepDB, senão silhueta nossa, senão nada
+    /// (e aí o chamador cai no corpo anatômico).
+    var imagemDeCapa: String? { fotoDeCapa ?? silhuetaPropria }
 }
 
 // MARK: - Views
@@ -214,7 +268,7 @@ struct FiguraDoExercicio: View {
     let exercise: ExerciseV2
 
     var body: some View {
-        if let nome = exercise.fotoDeCapa {
+        if let nome = exercise.imagemDeCapa {
             FotoDoExercicioView(nome: nome) { ExerciseMuscleThumb(exercise: exercise) }
         } else {
             ExerciseMuscleThumb(exercise: exercise)
@@ -249,7 +303,7 @@ struct FiguraDeExercicioLegado: View {
     private var resolvido: ExerciseV2 { ExerciseCatalog.resolve(legacy: exercise) }
 
     var body: some View {
-        if let nome = resolvido.fotoDeCapa {
+        if let nome = resolvido.imagemDeCapa {
             FotoDoExercicioView(nome: nome) { ExerciseMuscleThumb(exercise: resolvido) }
         } else {
             ExerciseMuscleThumb(exercise: resolvido)
