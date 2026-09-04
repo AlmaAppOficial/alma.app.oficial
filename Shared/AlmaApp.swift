@@ -259,77 +259,7 @@ struct AlmaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            #if DEBUG
-            // ── PORTA DE CONFERÊNCIA VISUAL ────────────────────────────────
-            //
-            // `-bibliotecaDebug 1` abre a BIBLIOTECA DE EXERCÍCIOS direto, sem
-            // passar pela entrada. Existe para a prova visual das silhuetas dos
-            // 507: a lista rolando, nossa arte e as fotos do RepDB misturadas.
-            //
-            // Por que não deu para usar o `SmokeTestTelas`, que já renderiza 43
-            // telas: ele é disparado do `.task` da `HomeView`, e a `HomeView` só
-            // existe DEPOIS do login. No simulador o app para na tela de
-            // entrada e o harness inteiro nunca roda — a primeira tentativa de
-            // captura saiu com as 49 telas de sempre e nenhuma das novas, sem
-            // erro nenhum avisando.
-            //
-            // O Android ganhou o equivalente (`BibliotecaDebugActivity`, em
-            // `src/debug/`), então a prova é feita do mesmo jeito nas duas
-            // plataformas em vez de uma técnica diferente em cada.
-            //
-            // `#if DEBUG` fecha o risco: não existe no binário de release.
-            if UserDefaults.standard.bool(forKey: "detalheDebug"),
-               let ex = Self.primeiroComSilhueta {
-                // O detalhe de um exercício que ANTES caía no corpo anatômico.
-                NavigationStack { ExerciseDetailV2View(exercise: ex) }
-                    .preferredColorScheme(aparencia.colorScheme)
-                    .environment(\.locale, Locale(identifier: "pt_BR"))
-            } else if UserDefaults.standard.bool(forKey: "bibliotecaDebug") {
-                NavigationStack {
-                    ExerciseListV2View(group: Self.grupoMaisMisturado)
-                }
-                .preferredColorScheme(aparencia.colorScheme)
-                .environment(\.locale, Locale(identifier: "pt_BR"))
-            } else {
-                raiz
-            }
-            #else
-            raiz
-            #endif
-        }
-    }
-
-    #if DEBUG
-    /// O grupo muscular cuja lista MAIS MISTURA foto do RepDB com silhueta
-    /// nossa, medido no catálogo e nunca escolhido à mão.
-    ///
-    /// Um grupo fixo aqui viraria captura mentirosa no dia em que o catálogo
-    /// mudasse — e uma captura de seis fotos do RepDB legendada "convivência"
-    /// prova o contrário do que afirma. Maximiza o MENOR dos dois lados, então
-    /// uma lista 6×0 perde para uma 3×3.
-    static var grupoMaisMisturado: MuscleGroup {
-        func mistura(_ g: MuscleGroup) -> Int {
-            // 6 e não 10: é quantas linhas cabem na tela do simulador, e a
-            // captura só pode ser julgada pelo que aparece nela. Medir sobre 10
-            // premiava um grupo cujas silhuetas começam na linha 8 — fora do
-            // quadro, e portanto invisíveis na prova.
-            let topo = ExerciseCatalog.exercises(for: g).prefix(6)
-            return min(topo.filter { !($0.fotos ?? []).isEmpty }.count,
-                       topo.filter { $0.silhuetaPropria != nil }.count)
-        }
-        return MuscleGroup.allCases.max { mistura($0) < mistura($1) } ?? .peito
-    }
-
-    /// Primeiro exercício sem foto do RepDB — ou seja, um dos que desenhavam o
-    /// corpo anatômico até 04/09 e agora desenham silhueta própria.
-    static var primeiroComSilhueta: ExerciseV2? {
-        ExerciseCatalog.all.first { $0.silhuetaPropria != nil }
-    }
-    #endif
-
-    @ViewBuilder
-    private var raiz: some View {
-        RootView()
+            RootView()
                 // [2026-08-04 — D-1] Se a exclusão de conta foi interrompida
                 // entre a escrita irreversível no servidor e o fim da limpeza
                 // local, a marca continua no disco e a limpeza é concluída
@@ -349,5 +279,6 @@ struct AlmaApp: App {
                 // IA não depende disto: lá o número passa por
                 // `CorpoContextFormat.inteiro`, que já é explícito.)
                 .environment(\.locale, Locale(identifier: "pt_BR"))
+        }
     }
 }

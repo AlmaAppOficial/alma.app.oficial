@@ -213,7 +213,6 @@
 		FA800001FA800001FA80001 /* Corpo/exercises_v2.json in Resources */ = {isa = PBXBuildFile; fileRef = FA800000FA800000FA80000 /* Corpo/exercises_v2.json */; };
 		FA950101FA950101FA95011 /* Corpo/FotoDoExercicio.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA950100FA950100FA95010 /* Corpo/FotoDoExercicio.swift */; };
 		FA950201FA950201FA95021 /* Corpo/ExerciciosFotos in Resources */ = {isa = PBXBuildFile; fileRef = FA950200FA950200FA95020 /* Corpo/ExerciciosFotos */; };
-		FA950211FA950211FA95021 /* Corpo/ExerciciosSilhuetas in Resources */ = {isa = PBXBuildFile; fileRef = FA950210FA950210FA95021 /* Corpo/ExerciciosSilhuetas */; };
 		FA900001FA900001FA90001 /* Corpo/AIBodyScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900000FA900000FA90000 /* Corpo/AIBodyScan.swift */; };
 		FA900101FA900101FA90011 /* Corpo/AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900100FA900100FA90010 /* Corpo/AddFoodView.swift */; };
 		FA900201FA900201FA90021 /* Corpo/BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA900200FA900200FA90020 /* Corpo/BarcodeScannerView.swift */; };
@@ -500,7 +499,6 @@
 		FA800000FA800000FA80000 /* Corpo/exercises_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Corpo/exercises_v2.json; sourceTree = "<group>"; };
 		FA950100FA950100FA95010 /* Corpo/FotoDoExercicio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/FotoDoExercicio.swift; sourceTree = "<group>"; };
 		FA950200FA950200FA95020 /* Corpo/ExerciciosFotos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Corpo/ExerciciosFotos; sourceTree = "<group>"; };
-		FA950210FA950210FA95021 /* Corpo/ExerciciosSilhuetas */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Corpo/ExerciciosSilhuetas; sourceTree = "<group>"; };
 		FA900000FA900000FA90000 /* Corpo/AIBodyScan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AIBodyScan.swift; sourceTree = "<group>"; };
 		FA900100FA900100FA90010 /* Corpo/AddFoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/AddFoodView.swift; sourceTree = "<group>"; };
 		FA900200FA900200FA90020 /* Corpo/BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Corpo/BarcodeScannerView.swift; sourceTree = "<group>"; };
@@ -757,7 +755,6 @@
 				FA901300FA901300FA90130 /* Corpo/ExerciseLibraryV2.swift */,
 				FA901400FA901400FA90140 /* Corpo/ExerciseListV2View.swift */,
 				FA950200FA950200FA95020 /* Corpo/ExerciciosFotos */,
-				FA950210FA950210FA95021 /* Corpo/ExerciciosSilhuetas */,
 				FA950100FA950100FA95010 /* Corpo/FotoDoExercicio.swift */,
 				FA901500FA901500FA90150 /* Corpo/FoodScanView.swift */,
 				FA901600FA901600FA90160 /* Corpo/GeminiService.swift */,
@@ -1138,7 +1135,6 @@
 			files = (
 				FA800001FA800001FA80001 /* Corpo/exercises_v2.json in Resources */,
 				FA950201FA950201FA95021 /* Corpo/ExerciciosFotos in Resources */,
-				FA950211FA950211FA95021 /* Corpo/ExerciciosSilhuetas in Resources */,
 				9ECED0CE2F588F21009412A7 /* Assets.xcassets in Resources */,
 				BB100002BB100002BB100002 /* GoogleService-Info.plist in Resources */,
 				PP001002PP001002PP001002 /* PrivacyInfo.xcprivacy in Resources */,
