@@ -1,51 +1,78 @@
-A IA que aprende quem você é.
+O Alma reúne meditação guiada, registro do que você sente e uma mentora de IA num app só, em português, no seu ritmo.
 
-Você responde algumas perguntas. A Alma observa padrões. Conversa com você. E aos poucos, começa a refletir de volta uma imagem cada vez mais nítida da sua personalidade, da sua forma de pensar, das suas tendências.
-
-Não é um chatbot genérico. É uma IA que constrói um perfil seu ao longo do tempo — e usa esse perfil em cada conversa, cada recomendação, cada insight.
+"Cuide da sua alma" é o ponto de partida: práticas curtas de respiração e atenção plena, para você criar um hábito que caiba na sua rotina.
 
 --------------------
 
-O QUE A ALMA FAZ
+GRÁTIS, SEM ASSINAR
 
-Conversa que te conhece
-A IA já parte de quem você é. Cada conversa começa com contexto, não do zero. Quanto mais você usa, mais precisa ela fica.
+- Os 3 primeiros dias do programa de meditação guiada, em português
+- O som "Água Corrente", para relaxar e se concentrar
+- Corrente de Paz: acompanhe sua sequência de dias praticando
+- Check-in de humor: registre como você se sente, todos os dias
+- Corpo: registre suas refeições, água, peso e suplementos, e execute os treinos do catálogo — seu diário é seu, e não custa nada
+- Feed: uma seleção de links e vídeos publicada pela nossa equipe
 
-Insights sobre você
-Padrões da sua personalidade, tendências do seu comportamento, reflexões sobre o seu momento atual. Não estatísticas genéricas — observações específicas sobre você.
+--------------------
 
-Práticas que fazem sentido
-Meditações, exercícios e reflexões selecionados pelo seu perfil. Não uma biblioteca aleatória — o que combina com onde você está.
+COM O ALMA PREMIUM
 
-Acompanhamento de humor
-Registre como se sente. A Alma cruza com seus padrões de personalidade e devolve contexto, não julgamento.
+Meditação guiada
+O programa completo: 30 práticas, de 5 a 15 minutos, organizadas em quatro etapas — Respiração, Consciência Corporal, Emoções e Integração. Mais 7 sons e músicas para relaxar, se concentrar e dormir.
+
+Fale com sua Alma
+A conversa lembra do que você já contou. Cada mensagem começa com contexto, não do zero.
+
+Suas análises
+As tendências do seu humor ao longo das semanas, seu histórico e a reflexão do dia.
+
+Sua saúde no app
+Passos, sono e batimentos lidos do app Saúde, se você autorizar.
+
+Saúde Feminina e Liberdade
+Acompanhe seu ciclo, com previsão de menstruação, ovulação e janela fértil. E acompanhe seus dias longe de um hábito que você quer deixar.
+
+--------------------
+
+O MÓDULO CORPO, DENTRO DO MESMO APP
+
+O Alma traz um módulo de corpo completo — sem outro app para baixar e sem assinatura separada.
+
+Grátis: registre refeições, água, peso e suplementos; execute os treinos do catálogo e veja o detalhe de cada exercício.
+
+Com o Premium: escaneie sua refeição ou o seu corpo por foto e receba a leitura na hora; monte o seu próprio treino; abra o mapa muscular e a biblioteca com mais de mil exercícios; acompanhe seu histórico e suas análises.
+
+A foto é analisada e não fica guardada no Alma. O provedor de IA pode mantê-la por até 30 dias apenas por segurança, e não a usa para treinar modelos.
 
 --------------------
 
 PRIVACIDADE EM PRIMEIRO LUGAR
 
-A Alma não rastreia você entre apps.
-Não compartilha dados com plataformas de publicidade.
-Não usa identificadores de anúncios.
+Humor, ciclo e hábitos ficam gravados apenas no seu aparelho, em armazenamento criptografado. Esses dados não são gravados nos nossos servidores nem enviados a ferramentas de análise ou de publicidade.
 
-Suas conversas e seu perfil são seus. Você pode excluir tudo a qualquer momento, dentro do app.
+O Alma não rastreia você entre apps e não usa identificadores de anúncios.
+
+Se você autorizar, e só nesse caso, um resumo curto do seu dia acompanha a conversa com a Alma, para ela te entender melhor. Você pode apagar sua conta e seus dados pelo próprio app.
 
 --------------------
 
-Alma não te diz quem você é.
-Mostra o que você já é — e te ajuda a ver com mais clareza.
+AVISO DE SAÚDE
 
-Comece pela configuração inicial. Os primeiros insights chegam nas primeiras conversas. Quanto mais você usa, melhor a Alma te entende.
+O Alma é um app de bem-estar. Ele não substitui aconselhamento médico profissional, diagnóstico ou tratamento, e não trata nenhuma condição de saúde. Consulte sempre um profissional de saúde qualificado para questões relacionadas à sua saúde mental ou física.
 
 --------------------
 
 ASSINATURA
 
-A Alma oferece um nível gratuito com acesso a recursos básicos. Os assinantes Premium desbloqueiam a biblioteca completa, conversas ilimitadas com a IA, acompanhamento avançado e conteúdo exclusivo.
+O Alma Premium é uma assinatura mensal renovada automaticamente.
 
-- Alma Premium Mensal: assinatura mensal renovada automaticamente
+- Alma Premium Mensal
 
-O pagamento é cobrado na conta do iTunes ao confirmar a compra. A assinatura é renovada automaticamente, a menos que seja cancelada pelo menos 24 horas antes do fim do período atual. A renovação é cobrada nas 24 horas anteriores ao fim do período. Você pode gerenciar e cancelar sua assinatura a qualquer momento em Ajustes > [seu nome] > Assinaturas no iPhone.
+O pagamento é cobrado na sua conta Apple ao confirmar a compra. A assinatura é renovada automaticamente, a menos que seja cancelada pelo menos 24 horas antes do fim do período atual. A renovação é cobrada nas 24 horas anteriores ao fim do período. Você pode gerenciar e cancelar sua assinatura a qualquer momento em Ajustes > [seu nome] > Assinaturas no iPhone.
 
 Política de Privacidade: https://almaappoficial.github.io/alma.app.oficial/privacy-policy.html
 Termos de Uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
+Respire. Comece pequeno. Um dia de cada vez.
+
+Cuide da sua alma. 💛

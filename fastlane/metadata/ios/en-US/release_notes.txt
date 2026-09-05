@@ -1,5 +1,9 @@
-Welcome to Alma 1.0!
+This version improves the Body module:
 
-This is our first public release. Alma brings you guided meditations, breathing exercises, daily wellness articles, mood tracking and an AI companion — all designed to support your mental health journey.
+- You can describe your plate before scanning it, and the result comes back separated by food, with each part editable.
+- Liquids are now logged in milliliters.
+- A scan no longer discards the whole analysis when a label comes back different from what was expected.
+- Body fat percentage and somatotype only appear when they were actually estimated — the app no longer shows 0% in place of data nobody provided.
+- Fixes to the day rollover and to sleep readings.
 
-We are just getting started. More content, features and languages are coming soon.
+Thank you for using Alma. Take care of your soul. 💛

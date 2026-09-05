@@ -1,45 +1,80 @@
-Alma is your daily companion for mental wellness and personal growth. Built for those who want to feel better — not just perform better.
+Alma brings guided meditation, a place to log how you feel, and an AI companion together in a single app — at your own pace.
 
-Whether you are dealing with anxiety, trouble sleeping, lack of focus, or simply looking for a moment of calm in a busy day, Alma guides you with evidence-based practices and personalized content.
+"Take care of your soul" is the starting point: short breathing and mindfulness practices, so you can build a habit that fits your routine.
 
-WHAT ALMA OFFERS
+Note: Alma's spoken meditations and in-app content are in Brazilian Portuguese.
 
-Guided Meditations
-A curated library of guided meditations for anxiety, sleep, focus, relationships, self-esteem and more. From 3-minute breathing sessions to deep 30-minute practices.
+--------------------
 
-AI-Powered Wellness Chat
-Talk to Alma, your AI wellness companion. She listens without judgment, offers grounding techniques and helps you navigate difficult emotions in real time.
+FREE, NO SUBSCRIPTION
 
-Daily Reflections & Articles
-Science-backed articles and reflection cards written by mental health professionals. Topics include emotional regulation, habit formation, self-compassion and mindful living.
+- The first 3 days of the guided meditation program
+- The "Água Corrente" (Running Water) sound, to relax and focus
+- Corrente de Paz: keep track of your practice streak
+- Mood check-in: log how you feel, every day
+- Corpo (Body): log your meals, water, weight and supplements, and run the workouts from the catalog — your diary is yours, and it costs nothing
+- Feed: a selection of links and videos published by our team
 
-Mood & Habit Tracking
-Log your mood daily and track your wellness habits over time. Alma learns your patterns and adapts your content recommendations to what you actually need.
+--------------------
 
-Breathing Exercises
-Simple, effective breathing techniques for stress relief and nervous system regulation — available anytime, no experience required.
+WITH ALMA PREMIUM
 
-Personalized Feed
-Your daily wellness feed evolves with you. The more you use Alma, the better it understands what kind of support helps you most.
+Guided meditation
+The full program: 30 practices, 5 to 15 minutes each, organized into four stages — Breathing, Body Awareness, Emotions and Integration. Plus 7 more sounds and music tracks to relax, focus and sleep.
 
-WHO IS ALMA FOR
+Talk to your Alma
+The conversation remembers what you have already shared. Every message starts with context, not from scratch.
 
-Alma is designed for adults who want to take their mental health seriously — without clinical jargon or overwhelming complexity. It is especially helpful for:
+Your analyses
+Your mood trends across the weeks, your history, and the reflection of the day.
 
-- People managing everyday stress and anxiety
-- Those building a mindfulness or meditation habit
-- Anyone seeking better sleep and emotional balance
-- People in therapy who want a daily support tool between sessions
+Your health in the app
+Steps, sleep and heart rate read from the Health app, if you allow it.
+
+Women's Health and Liberdade
+Follow your cycle, with predictions for your period, ovulation and fertile window. And keep track of your days away from a habit you want to leave behind.
+
+--------------------
+
+THE BODY MODULE, INSIDE THE SAME APP
+
+Alma includes a complete body module — no separate app to download, no separate subscription.
+
+Free: log meals, water, weight and supplements; run the workouts from the catalog and see the detail of each exercise.
+
+With Premium: scan your meal or your body from a photo and get the reading right away; build your own workout; open the muscle map and a library of more than a thousand exercises; follow your history and your analyses.
+
+The photo is analyzed and is not stored by Alma. The AI provider may retain it for up to 30 days for safety purposes only, and does not use it to train models.
+
+--------------------
+
+PRIVACY FIRST
+
+Mood, cycle and habits are stored only on your device, in encrypted storage. This data is not written to our servers and is not sent to analytics or advertising tools.
+
+Alma does not track you across apps and does not use advertising identifiers.
+
+If you allow it, and only then, a short summary of your day travels with your conversation so Alma can understand you better. You can delete your account and your data from within the app.
+
+--------------------
+
+HEALTH NOTICE
+
+Alma is a wellness app. It is not a substitute for professional medical advice, diagnosis or treatment, and it does not treat any health condition. Always consult a qualified health professional about questions regarding your mental or physical health.
+
+--------------------
 
 SUBSCRIPTION
 
-Alma offers a free tier with access to core content. Premium subscribers unlock the full library, AI companion, advanced tracking and exclusive content.
+Alma Premium is an auto-renewing monthly subscription.
 
-- Alma Premium Monthly: auto-renewing monthly subscription
+- Alma Premium Monthly
 
-Payment will be charged to your iTunes account at confirmation of purchase. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Renewal is charged within 24 hours prior to the end of the current period. You can manage and cancel your subscription at any time in Settings > [your name] > Subscriptions on your iPhone.
+Payment will be charged to your Apple account at confirmation of purchase. The subscription renews automatically unless it is cancelled at least 24 hours before the end of the current period. Renewal is charged within 24 hours prior to the end of the current period. You can manage and cancel your subscription at any time in Settings > [your name] > Subscriptions on your iPhone.
 
 Privacy Policy: https://almaappoficial.github.io/alma.app.oficial/privacy-policy.html
 Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
-Your mental health matters. Let Alma be part of the journey.
+Breathe. Start small. One day at a time.
+
+Take care of your soul. 💛

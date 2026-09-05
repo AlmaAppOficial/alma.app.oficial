@@ -1,10 +1,9 @@
-Bem-vindo à Alma — a IA que aprende quem você é.
+Esta versão melhora o módulo Corpo:
 
-Esta versão traz:
-- Conversas com IA que constrói seu perfil ao longo do tempo
-- Insights sobre padrões da sua personalidade
-- Práticas selecionadas pelo seu momento atual
-- Acompanhamento de humor com contexto
-- Privacidade em primeiro lugar: sem rastreamento, sem dados saindo do seu controle
+- Você pode descrever o prato antes de escanear, e o resultado volta separado por alimento, com cada parte editável.
+- Líquidos passam a ser registrados em mililitros.
+- O scan não descarta mais a análise inteira quando um rótulo vem diferente do esperado.
+- Percentual de gordura e somatotipo só aparecem quando foram realmente estimados — o app não exibe mais 0% no lugar de um dado que ninguém informou.
+- Correções na virada do dia e na leitura de sono.
 
-Comece pela configuração e veja a Alma evoluir junto com você.
+Obrigado por usar o Alma. Cuide da sua alma. 💛
