@@ -450,11 +450,106 @@ export function blocoPratica(sessoes: SessaoDePratica[], hoje: Date): string {
  * O BLOCO DO USUÁRIO
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/** `1988-03-04` → `04/03/1988`. Entrada já validada por `lerDataDeNascimento`. */
+export function formatarDataBR(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * IDENTIDADE DE NASCIMENTO — EFÊMERA, MONTADA NO SERVIDOR A PARTIR DO APARELHO
+ *
+ * ── POR QUE NÃO VIRA CAMPO DO PERFIL ───────────────────────────────────────
+ * Hora e cidade de nascimento ficam em `UserDefaults` no aparelho e sobem SÓ
+ * dentro da requisição, como o `healthContext` já faz com corpo e dieta. Não
+ * são gravados no Firestore, não entram em `PerfilDoUsuario` e não passam pela
+ * `peneirarColheita`. Decisão do Assis em 2026-08-28, por três razões:
+ *
+ *  1. Cidade + hora exata identificam MUITO mais que uma data solta. Persistir
+ *     os dois no servidor cria um dado que hoje não existe.
+ *  2. Mantém verdadeira a declaração de "efêmero" já feita no formulário do
+ *     Google Play. Persistir obrigaria a mexer na declaração.
+ *  3. É o cano que a arquitetura já tem. Coerência sai de graça.
+ *
+ * ── POR QUE ESTRUTURADO, E NÃO TEXTO PRONTO ────────────────────────────────
+ * O `healthContext` sobe como texto porque é montado de sensor. A CIDADE é
+ * texto livre que a pessoa digita (`TextField("Cidade")`) — mesma superfície de
+ * injeção do `mainChallenge`. Então o aparelho manda CAMPOS e quem escreve a
+ * frase é o servidor: o slot é validado contra conjunto fechado e a cidade
+ * passa por `higienizarTexto` e teto de caracteres. Nada passa por não ter
+ * sido previsto.
+ *
+ * ── O GRAU DE CERTEZA VIAJA JUNTO ──────────────────────────────────────────
+ * O onboarding pergunta o PERÍODO DO DIA, não a hora. Então o bloco distingue
+ * três estados, e nunca finge precisão que não tem:
+ *   - hora exata (só quando a pessoa disser na conversa)  → "hora exata"
+ *   - período do dia                                      → "aproximada"
+ *   - nada, ou "Não sei"                                  → linha não existe
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Períodos que o onboarding do iOS oferece. Fora desta lista → descartado. */
+export const PERIODOS_DE_NASCIMENTO: Record<string, string> = {
+  'Madrugada (0h-6h)': 'madrugada (entre 0h e 6h)',
+  'Manhã (6h-12h)': 'manhã (entre 6h e 12h)',
+  'Tarde (12h-18h)': 'tarde (entre 12h e 18h)',
+  'Noite (18h-24h)': 'noite (entre 18h e 24h)',
+};
+
+export const MAX_CHARS_CIDADE = 60;
+
+export interface IdentidadeDeNascimento {
+  /** `"14:30"` — só quando a pessoa disser a hora exata. */
+  birthTime?: unknown;
+  /** Uma das chaves de `PERIODOS_DE_NASCIMENTO`. `"Não sei"` → ignorado. */
+  birthTimeSlot?: unknown;
+  birthCity?: unknown;
+  birthCountry?: unknown;
+}
+
+/**
+ * Monta o bloco de identidade de nascimento. Devolve `''` quando não há nada
+ * de útil — e aí nada é enviado, exatamente como nas versões antigas do app.
+ */
+export function blocoIdentidadeDeNascimento(entrada: unknown): string {
+  const e = comoRegistro(entrada) as IdentidadeDeNascimento;
+  const linhas: string[] = [];
+
+  // ── Hora, com o grau de certeza colado nela ──────────────────────────────
+  const horaExata = textoUtil(e.birthTime);
+  const slot = textoUtil(e.birthTimeSlot);
+  if (horaExata && /^([01]\d|2[0-3]):[0-5]\d$/.test(horaExata)) {
+    linhas.push(`Hora de nascimento: ${horaExata} (hora exata, informada pela pessoa)`);
+  } else if (slot && PERIODOS_DE_NASCIMENTO[slot]) {
+    linhas.push(
+      `Hora de nascimento: ${PERIODOS_DE_NASCIMENTO[slot]} — APROXIMADA. ` +
+      'A pessoa informou só o período do dia; a hora exata não é conhecida.',
+    );
+  }
+
+  // ── Local ────────────────────────────────────────────────────────────────
+  const cidade = textoUtil(e.birthCity);
+  const pais = textoUtil(e.birthCountry);
+  if (cidade) {
+    const limpo = higienizarTexto(cortar(cidade, MAX_CHARS_CIDADE)).replace(/[\r\n]+/g, ' ');
+    linhas.push(`Local de nascimento: ${pais ? `${limpo}, ${higienizarTexto(cortar(pais, MAX_CHARS_CIDADE)).replace(/[\r\n]+/g, ' ')}` : limpo}`);
+  }
+
+  if (linhas.length === 0) return '';
+  return `[Nascimento — detalhe]\n${linhas.join('\n')}`;
+}
+
 export function blocoPerfil(perfil: PerfilDoUsuario): string {
   const linhas: string[] = [];
   // `name` e `mainChallenge` são texto livre digitado pela pessoa — passam pela
   // higiene antes de encostar no prompt. Os outros são slugs de conjunto fechado.
   if (perfil.name)          linhas.push(`Nome: ${higienizarTexto(perfil.name)}`);
+  // [2026-08-28] A data de nascimento estava GRAVADA e NUNCA era exibida: o
+  // `blocoMapaInterno` a consumia para derivar signo, zodíaco e caminho de
+  // vida, mas o dado cru não aparecia em bloco nenhum. O §10 diz "MAPA INTERNO:
+  // só quando a data de nascimento estiver NO BLOCO" e "se o bloco TRAZ o dado,
+  // não pergunte de novo" — as duas regras liam um bloco que não trazia a data.
+  // Resultado medido: a Alma dizia, em produção, que os dados "não chegaram".
+  if (perfil.birthDate)     linhas.push(`Nascimento: ${formatarDataBR(perfil.birthDate)}`);
   if (perfil.intention)     linhas.push(`Por que veio: ${traduzir('intention', perfil.intention)}`);
   if (perfil.mainChallenge) linhas.push(`O que está pesando: ${higienizarTexto(perfil.mainChallenge)}`);
   if (perfil.relationship)  linhas.push(`Vida afetiva: ${traduzir('relationship', perfil.relationship)}`);
@@ -463,7 +558,13 @@ export function blocoPerfil(perfil: PerfilDoUsuario): string {
   if (perfil.spirituality)  linhas.push(`Espiritualidade: ${traduzir('spirituality', perfil.spirituality)}`);
   if (perfil.moodPattern)   linhas.push(`Padrão de humor: ${perfil.moodPattern}`);
   if (linhas.length === 0) return '';
-  return `[Quem é essa pessoa]\n${cortar(linhas.join('\n'), ORCAMENTO.perfil)}`;
+  // [2026-08-28] O rótulo era `[Quem é essa pessoa]`. O §10 do ALMA_SOUL_PROMPT
+  // manda não repetir pergunta cujo dado já esteja em `[Perfil do usuário]` —
+  // rótulo que NUNCA foi emitido por nada. A regra anti-repergunta apontava
+  // para um bloco inexistente, então nunca valeu: o modelo lia a regra, não
+  // achava o bloco citado, e perguntava de novo o que já sabia.
+  // Alinhado ao nome que o prompt usa. Se mudar aqui, mude lá (index.ts §10).
+  return `[Perfil do usuário]\n${cortar(linhas.join('\n'), ORCAMENTO.perfil)}`;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -577,6 +678,12 @@ export interface EntradaDoContexto {
   praticas: SessaoDePratica[];
   messageCount: number;
   hoje: Date;
+  /**
+   * Hora e local de nascimento, vindos da REQUISIÇÃO (nunca do banco). Ausente
+   * em cliente antigo, e aí o bloco simplesmente não existe. Ver
+   * `blocoIdentidadeDeNascimento`.
+   */
+  identidadeDeNascimento?: unknown;
 }
 
 /**
@@ -609,6 +716,10 @@ export function montarBlocoDoUsuario(e: EntradaDoContexto): { cabecalho: string;
   const resumo = e.resumo.trim();
   const partes = [
     blocoPerfil(e.perfil),
+    // Efêmero: vem na requisição, não do banco. Fica colado no perfil de
+    // propósito — é a mesma pergunta ("quem é essa pessoa"), só que a metade
+    // que nunca é gravada.
+    blocoIdentidadeDeNascimento(e.identidadeDeNascimento),
     blocoMapaInterno(e.perfil.birthDate, e.hoje),
     blocoRelacao(e.messageCount),
     blocoPratica(e.praticas, e.hoje),

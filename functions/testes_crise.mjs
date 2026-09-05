@@ -61,6 +61,10 @@ function montar(regiaoBruta, { comBloco = true } = {}) {
     'userProfile', 'conversationSummary', 'healthContext',
     'HEALTH_CONTEXT_GUARDRAILS', 'blocoDeCrise', 'recursoDeApoio', 'regiao',
     'blocoDoUsuario', 'coletaProgressiva',
+    // [2026-08-31] `secaoDaLente` entrou no index.ts (leitura de lente). Este
+    // teste roda SEM a seção — vazia, como para quem não tem data de nascimento
+    // — porque o que ele mede é a resposta a crise, e a lente sai de cena no §0.
+    'secaoDaLente',
   ];
   const usadas = new Set([...template.matchAll(/\$\{\s*([A-Za-z_$][\w$]*)/g)].map((m) => m[1]));
   const faltando = [...usadas].filter((v) => !FORNECIDAS.includes(v));
@@ -73,8 +77,8 @@ function montar(regiaoBruta, { comBloco = true } = {}) {
 
   const f = new Function(...FORNECIDAS, 'return `' + template + '`');
   //        userProfile, conversationSummary, healthContext, GUARDRAILS,
-  //        blocoDeCrise, recursoDeApoio, regiao, blocoDoUsuario, coletaProgressiva
-  return f('', '', '', '', bloco, recursoDeApoio, regiao, '', '');
+  //        blocoDeCrise, recursoDeApoio, regiao, blocoDoUsuario, coletaProgressiva, secaoDaLente
+  return f('', '', '', '', bloco, recursoDeApoio, regiao, '', '', '');
 }
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

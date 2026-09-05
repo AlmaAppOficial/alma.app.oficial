@@ -22,6 +22,7 @@ import {
   type PerfilDoUsuario,
   type SessaoDePratica,
 } from './contextoDoUsuario';
+import { secaoDeLeitura } from './leituraDeLente';
 
 admin.initializeApp();
 
@@ -399,8 +400,29 @@ export const chat = onRequest(
       return;
     }
 
-    const body = req.body as { message?: unknown; healthContext?: unknown; regiao?: unknown };
+    const body = req.body as {
+      message?: unknown;
+      healthContext?: unknown;
+      regiao?: unknown;
+      identidadeDeNascimento?: unknown;
+    };
     const message = body.message;
+
+    // [2026-08-28] Hora e local de nascimento, montados NO APARELHO e válidos
+    // só dentro desta requisição.
+    //
+    // ⚠️ NÃO É PERSISTIDO. Não vai para o Firestore, não entra em
+    // `PerfilDoUsuario`, não passa pela `peneirarColheita`, não vira evento e
+    // não entra em log. Mesmo cano do `healthContext` e da `regiao`, e pela
+    // mesma razão: cidade + hora exata identificam muito mais que a data
+    // sozinha, e a declaração de "efêmero" no formulário do Google Play só
+    // continua verdadeira enquanto isto não for gravado.
+    //
+    // Sobe ESTRUTURADO, não como texto pronto: a cidade é digitada pela pessoa,
+    // então quem escreve a frase é o servidor, depois de validar o período
+    // contra conjunto fechado e higienizar a cidade
+    // (`blocoIdentidadeDeNascimento`). Ausente em cliente antigo → bloco vazio.
+    const identidadeDeNascimento = body.identidadeDeNascimento;
 
     // [2026-08-22] Região do aparelho (`Locale`), só para escolher o recurso de
     // apoio em crise. Escolhida por ser a opção MENOS invasiva que funciona: o
@@ -647,8 +669,16 @@ export const chat = onRequest(
       praticas,
       messageCount,
       hoje,
+      identidadeDeNascimento,
     }));
     const coletaProgressiva = blocoColetaProgressiva(perfil, hoje);
+
+    // [2026-08-31] O PONTO DE INJEÇÃO da leitura de lente — o único patch que o
+    // módulo pede (ver `secaoDeLeitura` em `leituraDeLente.ts` e os dois
+    // harnesses, que injetam NESTE mesmo ponto): depois do bloco do usuário,
+    // antes do contexto de saúde. Sem data de nascimento devolve '' — quem não
+    // tem data não paga um token por regra sobre bloco que não existe.
+    const secaoDaLente = secaoDeLeitura(perfil.birthDate, identidadeDeNascimento, hoje);
 
     const ALMA_SOUL_PROMPT = `Você é a ALMA, a inteligência artificial do app "Alma: IA de Autoconhecimento".
 
@@ -940,8 +970,12 @@ depois de um momento de conexão real: "Cada pessoa carrega uma configuração
 completa?" Se perguntarem por quê: "Com ela consigo perceber padrões sobre o
 momento que você está vivendo."
 
-HORÁRIO E LOCAL, só depois da data, e sempre com a saída pronta: "Se não
-souber, tudo bem — já tenho muito com o que trabalhar."
+HORÁRIO E LOCAL: quando existem, vêm em [Nascimento — detalhe]. Leia antes de
+perguntar. A hora vem com o grau de certeza colado, e ele manda: "APROXIMADA" é
+só período do dia — nunca a converta em hora cheia nem fale como se soubesse o
+minuto. Linha ausente = você não sabe; não deduza. Só peça a hora exata dentro
+da conversa, quando fizer diferença real, com a saída pronta: "Se não souber,
+tudo bem — já tenho muito com o que trabalhar."
 
 MAPA INTERNO: só quando a data de nascimento estiver NO BLOCO. Aí você pode
 calcular internamente signo, zodíaco chinês e caminho de vida, e usar como
@@ -1009,7 +1043,7 @@ coisa que você faz, e ganha das outras seções quando houver conflito (menos d
 
 ═══════════════════════════════════════════════════════════════════════════
 
-${coletaProgressiva}${blocoDoUsuario ? blocoDoUsuario + '\n' : ''}${healthContext ? HEALTH_CONTEXT_GUARDRAILS + '\n' + healthContext + '\n' : ''}${blocoDeCrise(recursoDeApoio(regiao))}`;
+${coletaProgressiva}${blocoDoUsuario ? blocoDoUsuario + '\n' : ''}${secaoDaLente}${healthContext ? HEALTH_CONTEXT_GUARDRAILS + '\n' + healthContext + '\n' : ''}${blocoDeCrise(recursoDeApoio(regiao))}`;
 
     try {
       const completion = await openai.chat.completions.create({

@@ -19,6 +19,25 @@
                             { "fieldPath": "processada", "order": "ASCENDING" },
                             { "fieldPath": "recebidaEm", "order": "ASCENDING" }
                   ]
+          },
+          {
+                  "//": "[2026-08-13] Gêmeo do índice de reprocessarPendentes, do lado Google (googleApply.ts). A Google identifica a compra por purchaseToken, não por originalTransactionId — é a única diferença. Sem este índice, `validateAndroidPurchase` grava o entitlement, o claim sobe, e AÍ a consulta de pendentes estoura com FAILED_PRECONDITION: o servidor fica certo e o usuário vê erro no exato segundo em que acabou de pagar.",
+                  "collectionGroup": "google_notifications",
+                  "queryScope": "COLLECTION",
+                  "fields": [
+                            { "fieldPath": "purchaseToken", "order": "ASCENDING" },
+                            { "fieldPath": "processada", "order": "ASCENDING" },
+                            { "fieldPath": "recebidaEm", "order": "ASCENDING" }
+                  ]
+          },
+          {
+                  "//": "[2026-08-13] Gêmeo do índice de apurarPendencias, do lado Google. Mesmo alerta '[ALERTA-RECEITA]', mesma consequência de faltar: o alerta fica MUDO para o Android, que é o estado que ele existe para acabar.",
+                  "collectionGroup": "google_notifications",
+                  "queryScope": "COLLECTION",
+                  "fields": [
+                            { "fieldPath": "processada", "order": "ASCENDING" },
+                            { "fieldPath": "recebidaEm", "order": "ASCENDING" }
+                  ]
           }
     ],
     "fieldOverrides": []
