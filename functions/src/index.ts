@@ -1085,3 +1085,6 @@ export const notifyNewFeedPost = onDocumentCreated(
     );
   },
 );
+
+// ── Billing: validação server-side de compras Android (Google Play) ──
+export * from './billing';
