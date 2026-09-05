@@ -5,6 +5,9 @@
 set -u
 RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
 DESTINO="${1:-platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)}"
+DD_BASE="$HOME/Library/Developer/Xcode/DerivedData"
+DD="$DD_BASE/$(basename "$RAIZ")_watch_dd"
+mkdir -p "$DD"
 LOG="$RAIZ/_validacao_20260829_watch/build_watch.log"
 mkdir -p "$RAIZ/_validacao_20260829_watch"
 cd "$RAIZ"
@@ -13,6 +16,6 @@ nohup xcodebuild \
     -scheme "Alma Watch App" \
     -configuration Debug \
     -destination "$DESTINO" \
-    -derivedDataPath build_watch_dd \
+    -derivedDataPath "$DD" \
     build > "$LOG" 2>&1 &
 echo "PID $! — log em $LOG"
