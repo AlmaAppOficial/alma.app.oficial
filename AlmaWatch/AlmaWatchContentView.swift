@@ -3,7 +3,7 @@
 //
 // Estrutura (HIG "Designing for watchOS": hierarquia rasa, uma coisa por
 // tela, Digital Crown como navegação vertical):
-//   Hoje → Água → Humor → Respirar → Treino → Meditações
+//   Hoje → Água → Humor → Respirar → Treino → Jejum → Meditações
 //
 // As telas vivem em arquivos próprios (TodayView, WaterView, MoodView,
 // BreatheView, WorkoutView, MeditationsWatchView). A versão 1 deste arquivo
@@ -13,7 +13,7 @@
 import SwiftUI
 
 enum PaginaWatch: Int, Hashable {
-    case hoje = 0, agua, humor, respirar, treino, meditacoes
+    case hoje = 0, agua, humor, respirar, treino, jejum, meditacoes
 }
 
 struct AlmaWatchContentView: View {
@@ -25,6 +25,7 @@ struct AlmaWatchContentView: View {
         case "humor": return .humor
         case "respirar": return .respirar
         case "treino": return .treino
+        case "jejum": return .jejum
         case "meditacoes": return .meditacoes
         default: return .hoje
         }
@@ -38,6 +39,7 @@ struct AlmaWatchContentView: View {
                 MoodView().tag(PaginaWatch.humor)
                 BreatheView().tag(PaginaWatch.respirar)
                 WorkoutView().tag(PaginaWatch.treino)
+                JejumWatchView().tag(PaginaWatch.jejum)
                 MeditationsWatchView().tag(PaginaWatch.meditacoes)
             }
             .tabViewStyle(.verticalPage)
@@ -51,6 +53,7 @@ struct AlmaWatchContentView: View {
             case "humor": pagina = .humor
             case "respirar": pagina = .respirar
             case "treino": pagina = .treino
+            case "jejum": pagina = .jejum
             case "meditacoes": pagina = .meditacoes
             default: break
             }

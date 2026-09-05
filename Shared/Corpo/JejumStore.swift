@@ -307,6 +307,15 @@ final class JejumStore: ObservableObject {
     /// os avisos de janela. Mesma divisão do Android, onde a notificação
     /// persistente é publicada independentemente de `avisosLigados`.
     func sincronizarCronometroDaTelaBloqueada() async {
+        // [29/08] Segundo consumidor do mesmo gatilho: o Apple Watch. As quatro
+        // transições e a volta ao primeiro plano já passam por aqui — publicar o
+        // contexto neste ponto dá ao relógio a mesma lista de gatilhos da tela
+        // bloqueada, sem estado novo. ANTES do #available de propósito: o
+        // relógio não depende do ActivityKit, e um iPhone no iOS 16.0 sem
+        // atividade ao vivo continua tendo de atualizar o pulso.
+        #if os(iOS)
+        WatchBridge.shared.publicarContexto()
+        #endif
         guard #available(iOS 16.2, *) else { return }
         await AtividadeAoVivoDoJejum.sincronizar(com: emCurso)
     }

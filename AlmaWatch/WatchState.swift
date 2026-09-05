@@ -28,6 +28,9 @@ enum WatchGroupKeys {
     static let meditacoes = "watch_meditacoes_json"
     static let atualizadoEm = "watch_atualizado_em"
     static let praticouDia = "watch_praticou_dia"
+
+    // Jejum: as chaves moram em `JejumNoPulso` — arquivo compilado também pela
+    // complicação, para a regra de validade não existir em dois lugares.
 }
 
 struct MeditacaoDoCatalogo: Codable, Identifiable, Hashable {
@@ -50,6 +53,10 @@ struct EstadoDoDia: Codable, Equatable {
     var nome: String = ""
     var meditacoes: [MeditacaoDoCatalogo] = []
     var atualizadoEm: Date? = nil
+    /// O jejum em curso, como o iPhone o publicou. `nil` = janela alimentar.
+    /// Fora do portão do dia de propósito: um 16/8 atravessa a meia-noite
+    /// por definição — zerá-lo na virada apagaria um jejum vivo.
+    var jejum: JejumNoPulso.Estado? = nil
 
     static func chaveDia(_ data: Date = Date()) -> String {
         let f = DateFormatter()
@@ -83,6 +90,7 @@ enum WatchGroupStore {
         if let data = try? JSONEncoder().encode(e.meditacoes) {
             d.set(data, forKey: WatchGroupKeys.meditacoes)
         }
+        JejumNoPulso.salvar(e.jejum, em: d)
     }
 
     /// Lê o estado, zerando o que não é de hoje.
@@ -107,6 +115,7 @@ enum WatchGroupStore {
            let lista = try? JSONDecoder().decode([MeditacaoDoCatalogo].self, from: data) {
             e.meditacoes = lista
         }
+        e.jejum = JejumNoPulso.carregar(de: d)
         return e
     }
 }

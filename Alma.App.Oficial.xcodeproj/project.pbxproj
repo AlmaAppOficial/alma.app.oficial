@@ -75,6 +75,9 @@
 		A11AWB110000000000000000 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF110000000000000000 /* WorkoutView.swift */; };
 		A11AWB120000000000000000 /* MeditationsWatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF120000000000000000 /* MeditationsWatchView.swift */; };
 		A11AWB130000000000000000 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF130000000000000000 /* NotificationController.swift */; };
+		A11AWB140000000000000000 /* JejumWatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF140000000000000000 /* JejumWatchView.swift */; };
+		A11AWB150000000000000000 /* JejumNoPulso.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF150000000000000000 /* JejumNoPulso.swift */; };
+		A11AWB160000000000000000 /* JejumNoPulso.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF150000000000000000 /* JejumNoPulso.swift */; };
 		A11AWB99000000000000000B /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11AWF99000000000000000F /* WatchBridge.swift */; };
 		AA002001AA002001AA002001 /* AlmaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001001AA001001AA001001 /* AlmaWatchApp.swift */; };
 		AA002002AA002002AA002002 /* AlmaWatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001002AA001002AA001002 /* AlmaWatchContentView.swift */; };
@@ -385,6 +388,8 @@
 		A11AWF090000000000000000 /* MoodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoodView.swift; sourceTree = "<group>"; };
 		A11AWF100000000000000000 /* BreatheView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreatheView.swift; sourceTree = "<group>"; };
 		A11AWF110000000000000000 /* WorkoutView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
+		A11AWF140000000000000000 /* JejumWatchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JejumWatchView.swift; sourceTree = "<group>"; };
+		A11AWF150000000000000000 /* JejumNoPulso.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JejumNoPulso.swift; sourceTree = "<group>"; };
 		A11AWF120000000000000000 /* MeditationsWatchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeditationsWatchView.swift; sourceTree = "<group>"; };
 		A11AWF130000000000000000 /* NotificationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
 		A11AWF99000000000000000F /* WatchBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchBridge.swift; sourceTree = "<group>"; };
@@ -835,6 +840,8 @@
 				A11AWF110000000000000000 /* WorkoutView.swift */,
 				A11AWF120000000000000000 /* MeditationsWatchView.swift */,
 				A11AWF130000000000000000 /* NotificationController.swift */,
+				A11AWF140000000000000000 /* JejumWatchView.swift */,
+				A11AWF150000000000000000 /* JejumNoPulso.swift */,
 			);
 			path = AlmaWatch;
 			sourceTree = "<group>";
@@ -1416,6 +1423,8 @@
 				A11AWB110000000000000000 /* WorkoutView.swift in Sources */,
 				A11AWB120000000000000000 /* MeditationsWatchView.swift in Sources */,
 				A11AWB130000000000000000 /* NotificationController.swift in Sources */,
+				A11AWB140000000000000000 /* JejumWatchView.swift in Sources */,
+				A11AWB150000000000000000 /* JejumNoPulso.swift in Sources */,
 				E26731622FE19F930003BE9F /* Assets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1424,6 +1433,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11AWB160000000000000000 /* JejumNoPulso.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
