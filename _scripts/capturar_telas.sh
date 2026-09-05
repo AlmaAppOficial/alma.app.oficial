@@ -6,7 +6,7 @@
 # de navegação, toque ou diálogo do sistema. Instalação limpa + perfil semeado
 # para as telas terem conteúdo.
 set -u
-DEV=FB0A3E45-AE25-4F33-A506-5DCBAB0853E7
+DEV=64B214AD-5854-4F5A-ADCA-A1A936358170
 APP=/tmp/alma_dd/Build/Products/Debug-iphonesimulator/Alma.App.Oficial.app
 BUNDLE=com.almaapp.app
 OUT=/Users/almaappoficial/Desktop/ALMA/alma.app.oficial-main/_validacao_20260804/telas

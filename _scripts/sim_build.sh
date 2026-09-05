@@ -5,7 +5,7 @@ cd /Users/almaappoficial/Desktop/ALMA/alma.app.oficial-main || exit 1
 LOG="${1:-/tmp/alma_sim_build.log}"
 xcodebuild -project Alma.App.Oficial.xcodeproj \
   -scheme "Alma.App.Oficial (iOS)" \
-  -destination "platform=iOS Simulator,id=FB0A3E45-AE25-4F33-A506-5DCBAB0853E7" \
+  -destination "platform=iOS Simulator,id=64B214AD-5854-4F5A-ADCA-A1A936358170" \
   -derivedDataPath /tmp/alma_dd \
   build > "$LOG" 2>&1
 echo "BUILD_EXIT:$?"

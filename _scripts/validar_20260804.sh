@@ -10,7 +10,7 @@
 # sequência de prática) — o dump marca cada uma com [semeado]. Ver o cabeçalho
 # de SementeDeSaude em DebugContextDump.swift para o que isso prova e o que não.
 set -u
-DEV=FB0A3E45-AE25-4F33-A506-5DCBAB0853E7
+DEV=64B214AD-5854-4F5A-ADCA-A1A936358170
 APP=/tmp/alma_dd/Build/Products/Debug-iphonesimulator/Alma.App.Oficial.app
 BUNDLE=com.almaapp.app
 OUT=/Users/almaappoficial/Desktop/ALMA/alma.app.oficial-main/_validacao_20260804

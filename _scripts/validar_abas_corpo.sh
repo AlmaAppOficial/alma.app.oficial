@@ -2,7 +2,7 @@
 # Valida as 5 abas do módulo Corpo sem automação de toque:
 # abre o app direto em cada aba, confirma que o processo sobrevive e captura tela.
 set -u
-D=FB0A3E45-AE25-4F33-A506-5DCBAB0853E7
+D=64B214AD-5854-4F5A-ADCA-A1A936358170
 APP=/tmp/alma_dd/Build/Products/Debug-iphonesimulator/Alma.App.Oficial.app
 EVID=/Users/almaappoficial/Desktop/ALMA/evidencias_fusao
 NOMES=("inicio" "saude" "dieta" "treino" "insights")
