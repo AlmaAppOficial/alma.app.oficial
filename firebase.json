@@ -8,7 +8,10 @@
   ],
   "firestore": {
     "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
+    "indexes": "firestore.indexes.json",
+    "predeploy": [
+      "node \"$PROJECT_DIR/_scripts/regras_sincronizar.mjs\" --check"
+    ]
   },
   "hosting": {
     "public": "dist",
