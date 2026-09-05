@@ -15,7 +15,7 @@ cd "$HOME/Desktop/ALMA/alma.app.oficial-main" || exit 3
 ORIG=$(mktemp -d)
 cp Shared/Corpo/UnidadeDeMedida.swift Shared/Corpo/Refeicao.swift \
    Shared/Corpo/Jejum.swift Shared/Corpo/JejumConteudo.swift \
-   Shared/Corpo/QuebraDeJejum.swift "$ORIG/"
+   Shared/Corpo/QuebraDeJejum.swift Shared/Corpo/JejumAoVivo.swift "$ORIG/"
 cp _scripts/testes_jejum.swift "$ORIG/main.swift"
 
 verdes=0; vermelhas=0; furos=(); naocompilou=(); naoaplicou=()
@@ -38,7 +38,7 @@ roda() {          # $1 = descrição
   local saida
   if ! saida=$(xcrun swiftc -O "$T/UnidadeDeMedida.swift" "$T/Refeicao.swift" \
         "$T/Jejum.swift" "$T/JejumConteudo.swift" "$T/QuebraDeJejum.swift" \
-        "$T/main.swift" -o "$T/t" 2>&1); then
+        "$T/JejumAoVivo.swift" "$T/main.swift" -o "$T/t" 2>&1); then
     echo "  ⚠ NÃO COMPILOU — $1"
     naocompilou+=("$1")
     rm -rf "$T"; return
@@ -77,7 +77,7 @@ echo "── base (tem de estar verde) ──"
 MUT=$(mktemp -d)
 if xcrun swiftc -O "$ORIG"/UnidadeDeMedida.swift "$ORIG"/Refeicao.swift \
      "$ORIG"/Jejum.swift "$ORIG"/JejumConteudo.swift "$ORIG"/QuebraDeJejum.swift \
-     "$ORIG"/main.swift -o /tmp/jejum_base 2>/dev/null && /tmp/jejum_base > /dev/null 2>&1; then
+     "$ORIG"/JejumAoVivo.swift "$ORIG"/main.swift -o /tmp/jejum_base 2>/dev/null && /tmp/jejum_base > /dev/null 2>&1; then
   echo "  ✓ base verde"
 else
   echo "  ✗✗ A BASE ESTÁ VERMELHA. Nenhuma mutação abaixo significa nada."
@@ -207,6 +207,39 @@ mutar JejumConteudo.swift \
 roda "afirmação de saúde sem URL"
 
 echo
+echo '── M16 · a âncora da tela bloqueada vira "inicio" (a pausa some) ──'
+#
+# [28/08] O defeito mais provável do cronômetro da tela bloqueada, e o mais
+# difícil de ver a olho nu: `inicio` é reescrito a cada retomada, então ancorar
+# nele mostra só o trecho depois da última pausa. Quem pausou um minuto depois
+# de doze horas veria "0 min" na tela bloqueada e "12 h" dentro do app.
+mutar JejumAoVivo.swift \
+  'let base = agora.addingTimeInterval(-decorrido)' \
+  'let base = jejum.inicio ?? jejum.comecouEm'
+roda "âncora do contador ignora a pausa"
+
+echo
+echo "── M17 · a meta passa a ser medida de agora, não da âncora ──"
+#
+# Compila e parece inofensivo, mas a barra de progresso passaria a começar do
+# zero a cada atualização: a distância entre âncora e meta viraria a duração
+# inteira do jejum somada ao que já correu.
+mutar JejumAoVivo.swift \
+  'metaEm: base.addingTimeInterval(jejum.protocolo.duracaoDoJejum),' \
+  'metaEm: agora.addingTimeInterval(jejum.protocolo.duracaoDoJejum),'
+roda "meta medida de agora em vez da âncora"
+
+echo
+echo "── M18 · o contador deixa de congelar na pausa ──"
+#
+# Sem `pauseTime`, o `Text(timerInterval:)` do widget continua correndo com o
+# jejum parado — a tela bloqueada passaria a contar tempo que não é jejum.
+mutar JejumAoVivo.swift \
+  'pausadoEm: jejum.estaPausado ? agora : nil,' \
+  'pausadoEm: nil,'
+roda "contador não congela com o jejum pausado"
+
+echo
 echo "══════════════════════════════════════════════"
 echo "  $vermelhas vermelhas · ${#furos[@]} furos · ${#naocompilou[@]} não compilaram · ${#naoaplicou[@]} não aplicadas"
 if [ ${#furos[@]} -gt 0 ]; then
@@ -226,6 +259,10 @@ echo "  O QUE ESTE SCRIPT NÃO EXECUTA, declarado:"
 echo "    · nenhuma View — nada aqui viu uma tela;"
 echo "    · JejumStore (UserDefaults e UNUserNotificationCenter só existem no"
 echo "      aparelho) — persistência e agendamento não são exercitados;"
+echo "    · o ActivityKit (o bloco #if de JejumAoVivo.swift não existe no Mac)"
+echo "      — pedir, atualizar e encerrar a atividade ao vivo só se conferem no"
+echo "      simulador, por captura de tela. O que roda aqui é só a DECISÃO de"
+echo "      quais datas mandar para ela;"
 echo "    · o toque na notificação e a troca de aba (exige XCUITest, que este"
 echo "      projeto não tem — ver CLAUDE.md)."
 echo "══════════════════════════════════════════════"

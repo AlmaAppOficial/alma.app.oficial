@@ -91,6 +91,57 @@ confere(jejum.progresso(agora: t0.addingTimeInterval(20 * 3600)) > 1,
         "o progresso passa de 1 quando a pessoa segue além da meta",
         "\(jejum.progresso(agora: t0.addingTimeInterval(20 * 3600)))")
 
+// ═══ T1b · O CRONÔMETRO DA TELA BLOQUEADA [28/08] ═══
+//
+// `estadoAoVivo` traduz o jejum para as datas que o iOS usa para desenhar o
+// contador na tela bloqueada. É a única regra da funcionalidade nova que dá
+// para exercitar sem simulador — o resto é encanamento com o ActivityKit.
+//
+// ── POR QUE O CENÁRIO TEM UMA PAUSA NO MEIO ─────────────────────────────────
+// Regra 1.1 do CLAUDE.md: valor de teste igual ao valor ingênuo é asserção cega
+// por construção. SEM pausa, `agora − decorrido` dá exatamente `jejum.inicio`,
+// e a asserção passaria nos dois mundos — com a âncora certa e com a errada.
+// É só DEPOIS de uma pausa que os dois divergem, e é por isso que o cenário
+// abaixo pausa e retoma antes de medir.
+print("\n═══ T1b · CRONÔMETRO NA TELA BLOQUEADA ═══")
+
+// 2 h correndo · 1 h pausado · retoma em t+3h · mede em t+4h → decorrido = 3 h.
+let agoraAoVivo = t0.addingTimeInterval(4 * 3600)
+let aoVivo = estadoAoVivo(de: retomado, agora: agoraAoVivo)
+
+confere(agoraAoVivo.timeIntervalSince(aoVivo.baseDoCronometro) == 3 * 3600,
+        "a âncora faz o contador mostrar o decorrido REAL (3 h, não 1 h)",
+        "\(agoraAoVivo.timeIntervalSince(aoVivo.baseDoCronometro) / 3600) h")
+
+// A asserção que separa a âncora certa da ingênua. `retomado.inicio` é t+3h;
+// a âncora tem de ser t+1h. Se alguém trocar por `jejum.inicio`, isto fica
+// vermelho — é a mutação M16.
+confere(aoVivo.baseDoCronometro != retomado.inicio,
+        "a âncora NÃO é `inicio` (senão a pausa some da tela bloqueada)",
+        "base=\(aoVivo.baseDoCronometro) inicio=\(String(describing: retomado.inicio))")
+
+confere(aoVivo.metaEm.timeIntervalSince(aoVivo.baseDoCronometro)
+            == retomado.protocolo.duracaoDoJejum,
+        "a meta é medida da âncora, não de agora (a barra enche certo)",
+        "\(aoVivo.metaEm.timeIntervalSince(aoVivo.baseDoCronometro) / 3600) h")
+
+// Correndo: nada de congelar o contador.
+confere(aoVivo.pausadoEm == nil, "correndo, o contador não é congelado")
+confere(!aoVivo.atingiuAMeta, "3 h de 16/8 ainda não atingiu a meta")
+
+// Pausado: o contador PRECISA congelar, senão a tela bloqueada segue contando
+// um jejum que está parado — e passa a mentir.
+let aoVivoPausado = estadoAoVivo(de: pausado, agora: t0.addingTimeInterval(10 * 3600))
+confere(aoVivoPausado.pausadoEm != nil, "pausado, o contador é congelado")
+confere(aoVivoPausado.pausadoEm.map {
+            $0.timeIntervalSince(aoVivoPausado.baseDoCronometro) } == 2 * 3600,
+        "congelado nas 2 h que tinham corrido, e não nas 10 h de relógio",
+        "\(String(describing: aoVivoPausado.pausadoEm.map { $0.timeIntervalSince(aoVivoPausado.baseDoCronometro) / 3600 })) h")
+
+// Passada a meta, o estado diz que passou — é o que troca o texto da tela.
+let aoVivoAlem = estadoAoVivo(de: jejum, agora: t0.addingTimeInterval(17 * 3600))
+confere(aoVivoAlem.atingiuAMeta, "17 h de 16/8 atingiu a meta")
+
 print("\n═══ T2 · O TETO (anti-escalada) ═══")
 
 let maior = ProtocoloDeJejum.allCases.map(\.horasDeJejum).max() ?? 0

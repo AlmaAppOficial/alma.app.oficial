@@ -5,6 +5,13 @@
 # `import SwiftUI` a qualquer um deles, este script para de compilar — e é essa
 # a intenção: é o que mantém o domínio exercitável.
 #
+# [28/08] `JejumAoVivo.swift` entrou na lista. Ele TEM um `import ActivityKit`,
+# mas dentro de `#if canImport(ActivityKit) && os(iOS)` — no Mac esse bloco não
+# existe, e o que sobra é a função pura `estadoAoVivo`, que é justamente a
+# decisão que o cronômetro da tela bloqueada precisa acertar. O encanamento com
+# o ActivityKit fica fora do alcance daqui, e isso está declarado no rodapé do
+# `mutacao_jejum.sh`.
+#
 # Por que o `cp` para `main.swift`: o Swift só aceita expressões no topo do
 # arquivo se ele se chamar `main.swift`. O arquivo fica no repositório com nome
 # descritivo e é copiado na hora — mesma solução do `rodar_teste_fisiologia.sh`,
@@ -24,6 +31,7 @@ if ! xcrun swiftc -O \
       Shared/Corpo/Jejum.swift \
       Shared/Corpo/JejumConteudo.swift \
       Shared/Corpo/QuebraDeJejum.swift \
+      Shared/Corpo/JejumAoVivo.swift \
       "$TMP/main.swift" -o "$TMP/t" 2>"$TMP/erros"; then
     echo "✗✗ NÃO COMPILOU — nenhuma asserção rodou. Isto NÃO é um teste"
     echo "   vermelho, é a AUSÊNCIA de teste. Erros:"
